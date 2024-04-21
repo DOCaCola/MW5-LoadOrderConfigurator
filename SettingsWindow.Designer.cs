@@ -100,7 +100,8 @@
             // 
             // buttonSave
             // 
-            buttonSave.Location = new System.Drawing.Point(12, 246);
+            buttonSave.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            buttonSave.Location = new System.Drawing.Point(12, 114);
             buttonSave.Name = "buttonSave";
             buttonSave.Size = new System.Drawing.Size(75, 23);
             buttonSave.TabIndex = 4;
@@ -110,7 +111,8 @@
             // 
             // button1
             // 
-            button1.Location = new System.Drawing.Point(93, 246);
+            button1.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            button1.Location = new System.Drawing.Point(93, 114);
             button1.Name = "button1";
             button1.Size = new System.Drawing.Size(75, 23);
             button1.TabIndex = 5;
@@ -121,12 +123,15 @@
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(653, 281);
+            ClientSize = new System.Drawing.Size(653, 149);
             Controls.Add(button1);
             Controls.Add(buttonSave);
             Controls.Add(groupBox1);
             FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
+            MinimizeBox = false;
             Name = "SettingsWindow";
+            ShowIcon = false;
             Text = "Settings";
             Load += SettingsWindow_Load;
             groupBox1.ResumeLayout(false);

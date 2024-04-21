@@ -69,11 +69,10 @@ namespace MW5_Mod_Manager
             this.logic = new MainLogic();
             if (logic.TryLoadProgramData())
             {
-                this.textBox1.Text = logic.BasePath[0];
                 LoadAndFill(false);
             }
             this.LoadPresets();
-            this.SetVersionAndVendor();
+            this.SetVersionAndPlatform();
 
             SetupRotatingLabel();
         }
@@ -423,8 +422,10 @@ namespace MW5_Mod_Manager
         }
 
         //For processing internals and updating ui after setting a vendor
-        private void SetVersionAndVendor()
+        private void SetVersionAndPlatform()
         {
+            bool isSteam = false;
+
             if (this.logic.Version > 0f)
             {
                 toolStripStatusLabelMwVersion.Text = @"~RJ v." + this.logic.Version.ToString();
@@ -433,45 +434,34 @@ namespace MW5_Mod_Manager
             {
                 if (this.logic.Platform == "EPIC")
                 {
-                    this.toolStripVendorLabel.Text = "Game Vendor : Epic Store";
+                    this.toolStripVendorLabel.Text = "Platform: Epic Store";
                     this.button4.Enabled = true;
                     button5.Enabled = true;
-
-                    this.textBox3.Visible = false;
-                    this.textBox1.Size = new Size(506, 20);
                 }
                 else if (this.logic.Platform == "WINDOWS")
                 {
-                    this.toolStripVendorLabel.Text = "Game Vendor : Windows Store";
+                    this.toolStripVendorLabel.Text = "Platform: Windows Store";
                     this.button4.Enabled = false;
                     button5.Enabled = true;
-
-                    this.textBox3.Visible = false;
-                    this.textBox1.Size = new Size(506, 20);
-
                 }
                 else if (this.logic.Platform == "STEAM")
                 {
-                    this.toolStripVendorLabel.Text = "Game Vendor : Steam";
+                    this.toolStripVendorLabel.Text = "Platform: Steam";
                     button5.Enabled = false;
                     this.button4.Enabled = true;
 
-                    this.textBox3.Visible = true;
-                    this.textBox1.Size = new Size(250, 20);
-                    this.textBox3.Text = logic.BasePath[1];
+                    isSteam = true;
 
                 }
                 else if (this.logic.Platform == "GOG")
                 {
-                    this.toolStripVendorLabel.Text = "Game Vendor : GOG";
+                    this.toolStripVendorLabel.Text = "Platform: GOG";
                     this.button4.Enabled = true;
                     button5.Enabled = true;
-
-                    this.textBox3.Visible = false;
-                    this.textBox1.Size = new Size(506, 20);
                 }
             }
-            ScrollFolderTextBoxToRight();
+
+            toolStripMenuItemOpenModFolderSteam.Visible = isSteam;
         }
 
         //Load mod data and fill in the list box..
@@ -566,16 +556,17 @@ namespace MW5_Mod_Manager
             logic.InstallPath = path;
             logic.BasePath[0] = path + @"\MW5Mercs\Mods";
 
-            //We need to do something different for steam cause its special.
-            //Once a switch now an iff.
+            bool isSteam = false;
+
             switch (this.logic.Platform)
             {
                 case "STEAM":
                     SetSteamWorkshopPath();
+                    isSteam = true;
                     break;
-                    //case "GAMEPASS":
-                    //    SetGamepassPath();
-                    //    break;
+                //case "GAMEPASS":
+                //    SetGamepassPath();
+                //    break;
 
                 case "WINDOWS":
                     string AppDataRoaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -584,22 +575,10 @@ namespace MW5_Mod_Manager
                     this.logic.CheckModsDir();
                     break;
             }
-            MainForm.textBox1.Text = logic.BasePath[0];
-            MainForm.textBox3.Text = logic.BasePath[1];
+
+            MainForm.toolStripMenuItemOpenModFolderSteam.Visible = isSteam;
 
             LoadAndFill(false);
-
-            ScrollFolderTextBoxToRight();
-        }
-
-        public void ScrollFolderTextBoxToRight()
-        {
-            textBox1.SelectionStart = textBox1.Text.Length;
-            textBox1.ScrollToCaret();
-            textBox1.Focus();
-            textBox3.SelectionStart = textBox1.Text.Length;
-            textBox3.ScrollToCaret();
-            textBox3.Focus();
         }
 
         public void SetSteamWorkshopPath()
@@ -608,7 +587,7 @@ namespace MW5_Mod_Manager
             List<string> splitBasePath = this.logic.BasePath[0].Split('\\').ToList<string>();
 
             //Find the steamapps folder
-            int steamAppsIndex = splitBasePath.FindIndex(x => x.Equals("steamapps",StringComparison.OrdinalIgnoreCase));
+            int steamAppsIndex = splitBasePath.FindIndex(x => x.Equals("steamapps", StringComparison.OrdinalIgnoreCase));
 
             //Remove all past the steamapps folder
             splitBasePath.RemoveRange(steamAppsIndex + 1, splitBasePath.Count - steamAppsIndex - 1);
@@ -1237,11 +1216,11 @@ namespace MW5_Mod_Manager
 
         private void backgroundWorker2_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            MainForm.textBox1.Invoke((MethodInvoker)delegate
+            /*MainForm.textBox1.Invoke((MethodInvoker)delegate
             {
                 // Running on the UI thread
                 MainForm.WaitForm.textProgressBar1.Value = e.ProgressPercentage;
-            });
+            });*/
         }
         #endregion
 
@@ -1451,11 +1430,12 @@ namespace MW5_Mod_Manager
             }
             try
             {
-                Process.Start(this.logic.BasePath[0]);
-                if (!Utils.StringNullEmptyOrWhiteSpace(this.logic.BasePath[1]))
+                var psi = new System.Diagnostics.ProcessStartInfo()
                 {
-                    Process.Start(this.logic.BasePath[1]);
-                }
+                    FileName = this.logic.BasePath[0],
+                    UseShellExecute = true
+                };
+                System.Diagnostics.Process.Start(psi);
             }
             catch (Win32Exception win32Exception)
             {
@@ -1520,7 +1500,13 @@ namespace MW5_Mod_Manager
         private void openFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string path = (string)modsListView.SelectedItems[0].Tag;
-            Process.Start(path);
+
+            var psi = new System.Diagnostics.ProcessStartInfo()
+            {
+                FileName = path,
+                UseShellExecute = true
+            };
+            System.Diagnostics.Process.Start(psi);
         }
 
         private void linkLabelModAuthorUrl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -1556,6 +1542,32 @@ namespace MW5_Mod_Manager
 
             settingsDialog.ShowDialog(this);
             settingsDialog.Dispose();
+        }
+
+        private void toolStripMenuItemOpenModFolderSteam_Click(object sender, EventArgs e)
+        {
+            if (Utils.StringNullEmptyOrWhiteSpace(this.logic.BasePath[1]))
+            {
+                return;
+            }
+            try
+            {
+                var psi = new System.Diagnostics.ProcessStartInfo()
+                {
+                    FileName = this.logic.BasePath[1],
+                    UseShellExecute = true
+                };
+                System.Diagnostics.Process.Start(psi);
+            }
+            catch (Win32Exception win32Exception)
+            {
+                Console.WriteLine(win32Exception.Message);
+                Console.WriteLine(win32Exception.StackTrace);
+                string message = "While trying to open the mods folder, windows has encountered an error. Your folder does not exist, is not valid or was not set.";
+                string caption = "Error Opening Mods Folder";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, caption, buttons);
+            }
         }
     }
 }

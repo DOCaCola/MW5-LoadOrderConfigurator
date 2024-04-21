@@ -47,7 +47,6 @@ namespace MW5_Mod_Manager
             version = new ColumnHeader();
             dependencies = new ColumnHeader();
             button4 = new Button();
-            label2 = new Label();
             label3 = new Label();
             filterBox = new TextBox();
             checkBox1 = new CheckBox();
@@ -95,9 +94,11 @@ namespace MW5_Mod_Manager
             toolStripSeparator1 = new ToolStripSeparator();
             exitToolStripMenuItem = new ToolStripMenuItem();
             modsToolStripMenuItem = new ToolStripMenuItem();
-            openModsFolderToolStripMenuItem = new ToolStripMenuItem();
             enableAllModsToolStripMenuItem = new ToolStripMenuItem();
             disableAllModsToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator3 = new ToolStripSeparator();
+            openModsFolderToolStripMenuItem = new ToolStripMenuItem();
+            toolStripMenuItemOpenModFolderSteam = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
             statusStrip1 = new StatusStrip();
@@ -105,8 +106,6 @@ namespace MW5_Mod_Manager
             rotatingLabel1 = new RotatingLabel();
             contextMenuStripMod = new ContextMenuStrip(components);
             openFolderToolStripMenuItem = new ToolStripMenuItem();
-            textBox1 = new TextBox();
-            textBox3 = new TextBox();
             tabControl1.SuspendLayout();
             tabPage3.SuspendLayout();
             tabPageModInfo.SuspendLayout();
@@ -157,7 +156,7 @@ namespace MW5_Mod_Manager
             // 
             button6.Location = new System.Drawing.Point(13, 46);
             button6.Name = "button6";
-            button6.Size = new System.Drawing.Size(128, 38);
+            button6.Size = new System.Drawing.Size(70, 38);
             button6.TabIndex = 7;
             button6.Text = "Refresh";
             button6.UseVisualStyleBackColor = true;
@@ -177,11 +176,11 @@ namespace MW5_Mod_Manager
             modsListView.FullRowSelect = true;
             modsListView.GridLines = true;
             modsListView.LabelWrap = false;
-            modsListView.Location = new System.Drawing.Point(124, 90);
+            modsListView.Location = new System.Drawing.Point(124, 61);
             modsListView.MultiSelect = false;
             modsListView.Name = "modsListView";
             modsListView.RightToLeft = RightToLeft.No;
-            modsListView.Size = new System.Drawing.Size(708, 464);
+            modsListView.Size = new System.Drawing.Size(708, 493);
             modsListView.TabIndex = 11;
             modsListView.UseCompatibleStateImageBehavior = false;
             modsListView.View = View.Details;
@@ -239,19 +238,10 @@ namespace MW5_Mod_Manager
             button4.UseVisualStyleBackColor = true;
             button4.Click += button4_Click;
             // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new System.Drawing.Point(182, 29);
-            label2.Name = "label2";
-            label2.Size = new System.Drawing.Size(72, 13);
-            label2.TabIndex = 15;
-            label2.Text = "Mods Folder";
-            // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new System.Drawing.Point(182, 59);
+            label3.Location = new System.Drawing.Point(180, 33);
             label3.Name = "label3";
             label3.Size = new System.Drawing.Size(65, 13);
             label3.TabIndex = 16;
@@ -259,7 +249,7 @@ namespace MW5_Mod_Manager
             // 
             // filterBox
             // 
-            filterBox.Location = new System.Drawing.Point(341, 56);
+            filterBox.Location = new System.Drawing.Point(339, 30);
             filterBox.Name = "filterBox";
             filterBox.Size = new System.Drawing.Size(425, 22);
             filterBox.TabIndex = 17;
@@ -268,7 +258,7 @@ namespace MW5_Mod_Manager
             // checkBox1
             // 
             checkBox1.AutoSize = true;
-            checkBox1.Location = new System.Drawing.Point(260, 58);
+            checkBox1.Location = new System.Drawing.Point(258, 32);
             checkBox1.Name = "checkBox1";
             checkBox1.Size = new System.Drawing.Size(75, 17);
             checkBox1.TabIndex = 18;
@@ -624,33 +614,33 @@ namespace MW5_Mod_Manager
             // exportLoadOrderToolStripMenuItem1
             // 
             exportLoadOrderToolStripMenuItem1.Name = "exportLoadOrderToolStripMenuItem1";
-            exportLoadOrderToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            exportLoadOrderToolStripMenuItem1.Size = new System.Drawing.Size(177, 22);
             exportLoadOrderToolStripMenuItem1.Text = "&Export load order...";
             exportLoadOrderToolStripMenuItem1.Click += exportLoadOrderToolStripMenuItem1_Click;
             // 
             // importLoadOrderToolStripMenuItem1
             // 
             importLoadOrderToolStripMenuItem1.Name = "importLoadOrderToolStripMenuItem1";
-            importLoadOrderToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            importLoadOrderToolStripMenuItem1.Size = new System.Drawing.Size(177, 22);
             importLoadOrderToolStripMenuItem1.Text = "&Import load order...";
             importLoadOrderToolStripMenuItem1.Click += importLoadOrderToolStripMenuItem1_Click;
             // 
             // toolStripSeparator7
             // 
             toolStripSeparator7.Name = "toolStripSeparator7";
-            toolStripSeparator7.Size = new System.Drawing.Size(177, 6);
+            toolStripSeparator7.Size = new System.Drawing.Size(174, 6);
             // 
             // exportmodsFolderToolStripMenuItem1
             // 
             exportmodsFolderToolStripMenuItem1.Name = "exportmodsFolderToolStripMenuItem1";
-            exportmodsFolderToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            exportmodsFolderToolStripMenuItem1.Size = new System.Drawing.Size(177, 22);
             exportmodsFolderToolStripMenuItem1.Text = "Export &mods folder";
             exportmodsFolderToolStripMenuItem1.Click += exportmodsFolderToolStripMenuItem1_Click;
             // 
             // shareModsViaTCPToolStripMenuItem
             // 
             shareModsViaTCPToolStripMenuItem.Name = "shareModsViaTCPToolStripMenuItem";
-            shareModsViaTCPToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            shareModsViaTCPToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
             shareModsViaTCPToolStripMenuItem.Text = "Share mods via &TCP";
             shareModsViaTCPToolStripMenuItem.Visible = false;
             shareModsViaTCPToolStripMenuItem.Click += shareModsViaTCPToolStripMenuItem_Click;
@@ -658,54 +648,67 @@ namespace MW5_Mod_Manager
             // toolStripSeparator2
             // 
             toolStripSeparator2.Name = "toolStripSeparator2";
-            toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
+            toolStripSeparator2.Size = new System.Drawing.Size(174, 6);
             // 
             // toolStripMenuItemSettings
             // 
             toolStripMenuItemSettings.Name = "toolStripMenuItemSettings";
-            toolStripMenuItemSettings.Size = new System.Drawing.Size(180, 22);
+            toolStripMenuItemSettings.Size = new System.Drawing.Size(177, 22);
             toolStripMenuItemSettings.Text = "&Settings";
             toolStripMenuItemSettings.Click += toolStripMenuItemSettings_Click;
             // 
             // toolStripSeparator1
             // 
             toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            toolStripSeparator1.Size = new System.Drawing.Size(174, 6);
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            exitToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
             exitToolStripMenuItem.Text = "E&xit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
             // modsToolStripMenuItem
             // 
-            modsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { openModsFolderToolStripMenuItem, enableAllModsToolStripMenuItem, disableAllModsToolStripMenuItem });
+            modsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { enableAllModsToolStripMenuItem, disableAllModsToolStripMenuItem, toolStripSeparator3, openModsFolderToolStripMenuItem, toolStripMenuItemOpenModFolderSteam });
             modsToolStripMenuItem.Name = "modsToolStripMenuItem";
             modsToolStripMenuItem.Size = new System.Drawing.Size(49, 20);
             modsToolStripMenuItem.Text = "&Mods";
             // 
-            // openModsFolderToolStripMenuItem
-            // 
-            openModsFolderToolStripMenuItem.Name = "openModsFolderToolStripMenuItem";
-            openModsFolderToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
-            openModsFolderToolStripMenuItem.Text = "&Open Mods Folder";
-            openModsFolderToolStripMenuItem.Click += openModsFolderToolStripMenuItem_Click;
-            // 
             // enableAllModsToolStripMenuItem
             // 
             enableAllModsToolStripMenuItem.Name = "enableAllModsToolStripMenuItem";
-            enableAllModsToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            enableAllModsToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             enableAllModsToolStripMenuItem.Text = "&Enable all mods";
             enableAllModsToolStripMenuItem.Click += enableAllModsToolStripMenuItem_Click;
             // 
             // disableAllModsToolStripMenuItem
             // 
             disableAllModsToolStripMenuItem.Name = "disableAllModsToolStripMenuItem";
-            disableAllModsToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            disableAllModsToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             disableAllModsToolStripMenuItem.Text = "&Disable all mods";
             disableAllModsToolStripMenuItem.Click += disableAllModsToolStripMenuItem_Click;
+            // 
+            // toolStripSeparator3
+            // 
+            toolStripSeparator3.Name = "toolStripSeparator3";
+            toolStripSeparator3.Size = new System.Drawing.Size(203, 6);
+            // 
+            // openModsFolderToolStripMenuItem
+            // 
+            openModsFolderToolStripMenuItem.Name = "openModsFolderToolStripMenuItem";
+            openModsFolderToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
+            openModsFolderToolStripMenuItem.Text = "&Open Mods Folder";
+            openModsFolderToolStripMenuItem.Click += openModsFolderToolStripMenuItem_Click;
+            // 
+            // toolStripMenuItemOpenModFolderSteam
+            // 
+            toolStripMenuItemOpenModFolderSteam.Name = "toolStripMenuItemOpenModFolderSteam";
+            toolStripMenuItemOpenModFolderSteam.Size = new System.Drawing.Size(206, 22);
+            toolStripMenuItemOpenModFolderSteam.Text = "Open &Steam Mods folder";
+            toolStripMenuItemOpenModFolderSteam.Visible = false;
+            toolStripMenuItemOpenModFolderSteam.Click += toolStripMenuItemOpenModFolderSteam_Click;
             // 
             // helpToolStripMenuItem
             // 
@@ -761,23 +764,6 @@ namespace MW5_Mod_Manager
             openFolderToolStripMenuItem.Text = "Open &Folder";
             openFolderToolStripMenuItem.Click += openFolderToolStripMenuItem_Click;
             // 
-            // textBox1
-            // 
-            textBox1.Location = new System.Drawing.Point(260, 26);
-            textBox1.Name = "textBox1";
-            textBox1.ReadOnly = true;
-            textBox1.Size = new System.Drawing.Size(506, 22);
-            textBox1.TabIndex = 5;
-            // 
-            // textBox3
-            // 
-            textBox3.Location = new System.Drawing.Point(513, 26);
-            textBox3.Name = "textBox3";
-            textBox3.ReadOnly = true;
-            textBox3.Size = new System.Drawing.Size(253, 22);
-            textBox3.TabIndex = 34;
-            textBox3.Visible = false;
-            // 
             // MainWindow
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -785,18 +771,15 @@ namespace MW5_Mod_Manager
             ClientSize = new System.Drawing.Size(1184, 579);
             Controls.Add(button4);
             Controls.Add(statusStrip1);
-            Controls.Add(textBox3);
             Controls.Add(rotatingLabel1);
             Controls.Add(tabControl1);
             Controls.Add(button5);
             Controls.Add(checkBox1);
             Controls.Add(filterBox);
             Controls.Add(label3);
-            Controls.Add(label2);
             Controls.Add(modsListView);
             Controls.Add(menuStrip1);
             Controls.Add(button6);
-            Controls.Add(textBox1);
             Controls.Add(button3);
             Controls.Add(button2);
             Controls.Add(button1);
@@ -841,7 +824,6 @@ namespace MW5_Mod_Manager
         public System.Windows.Forms.ToolStripLabel toolStripVendorLabeltoolStripLabel1;
         private RotatingLabel rotatingLabel1;
         private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox filterBox;
         private System.Windows.Forms.CheckBox checkBox1;
@@ -900,8 +882,8 @@ namespace MW5_Mod_Manager
         private Label label1;
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripMenuItem toolStripMenuItemSettings;
-        public TextBox textBox1;
-        public TextBox textBox3;
+        private ToolStripSeparator toolStripSeparator3;
+        private ToolStripMenuItem toolStripMenuItemOpenModFolderSteam;
     }
 }
 
