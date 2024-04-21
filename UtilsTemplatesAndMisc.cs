@@ -14,6 +14,14 @@ namespace MW5_Mod_Manager
             return string.IsNullOrEmpty(txt) || string.IsNullOrWhiteSpace(txt);
         }
 
+        public static bool IsUrlValid(string input)
+        {
+            Uri uriResult;
+            bool isValidUri = Uri.TryCreate(input, UriKind.Absolute, out uriResult)
+                              && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+            return isValidUri;
+        }
+
         public static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
         {
             // Get the subdirectories for the specified directory.

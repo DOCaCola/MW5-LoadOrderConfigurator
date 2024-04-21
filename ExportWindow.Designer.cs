@@ -60,7 +60,7 @@
             this.checkBoxEnabledOnly.AutoSize = true;
             this.checkBoxEnabledOnly.Location = new System.Drawing.Point(12, 43);
             this.checkBoxEnabledOnly.Name = "checkBoxEnabledOnly";
-            this.checkBoxEnabledOnly.Size = new System.Drawing.Size(115, 17);
+            this.checkBoxEnabledOnly.Size = new System.Drawing.Size(124, 17);
             this.checkBoxEnabledOnly.TabIndex = 2;
             this.checkBoxEnabledOnly.Text = "Enabled mods only";
             this.checkBoxEnabledOnly.UseVisualStyleBackColor = true;
@@ -74,6 +74,7 @@
             this.Controls.Add(this.checkBoxEnabledOnly);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.textBox1);
+            this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.MinimumSize = new System.Drawing.Size(388, 259);
             this.Name = "ExportWindow";
             this.ShowIcon = false;

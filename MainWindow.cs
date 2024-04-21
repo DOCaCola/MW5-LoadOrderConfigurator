@@ -8,6 +8,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Media;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Application = System.Windows.Forms.Application;
@@ -1053,16 +1054,45 @@ namespace MW5_Mod_Manager
             this.label4.Text = "";
 
             if (modsListView.SelectedItems.Count == 0)
+            {
+                panelModInfo.Visible = false;
                 return;
+            }
 
             string SelectedMod = modsListView.SelectedItems[0].SubItems[2].Text;
             string SelectedModDisplayName = modsListView.SelectedItems[0].SubItems[1].Text;
-            bool ItemChecked = modsListView.SelectedItems[0].Checked;
 
             if (Utils.StringNullEmptyOrWhiteSpace(SelectedMod) ||
                 Utils.StringNullEmptyOrWhiteSpace(SelectedModDisplayName)
-                )
+               )
+            {
+                panelModInfo.Visible = false;
                 return;
+            }
+
+            string modKey = (string)modsListView.SelectedItems[0].Tag;
+            ModObject modDetails = logic.ModDetails[modKey];
+
+            panelModInfo.Visible = true;
+            labelModName.Text = SelectedModDisplayName;
+            labelModAuthor.Text = @"Author: " + modDetails.author;
+            linkLabelModAuthorUrl.Text = modDetails.authorURL;
+            labelModVersion.Text = @"Version: " + modDetails.version;
+            labelModBuildNumber.Text = @"Build: " + modDetails.buildNumber;
+            long steamId = modDetails.steamPublishedFileId;
+            if (steamId > 0)
+            {
+                labelSteamId.Visible = true;
+                linkLabelSteamId.Visible = true;
+                linkLabelSteamId.Text = steamId.ToString();
+            }
+            else
+            {
+                labelSteamId.Visible = false;
+                linkLabelSteamId.Visible = false;
+            }
+            richTextBoxModDescription.Text = modDetails.description;
+            
 
             HandleOverrding(SelectedMod);
             HandleDependencies(modsListView.SelectedItems[0], SelectedModDisplayName);
@@ -1627,6 +1657,33 @@ namespace MW5_Mod_Manager
         {
             string path = (string)modsListView.SelectedItems[0].Tag;
             Process.Start(path);
+        }
+
+        private void linkLabelModAuthorUrl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            string modKey = (string)modsListView.SelectedItems[0].Tag;
+            string modUrl = logic.ModDetails[modKey].authorURL;
+            bool isValidUrl = Utils.IsUrlValid(modUrl);
+            if (isValidUrl)
+            {
+                Process.Start(modUrl);
+            }
+        }
+
+        private void linkLabelSteamId_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            string modKey = (string)modsListView.SelectedItems[0].Tag;
+            string steamUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=" + logic.ModDetails[modKey].steamPublishedFileId;
+            Process.Start(steamUrl);
+        }
+
+        private void richTextBoxModDescription_LinkClicked(object sender, LinkClickedEventArgs e)
+        {
+            bool isValidUrl = Utils.IsUrlValid(e.LinkText);
+            if (isValidUrl)
+            {
+                Process.Start(e.LinkText);
+            }
         }
     }
 }
