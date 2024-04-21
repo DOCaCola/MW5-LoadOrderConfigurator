@@ -16,7 +16,7 @@ namespace MW5_Mod_Manager
 {
     public partial class MainWindow : Form
     {
-        public MainWindow MainForm;
+        static public MainWindow MainForm;
         public MainLogic logic = new MainLogic();
         //public TCPFileShare fileShare;
         bool filtered = false;
@@ -31,7 +31,7 @@ namespace MW5_Mod_Manager
         public MainWindow()
         {
             InitializeComponent();
-            this.MainForm = this;
+            MainForm = this;
             this.logic.MainForm = this;
             //this.fileShare = new TCPFileShare(logic, this);
             this.markedForRemoval = new List<ListViewItem>();
@@ -436,7 +436,7 @@ namespace MW5_Mod_Manager
                     windowsStoreToolStripMenuItem1.Checked = false;
                     epicStoreToolStripMenuItem1.Checked = true;
                     this.button4.Enabled = true;
-                    this.MainForm.button5.Enabled = true;
+                    button5.Enabled = true;
 
                     this.textBox3.Visible = false;
                     this.textBox1.Size = new Size(506, 20);
@@ -449,7 +449,7 @@ namespace MW5_Mod_Manager
                     windowsStoreToolStripMenuItem1.Checked = true;
                     epicStoreToolStripMenuItem1.Checked = false;
                     this.button4.Enabled = false;
-                    this.MainForm.button5.Enabled = true;
+                    button5.Enabled = true;
 
                     this.textBox3.Visible = false;
                     this.textBox1.Size = new Size(506, 20);
@@ -462,7 +462,7 @@ namespace MW5_Mod_Manager
                     gOGToolStripMenuItem1.Checked = false;
                     windowsStoreToolStripMenuItem1.Checked = false;
                     epicStoreToolStripMenuItem1.Checked = false;
-                    this.MainForm.button5.Enabled = false;
+                    button5.Enabled = false;
                     this.button4.Enabled = true;
 
                     this.textBox3.Visible = true;
@@ -478,7 +478,7 @@ namespace MW5_Mod_Manager
                     windowsStoreToolStripMenuItem1.Checked = false;
                     epicStoreToolStripMenuItem1.Checked = false;
                     this.button4.Enabled = true;
-                    this.MainForm.button5.Enabled = true;
+                    button5.Enabled = true;
 
                     this.textBox3.Visible = false;
                     this.textBox1.Size = new Size(506, 20);
@@ -986,7 +986,7 @@ namespace MW5_Mod_Manager
         //Mark currently selected mod for removal upon apply
         private void button5_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem item in this.MainForm.listView1.SelectedItems)
+            foreach (ListViewItem item in listView1.SelectedItems)
             {
                 if (this.markedForRemoval.Contains(item))
                 {
@@ -1120,7 +1120,7 @@ namespace MW5_Mod_Manager
         private void HandleDependencies(ListViewItem Item, string SelectedModDisplayName)
         {
             string SelectedMod = Item.SubItems[2].Text;
-            this.MainForm.label8.Text = SelectedModDisplayName;
+            label8.Text = SelectedModDisplayName;
             List<string> Dependencies = logic.GetModDependencies(SelectedMod);
             this.listView2.Items.Clear();
 
@@ -1441,7 +1441,7 @@ namespace MW5_Mod_Manager
             windowsStoreToolStripMenuItem1.Checked = false;
             epicStoreToolStripMenuItem1.Checked = true;
             this.textBox1.Text = logic.BasePath[0];
-            this.MainForm.button5.Enabled = true;
+            button5.Enabled = true;
 
             this.textBox3.Visible = false;
             this.textBox1.Size = new Size(506, 20);
@@ -1464,7 +1464,7 @@ namespace MW5_Mod_Manager
             windowsStoreToolStripMenuItem1.Checked = false;
             epicStoreToolStripMenuItem1.Checked = false;
             this.textBox1.Text = logic.BasePath[0];
-            this.MainForm.button5.Enabled = true;
+            button5.Enabled = true;
 
             this.textBox3.Visible = false;
             this.textBox1.Size = new Size(506, 20);
@@ -1484,7 +1484,7 @@ namespace MW5_Mod_Manager
             gOGToolStripMenuItem1.Checked = false;
             windowsStoreToolStripMenuItem1.Checked = false;
             epicStoreToolStripMenuItem1.Checked = false;
-            this.MainForm.button5.Enabled = false;
+            button5.Enabled = false;
             this.textBox1.Text = logic.BasePath[0];
             this.textBox3.Text = logic.BasePath[1];
             this.textBox3.Visible = true;
@@ -1514,7 +1514,7 @@ namespace MW5_Mod_Manager
             Console.WriteLine("BasePath from AppDataRoaming" + this.logic.BasePath[0]);
 
             this.textBox1.Text = logic.BasePath[0];
-            this.MainForm.button5.Enabled = true;
+            button5.Enabled = true;
 
             this.textBox3.Visible = false;
             this.textBox1.Size = new Size(506, 20);
@@ -1530,20 +1530,9 @@ namespace MW5_Mod_Manager
 
         private void exportLoadOrderToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            Dictionary<string, bool> FolderNameModList = new Dictionary<string, bool>();
-
-            //Get the folder names from the paths in modlist
-            foreach (string key in logic.ModList.Keys)
-            {
-                string folderName = logic.PathToDirectoryDict[key];
-                FolderNameModList[folderName] = logic.ModList[key];
-            }
-
-            string json = JsonConvert.SerializeObject(FolderNameModList, Formatting.Indented);
             ExportWindow exportDialog = new ExportWindow();
 
             // Show testDialog as a modal dialog and determine if DialogResult = OK.
-            exportDialog.textBox1.Text = json; //logic.Scramble(json);
             exportDialog.ShowDialog(this);
             exportDialog.Dispose();
         }
