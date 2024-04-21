@@ -348,9 +348,10 @@ namespace MW5_Mod_Manager
 
     public class ProgramData
     {
-        public string vendor { set; get; }
+        public string platform { set; get; }
         public float version { set; get; }
-        public string[] installdir { set; get; }
+        public string InstallPath { set; get; }
+        public string[] ModPaths { set; get; }
     }
 
     public class OverridingData

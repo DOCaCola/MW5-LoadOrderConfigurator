@@ -39,7 +39,8 @@ namespace MW5_Mod_Manager
         public MainWindow MainForm;
 
         public float Version = 0f;
-        public string Vendor = "";
+        public string Platform = "";
+        public string InstallPath = "";
         public string[] BasePath = new string[2];
         public ProgramData ProgramData = new ProgramData();
 
@@ -169,7 +170,7 @@ namespace MW5_Mod_Manager
             {
                 return;
             }
-            string message = "ERROR Mods folder does not exits in : " + this.BasePath[1] + " Do you want to create it?";
+            string message = "ERROR Steam Mods folder does not exist in : " + this.BasePath[1] + "\r\nDo you want to create it?";
             string caption = "ERROR Loading";
             MessageBoxButtons buttons = MessageBoxButtons.YesNo;
             DialogResult Result = MessageBox.Show(message, caption, buttons);
@@ -189,7 +190,7 @@ namespace MW5_Mod_Manager
             {
                 return;
             }
-            string message = "ERROR Mods folder does not exits in : " + this.BasePath[0] + " Do you want to create it?";
+            string message = "ERROR Mods folder does not exits in : " + this.BasePath[0] + "\r\nDo you want to create it?";
             string caption = "ERROR Loading";
             MessageBoxButtons buttons = MessageBoxButtons.YesNo;
             DialogResult Result = MessageBox.Show(message, caption, buttons);
@@ -216,21 +217,26 @@ namespace MW5_Mod_Manager
                 this.ProgramData = JsonConvert.DeserializeObject<ProgramData>(json);
 
                 Console.WriteLine("Finshed loading ProgramData.json:"
-                    + " Vendor: " + this.ProgramData.vendor
+                    + " Platform: " + this.ProgramData.platform
                     + " Version: " + this.ProgramData.version
-                    + " Installdir: " + this.ProgramData.installdir);
+                    + " Installdir: " + this.ProgramData.ModPaths);
 
-                if (!Utils.StringNullEmptyOrWhiteSpace(this.ProgramData.installdir[0]))
+                if (!Utils.StringNullEmptyOrWhiteSpace(this.ProgramData.ModPaths[0]))
                 {
-                    BasePath[0] = ProgramData.installdir[0];
+                    BasePath[0] = ProgramData.ModPaths[0];
                 }
-                if (!Utils.StringNullEmptyOrWhiteSpace(ProgramData.installdir[1]))
+                if (!Utils.StringNullEmptyOrWhiteSpace(ProgramData.ModPaths[1]))
                 {
-                    BasePath[1] = ProgramData.installdir[1];
+                    BasePath[1] = ProgramData.ModPaths[1];
                 }
-                if (!Utils.StringNullEmptyOrWhiteSpace(ProgramData.vendor))
+                if (!Utils.StringNullEmptyOrWhiteSpace(ProgramData.platform))
                 {
-                    Vendor = ProgramData.vendor;
+                    Platform = ProgramData.platform;
+                }
+
+                if (!Utils.StringNullEmptyOrWhiteSpace(ProgramData.InstallPath))
+                {
+                    InstallPath = ProgramData.InstallPath;
                 }
                 if (ProgramData.version > 0)
                 {
@@ -308,8 +314,9 @@ namespace MW5_Mod_Manager
 
         public void SaveProgramData()
         {
-            this.ProgramData.installdir = this.BasePath;
-            this.ProgramData.vendor = this.Vendor;
+            ProgramData.InstallPath = this.InstallPath;
+            this.ProgramData.ModPaths = this.BasePath;
+            this.ProgramData.platform = this.Platform;
 
             string complete = System.Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + @"\MW5LoadOrderManager";
             JsonSerializer serializer = new JsonSerializer

@@ -415,7 +415,7 @@ namespace MW5_Mod_Manager
         }
 
         //For clearing the entire applications data
-        private void ClearAll()
+        public void ClearAll()
         {
             this.ListViewData.Clear();
             this.modsListView.Items.Clear();
@@ -429,28 +429,20 @@ namespace MW5_Mod_Manager
             {
                 toolStripStatusLabelMwVersion.Text = @"~RJ v." + this.logic.Version.ToString();
             }
-            if (this.logic.Vendor != "")
+            if (this.logic.Platform != "")
             {
-                if (this.logic.Vendor == "EPIC")
+                if (this.logic.Platform == "EPIC")
                 {
                     this.toolStripVendorLabel.Text = "Game Vendor : Epic Store";
-                    steamToolStripMenuItem1.Checked = false;
-                    gOGToolStripMenuItem1.Checked = false;
-                    windowsStoreToolStripMenuItem1.Checked = false;
-                    epicStoreToolStripMenuItem1.Checked = true;
                     this.button4.Enabled = true;
                     button5.Enabled = true;
 
                     this.textBox3.Visible = false;
                     this.textBox1.Size = new Size(506, 20);
                 }
-                else if (this.logic.Vendor == "WINDOWS")
+                else if (this.logic.Platform == "WINDOWS")
                 {
                     this.toolStripVendorLabel.Text = "Game Vendor : Windows Store";
-                    steamToolStripMenuItem1.Checked = false;
-                    gOGToolStripMenuItem1.Checked = false;
-                    windowsStoreToolStripMenuItem1.Checked = true;
-                    epicStoreToolStripMenuItem1.Checked = false;
                     this.button4.Enabled = false;
                     button5.Enabled = true;
 
@@ -458,13 +450,9 @@ namespace MW5_Mod_Manager
                     this.textBox1.Size = new Size(506, 20);
 
                 }
-                else if (this.logic.Vendor == "STEAM")
+                else if (this.logic.Platform == "STEAM")
                 {
                     this.toolStripVendorLabel.Text = "Game Vendor : Steam";
-                    steamToolStripMenuItem1.Checked = true;
-                    gOGToolStripMenuItem1.Checked = false;
-                    windowsStoreToolStripMenuItem1.Checked = false;
-                    epicStoreToolStripMenuItem1.Checked = false;
                     button5.Enabled = false;
                     this.button4.Enabled = true;
 
@@ -473,13 +461,9 @@ namespace MW5_Mod_Manager
                     this.textBox3.Text = logic.BasePath[1];
 
                 }
-                else if (this.logic.Vendor == "GOG")
+                else if (this.logic.Platform == "GOG")
                 {
                     this.toolStripVendorLabel.Text = "Game Vendor : GOG";
-                    steamToolStripMenuItem1.Checked = false;
-                    gOGToolStripMenuItem1.Checked = true;
-                    windowsStoreToolStripMenuItem1.Checked = false;
-                    epicStoreToolStripMenuItem1.Checked = false;
                     this.button4.Enabled = true;
                     button5.Enabled = true;
 
@@ -491,7 +475,7 @@ namespace MW5_Mod_Manager
         }
 
         //Load mod data and fill in the list box..
-        private void LoadAndFill(bool FromClipboard)
+        public void LoadAndFill(bool FromClipboard)
         {
             this.LoadingAndFilling = true;
             KeyValuePair<string, bool> currentEntry = new KeyValuePair<string, bool>();
@@ -517,7 +501,7 @@ namespace MW5_Mod_Manager
             }
             catch (Exception e)
             {
-                if(currentEntry.Key == null)
+                if (currentEntry.Key == null)
                 {
                     currentEntry = new KeyValuePair<string, bool>("NULL", false);
                 }
@@ -563,7 +547,7 @@ namespace MW5_Mod_Manager
         {
             int index = -1;
             var SelectedItems = modsListView.SelectedItems;
-            if(SelectedItems.Count == 0)
+            if (SelectedItems.Count == 0)
             {
                 return index;
             }
@@ -577,42 +561,38 @@ namespace MW5_Mod_Manager
             return index;
         }
 
-        //Select install directory button
-        private void SelectInstallDirectory()
+        public void SetInstallDirectory(string path)
         {
-            ClearAll();
-            using (var fbd = new FolderBrowserDialog())
+            logic.InstallPath = path;
+            logic.BasePath[0] = path + @"\MW5Mercs\Mods";
+
+            //We need to do something different for steam cause its special.
+            //Once a switch now an iff.
+            switch (this.logic.Platform)
             {
-                DialogResult result = fbd.ShowDialog();
+                case "STEAM":
+                    SetSteamWorkshopPath();
+                    break;
+                    //case "GAMEPASS":
+                    //    SetGamepassPath();
+                    //    break;
 
-                if (result == DialogResult.OK && !Utils.StringNullEmptyOrWhiteSpace(fbd.SelectedPath))
-                {
-                    string path = fbd.SelectedPath;
+                case "WINDOWS":
+                    string AppDataRoaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
-                    logic.BasePath[0] = path + @"\MW5Mercs\Mods";
-
-                    //We need to do something different for steam cause its special.
-                    //Once a switch now an iff.
-                    switch (this.logic.Vendor)
-                    {
-                        case "STEAM":
-                            SetSteamWorkshopPath();
-                            break;
-                        //case "GAMEPASS":
-                        //    SetGamepassPath();
-                        //    break;
-                    }
-                    MainForm.textBox1.Text = logic.BasePath[0];
-                    MainForm.textBox3.Text = logic.BasePath[1];
-
-                    LoadAndFill(false);
-
-                    ScrollFolderTextBoxToRight();
-                }
+                    this.logic.BasePath[0] = GetBasePathFromAppDataRoaming(AppDataRoaming);
+                    this.logic.CheckModsDir();
+                    break;
             }
+            MainForm.textBox1.Text = logic.BasePath[0];
+            MainForm.textBox3.Text = logic.BasePath[1];
+
+            LoadAndFill(false);
+
+            ScrollFolderTextBoxToRight();
         }
 
-        private void ScrollFolderTextBoxToRight()
+        public void ScrollFolderTextBoxToRight()
         {
             textBox1.SelectionStart = textBox1.Text.Length;
             textBox1.ScrollToCaret();
@@ -622,13 +602,13 @@ namespace MW5_Mod_Manager
             textBox3.Focus();
         }
 
-        private void SetSteamWorkshopPath()
+        public void SetSteamWorkshopPath()
         {
             //Split by folder depth
             List<string> splitBasePath = this.logic.BasePath[0].Split('\\').ToList<string>();
 
             //Find the steamapps folder
-            int steamAppsIndex = splitBasePath.IndexOf("steamapps");
+            int steamAppsIndex = splitBasePath.FindIndex(x => x.Equals("steamapps",StringComparison.OrdinalIgnoreCase));
 
             //Remove all past the steamapps folder
             splitBasePath.RemoveRange(steamAppsIndex + 1, splitBasePath.Count - steamAppsIndex - 1);
@@ -646,7 +626,7 @@ namespace MW5_Mod_Manager
             RefreshAll();
         }
 
-        private void RefreshAll()
+        public void RefreshAll()
         {
             ClearAll();
             if (logic.TryLoadProgramData())
@@ -753,7 +733,7 @@ namespace MW5_Mod_Manager
         //Launch game button
         private void button4_Click(object sender, EventArgs e)
         {
-            switch (logic.Vendor)
+            switch (logic.Platform)
             {
                 case "EPIC":
                     LaunchEpicGame();
@@ -767,24 +747,12 @@ namespace MW5_Mod_Manager
                 case "WINDOWS":
                     LaunchWindowsGame();
                     break;
-                case "GAMEPASS":
-                    LaunchGamepassGame();
-                    break;
             }
 
         }
 
         #region Launch Game
         private static void LaunchWindowsGame()
-        {
-            //Dunno how this works at all.. 
-            string message = "This feature is not available in this version.";
-            string caption = "Feature not available.";
-            MessageBoxButtons buttons = MessageBoxButtons.OK;
-            MessageBox.Show(message, caption, buttons);
-        }
-
-        private static void LaunchGamepassGame()
         {
             //Dunno how this works at all.. 
             string message = "This feature is not available in this version.";
@@ -847,12 +815,6 @@ namespace MW5_Mod_Manager
             }
         }
         #endregion
-
-        //Tool strip for selecting a install folder
-        private void selectToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            SelectInstallDirectory();
-        }
 
         //Crude filter because to lazy to add a proper list as backup for the items.
         private void filterBox_TextChanged(object sender, EventArgs e)
@@ -1094,7 +1056,7 @@ namespace MW5_Mod_Manager
                 linkLabelSteamId.Visible = false;
             }
             richTextBoxModDescription.Text = modDetails.description;
-            
+
 
             HandleOverrding(SelectedMod);
             HandleDependencies(modsListView.SelectedItems[0], SelectedModDisplayName);
@@ -1205,7 +1167,7 @@ namespace MW5_Mod_Manager
         //Export all mods in the mods foler (after pressing apply)
         internal void exportModsFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
- 
+
         }
 
         #region background workers for zipping up files
@@ -1404,106 +1366,6 @@ namespace MW5_Mod_Manager
 
         }
 
-        private void installDirectoryToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            SelectInstallDirectory();
-        }
-
-        private void epicStoreToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            if (logic.Vendor == "EPIC")
-                return;
-
-            ClearAll();
-            this.logic.Vendor = "EPIC";
-            this.toolStripVendorLabel.Text = "Game Vendor : Epic Store";
-            this.button4.Enabled = true;
-            steamToolStripMenuItem1.Checked = false;
-            gOGToolStripMenuItem1.Checked = false;
-            windowsStoreToolStripMenuItem1.Checked = false;
-            epicStoreToolStripMenuItem1.Checked = true;
-            this.textBox1.Text = logic.BasePath[0];
-            button5.Enabled = true;
-
-            this.textBox3.Visible = false;
-            this.textBox1.Size = new Size(506, 20);
-
-            logic.SaveProgramData();
-        }
-
-        private void gOGToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            if (logic.Vendor == "GOG")
-                return;
-
-            ClearAll();
-            this.logic.Vendor = "GOG";
-            this.toolStripVendorLabel.Text = "Game Vendor : GOG";
-            //this.searcgToolStripMenuItem.Enabled = true;
-            this.button4.Enabled = true;
-            steamToolStripMenuItem1.Checked = false;
-            gOGToolStripMenuItem1.Checked = true;
-            windowsStoreToolStripMenuItem1.Checked = false;
-            epicStoreToolStripMenuItem1.Checked = false;
-            this.textBox1.Text = logic.BasePath[0];
-            button5.Enabled = true;
-
-            this.textBox3.Visible = false;
-            this.textBox1.Size = new Size(506, 20);
-            logic.SaveProgramData();
-        }
-
-        private void steamToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            if (logic.Vendor == "STEAM")
-                return;
-
-            ClearAll();
-            this.logic.Vendor = "STEAM";
-            this.toolStripVendorLabel.Text = "Game Vendor : Steam";
-            this.button4.Enabled = true;
-            steamToolStripMenuItem1.Checked = true;
-            gOGToolStripMenuItem1.Checked = false;
-            windowsStoreToolStripMenuItem1.Checked = false;
-            epicStoreToolStripMenuItem1.Checked = false;
-            button5.Enabled = false;
-            this.textBox1.Text = logic.BasePath[0];
-            this.textBox3.Text = logic.BasePath[1];
-            this.textBox3.Visible = true;
-            this.textBox1.Size = new Size(250, 20);
-            logic.SaveProgramData();
-        }
-
-        private void windowsStoreToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            if (logic.Vendor == "WINDOWS")
-                return;
-
-            ClearAll();
-            this.logic.Vendor = "WINDOWS";
-            this.toolStripVendorLabel.Text = "Game Vendor : Windows Store";
-            this.button4.Enabled = false;
-            steamToolStripMenuItem1.Checked = false;
-            gOGToolStripMenuItem1.Checked = false;
-            windowsStoreToolStripMenuItem1.Checked = true;
-            epicStoreToolStripMenuItem1.Checked = false;
-
-            string AppDataRoaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-
-            this.logic.BasePath[0] = GetBasePathFromAppDataRoaming(AppDataRoaming);
-            this.logic.CheckModsDir();
-
-            Console.WriteLine("BasePath from AppDataRoaming" + this.logic.BasePath[0]);
-
-            this.textBox1.Text = logic.BasePath[0];
-            button5.Enabled = true;
-
-            this.textBox3.Visible = false;
-            this.textBox1.Size = new Size(506, 20);
-            logic.SaveProgramData();
-            RefreshAll();
-        }
-
         private void shareModsViaTCPToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Form5 form5 = new Form5(this);
@@ -1622,7 +1484,7 @@ namespace MW5_Mod_Manager
         private void enableAllModsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.MovingItem = true;
-            foreach (ListViewItem item in this.ListViewData)
+            foreach (ModListItem item in this.ListViewData)
             {
                 item.Checked = true;
             }
@@ -1686,6 +1548,14 @@ namespace MW5_Mod_Manager
             {
                 Process.Start(e.LinkText);
             }
+        }
+
+        private void toolStripMenuItemSettings_Click(object sender, EventArgs e)
+        {
+            SettingsWindow settingsDialog = new SettingsWindow();
+
+            settingsDialog.ShowDialog(this);
+            settingsDialog.Dispose();
         }
     }
 }

@@ -31,877 +31,799 @@ namespace MW5_Mod_Manager
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
-            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.button6 = new System.Windows.Forms.Button();
-            this.toolStripVendorLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.modsListView = new System.Windows.Forms.ListView();
-            this.enabled = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.display = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.folder = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.author = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.version = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.dependencies = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.button4 = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.filterBox = new System.Windows.Forms.TextBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.button5 = new System.Windows.Forms.Button();
-            this.label4 = new System.Windows.Forms.Label();
-            this.listBox1 = new System.Windows.Forms.ListBox();
-            this.listBox2 = new System.Windows.Forms.ListBox();
-            this.listBox3 = new System.Windows.Forms.ListBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.button12 = new System.Windows.Forms.Button();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.listBox4 = new System.Windows.Forms.ListBox();
-            this.button11 = new System.Windows.Forms.Button();
-            this.button7 = new System.Windows.Forms.Button();
-            this.tabPageModInfo = new System.Windows.Forms.TabPage();
-            this.panelModInfo = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
-            this.richTextBoxModDescription = new System.Windows.Forms.RichTextBox();
-            this.labelSteamId = new System.Windows.Forms.Label();
-            this.linkLabelSteamId = new System.Windows.Forms.LinkLabel();
-            this.linkLabelModAuthorUrl = new System.Windows.Forms.LinkLabel();
-            this.labelModBuildNumber = new System.Windows.Forms.Label();
-            this.labelModVersion = new System.Windows.Forms.Label();
-            this.labelModAuthor = new System.Windows.Forms.Label();
-            this.labelModName = new System.Windows.Forms.Label();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.listView2 = new System.Windows.Forms.ListView();
-            this.label8 = new System.Windows.Forms.Label();
-            this.backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.textProgressBarBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.installDirectoryToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.setvendorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.epicStoreToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.gOGToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.steamToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.windowsStoreToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
-            this.exportLoadOrderToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.importLoadOrderToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
-            this.exportmodsFolderToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.shareModsViaTCPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.modsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openModsFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.enableAllModsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.disableAllModsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.toolStripStatusLabelMwVersion = new System.Windows.Forms.ToolStripStatusLabel();
-            this.rotatingLabel1 = new MW5_Mod_Manager.RotatingLabel();
-            this.contextMenuStripMod = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.openFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tabControl1.SuspendLayout();
-            this.tabPage3.SuspendLayout();
-            this.tabPageModInfo.SuspendLayout();
-            this.panelModInfo.SuspendLayout();
-            this.tabPage1.SuspendLayout();
-            this.tabPage2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.textProgressBarBindingSource)).BeginInit();
-            this.menuStrip1.SuspendLayout();
-            this.statusStrip1.SuspendLayout();
-            this.contextMenuStripMod.SuspendLayout();
-            this.SuspendLayout();
+            components = new System.ComponentModel.Container();
+            button1 = new Button();
+            button2 = new Button();
+            button3 = new Button();
+            backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            openFileDialog1 = new OpenFileDialog();
+            button6 = new Button();
+            toolStripVendorLabel = new ToolStripStatusLabel();
+            modsListView = new ListView();
+            enabled = new ColumnHeader();
+            display = new ColumnHeader();
+            folder = new ColumnHeader();
+            author = new ColumnHeader();
+            version = new ColumnHeader();
+            dependencies = new ColumnHeader();
+            button4 = new Button();
+            label2 = new Label();
+            label3 = new Label();
+            filterBox = new TextBox();
+            checkBox1 = new CheckBox();
+            button5 = new Button();
+            label4 = new Label();
+            listBox1 = new ListBox();
+            listBox2 = new ListBox();
+            listBox3 = new ListBox();
+            label5 = new Label();
+            label6 = new Label();
+            label7 = new Label();
+            tabControl1 = new TabControl();
+            tabPage3 = new TabPage();
+            button12 = new Button();
+            textBox2 = new TextBox();
+            listBox4 = new ListBox();
+            button11 = new Button();
+            button7 = new Button();
+            tabPageModInfo = new TabPage();
+            panelModInfo = new Panel();
+            label1 = new Label();
+            richTextBoxModDescription = new RichTextBox();
+            labelSteamId = new Label();
+            linkLabelSteamId = new LinkLabel();
+            linkLabelModAuthorUrl = new LinkLabel();
+            labelModBuildNumber = new Label();
+            labelModVersion = new Label();
+            labelModAuthor = new Label();
+            labelModName = new Label();
+            tabPage1 = new TabPage();
+            tabPage2 = new TabPage();
+            listView2 = new ListView();
+            label8 = new Label();
+            backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
+            textProgressBarBindingSource = new BindingSource(components);
+            menuStrip1 = new MenuStrip();
+            fileToolStripMenuItem = new ToolStripMenuItem();
+            exportLoadOrderToolStripMenuItem1 = new ToolStripMenuItem();
+            importLoadOrderToolStripMenuItem1 = new ToolStripMenuItem();
+            toolStripSeparator7 = new ToolStripSeparator();
+            exportmodsFolderToolStripMenuItem1 = new ToolStripMenuItem();
+            shareModsViaTCPToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator2 = new ToolStripSeparator();
+            toolStripMenuItemSettings = new ToolStripMenuItem();
+            toolStripSeparator1 = new ToolStripSeparator();
+            exitToolStripMenuItem = new ToolStripMenuItem();
+            modsToolStripMenuItem = new ToolStripMenuItem();
+            openModsFolderToolStripMenuItem = new ToolStripMenuItem();
+            enableAllModsToolStripMenuItem = new ToolStripMenuItem();
+            disableAllModsToolStripMenuItem = new ToolStripMenuItem();
+            helpToolStripMenuItem = new ToolStripMenuItem();
+            aboutToolStripMenuItem = new ToolStripMenuItem();
+            statusStrip1 = new StatusStrip();
+            toolStripStatusLabelMwVersion = new ToolStripStatusLabel();
+            rotatingLabel1 = new RotatingLabel();
+            contextMenuStripMod = new ContextMenuStrip(components);
+            openFolderToolStripMenuItem = new ToolStripMenuItem();
+            textBox1 = new TextBox();
+            textBox3 = new TextBox();
+            tabControl1.SuspendLayout();
+            tabPage3.SuspendLayout();
+            tabPageModInfo.SuspendLayout();
+            panelModInfo.SuspendLayout();
+            tabPage1.SuspendLayout();
+            tabPage2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
+            menuStrip1.SuspendLayout();
+            statusStrip1.SuspendLayout();
+            contextMenuStripMod.SuspendLayout();
+            SuspendLayout();
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(13, 122);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(70, 38);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "&UP";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            button1.Location = new System.Drawing.Point(13, 122);
+            button1.Name = "button1";
+            button1.Size = new System.Drawing.Size(70, 38);
+            button1.TabIndex = 1;
+            button1.Text = "&UP";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(13, 166);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(70, 38);
-            this.button2.TabIndex = 2;
-            this.button2.Text = "&DOWN";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            button2.Location = new System.Drawing.Point(13, 166);
+            button2.Name = "button2";
+            button2.Size = new System.Drawing.Size(70, 38);
+            button2.TabIndex = 2;
+            button2.Text = "&DOWN";
+            button2.UseVisualStyleBackColor = true;
+            button2.Click += button2_Click;
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(13, 279);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(70, 38);
-            this.button3.TabIndex = 3;
-            this.button3.Text = "&Apply";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            button3.Location = new System.Drawing.Point(13, 279);
+            button3.Name = "button3";
+            button3.Size = new System.Drawing.Size(70, 38);
+            button3.TabIndex = 3;
+            button3.Text = "&Apply";
+            button3.UseVisualStyleBackColor = true;
+            button3.Click += button3_Click;
             // 
             // backgroundWorker1
             // 
-            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
-            // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(260, 26);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(506, 22);
-            this.textBox1.TabIndex = 5;
+            backgroundWorker1.DoWork += backgroundWorker1_DoWork;
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(13, 46);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(128, 38);
-            this.button6.TabIndex = 7;
-            this.button6.Text = "Refresh";
-            this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.button6_Click);
+            button6.Location = new System.Drawing.Point(13, 46);
+            button6.Name = "button6";
+            button6.Size = new System.Drawing.Size(128, 38);
+            button6.TabIndex = 7;
+            button6.Text = "Refresh";
+            button6.UseVisualStyleBackColor = true;
+            button6.Click += button6_Click;
             // 
             // toolStripVendorLabel
             // 
-            this.toolStripVendorLabel.Name = "toolStripVendorLabel";
-            this.toolStripVendorLabel.Size = new System.Drawing.Size(22, 17);
-            this.toolStripVendorLabel.Text = "---";
+            toolStripVendorLabel.Name = "toolStripVendorLabel";
+            toolStripVendorLabel.Size = new System.Drawing.Size(22, 17);
+            toolStripVendorLabel.Text = "---";
             // 
             // modsListView
             // 
-            this.modsListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.modsListView.CheckBoxes = true;
-            this.modsListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.enabled,
-            this.display,
-            this.folder,
-            this.author,
-            this.version,
-            this.dependencies});
-            this.modsListView.FullRowSelect = true;
-            this.modsListView.GridLines = true;
-            this.modsListView.HideSelection = false;
-            this.modsListView.LabelWrap = false;
-            this.modsListView.Location = new System.Drawing.Point(124, 90);
-            this.modsListView.MultiSelect = false;
-            this.modsListView.Name = "modsListView";
-            this.modsListView.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.modsListView.Size = new System.Drawing.Size(708, 464);
-            this.modsListView.TabIndex = 11;
-            this.modsListView.UseCompatibleStateImageBehavior = false;
-            this.modsListView.View = System.Windows.Forms.View.Details;
-            this.modsListView.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.listView1_ItemChecked);
-            this.modsListView.SelectedIndexChanged += new System.EventHandler(this.listView1_SelectedIndexChanged);
-            this.modsListView.MouseClick += new System.Windows.Forms.MouseEventHandler(this.modsListView_MouseClick);
+            modsListView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            modsListView.CheckBoxes = true;
+            modsListView.Columns.AddRange(new ColumnHeader[] { enabled, display, folder, author, version, dependencies });
+            modsListView.FullRowSelect = true;
+            modsListView.GridLines = true;
+            modsListView.LabelWrap = false;
+            modsListView.Location = new System.Drawing.Point(124, 90);
+            modsListView.MultiSelect = false;
+            modsListView.Name = "modsListView";
+            modsListView.RightToLeft = RightToLeft.No;
+            modsListView.Size = new System.Drawing.Size(708, 464);
+            modsListView.TabIndex = 11;
+            modsListView.UseCompatibleStateImageBehavior = false;
+            modsListView.View = View.Details;
+            modsListView.ItemChecked += listView1_ItemChecked;
+            modsListView.SelectedIndexChanged += listView1_SelectedIndexChanged;
+            modsListView.MouseClick += modsListView_MouseClick;
             // 
             // enabled
             // 
-            this.enabled.Tag = "enabled";
-            this.enabled.Text = "X";
-            this.enabled.Width = 20;
+            enabled.Tag = "enabled";
+            enabled.Text = "X";
+            enabled.Width = 20;
             // 
             // display
             // 
-            this.display.Tag = "display";
-            this.display.Text = "Display Name";
-            this.display.Width = 188;
+            display.Tag = "display";
+            display.Text = "Display Name";
+            display.Width = 188;
             // 
             // folder
             // 
-            this.folder.Tag = "folder";
-            this.folder.Text = "Mod Folder";
-            this.folder.Width = 196;
+            folder.Tag = "folder";
+            folder.Text = "Mod Folder";
+            folder.Width = 196;
             // 
             // author
             // 
-            this.author.Tag = "author";
-            this.author.Text = "Author";
-            this.author.Width = 72;
+            author.Tag = "author";
+            author.Text = "Author";
+            author.Width = 72;
             // 
             // version
             // 
-            this.version.Tag = "version";
-            this.version.Text = "Version";
-            this.version.Width = 54;
+            version.Tag = "version";
+            version.Text = "Version";
+            version.Width = 54;
             // 
             // dependencies
             // 
-            this.dependencies.Tag = "dependencies";
-            this.dependencies.Text = "Dependencies";
-            this.dependencies.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.dependencies.Width = 88;
+            dependencies.Tag = "dependencies";
+            dependencies.Text = "Dependencies";
+            dependencies.TextAlign = HorizontalAlignment.Center;
+            dependencies.Width = 88;
             // 
             // button4
             // 
-            this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button4.Location = new System.Drawing.Point(13, 451);
-            this.button4.Margin = new System.Windows.Forms.Padding(0);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(70, 90);
-            this.button4.TabIndex = 13;
-            this.button4.Text = "Start MW5";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            button4.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            button4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            button4.Location = new System.Drawing.Point(13, 451);
+            button4.Margin = new Padding(0);
+            button4.Name = "button4";
+            button4.Size = new System.Drawing.Size(70, 90);
+            button4.TabIndex = 13;
+            button4.Text = "Start MW5";
+            button4.UseVisualStyleBackColor = true;
+            button4.Click += button4_Click;
             // 
             // label2
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(182, 29);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(72, 13);
-            this.label2.TabIndex = 15;
-            this.label2.Text = "Mods Folder";
+            label2.AutoSize = true;
+            label2.Location = new System.Drawing.Point(182, 29);
+            label2.Name = "label2";
+            label2.Size = new System.Drawing.Size(72, 13);
+            label2.TabIndex = 15;
+            label2.Text = "Mods Folder";
             // 
             // label3
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(182, 59);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(65, 13);
-            this.label3.TabIndex = 16;
-            this.label3.Text = "Filter Mods";
+            label3.AutoSize = true;
+            label3.Location = new System.Drawing.Point(182, 59);
+            label3.Name = "label3";
+            label3.Size = new System.Drawing.Size(65, 13);
+            label3.TabIndex = 16;
+            label3.Text = "Filter Mods";
             // 
             // filterBox
             // 
-            this.filterBox.Location = new System.Drawing.Point(341, 56);
-            this.filterBox.Name = "filterBox";
-            this.filterBox.Size = new System.Drawing.Size(425, 22);
-            this.filterBox.TabIndex = 17;
-            this.filterBox.TextChanged += new System.EventHandler(this.filterBox_TextChanged);
+            filterBox.Location = new System.Drawing.Point(341, 56);
+            filterBox.Name = "filterBox";
+            filterBox.Size = new System.Drawing.Size(425, 22);
+            filterBox.TabIndex = 17;
+            filterBox.TextChanged += filterBox_TextChanged;
             // 
             // checkBox1
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(260, 58);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(75, 17);
-            this.checkBox1.TabIndex = 18;
-            this.checkBox1.Text = "Highlight";
-            this.checkBox1.UseVisualStyleBackColor = true;
-            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            checkBox1.AutoSize = true;
+            checkBox1.Location = new System.Drawing.Point(260, 58);
+            checkBox1.Name = "checkBox1";
+            checkBox1.Size = new System.Drawing.Size(75, 17);
+            checkBox1.TabIndex = 18;
+            checkBox1.Text = "Highlight";
+            checkBox1.UseVisualStyleBackColor = true;
+            checkBox1.CheckedChanged += checkBox1_CheckedChanged;
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(13, 327);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(70, 38);
-            this.button5.TabIndex = 19;
-            this.button5.Text = "Mark for Removal";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            button5.Location = new System.Drawing.Point(13, 327);
+            button5.Name = "button5";
+            button5.Size = new System.Drawing.Size(70, 38);
+            button5.TabIndex = 19;
+            button5.Text = "Mark for Removal";
+            button5.UseVisualStyleBackColor = true;
+            button5.Click += button5_Click;
             // 
             // label4
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(6, 11);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(19, 13);
-            this.label4.TabIndex = 20;
-            this.label4.Text = "---";
+            label4.AutoSize = true;
+            label4.Location = new System.Drawing.Point(6, 11);
+            label4.Name = "label4";
+            label4.Size = new System.Drawing.Size(19, 13);
+            label4.TabIndex = 20;
+            label4.Text = "---";
             // 
             // listBox1
             // 
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(6, 70);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(160, 147);
-            this.listBox1.TabIndex = 21;
-            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
+            listBox1.FormattingEnabled = true;
+            listBox1.ItemHeight = 13;
+            listBox1.Location = new System.Drawing.Point(6, 70);
+            listBox1.Name = "listBox1";
+            listBox1.Size = new System.Drawing.Size(160, 147);
+            listBox1.TabIndex = 21;
+            listBox1.SelectedIndexChanged += listBox1_SelectedIndexChanged;
             // 
             // listBox2
             // 
-            this.listBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.listBox2.FormattingEnabled = true;
-            this.listBox2.HorizontalScrollbar = true;
-            this.listBox2.Location = new System.Drawing.Point(6, 256);
-            this.listBox2.Name = "listBox2";
-            this.listBox2.SelectionMode = System.Windows.Forms.SelectionMode.None;
-            this.listBox2.Size = new System.Drawing.Size(329, 225);
-            this.listBox2.TabIndex = 22;
-            this.listBox2.SelectedIndexChanged += new System.EventHandler(this.listBox2_SelectedIndexChanged);
+            listBox2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            listBox2.FormattingEnabled = true;
+            listBox2.HorizontalScrollbar = true;
+            listBox2.ItemHeight = 13;
+            listBox2.Location = new System.Drawing.Point(6, 256);
+            listBox2.Name = "listBox2";
+            listBox2.SelectionMode = SelectionMode.None;
+            listBox2.Size = new System.Drawing.Size(329, 225);
+            listBox2.TabIndex = 22;
+            listBox2.SelectedIndexChanged += listBox2_SelectedIndexChanged;
             // 
             // listBox3
             // 
-            this.listBox3.FormattingEnabled = true;
-            this.listBox3.Location = new System.Drawing.Point(175, 70);
-            this.listBox3.Name = "listBox3";
-            this.listBox3.Size = new System.Drawing.Size(160, 147);
-            this.listBox3.TabIndex = 23;
-            this.listBox3.SelectedIndexChanged += new System.EventHandler(this.listBox3_SelectedIndexChanged);
+            listBox3.FormattingEnabled = true;
+            listBox3.ItemHeight = 13;
+            listBox3.Location = new System.Drawing.Point(175, 70);
+            listBox3.Name = "listBox3";
+            listBox3.Size = new System.Drawing.Size(160, 147);
+            listBox3.TabIndex = 23;
+            listBox3.SelectedIndexChanged += listBox3_SelectedIndexChanged;
             // 
             // label5
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(172, 54);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(79, 13);
-            this.label5.TabIndex = 24;
-            this.label5.Text = "Overridden By";
+            label5.AutoSize = true;
+            label5.Location = new System.Drawing.Point(172, 54);
+            label5.Name = "label5";
+            label5.Size = new System.Drawing.Size(79, 13);
+            label5.TabIndex = 24;
+            label5.Text = "Overridden By";
             // 
             // label6
             // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(3, 54);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(62, 13);
-            this.label6.TabIndex = 25;
-            this.label6.Text = "Overriding";
+            label6.AutoSize = true;
+            label6.Location = new System.Drawing.Point(3, 54);
+            label6.Name = "label6";
+            label6.Size = new System.Drawing.Size(62, 13);
+            label6.TabIndex = 25;
+            label6.Text = "Overriding";
             // 
             // label7
             // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(3, 240);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(90, 13);
-            this.label7.TabIndex = 26;
-            this.label7.Text = "Manifest Entries";
+            label7.AutoSize = true;
+            label7.Location = new System.Drawing.Point(3, 240);
+            label7.Name = "label7";
+            label7.Size = new System.Drawing.Size(90, 13);
+            label7.TabIndex = 26;
+            label7.Text = "Manifest Entries";
             // 
             // tabControl1
             // 
-            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tabControl1.Controls.Add(this.tabPage3);
-            this.tabControl1.Controls.Add(this.tabPageModInfo);
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Location = new System.Drawing.Point(838, 26);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(346, 528);
-            this.tabControl1.TabIndex = 30;
+            tabControl1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+            tabControl1.Controls.Add(tabPage3);
+            tabControl1.Controls.Add(tabPageModInfo);
+            tabControl1.Controls.Add(tabPage1);
+            tabControl1.Controls.Add(tabPage2);
+            tabControl1.Location = new System.Drawing.Point(838, 26);
+            tabControl1.Name = "tabControl1";
+            tabControl1.SelectedIndex = 0;
+            tabControl1.Size = new System.Drawing.Size(346, 528);
+            tabControl1.TabIndex = 30;
             // 
             // tabPage3
             // 
-            this.tabPage3.Controls.Add(this.button12);
-            this.tabPage3.Controls.Add(this.textBox2);
-            this.tabPage3.Controls.Add(this.listBox4);
-            this.tabPage3.Controls.Add(this.button11);
-            this.tabPage3.Controls.Add(this.button7);
-            this.tabPage3.Location = new System.Drawing.Point(4, 22);
-            this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(338, 502);
-            this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "Save/Load Presets";
-            this.tabPage3.UseVisualStyleBackColor = true;
+            tabPage3.Controls.Add(button12);
+            tabPage3.Controls.Add(textBox2);
+            tabPage3.Controls.Add(listBox4);
+            tabPage3.Controls.Add(button11);
+            tabPage3.Controls.Add(button7);
+            tabPage3.Location = new System.Drawing.Point(4, 22);
+            tabPage3.Name = "tabPage3";
+            tabPage3.Padding = new Padding(3);
+            tabPage3.Size = new System.Drawing.Size(338, 502);
+            tabPage3.TabIndex = 2;
+            tabPage3.Text = "Save/Load Presets";
+            tabPage3.UseVisualStyleBackColor = true;
             // 
             // button12
             // 
-            this.button12.Location = new System.Drawing.Point(243, 13);
-            this.button12.Name = "button12";
-            this.button12.Size = new System.Drawing.Size(86, 41);
-            this.button12.TabIndex = 5;
-            this.button12.Text = "Delete Preset";
-            this.button12.UseVisualStyleBackColor = true;
-            this.button12.Click += new System.EventHandler(this.button12_Click);
+            button12.Location = new System.Drawing.Point(243, 13);
+            button12.Name = "button12";
+            button12.Size = new System.Drawing.Size(86, 41);
+            button12.TabIndex = 5;
+            button12.Text = "Delete Preset";
+            button12.UseVisualStyleBackColor = true;
+            button12.Click += button12_Click;
             // 
             // textBox2
             // 
-            this.textBox2.Location = new System.Drawing.Point(6, 84);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(323, 22);
-            this.textBox2.TabIndex = 4;
-            this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
+            textBox2.Location = new System.Drawing.Point(6, 84);
+            textBox2.Name = "textBox2";
+            textBox2.Size = new System.Drawing.Size(323, 22);
+            textBox2.TabIndex = 4;
+            textBox2.TextChanged += textBox2_TextChanged;
             // 
             // listBox4
             // 
-            this.listBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.listBox4.FormattingEnabled = true;
-            this.listBox4.Location = new System.Drawing.Point(7, 125);
-            this.listBox4.Name = "listBox4";
-            this.listBox4.Size = new System.Drawing.Size(323, 368);
-            this.listBox4.TabIndex = 3;
-            this.listBox4.SelectedIndexChanged += new System.EventHandler(this.listBox4_SelectedIndexChanged);
+            listBox4.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            listBox4.FormattingEnabled = true;
+            listBox4.ItemHeight = 13;
+            listBox4.Location = new System.Drawing.Point(7, 125);
+            listBox4.Name = "listBox4";
+            listBox4.Size = new System.Drawing.Size(323, 342);
+            listBox4.TabIndex = 3;
+            listBox4.SelectedIndexChanged += listBox4_SelectedIndexChanged;
             // 
             // button11
             // 
-            this.button11.Location = new System.Drawing.Point(125, 13);
-            this.button11.Name = "button11";
-            this.button11.Size = new System.Drawing.Size(86, 41);
-            this.button11.TabIndex = 2;
-            this.button11.Text = "Load Preset";
-            this.button11.UseVisualStyleBackColor = true;
-            this.button11.Click += new System.EventHandler(this.button11_Click);
+            button11.Location = new System.Drawing.Point(125, 13);
+            button11.Name = "button11";
+            button11.Size = new System.Drawing.Size(86, 41);
+            button11.TabIndex = 2;
+            button11.Text = "Load Preset";
+            button11.UseVisualStyleBackColor = true;
+            button11.Click += button11_Click;
             // 
             // button7
             // 
-            this.button7.Location = new System.Drawing.Point(7, 13);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(86, 41);
-            this.button7.TabIndex = 1;
-            this.button7.Text = "Save Preset";
-            this.button7.UseVisualStyleBackColor = true;
-            this.button7.Click += new System.EventHandler(this.button7_Click);
+            button7.Location = new System.Drawing.Point(7, 13);
+            button7.Name = "button7";
+            button7.Size = new System.Drawing.Size(86, 41);
+            button7.TabIndex = 1;
+            button7.Text = "Save Preset";
+            button7.UseVisualStyleBackColor = true;
+            button7.Click += button7_Click;
             // 
             // tabPageModInfo
             // 
-            this.tabPageModInfo.Controls.Add(this.panelModInfo);
-            this.tabPageModInfo.Location = new System.Drawing.Point(4, 22);
-            this.tabPageModInfo.Name = "tabPageModInfo";
-            this.tabPageModInfo.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageModInfo.Size = new System.Drawing.Size(338, 502);
-            this.tabPageModInfo.TabIndex = 3;
-            this.tabPageModInfo.Text = "Overview";
-            this.tabPageModInfo.UseVisualStyleBackColor = true;
+            tabPageModInfo.Controls.Add(panelModInfo);
+            tabPageModInfo.Location = new System.Drawing.Point(4, 24);
+            tabPageModInfo.Name = "tabPageModInfo";
+            tabPageModInfo.Padding = new Padding(3);
+            tabPageModInfo.Size = new System.Drawing.Size(338, 500);
+            tabPageModInfo.TabIndex = 3;
+            tabPageModInfo.Text = "Overview";
+            tabPageModInfo.UseVisualStyleBackColor = true;
             // 
             // panelModInfo
             // 
-            this.panelModInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.panelModInfo.Controls.Add(this.label1);
-            this.panelModInfo.Controls.Add(this.richTextBoxModDescription);
-            this.panelModInfo.Controls.Add(this.labelSteamId);
-            this.panelModInfo.Controls.Add(this.linkLabelSteamId);
-            this.panelModInfo.Controls.Add(this.linkLabelModAuthorUrl);
-            this.panelModInfo.Controls.Add(this.labelModBuildNumber);
-            this.panelModInfo.Controls.Add(this.labelModVersion);
-            this.panelModInfo.Controls.Add(this.labelModAuthor);
-            this.panelModInfo.Controls.Add(this.labelModName);
-            this.panelModInfo.Location = new System.Drawing.Point(6, 6);
-            this.panelModInfo.Name = "panelModInfo";
-            this.panelModInfo.Size = new System.Drawing.Size(324, 487);
-            this.panelModInfo.TabIndex = 1;
-            this.panelModInfo.Visible = false;
+            panelModInfo.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            panelModInfo.Controls.Add(label1);
+            panelModInfo.Controls.Add(richTextBoxModDescription);
+            panelModInfo.Controls.Add(labelSteamId);
+            panelModInfo.Controls.Add(linkLabelSteamId);
+            panelModInfo.Controls.Add(linkLabelModAuthorUrl);
+            panelModInfo.Controls.Add(labelModBuildNumber);
+            panelModInfo.Controls.Add(labelModVersion);
+            panelModInfo.Controls.Add(labelModAuthor);
+            panelModInfo.Controls.Add(labelModName);
+            panelModInfo.Location = new System.Drawing.Point(6, 6);
+            panelModInfo.Name = "panelModInfo";
+            panelModInfo.Size = new System.Drawing.Size(324, 487);
+            panelModInfo.TabIndex = 1;
+            panelModInfo.Visible = false;
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 154);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(69, 13);
-            this.label1.TabIndex = 10;
-            this.label1.Text = "Description:";
+            label1.AutoSize = true;
+            label1.Location = new System.Drawing.Point(12, 154);
+            label1.Name = "label1";
+            label1.Size = new System.Drawing.Size(69, 13);
+            label1.TabIndex = 10;
+            label1.Text = "Description:";
             // 
             // richTextBoxModDescription
             // 
-            this.richTextBoxModDescription.Location = new System.Drawing.Point(15, 173);
-            this.richTextBoxModDescription.Name = "richTextBoxModDescription";
-            this.richTextBoxModDescription.ReadOnly = true;
-            this.richTextBoxModDescription.Size = new System.Drawing.Size(295, 221);
-            this.richTextBoxModDescription.TabIndex = 9;
-            this.richTextBoxModDescription.Text = "";
-            this.richTextBoxModDescription.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.richTextBoxModDescription_LinkClicked);
+            richTextBoxModDescription.Location = new System.Drawing.Point(15, 173);
+            richTextBoxModDescription.Name = "richTextBoxModDescription";
+            richTextBoxModDescription.ReadOnly = true;
+            richTextBoxModDescription.Size = new System.Drawing.Size(295, 221);
+            richTextBoxModDescription.TabIndex = 9;
+            richTextBoxModDescription.Text = "";
+            richTextBoxModDescription.LinkClicked += richTextBoxModDescription_LinkClicked;
             // 
             // labelSteamId
             // 
-            this.labelSteamId.AutoSize = true;
-            this.labelSteamId.Location = new System.Drawing.Point(12, 124);
-            this.labelSteamId.Name = "labelSteamId";
-            this.labelSteamId.Size = new System.Drawing.Size(55, 13);
-            this.labelSteamId.TabIndex = 8;
-            this.labelSteamId.Text = "Steam ID:";
+            labelSteamId.AutoSize = true;
+            labelSteamId.Location = new System.Drawing.Point(12, 124);
+            labelSteamId.Name = "labelSteamId";
+            labelSteamId.Size = new System.Drawing.Size(55, 13);
+            labelSteamId.TabIndex = 8;
+            labelSteamId.Text = "Steam ID:";
             // 
             // linkLabelSteamId
             // 
-            this.linkLabelSteamId.AutoSize = true;
-            this.linkLabelSteamId.Location = new System.Drawing.Point(73, 124);
-            this.linkLabelSteamId.Name = "linkLabelSteamId";
-            this.linkLabelSteamId.Size = new System.Drawing.Size(94, 13);
-            this.linkLabelSteamId.TabIndex = 7;
-            this.linkLabelSteamId.TabStop = true;
-            this.linkLabelSteamId.Text = "linkLabelSteamId";
-            this.linkLabelSteamId.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelSteamId_LinkClicked);
+            linkLabelSteamId.AutoSize = true;
+            linkLabelSteamId.Location = new System.Drawing.Point(73, 124);
+            linkLabelSteamId.Name = "linkLabelSteamId";
+            linkLabelSteamId.Size = new System.Drawing.Size(94, 13);
+            linkLabelSteamId.TabIndex = 7;
+            linkLabelSteamId.TabStop = true;
+            linkLabelSteamId.Text = "linkLabelSteamId";
+            linkLabelSteamId.LinkClicked += linkLabelSteamId_LinkClicked;
             // 
             // linkLabelModAuthorUrl
             // 
-            this.linkLabelModAuthorUrl.AutoSize = true;
-            this.linkLabelModAuthorUrl.Location = new System.Drawing.Point(12, 54);
-            this.linkLabelModAuthorUrl.Name = "linkLabelModAuthorUrl";
-            this.linkLabelModAuthorUrl.Size = new System.Drawing.Size(59, 13);
-            this.linkLabelModAuthorUrl.TabIndex = 6;
-            this.linkLabelModAuthorUrl.TabStop = true;
-            this.linkLabelModAuthorUrl.Text = "linkLabel1";
-            this.linkLabelModAuthorUrl.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelModAuthorUrl_LinkClicked);
+            linkLabelModAuthorUrl.AutoSize = true;
+            linkLabelModAuthorUrl.Location = new System.Drawing.Point(12, 54);
+            linkLabelModAuthorUrl.Name = "linkLabelModAuthorUrl";
+            linkLabelModAuthorUrl.Size = new System.Drawing.Size(59, 13);
+            linkLabelModAuthorUrl.TabIndex = 6;
+            linkLabelModAuthorUrl.TabStop = true;
+            linkLabelModAuthorUrl.Text = "linkLabel1";
+            linkLabelModAuthorUrl.LinkClicked += linkLabelModAuthorUrl_LinkClicked;
             // 
             // labelModBuildNumber
             // 
-            this.labelModBuildNumber.AutoSize = true;
-            this.labelModBuildNumber.Location = new System.Drawing.Point(12, 98);
-            this.labelModBuildNumber.Name = "labelModBuildNumber";
-            this.labelModBuildNumber.Size = new System.Drawing.Size(123, 13);
-            this.labelModBuildNumber.TabIndex = 4;
-            this.labelModBuildNumber.Text = "labelModBuildNumber";
+            labelModBuildNumber.AutoSize = true;
+            labelModBuildNumber.Location = new System.Drawing.Point(12, 98);
+            labelModBuildNumber.Name = "labelModBuildNumber";
+            labelModBuildNumber.Size = new System.Drawing.Size(123, 13);
+            labelModBuildNumber.TabIndex = 4;
+            labelModBuildNumber.Text = "labelModBuildNumber";
             // 
             // labelModVersion
             // 
-            this.labelModVersion.AutoSize = true;
-            this.labelModVersion.Location = new System.Drawing.Point(12, 81);
-            this.labelModVersion.Name = "labelModVersion";
-            this.labelModVersion.Size = new System.Drawing.Size(94, 13);
-            this.labelModVersion.TabIndex = 3;
-            this.labelModVersion.Text = "labelModVersion";
+            labelModVersion.AutoSize = true;
+            labelModVersion.Location = new System.Drawing.Point(12, 81);
+            labelModVersion.Name = "labelModVersion";
+            labelModVersion.Size = new System.Drawing.Size(94, 13);
+            labelModVersion.TabIndex = 3;
+            labelModVersion.Text = "labelModVersion";
             // 
             // labelModAuthor
             // 
-            this.labelModAuthor.AutoSize = true;
-            this.labelModAuthor.Location = new System.Drawing.Point(12, 36);
-            this.labelModAuthor.Name = "labelModAuthor";
-            this.labelModAuthor.Size = new System.Drawing.Size(92, 13);
-            this.labelModAuthor.TabIndex = 2;
-            this.labelModAuthor.Text = "labelModAuthor";
+            labelModAuthor.AutoSize = true;
+            labelModAuthor.Location = new System.Drawing.Point(12, 36);
+            labelModAuthor.Name = "labelModAuthor";
+            labelModAuthor.Size = new System.Drawing.Size(92, 13);
+            labelModAuthor.TabIndex = 2;
+            labelModAuthor.Text = "labelModAuthor";
             // 
             // labelModName
             // 
-            this.labelModName.AutoSize = true;
-            this.labelModName.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelModName.Location = new System.Drawing.Point(12, 10);
-            this.labelModName.Name = "labelModName";
-            this.labelModName.Size = new System.Drawing.Size(88, 13);
-            this.labelModName.TabIndex = 1;
-            this.labelModName.Text = "labelModName";
+            labelModName.AutoSize = true;
+            labelModName.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            labelModName.Location = new System.Drawing.Point(12, 10);
+            labelModName.Name = "labelModName";
+            labelModName.Size = new System.Drawing.Size(88, 13);
+            labelModName.TabIndex = 1;
+            labelModName.Text = "labelModName";
             // 
             // tabPage1
             // 
-            this.tabPage1.Controls.Add(this.label6);
-            this.tabPage1.Controls.Add(this.label4);
-            this.tabPage1.Controls.Add(this.listBox1);
-            this.tabPage1.Controls.Add(this.label7);
-            this.tabPage1.Controls.Add(this.listBox2);
-            this.tabPage1.Controls.Add(this.listBox3);
-            this.tabPage1.Controls.Add(this.label5);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(338, 502);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "Overrding Data";
-            this.tabPage1.UseVisualStyleBackColor = true;
-            this.tabPage1.Click += new System.EventHandler(this.tabPage1_Click);
+            tabPage1.Controls.Add(label6);
+            tabPage1.Controls.Add(label4);
+            tabPage1.Controls.Add(listBox1);
+            tabPage1.Controls.Add(label7);
+            tabPage1.Controls.Add(listBox2);
+            tabPage1.Controls.Add(listBox3);
+            tabPage1.Controls.Add(label5);
+            tabPage1.Location = new System.Drawing.Point(4, 24);
+            tabPage1.Name = "tabPage1";
+            tabPage1.Padding = new Padding(3);
+            tabPage1.Size = new System.Drawing.Size(338, 500);
+            tabPage1.TabIndex = 0;
+            tabPage1.Text = "Overrding Data";
+            tabPage1.UseVisualStyleBackColor = true;
+            tabPage1.Click += tabPage1_Click;
             // 
             // tabPage2
             // 
-            this.tabPage2.BackColor = System.Drawing.Color.Transparent;
-            this.tabPage2.Controls.Add(this.listView2);
-            this.tabPage2.Controls.Add(this.label8);
-            this.tabPage2.Cursor = System.Windows.Forms.Cursors.Default;
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(338, 502);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Dependencies";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            tabPage2.BackColor = System.Drawing.Color.Transparent;
+            tabPage2.Controls.Add(listView2);
+            tabPage2.Controls.Add(label8);
+            tabPage2.Location = new System.Drawing.Point(4, 24);
+            tabPage2.Name = "tabPage2";
+            tabPage2.Padding = new Padding(3);
+            tabPage2.Size = new System.Drawing.Size(338, 500);
+            tabPage2.TabIndex = 1;
+            tabPage2.Text = "Dependencies";
+            tabPage2.UseVisualStyleBackColor = true;
             // 
             // listView2
             // 
-            this.listView2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.listView2.HideSelection = false;
-            this.listView2.Location = new System.Drawing.Point(6, 69);
-            this.listView2.Name = "listView2";
-            this.listView2.Size = new System.Drawing.Size(329, 410);
-            this.listView2.TabIndex = 32;
-            this.listView2.UseCompatibleStateImageBehavior = false;
-            this.listView2.View = System.Windows.Forms.View.List;
+            listView2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            listView2.Location = new System.Drawing.Point(6, 69);
+            listView2.Name = "listView2";
+            listView2.Size = new System.Drawing.Size(329, 410);
+            listView2.TabIndex = 32;
+            listView2.UseCompatibleStateImageBehavior = false;
+            listView2.View = View.List;
             // 
             // label8
             // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 11);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(19, 13);
-            this.label8.TabIndex = 31;
-            this.label8.Text = "---";
+            label8.AutoSize = true;
+            label8.Location = new System.Drawing.Point(6, 11);
+            label8.Name = "label8";
+            label8.Size = new System.Drawing.Size(19, 13);
+            label8.TabIndex = 31;
+            label8.Text = "---";
             // 
             // backgroundWorker2
             // 
-            this.backgroundWorker2.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker2_DoWork);
-            this.backgroundWorker2.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker2_ProgressChanged);
-            this.backgroundWorker2.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker2_RunWorkerCompleted);
-            // 
-            // textBox3
-            // 
-            this.textBox3.Location = new System.Drawing.Point(513, 26);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.ReadOnly = true;
-            this.textBox3.Size = new System.Drawing.Size(253, 22);
-            this.textBox3.TabIndex = 34;
-            this.textBox3.Visible = false;
+            backgroundWorker2.DoWork += backgroundWorker2_DoWork;
+            backgroundWorker2.ProgressChanged += backgroundWorker2_ProgressChanged;
+            backgroundWorker2.RunWorkerCompleted += backgroundWorker2_RunWorkerCompleted;
             // 
             // menuStrip1
             // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.modsToolStripMenuItem,
-            this.helpToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1184, 24);
-            this.menuStrip1.TabIndex = 35;
-            this.menuStrip1.Text = "menuStrip1";
+            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, modsToolStripMenuItem, helpToolStripMenuItem });
+            menuStrip1.Location = new System.Drawing.Point(0, 0);
+            menuStrip1.Name = "menuStrip1";
+            menuStrip1.Size = new System.Drawing.Size(1184, 24);
+            menuStrip1.TabIndex = 35;
+            menuStrip1.Text = "menuStrip1";
             // 
             // fileToolStripMenuItem
             // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.installDirectoryToolStripMenuItem1,
-            this.setvendorToolStripMenuItem,
-            this.toolStripSeparator6,
-            this.exportLoadOrderToolStripMenuItem1,
-            this.importLoadOrderToolStripMenuItem1,
-            this.toolStripSeparator7,
-            this.exportmodsFolderToolStripMenuItem1,
-            this.shareModsViaTCPToolStripMenuItem,
-            this.toolStripSeparator1,
-            this.exitToolStripMenuItem});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.fileToolStripMenuItem.Text = "&File";
-            this.fileToolStripMenuItem.Click += new System.EventHandler(this.fileToolStripMenuItem_Click);
-            // 
-            // installDirectoryToolStripMenuItem1
-            // 
-            this.installDirectoryToolStripMenuItem1.Name = "installDirectoryToolStripMenuItem1";
-            this.installDirectoryToolStripMenuItem1.Size = new System.Drawing.Size(189, 22);
-            this.installDirectoryToolStripMenuItem1.Text = "Select &install directory";
-            this.installDirectoryToolStripMenuItem1.Click += new System.EventHandler(this.installDirectoryToolStripMenuItem1_Click);
-            // 
-            // setvendorToolStripMenuItem
-            // 
-            this.setvendorToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.epicStoreToolStripMenuItem1,
-            this.gOGToolStripMenuItem1,
-            this.steamToolStripMenuItem1,
-            this.windowsStoreToolStripMenuItem1});
-            this.setvendorToolStripMenuItem.Name = "setvendorToolStripMenuItem";
-            this.setvendorToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
-            this.setvendorToolStripMenuItem.Text = "Set &vendor";
-            // 
-            // epicStoreToolStripMenuItem1
-            // 
-            this.epicStoreToolStripMenuItem1.Name = "epicStoreToolStripMenuItem1";
-            this.epicStoreToolStripMenuItem1.Size = new System.Drawing.Size(153, 22);
-            this.epicStoreToolStripMenuItem1.Text = "E&pic Store";
-            this.epicStoreToolStripMenuItem1.Click += new System.EventHandler(this.epicStoreToolStripMenuItem1_Click);
-            // 
-            // gOGToolStripMenuItem1
-            // 
-            this.gOGToolStripMenuItem1.Name = "gOGToolStripMenuItem1";
-            this.gOGToolStripMenuItem1.Size = new System.Drawing.Size(153, 22);
-            this.gOGToolStripMenuItem1.Text = "&GOG";
-            this.gOGToolStripMenuItem1.Click += new System.EventHandler(this.gOGToolStripMenuItem1_Click);
-            // 
-            // steamToolStripMenuItem1
-            // 
-            this.steamToolStripMenuItem1.Name = "steamToolStripMenuItem1";
-            this.steamToolStripMenuItem1.Size = new System.Drawing.Size(153, 22);
-            this.steamToolStripMenuItem1.Text = "&Steam";
-            this.steamToolStripMenuItem1.Click += new System.EventHandler(this.steamToolStripMenuItem1_Click);
-            // 
-            // windowsStoreToolStripMenuItem1
-            // 
-            this.windowsStoreToolStripMenuItem1.Name = "windowsStoreToolStripMenuItem1";
-            this.windowsStoreToolStripMenuItem1.Size = new System.Drawing.Size(153, 22);
-            this.windowsStoreToolStripMenuItem1.Text = "&Windows Store";
-            this.windowsStoreToolStripMenuItem1.Click += new System.EventHandler(this.windowsStoreToolStripMenuItem1_Click);
-            // 
-            // toolStripSeparator6
-            // 
-            this.toolStripSeparator6.Name = "toolStripSeparator6";
-            this.toolStripSeparator6.Size = new System.Drawing.Size(186, 6);
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportLoadOrderToolStripMenuItem1, importLoadOrderToolStripMenuItem1, toolStripSeparator7, exportmodsFolderToolStripMenuItem1, shareModsViaTCPToolStripMenuItem, toolStripSeparator2, toolStripMenuItemSettings, toolStripSeparator1, exitToolStripMenuItem });
+            fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            fileToolStripMenuItem.Text = "&File";
+            fileToolStripMenuItem.Click += fileToolStripMenuItem_Click;
             // 
             // exportLoadOrderToolStripMenuItem1
             // 
-            this.exportLoadOrderToolStripMenuItem1.Name = "exportLoadOrderToolStripMenuItem1";
-            this.exportLoadOrderToolStripMenuItem1.Size = new System.Drawing.Size(189, 22);
-            this.exportLoadOrderToolStripMenuItem1.Text = "&Export load order";
-            this.exportLoadOrderToolStripMenuItem1.Click += new System.EventHandler(this.exportLoadOrderToolStripMenuItem1_Click);
+            exportLoadOrderToolStripMenuItem1.Name = "exportLoadOrderToolStripMenuItem1";
+            exportLoadOrderToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            exportLoadOrderToolStripMenuItem1.Text = "&Export load order...";
+            exportLoadOrderToolStripMenuItem1.Click += exportLoadOrderToolStripMenuItem1_Click;
             // 
             // importLoadOrderToolStripMenuItem1
             // 
-            this.importLoadOrderToolStripMenuItem1.Name = "importLoadOrderToolStripMenuItem1";
-            this.importLoadOrderToolStripMenuItem1.Size = new System.Drawing.Size(189, 22);
-            this.importLoadOrderToolStripMenuItem1.Text = "&Import load order";
-            this.importLoadOrderToolStripMenuItem1.Click += new System.EventHandler(this.importLoadOrderToolStripMenuItem1_Click);
+            importLoadOrderToolStripMenuItem1.Name = "importLoadOrderToolStripMenuItem1";
+            importLoadOrderToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            importLoadOrderToolStripMenuItem1.Text = "&Import load order...";
+            importLoadOrderToolStripMenuItem1.Click += importLoadOrderToolStripMenuItem1_Click;
             // 
             // toolStripSeparator7
             // 
-            this.toolStripSeparator7.Name = "toolStripSeparator7";
-            this.toolStripSeparator7.Size = new System.Drawing.Size(186, 6);
+            toolStripSeparator7.Name = "toolStripSeparator7";
+            toolStripSeparator7.Size = new System.Drawing.Size(177, 6);
             // 
             // exportmodsFolderToolStripMenuItem1
             // 
-            this.exportmodsFolderToolStripMenuItem1.Name = "exportmodsFolderToolStripMenuItem1";
-            this.exportmodsFolderToolStripMenuItem1.Size = new System.Drawing.Size(189, 22);
-            this.exportmodsFolderToolStripMenuItem1.Text = "Export &mods folder";
-            this.exportmodsFolderToolStripMenuItem1.Click += new System.EventHandler(this.exportmodsFolderToolStripMenuItem1_Click);
+            exportmodsFolderToolStripMenuItem1.Name = "exportmodsFolderToolStripMenuItem1";
+            exportmodsFolderToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            exportmodsFolderToolStripMenuItem1.Text = "Export &mods folder";
+            exportmodsFolderToolStripMenuItem1.Click += exportmodsFolderToolStripMenuItem1_Click;
             // 
             // shareModsViaTCPToolStripMenuItem
             // 
-            this.shareModsViaTCPToolStripMenuItem.Name = "shareModsViaTCPToolStripMenuItem";
-            this.shareModsViaTCPToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
-            this.shareModsViaTCPToolStripMenuItem.Text = "Share mods via &TCP";
-            this.shareModsViaTCPToolStripMenuItem.Visible = false;
-            this.shareModsViaTCPToolStripMenuItem.Click += new System.EventHandler(this.shareModsViaTCPToolStripMenuItem_Click);
+            shareModsViaTCPToolStripMenuItem.Name = "shareModsViaTCPToolStripMenuItem";
+            shareModsViaTCPToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            shareModsViaTCPToolStripMenuItem.Text = "Share mods via &TCP";
+            shareModsViaTCPToolStripMenuItem.Visible = false;
+            shareModsViaTCPToolStripMenuItem.Click += shareModsViaTCPToolStripMenuItem_Click;
+            // 
+            // toolStripSeparator2
+            // 
+            toolStripSeparator2.Name = "toolStripSeparator2";
+            toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
+            // 
+            // toolStripMenuItemSettings
+            // 
+            toolStripMenuItemSettings.Name = "toolStripMenuItemSettings";
+            toolStripMenuItemSettings.Size = new System.Drawing.Size(180, 22);
+            toolStripMenuItemSettings.Text = "&Settings";
+            toolStripMenuItemSettings.Click += toolStripMenuItemSettings_Click;
             // 
             // toolStripSeparator1
             // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(186, 6);
+            toolStripSeparator1.Name = "toolStripSeparator1";
+            toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
             // 
             // exitToolStripMenuItem
             // 
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
-            this.exitToolStripMenuItem.Text = "E&xit";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            exitToolStripMenuItem.Text = "E&xit";
+            exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
             // modsToolStripMenuItem
             // 
-            this.modsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openModsFolderToolStripMenuItem,
-            this.enableAllModsToolStripMenuItem,
-            this.disableAllModsToolStripMenuItem});
-            this.modsToolStripMenuItem.Name = "modsToolStripMenuItem";
-            this.modsToolStripMenuItem.Size = new System.Drawing.Size(49, 20);
-            this.modsToolStripMenuItem.Text = "&Mods";
+            modsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { openModsFolderToolStripMenuItem, enableAllModsToolStripMenuItem, disableAllModsToolStripMenuItem });
+            modsToolStripMenuItem.Name = "modsToolStripMenuItem";
+            modsToolStripMenuItem.Size = new System.Drawing.Size(49, 20);
+            modsToolStripMenuItem.Text = "&Mods";
             // 
             // openModsFolderToolStripMenuItem
             // 
-            this.openModsFolderToolStripMenuItem.Name = "openModsFolderToolStripMenuItem";
-            this.openModsFolderToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
-            this.openModsFolderToolStripMenuItem.Text = "&Open Mods Folder";
-            this.openModsFolderToolStripMenuItem.Click += new System.EventHandler(this.openModsFolderToolStripMenuItem_Click);
+            openModsFolderToolStripMenuItem.Name = "openModsFolderToolStripMenuItem";
+            openModsFolderToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            openModsFolderToolStripMenuItem.Text = "&Open Mods Folder";
+            openModsFolderToolStripMenuItem.Click += openModsFolderToolStripMenuItem_Click;
             // 
             // enableAllModsToolStripMenuItem
             // 
-            this.enableAllModsToolStripMenuItem.Name = "enableAllModsToolStripMenuItem";
-            this.enableAllModsToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
-            this.enableAllModsToolStripMenuItem.Text = "&Enable all mods";
-            this.enableAllModsToolStripMenuItem.Click += new System.EventHandler(this.enableAllModsToolStripMenuItem_Click);
+            enableAllModsToolStripMenuItem.Name = "enableAllModsToolStripMenuItem";
+            enableAllModsToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            enableAllModsToolStripMenuItem.Text = "&Enable all mods";
+            enableAllModsToolStripMenuItem.Click += enableAllModsToolStripMenuItem_Click;
             // 
             // disableAllModsToolStripMenuItem
             // 
-            this.disableAllModsToolStripMenuItem.Name = "disableAllModsToolStripMenuItem";
-            this.disableAllModsToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
-            this.disableAllModsToolStripMenuItem.Text = "&Disable all mods";
-            this.disableAllModsToolStripMenuItem.Click += new System.EventHandler(this.disableAllModsToolStripMenuItem_Click);
+            disableAllModsToolStripMenuItem.Name = "disableAllModsToolStripMenuItem";
+            disableAllModsToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            disableAllModsToolStripMenuItem.Text = "&Disable all mods";
+            disableAllModsToolStripMenuItem.Click += disableAllModsToolStripMenuItem_Click;
             // 
             // helpToolStripMenuItem
             // 
-            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.aboutToolStripMenuItem});
-            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
-            this.helpToolStripMenuItem.Text = "&Help";
+            helpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aboutToolStripMenuItem });
+            helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            helpToolStripMenuItem.Text = "&Help";
             // 
             // aboutToolStripMenuItem
             // 
-            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
-            this.aboutToolStripMenuItem.Text = "Ab&out";
-            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            aboutToolStripMenuItem.Text = "Ab&out";
+            aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
             // 
             // statusStrip1
             // 
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripVendorLabel,
-            this.toolStripStatusLabelMwVersion});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 557);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1184, 22);
-            this.statusStrip1.TabIndex = 36;
-            this.statusStrip1.Text = "statusStrip1";
+            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripVendorLabel, toolStripStatusLabelMwVersion });
+            statusStrip1.Location = new System.Drawing.Point(0, 557);
+            statusStrip1.Name = "statusStrip1";
+            statusStrip1.Size = new System.Drawing.Size(1184, 22);
+            statusStrip1.TabIndex = 36;
+            statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabelMwVersion
             // 
-            this.toolStripStatusLabelMwVersion.Name = "toolStripStatusLabelMwVersion";
-            this.toolStripStatusLabelMwVersion.Size = new System.Drawing.Size(22, 17);
-            this.toolStripStatusLabelMwVersion.Text = "---";
+            toolStripStatusLabelMwVersion.Name = "toolStripStatusLabelMwVersion";
+            toolStripStatusLabelMwVersion.Size = new System.Drawing.Size(22, 17);
+            toolStripStatusLabelMwVersion.Text = "---";
             // 
             // rotatingLabel1
             // 
-            this.rotatingLabel1.AutoSize = true;
-            this.rotatingLabel1.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rotatingLabel1.Location = new System.Drawing.Point(100, 118);
-            this.rotatingLabel1.Name = "rotatingLabel1";
-            this.rotatingLabel1.NewText = "";
-            this.rotatingLabel1.RotateAngle = 0;
-            this.rotatingLabel1.Size = new System.Drawing.Size(18, 19);
-            this.rotatingLabel1.TabIndex = 12;
-            this.rotatingLabel1.Text = "X";
+            rotatingLabel1.AutoSize = true;
+            rotatingLabel1.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            rotatingLabel1.Location = new System.Drawing.Point(100, 118);
+            rotatingLabel1.Name = "rotatingLabel1";
+            rotatingLabel1.NewText = "";
+            rotatingLabel1.RotateAngle = 0;
+            rotatingLabel1.Size = new System.Drawing.Size(18, 19);
+            rotatingLabel1.TabIndex = 12;
+            rotatingLabel1.Text = "X";
             // 
             // contextMenuStripMod
             // 
-            this.contextMenuStripMod.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openFolderToolStripMenuItem});
-            this.contextMenuStripMod.Name = "contextMenuStripMod";
-            this.contextMenuStripMod.Size = new System.Drawing.Size(140, 26);
+            contextMenuStripMod.Items.AddRange(new ToolStripItem[] { openFolderToolStripMenuItem });
+            contextMenuStripMod.Name = "contextMenuStripMod";
+            contextMenuStripMod.Size = new System.Drawing.Size(140, 26);
             // 
             // openFolderToolStripMenuItem
             // 
-            this.openFolderToolStripMenuItem.Name = "openFolderToolStripMenuItem";
-            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
-            this.openFolderToolStripMenuItem.Text = "Open &Folder";
-            this.openFolderToolStripMenuItem.Click += new System.EventHandler(this.openFolderToolStripMenuItem_Click);
+            openFolderToolStripMenuItem.Name = "openFolderToolStripMenuItem";
+            openFolderToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            openFolderToolStripMenuItem.Text = "Open &Folder";
+            openFolderToolStripMenuItem.Click += openFolderToolStripMenuItem_Click;
+            // 
+            // textBox1
+            // 
+            textBox1.Location = new System.Drawing.Point(260, 26);
+            textBox1.Name = "textBox1";
+            textBox1.ReadOnly = true;
+            textBox1.Size = new System.Drawing.Size(506, 22);
+            textBox1.TabIndex = 5;
+            // 
+            // textBox3
+            // 
+            textBox3.Location = new System.Drawing.Point(513, 26);
+            textBox3.Name = "textBox3";
+            textBox3.ReadOnly = true;
+            textBox3.Size = new System.Drawing.Size(253, 22);
+            textBox3.TabIndex = 34;
+            textBox3.Visible = false;
             // 
             // MainWindow
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1184, 579);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.textBox3);
-            this.Controls.Add(this.rotatingLabel1);
-            this.Controls.Add(this.tabControl1);
-            this.Controls.Add(this.button5);
-            this.Controls.Add(this.checkBox1);
-            this.Controls.Add(this.filterBox);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.modsListView);
-            this.Controls.Add(this.menuStrip1);
-            this.Controls.Add(this.button6);
-            this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
-            this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.MainMenuStrip = this.menuStrip1;
-            this.MinimumSize = new System.Drawing.Size(900, 300);
-            this.Name = "MainWindow";
-            this.Text = "MW5 LoadOrderManager";
-            this.Load += new System.EventHandler(this.Form1_Load);
-            this.tabControl1.ResumeLayout(false);
-            this.tabPage3.ResumeLayout(false);
-            this.tabPage3.PerformLayout();
-            this.tabPageModInfo.ResumeLayout(false);
-            this.panelModInfo.ResumeLayout(false);
-            this.panelModInfo.PerformLayout();
-            this.tabPage1.ResumeLayout(false);
-            this.tabPage1.PerformLayout();
-            this.tabPage2.ResumeLayout(false);
-            this.tabPage2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.textProgressBarBindingSource)).EndInit();
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
-            this.statusStrip1.ResumeLayout(false);
-            this.statusStrip1.PerformLayout();
-            this.contextMenuStripMod.ResumeLayout(false);
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(1184, 579);
+            Controls.Add(button4);
+            Controls.Add(statusStrip1);
+            Controls.Add(textBox3);
+            Controls.Add(rotatingLabel1);
+            Controls.Add(tabControl1);
+            Controls.Add(button5);
+            Controls.Add(checkBox1);
+            Controls.Add(filterBox);
+            Controls.Add(label3);
+            Controls.Add(label2);
+            Controls.Add(modsListView);
+            Controls.Add(menuStrip1);
+            Controls.Add(button6);
+            Controls.Add(textBox1);
+            Controls.Add(button3);
+            Controls.Add(button2);
+            Controls.Add(button1);
+            Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
+            MainMenuStrip = menuStrip1;
+            MinimumSize = new System.Drawing.Size(900, 300);
+            Name = "MainWindow";
+            Text = "MW5 LoadOrderManager";
+            Load += Form1_Load;
+            tabControl1.ResumeLayout(false);
+            tabPage3.ResumeLayout(false);
+            tabPage3.PerformLayout();
+            tabPageModInfo.ResumeLayout(false);
+            panelModInfo.ResumeLayout(false);
+            panelModInfo.PerformLayout();
+            tabPage1.ResumeLayout(false);
+            tabPage1.PerformLayout();
+            tabPage2.ResumeLayout(false);
+            tabPage2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).EndInit();
+            menuStrip1.ResumeLayout(false);
+            menuStrip1.PerformLayout();
+            statusStrip1.ResumeLayout(false);
+            statusStrip1.PerformLayout();
+            contextMenuStripMod.ResumeLayout(false);
+            ResumeLayout(false);
+            PerformLayout();
         }
         #endregion
         private System.Windows.Forms.Button button1;
@@ -909,7 +831,6 @@ namespace MW5_Mod_Manager
         private System.Windows.Forms.Button button3;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
-        private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button button6;
         public System.Windows.Forms.ListView modsListView;
         public System.Windows.Forms.ColumnHeader display;
@@ -945,18 +866,10 @@ namespace MW5_Mod_Manager
         public Button button11;
         public Button button7;
         public Button button12;
-        public TextBox textBox3;
         private BindingSource textProgressBarBindingSource;
         private MenuStrip menuStrip1;
         private ToolStripMenuItem fileToolStripMenuItem;
         private StatusStrip statusStrip1;
-        private ToolStripMenuItem installDirectoryToolStripMenuItem1;
-        private ToolStripMenuItem setvendorToolStripMenuItem;
-        private ToolStripMenuItem epicStoreToolStripMenuItem1;
-        private ToolStripMenuItem gOGToolStripMenuItem1;
-        private ToolStripMenuItem steamToolStripMenuItem1;
-        private ToolStripMenuItem windowsStoreToolStripMenuItem1;
-        private ToolStripSeparator toolStripSeparator6;
         private ToolStripMenuItem exportLoadOrderToolStripMenuItem1;
         private ToolStripMenuItem importLoadOrderToolStripMenuItem1;
         private ToolStripSeparator toolStripSeparator7;
@@ -985,6 +898,10 @@ namespace MW5_Mod_Manager
         private LinkLabel linkLabelSteamId;
         private RichTextBox richTextBoxModDescription;
         private Label label1;
+        private ToolStripSeparator toolStripSeparator2;
+        private ToolStripMenuItem toolStripMenuItemSettings;
+        public TextBox textBox1;
+        public TextBox textBox3;
     }
 }
 
