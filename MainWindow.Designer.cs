@@ -67,6 +67,7 @@ namespace MW5_Mod_Manager
             button11 = new Button();
             button7 = new Button();
             tabPageModInfo = new TabPage();
+            pictureBoxModImage = new PictureBox();
             panelModInfo = new Panel();
             label1 = new Label();
             richTextBoxModDescription = new RichTextBox();
@@ -110,6 +111,7 @@ namespace MW5_Mod_Manager
             tabControl1.SuspendLayout();
             tabPage3.SuspendLayout();
             tabPageModInfo.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxModImage).BeginInit();
             panelModInfo.SuspendLayout();
             tabPage1.SuspendLayout();
             tabPage2.SuspendLayout();
@@ -163,7 +165,7 @@ namespace MW5_Mod_Manager
             button6.UseVisualStyleBackColor = true;
             button6.Click += button6_Click;
             // 
-            // toolStripVendorLabel
+            // toolStripPlatformLabel
             // 
             toolStripPlatformLabel.Name = "toolStripPlatformLabel";
             toolStripPlatformLabel.Size = new System.Drawing.Size(22, 17);
@@ -429,18 +431,29 @@ namespace MW5_Mod_Manager
             // 
             // tabPageModInfo
             // 
+            tabPageModInfo.Controls.Add(pictureBoxModImage);
             tabPageModInfo.Controls.Add(panelModInfo);
-            tabPageModInfo.Location = new System.Drawing.Point(4, 24);
+            tabPageModInfo.Location = new System.Drawing.Point(4, 22);
             tabPageModInfo.Name = "tabPageModInfo";
             tabPageModInfo.Padding = new Padding(3);
-            tabPageModInfo.Size = new System.Drawing.Size(338, 500);
+            tabPageModInfo.Size = new System.Drawing.Size(338, 502);
             tabPageModInfo.TabIndex = 3;
             tabPageModInfo.Text = "Overview";
             tabPageModInfo.UseVisualStyleBackColor = true;
             // 
+            // pictureBoxModImage
+            // 
+            pictureBoxModImage.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            pictureBoxModImage.Location = new System.Drawing.Point(12, 13);
+            pictureBoxModImage.Name = "pictureBoxModImage";
+            pictureBoxModImage.Size = new System.Drawing.Size(318, 141);
+            pictureBoxModImage.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxModImage.TabIndex = 2;
+            pictureBoxModImage.TabStop = false;
+            // 
             // panelModInfo
             // 
-            panelModInfo.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            panelModInfo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             panelModInfo.Controls.Add(label1);
             panelModInfo.Controls.Add(richTextBoxModDescription);
             panelModInfo.Controls.Add(labelSteamId);
@@ -450,9 +463,9 @@ namespace MW5_Mod_Manager
             panelModInfo.Controls.Add(labelModVersion);
             panelModInfo.Controls.Add(labelModAuthor);
             panelModInfo.Controls.Add(labelModName);
-            panelModInfo.Location = new System.Drawing.Point(6, 6);
+            panelModInfo.Location = new System.Drawing.Point(0, 152);
             panelModInfo.Name = "panelModInfo";
-            panelModInfo.Size = new System.Drawing.Size(324, 487);
+            panelModInfo.Size = new System.Drawing.Size(338, 365);
             panelModInfo.TabIndex = 1;
             panelModInfo.Visible = false;
             // 
@@ -467,10 +480,10 @@ namespace MW5_Mod_Manager
             // 
             // richTextBoxModDescription
             // 
-            richTextBoxModDescription.Location = new System.Drawing.Point(15, 173);
+            richTextBoxModDescription.Location = new System.Drawing.Point(15, 175);
             richTextBoxModDescription.Name = "richTextBoxModDescription";
             richTextBoxModDescription.ReadOnly = true;
-            richTextBoxModDescription.Size = new System.Drawing.Size(295, 221);
+            richTextBoxModDescription.Size = new System.Drawing.Size(295, 166);
             richTextBoxModDescription.TabIndex = 9;
             richTextBoxModDescription.Text = "";
             richTextBoxModDescription.LinkClicked += richTextBoxModDescription_LinkClicked;
@@ -552,10 +565,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(listBox2);
             tabPage1.Controls.Add(listBox3);
             tabPage1.Controls.Add(label5);
-            tabPage1.Location = new System.Drawing.Point(4, 24);
+            tabPage1.Location = new System.Drawing.Point(4, 22);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new System.Drawing.Size(338, 500);
+            tabPage1.Size = new System.Drawing.Size(338, 502);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrding Data";
             tabPage1.UseVisualStyleBackColor = true;
@@ -566,10 +579,10 @@ namespace MW5_Mod_Manager
             tabPage2.BackColor = System.Drawing.Color.Transparent;
             tabPage2.Controls.Add(listView2);
             tabPage2.Controls.Add(label8);
-            tabPage2.Location = new System.Drawing.Point(4, 24);
+            tabPage2.Location = new System.Drawing.Point(4, 22);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new System.Drawing.Size(338, 500);
+            tabPage2.Size = new System.Drawing.Size(338, 502);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "Dependencies";
             tabPage2.UseVisualStyleBackColor = true;
@@ -579,7 +592,7 @@ namespace MW5_Mod_Manager
             listView2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             listView2.Location = new System.Drawing.Point(6, 69);
             listView2.Name = "listView2";
-            listView2.Size = new System.Drawing.Size(329, 410);
+            listView2.Size = new System.Drawing.Size(329, 412);
             listView2.TabIndex = 32;
             listView2.UseCompatibleStateImageBehavior = false;
             listView2.View = View.List;
@@ -798,6 +811,7 @@ namespace MW5_Mod_Manager
             tabPage3.ResumeLayout(false);
             tabPage3.PerformLayout();
             tabPageModInfo.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)pictureBoxModImage).EndInit();
             panelModInfo.ResumeLayout(false);
             panelModInfo.PerformLayout();
             tabPage1.ResumeLayout(false);
@@ -890,6 +904,7 @@ namespace MW5_Mod_Manager
         private ToolStripSeparator toolStripSeparator3;
         private ToolStripMenuItem toolStripMenuItemOpenModFolderSteam;
         private ColumnHeader buildHeader;
+        private PictureBox pictureBoxModImage;
     }
 }
 

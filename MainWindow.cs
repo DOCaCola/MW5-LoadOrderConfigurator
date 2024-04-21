@@ -415,6 +415,12 @@ namespace MW5_Mod_Manager
         //For clearing the entire applications data
         public void ClearAll()
         {
+            listBox1.Items.Clear();
+            listBox2.Items.Clear();
+            listBox3.Items.Clear();
+            listView2.Items.Clear();
+            panelModInfo.Visible = false;
+            pictureBoxModImage.Image = null;
             this.ListViewData.Clear();
             this.modsListView.Items.Clear();
             logic.ClearAll();
@@ -1014,8 +1020,8 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-            string modKey = (string)modsListView.SelectedItems[0].Tag;
-            ModObject modDetails = logic.ModDetails[modKey];
+            string modPath = (string)modsListView.SelectedItems[0].Tag;
+            ModObject modDetails = logic.ModDetails[modPath];
 
             panelModInfo.Visible = true;
             labelModName.Text = SelectedModDisplayName;
@@ -1037,9 +1043,19 @@ namespace MW5_Mod_Manager
             }
             richTextBoxModDescription.Text = modDetails.description;
 
-
             HandleOverrding(SelectedMod);
             HandleDependencies(modsListView.SelectedItems[0], SelectedModDisplayName);
+
+            string imagePath = modPath + "\\Resources\\Icon128.png";
+
+            if (File.Exists(imagePath))
+            {
+                pictureBoxModImage.Image = Image.FromFile(imagePath);
+            }
+            else
+            {
+                pictureBoxModImage.Image = null;
+            }
         }
 
         //Handles the showing of overrding data on select
