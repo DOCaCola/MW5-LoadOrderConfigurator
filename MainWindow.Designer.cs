@@ -41,7 +41,7 @@ namespace MW5_Mod_Manager
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.button6 = new System.Windows.Forms.Button();
             this.toolStripVendorLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.listView1 = new System.Windows.Forms.ListView();
+            this.modsListView = new System.Windows.Forms.ListView();
             this.enabled = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.display = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.folder = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -49,7 +49,6 @@ namespace MW5_Mod_Manager
             this.version = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.dependencies = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.button4 = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.filterBox = new System.Windows.Forms.TextBox();
@@ -94,12 +93,15 @@ namespace MW5_Mod_Manager
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.modsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openModsFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.enableAllModsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.disableAllModsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabelMwVersion = new System.Windows.Forms.ToolStripStatusLabel();
             this.rotatingLabel1 = new MW5_Mod_Manager.RotatingLabel();
-            this.enableAllModsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.disableAllModsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStripMod = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.openFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -107,6 +109,7 @@ namespace MW5_Mod_Manager
             ((System.ComponentModel.ISupportInitialize)(this.textProgressBarBindingSource)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
+            this.contextMenuStripMod.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
@@ -150,7 +153,6 @@ namespace MW5_Mod_Manager
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(506, 20);
             this.textBox1.TabIndex = 5;
-            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // button6
             // 
@@ -165,35 +167,37 @@ namespace MW5_Mod_Manager
             // toolStripVendorLabel
             // 
             this.toolStripVendorLabel.Name = "toolStripVendorLabel";
-            this.toolStripVendorLabel.Size = new System.Drawing.Size(0, 17);
+            this.toolStripVendorLabel.Size = new System.Drawing.Size(22, 17);
+            this.toolStripVendorLabel.Text = "---";
             // 
-            // listView1
+            // modsListView
             // 
-            this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.modsListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.listView1.CheckBoxes = true;
-            this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.modsListView.CheckBoxes = true;
+            this.modsListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.enabled,
             this.display,
             this.folder,
             this.author,
             this.version,
             this.dependencies});
-            this.listView1.FullRowSelect = true;
-            this.listView1.GridLines = true;
-            this.listView1.HideSelection = false;
-            this.listView1.LabelWrap = false;
-            this.listView1.Location = new System.Drawing.Point(124, 90);
-            this.listView1.MultiSelect = false;
-            this.listView1.Name = "listView1";
-            this.listView1.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.listView1.Size = new System.Drawing.Size(708, 464);
-            this.listView1.TabIndex = 11;
-            this.listView1.UseCompatibleStateImageBehavior = false;
-            this.listView1.View = System.Windows.Forms.View.Details;
-            this.listView1.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.listView1_ItemChecked);
-            this.listView1.SelectedIndexChanged += new System.EventHandler(this.listView1_SelectedIndexChanged);
+            this.modsListView.FullRowSelect = true;
+            this.modsListView.GridLines = true;
+            this.modsListView.HideSelection = false;
+            this.modsListView.LabelWrap = false;
+            this.modsListView.Location = new System.Drawing.Point(124, 90);
+            this.modsListView.MultiSelect = false;
+            this.modsListView.Name = "modsListView";
+            this.modsListView.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.modsListView.Size = new System.Drawing.Size(708, 464);
+            this.modsListView.TabIndex = 11;
+            this.modsListView.UseCompatibleStateImageBehavior = false;
+            this.modsListView.View = System.Windows.Forms.View.Details;
+            this.modsListView.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.listView1_ItemChecked);
+            this.modsListView.SelectedIndexChanged += new System.EventHandler(this.listView1_SelectedIndexChanged);
+            this.modsListView.MouseClick += new System.Windows.Forms.MouseEventHandler(this.modsListView_MouseClick);
             // 
             // enabled
             // 
@@ -244,15 +248,6 @@ namespace MW5_Mod_Manager
             this.button4.Text = "Start MW5";
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(750, 539);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(16, 13);
-            this.label1.TabIndex = 14;
-            this.label1.Text = "v.";
             // 
             // label2
             // 
@@ -395,7 +390,6 @@ namespace MW5_Mod_Manager
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Save/Load Presets";
             this.tabPage3.UseVisualStyleBackColor = true;
-            this.tabPage3.Click += new System.EventHandler(this.tabPage3_Click);
             // 
             // button12
             // 
@@ -654,9 +648,23 @@ namespace MW5_Mod_Manager
             // openModsFolderToolStripMenuItem
             // 
             this.openModsFolderToolStripMenuItem.Name = "openModsFolderToolStripMenuItem";
-            this.openModsFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openModsFolderToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.openModsFolderToolStripMenuItem.Text = "&Open Mods Folder";
             this.openModsFolderToolStripMenuItem.Click += new System.EventHandler(this.openModsFolderToolStripMenuItem_Click);
+            // 
+            // enableAllModsToolStripMenuItem
+            // 
+            this.enableAllModsToolStripMenuItem.Name = "enableAllModsToolStripMenuItem";
+            this.enableAllModsToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.enableAllModsToolStripMenuItem.Text = "&Enable all mods";
+            this.enableAllModsToolStripMenuItem.Click += new System.EventHandler(this.enableAllModsToolStripMenuItem_Click);
+            // 
+            // disableAllModsToolStripMenuItem
+            // 
+            this.disableAllModsToolStripMenuItem.Name = "disableAllModsToolStripMenuItem";
+            this.disableAllModsToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.disableAllModsToolStripMenuItem.Text = "&Disable all mods";
+            this.disableAllModsToolStripMenuItem.Click += new System.EventHandler(this.disableAllModsToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -669,19 +677,26 @@ namespace MW5_Mod_Manager
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
             this.aboutToolStripMenuItem.Text = "Ab&out";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripVendorLabel});
+            this.toolStripVendorLabel,
+            this.toolStripStatusLabelMwVersion});
             this.statusStrip1.Location = new System.Drawing.Point(0, 557);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(1184, 22);
             this.statusStrip1.TabIndex = 36;
             this.statusStrip1.Text = "statusStrip1";
+            // 
+            // toolStripStatusLabelMwVersion
+            // 
+            this.toolStripStatusLabelMwVersion.Name = "toolStripStatusLabelMwVersion";
+            this.toolStripStatusLabelMwVersion.Size = new System.Drawing.Size(22, 17);
+            this.toolStripStatusLabelMwVersion.Text = "---";
             // 
             // rotatingLabel1
             // 
@@ -695,19 +710,19 @@ namespace MW5_Mod_Manager
             this.rotatingLabel1.TabIndex = 12;
             this.rotatingLabel1.Text = "X";
             // 
-            // enableAllModsToolStripMenuItem
+            // contextMenuStripMod
             // 
-            this.enableAllModsToolStripMenuItem.Name = "enableAllModsToolStripMenuItem";
-            this.enableAllModsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.enableAllModsToolStripMenuItem.Text = "&Enable all mods";
-            this.enableAllModsToolStripMenuItem.Click += new System.EventHandler(this.enableAllModsToolStripMenuItem_Click);
+            this.contextMenuStripMod.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openFolderToolStripMenuItem});
+            this.contextMenuStripMod.Name = "contextMenuStripMod";
+            this.contextMenuStripMod.Size = new System.Drawing.Size(140, 26);
             // 
-            // disableAllModsToolStripMenuItem
+            // openFolderToolStripMenuItem
             // 
-            this.disableAllModsToolStripMenuItem.Name = "disableAllModsToolStripMenuItem";
-            this.disableAllModsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.disableAllModsToolStripMenuItem.Text = "&Disable all mods";
-            this.disableAllModsToolStripMenuItem.Click += new System.EventHandler(this.disableAllModsToolStripMenuItem_Click);
+            this.openFolderToolStripMenuItem.Name = "openFolderToolStripMenuItem";
+            this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.openFolderToolStripMenuItem.Text = "Open &Folder";
+            this.openFolderToolStripMenuItem.Click += new System.EventHandler(this.openFolderToolStripMenuItem_Click);
             // 
             // MainWindow
             // 
@@ -724,8 +739,7 @@ namespace MW5_Mod_Manager
             this.Controls.Add(this.filterBox);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.listView1);
+            this.Controls.Add(this.modsListView);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.textBox1);
@@ -750,6 +764,7 @@ namespace MW5_Mod_Manager
             this.menuStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            this.contextMenuStripMod.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -762,7 +777,7 @@ namespace MW5_Mod_Manager
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button button6;
-        public System.Windows.Forms.ListView listView1;
+        public System.Windows.Forms.ListView modsListView;
         public System.Windows.Forms.ColumnHeader display;
         public System.Windows.Forms.ColumnHeader folder;
         public System.Windows.Forms.ColumnHeader author;
@@ -771,7 +786,6 @@ namespace MW5_Mod_Manager
         public System.Windows.Forms.ToolStripLabel toolStripVendorLabeltoolStripLabel1;
         private RotatingLabel rotatingLabel1;
         private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox filterBox;
@@ -823,6 +837,9 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem aboutToolStripMenuItem;
         private ToolStripMenuItem enableAllModsToolStripMenuItem;
         private ToolStripMenuItem disableAllModsToolStripMenuItem;
+        private ToolStripStatusLabel toolStripStatusLabelMwVersion;
+        private ContextMenuStrip contextMenuStripMod;
+        private ToolStripMenuItem openFolderToolStripMenuItem;
     }
 }
 

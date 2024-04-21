@@ -153,7 +153,7 @@ namespace MW5_Mod_Manager
         /// <returns></returns>
         public void CheckModsDir()
         {
-            CheckInstalDirModsDir();
+            CheckInstallDirModsDir();
             CheckSteamDirModsDir();
         }
 
@@ -167,7 +167,7 @@ namespace MW5_Mod_Manager
             {
                 return;
             }
-            string message = "ERROR Mods folder does not exits in : " + this.BasePath[0] + " Do you want to create it?";
+            string message = "ERROR Mods folder does not exits in : " + this.BasePath[1] + " Do you want to create it?";
             string caption = "ERROR Loading";
             MessageBoxButtons buttons = MessageBoxButtons.YesNo;
             DialogResult Result = MessageBox.Show(message, caption, buttons);
@@ -177,7 +177,7 @@ namespace MW5_Mod_Manager
             }
         }
 
-        private void CheckInstalDirModsDir()
+        private void CheckInstallDirModsDir()
         {
             if (Utils.StringNullEmptyOrWhiteSpace(this.BasePath[0]))
             {
@@ -205,7 +205,7 @@ namespace MW5_Mod_Manager
             string complete = Path.Combine(systemPath, @"MW5LoadOrderManager");
             if (!File.Exists(complete))
             {
-                System.IO.Directory.CreateDirectory(complete);
+                Directory.CreateDirectory(complete);
             }
 
             try
@@ -220,19 +220,19 @@ namespace MW5_Mod_Manager
 
                 if (!Utils.StringNullEmptyOrWhiteSpace(this.ProgramData.installdir[0]))
                 {
-                    this.BasePath[0] = this.ProgramData.installdir[0];
+                    BasePath[0] = ProgramData.installdir[0];
                 }
-                if (!Utils.StringNullEmptyOrWhiteSpace(this.ProgramData.installdir[1]))
+                if (!Utils.StringNullEmptyOrWhiteSpace(ProgramData.installdir[1]))
                 {
-                    this.BasePath[1] = this.ProgramData.installdir[1];
+                    BasePath[1] = ProgramData.installdir[1];
                 }
-                if (!Utils.StringNullEmptyOrWhiteSpace(this.ProgramData.vendor))
+                if (!Utils.StringNullEmptyOrWhiteSpace(ProgramData.vendor))
                 {
-                    this.Vendor = this.ProgramData.vendor;
+                    Vendor = ProgramData.vendor;
                 }
-                if (this.ProgramData.version > 0)
+                if (ProgramData.version > 0)
                 {
-                    this.Version = ProgramData.version;
+                    Version = ProgramData.version;
                 }
             }
             catch (Exception e)
@@ -263,7 +263,7 @@ namespace MW5_Mod_Manager
             if (BasePath == null)
                 return;
 
-            HandleInstalDirDirectories();
+            HandleInstallDirDirectories();
 
             HandleSteamDirectories();
 
@@ -286,7 +286,7 @@ namespace MW5_Mod_Manager
             }
         }
 
-        private void HandleInstalDirDirectories()
+        private void HandleInstallDirDirectories()
         {
             if (Utils.StringNullEmptyOrWhiteSpace(BasePath[0]))
             {
@@ -527,7 +527,7 @@ namespace MW5_Mod_Manager
 
         #endregion pack mods to zip
 
-        //Reset the orriding data between two mods and check if after mods are still overriding/beeing overrriden
+        //Reset the overriding data between two mods and check if after mods are still overriding/being overriden
         public void ResetOverrdingBetweenMods(ModItem itemA, ModItem itemB)
         {
             string modA = itemA.SubItems[2].Text;
