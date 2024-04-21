@@ -40,7 +40,6 @@ namespace MW5_Mod_Manager
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.button6 = new System.Windows.Forms.Button();
-            this.button8 = new System.Windows.Forms.Button();
             this.toolStripVendorLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.listView1 = new System.Windows.Forms.ListView();
             this.enabled = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -75,12 +74,8 @@ namespace MW5_Mod_Manager
             this.listView2 = new System.Windows.Forms.ListView();
             this.label8 = new System.Windows.Forms.Label();
             this.backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
-            this.button9 = new System.Windows.Forms.Button();
-            this.button10 = new System.Windows.Forms.Button();
-            this.panel1 = new System.Windows.Forms.Panel();
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.textProgressBarBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.rotatingLabel1 = new MW5_Mod_Manager.RotatingLabel();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.installDirectoryToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -95,16 +90,20 @@ namespace MW5_Mod_Manager
             this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
             this.exportmodsFolderToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.shareModsViaTCPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.modsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openModsFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.modsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openModsFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.rotatingLabel1 = new MW5_Mod_Manager.RotatingLabel();
+            this.enableAllModsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.disableAllModsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
-            this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.textProgressBarBindingSource)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -132,7 +131,7 @@ namespace MW5_Mod_Manager
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(13, 210);
+            this.button3.Location = new System.Drawing.Point(13, 279);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(70, 38);
             this.button3.TabIndex = 3;
@@ -163,18 +162,6 @@ namespace MW5_Mod_Manager
             this.button6.UseVisualStyleBackColor = true;
             this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
-            // button8
-            // 
-            this.button8.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.button8.Image = ((System.Drawing.Image)(resources.GetObject("button8.Image")));
-            this.button8.Location = new System.Drawing.Point(18, 120);
-            this.button8.Margin = new System.Windows.Forms.Padding(0);
-            this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(128, 128);
-            this.button8.TabIndex = 0;
-            this.button8.UseVisualStyleBackColor = true;
-            this.button8.Click += new System.EventHandler(this.button8_Click);
-            // 
             // toolStripVendorLabel
             // 
             this.toolStripVendorLabel.Name = "toolStripVendorLabel";
@@ -197,11 +184,11 @@ namespace MW5_Mod_Manager
             this.listView1.GridLines = true;
             this.listView1.HideSelection = false;
             this.listView1.LabelWrap = false;
-            this.listView1.Location = new System.Drawing.Point(192, 90);
+            this.listView1.Location = new System.Drawing.Point(124, 90);
             this.listView1.MultiSelect = false;
             this.listView1.Name = "listView1";
             this.listView1.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.listView1.Size = new System.Drawing.Size(640, 464);
+            this.listView1.Size = new System.Drawing.Size(708, 464);
             this.listView1.TabIndex = 11;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -247,12 +234,14 @@ namespace MW5_Mod_Manager
             // 
             // button4
             // 
-            this.button4.Image = ((System.Drawing.Image)(resources.GetObject("button4.Image")));
-            this.button4.Location = new System.Drawing.Point(38, 21);
+            this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button4.Location = new System.Drawing.Point(13, 451);
             this.button4.Margin = new System.Windows.Forms.Padding(0);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(90, 90);
+            this.button4.Size = new System.Drawing.Size(70, 90);
             this.button4.TabIndex = 13;
+            this.button4.Text = "Start MW5";
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
@@ -304,7 +293,7 @@ namespace MW5_Mod_Manager
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(13, 258);
+            this.button5.Location = new System.Drawing.Point(13, 327);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(70, 38);
             this.button5.TabIndex = 19;
@@ -516,37 +505,6 @@ namespace MW5_Mod_Manager
             this.backgroundWorker2.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker2_ProgressChanged);
             this.backgroundWorker2.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker2_RunWorkerCompleted);
             // 
-            // button9
-            // 
-            this.button9.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.button9.ImageAlign = System.Drawing.ContentAlignment.BottomLeft;
-            this.button9.Location = new System.Drawing.Point(89, 191);
-            this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(70, 38);
-            this.button9.TabIndex = 32;
-            this.button9.Text = "Disable All";
-            this.button9.UseVisualStyleBackColor = true;
-            this.button9.Click += new System.EventHandler(this.button9_Click);
-            // 
-            // button10
-            // 
-            this.button10.Location = new System.Drawing.Point(89, 147);
-            this.button10.Name = "button10";
-            this.button10.Size = new System.Drawing.Size(70, 38);
-            this.button10.TabIndex = 31;
-            this.button10.Text = "Enable All";
-            this.button10.UseVisualStyleBackColor = true;
-            this.button10.Click += new System.EventHandler(this.button10_Click);
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.button8);
-            this.panel1.Controls.Add(this.button4);
-            this.panel1.Location = new System.Drawing.Point(13, 304);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(173, 248);
-            this.panel1.TabIndex = 33;
-            // 
             // textBox3
             // 
             this.textBox3.Location = new System.Drawing.Point(513, 26);
@@ -556,23 +514,12 @@ namespace MW5_Mod_Manager
             this.textBox3.TabIndex = 34;
             this.textBox3.Visible = false;
             // 
-            // rotatingLabel1
-            // 
-            this.rotatingLabel1.AutoSize = true;
-            this.rotatingLabel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rotatingLabel1.Location = new System.Drawing.Point(168, 118);
-            this.rotatingLabel1.Name = "rotatingLabel1";
-            this.rotatingLabel1.NewText = "";
-            this.rotatingLabel1.RotateAngle = 0;
-            this.rotatingLabel1.Size = new System.Drawing.Size(18, 17);
-            this.rotatingLabel1.TabIndex = 12;
-            this.rotatingLabel1.Text = "X";
-            // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.modsToolStripMenuItem});
+            this.modsToolStripMenuItem,
+            this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1184, 24);
@@ -682,31 +629,6 @@ namespace MW5_Mod_Manager
             this.shareModsViaTCPToolStripMenuItem.Visible = false;
             this.shareModsViaTCPToolStripMenuItem.Click += new System.EventHandler(this.shareModsViaTCPToolStripMenuItem_Click);
             // 
-            // statusStrip1
-            // 
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripVendorLabel});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 557);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1184, 22);
-            this.statusStrip1.TabIndex = 36;
-            this.statusStrip1.Text = "statusStrip1";
-            // 
-            // modsToolStripMenuItem
-            // 
-            this.modsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openModsFolderToolStripMenuItem});
-            this.modsToolStripMenuItem.Name = "modsToolStripMenuItem";
-            this.modsToolStripMenuItem.Size = new System.Drawing.Size(49, 20);
-            this.modsToolStripMenuItem.Text = "&Mods";
-            // 
-            // openModsFolderToolStripMenuItem
-            // 
-            this.openModsFolderToolStripMenuItem.Name = "openModsFolderToolStripMenuItem";
-            this.openModsFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.openModsFolderToolStripMenuItem.Text = "&Open Mods Folder";
-            this.openModsFolderToolStripMenuItem.Click += new System.EventHandler(this.openModsFolderToolStripMenuItem_Click);
-            // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
@@ -719,17 +641,83 @@ namespace MW5_Mod_Manager
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
+            // modsToolStripMenuItem
+            // 
+            this.modsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openModsFolderToolStripMenuItem,
+            this.enableAllModsToolStripMenuItem,
+            this.disableAllModsToolStripMenuItem});
+            this.modsToolStripMenuItem.Name = "modsToolStripMenuItem";
+            this.modsToolStripMenuItem.Size = new System.Drawing.Size(49, 20);
+            this.modsToolStripMenuItem.Text = "&Mods";
+            // 
+            // openModsFolderToolStripMenuItem
+            // 
+            this.openModsFolderToolStripMenuItem.Name = "openModsFolderToolStripMenuItem";
+            this.openModsFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openModsFolderToolStripMenuItem.Text = "&Open Mods Folder";
+            this.openModsFolderToolStripMenuItem.Click += new System.EventHandler(this.openModsFolderToolStripMenuItem_Click);
+            // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aboutToolStripMenuItem});
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.helpToolStripMenuItem.Text = "&Help";
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.aboutToolStripMenuItem.Text = "Ab&out";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripVendorLabel});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 557);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(1184, 22);
+            this.statusStrip1.TabIndex = 36;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // rotatingLabel1
+            // 
+            this.rotatingLabel1.AutoSize = true;
+            this.rotatingLabel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.rotatingLabel1.Location = new System.Drawing.Point(100, 118);
+            this.rotatingLabel1.Name = "rotatingLabel1";
+            this.rotatingLabel1.NewText = "";
+            this.rotatingLabel1.RotateAngle = 0;
+            this.rotatingLabel1.Size = new System.Drawing.Size(18, 17);
+            this.rotatingLabel1.TabIndex = 12;
+            this.rotatingLabel1.Text = "X";
+            // 
+            // enableAllModsToolStripMenuItem
+            // 
+            this.enableAllModsToolStripMenuItem.Name = "enableAllModsToolStripMenuItem";
+            this.enableAllModsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.enableAllModsToolStripMenuItem.Text = "&Enable all mods";
+            this.enableAllModsToolStripMenuItem.Click += new System.EventHandler(this.enableAllModsToolStripMenuItem_Click);
+            // 
+            // disableAllModsToolStripMenuItem
+            // 
+            this.disableAllModsToolStripMenuItem.Name = "disableAllModsToolStripMenuItem";
+            this.disableAllModsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.disableAllModsToolStripMenuItem.Text = "&Disable all mods";
+            this.disableAllModsToolStripMenuItem.Click += new System.EventHandler(this.disableAllModsToolStripMenuItem_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1184, 579);
+            this.Controls.Add(this.button4);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.textBox3);
             this.Controls.Add(this.rotatingLabel1);
-            this.Controls.Add(this.panel1);
-            this.Controls.Add(this.button9);
-            this.Controls.Add(this.button10);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.checkBox1);
@@ -757,7 +745,6 @@ namespace MW5_Mod_Manager
             this.tabPage1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
-            this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.textProgressBarBindingSource)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -775,7 +762,6 @@ namespace MW5_Mod_Manager
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button button6;
-        private System.Windows.Forms.Button button8;
         public System.Windows.Forms.ListView listView1;
         public System.Windows.Forms.ColumnHeader display;
         public System.Windows.Forms.ColumnHeader folder;
@@ -805,9 +791,6 @@ namespace MW5_Mod_Manager
         private Label label8;
         private ListView listView2;
         public System.ComponentModel.BackgroundWorker backgroundWorker2;
-        private Button button9;
-        private Button button10;
-        private Panel panel1;
         private TabPage tabPage3;
         public TextBox textBox2;
         public ListBox listBox4;
@@ -836,6 +819,10 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem openModsFolderToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator1;
         private ToolStripMenuItem exitToolStripMenuItem;
+        private ToolStripMenuItem helpToolStripMenuItem;
+        private ToolStripMenuItem aboutToolStripMenuItem;
+        private ToolStripMenuItem enableAllModsToolStripMenuItem;
+        private ToolStripMenuItem disableAllModsToolStripMenuItem;
     }
 }
 

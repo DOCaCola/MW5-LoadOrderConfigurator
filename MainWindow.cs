@@ -657,7 +657,6 @@ namespace MW5_Mod_Manager
         //Image
         private void button8_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start(@"https://www.nexusmods.com/mechwarrior5mercenaries/mods/174?tab=description");
         }
 
         //Saves current load order to preset.
@@ -1283,27 +1282,13 @@ namespace MW5_Mod_Manager
         //check all items.
         private void button10_Click(object sender, EventArgs e)
         {
-            this.MovingItem = true;
-            foreach (ListViewItem item in this.ListViewData)
-            {
-                item.Checked = true;
-            }
-            this.MovingItem = false;
-            this.logic.GetOverridingData(this.ListViewData);
-            this.logic.CheckRequires(this.ListViewData);
+
         }
 
         //Disable all items
         private void button9_Click(object sender, EventArgs e)
         {
-            this.MovingItem = true;
-            foreach (ListViewItem item in this.listView1.Items)
-            {
-                item.Checked = false;
-            }
-            this.MovingItem = false;
-            this.logic.GetOverridingData(ListViewData);
-            this.logic.CheckRequires(ListViewData);
+
         }
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
@@ -1653,6 +1638,38 @@ namespace MW5_Mod_Manager
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AboutWindow aboutDialog = new AboutWindow();
+
+            aboutDialog.ShowDialog(this);
+            aboutDialog.Dispose();
+        }
+
+        private void enableAllModsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.MovingItem = true;
+            foreach (ListViewItem item in this.ListViewData)
+            {
+                item.Checked = true;
+            }
+            this.MovingItem = false;
+            this.logic.GetOverridingData(this.ListViewData);
+            this.logic.CheckRequires(this.ListViewData);
+        }
+
+        private void disableAllModsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.MovingItem = true;
+            foreach (ListViewItem item in this.listView1.Items)
+            {
+                item.Checked = false;
+            }
+            this.MovingItem = false;
+            this.logic.GetOverridingData(ListViewData);
+            this.logic.CheckRequires(ListViewData);
         }
     }
 }
