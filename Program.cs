@@ -7,12 +7,14 @@ using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Windows.Forms;
 using Application = System.Windows.Forms.Application;
 
 namespace MW5_Mod_Manager
 {
+    [SupportedOSPlatform("windows")]
     internal static class Program
     {
         /// <summary>
@@ -31,6 +33,7 @@ namespace MW5_Mod_Manager
     /// Contains most of the background logic and operations
     /// Also has some dataobjects to keep track of various interal statuses.
     /// </summary>
+    [SupportedOSPlatform("windows")]
     public class MainLogic
     {
         public MainWindow MainForm;
@@ -509,7 +512,7 @@ namespace MW5_Mod_Manager
                 System.Threading.Thread.Sleep(500);
                 if (worker.CancellationPending || e.Cancel)
                 {
-                    t.Abort();
+                    t.Interrupt();
                     t.Join();
                     e.Result = "ABORTED";
                     if (File.Exists(parent + "\\Mods.zip"))

@@ -8,13 +8,14 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Media;
-using System.Reflection;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Application = System.Windows.Forms.Application;
+using MethodInvoker = System.Windows.Forms.MethodInvoker;
 
 namespace MW5_Mod_Manager
 {
+    [SupportedOSPlatform("windows")]
     public partial class MainWindow : Form
     {
         static public MainWindow MainForm;

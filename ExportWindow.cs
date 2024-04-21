@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 
 namespace MW5_Mod_Manager
 {
+    [SupportedOSPlatform("windows")]
     public partial class ExportWindow : Form
     {
         public ExportWindow()

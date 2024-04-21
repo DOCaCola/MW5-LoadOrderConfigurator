@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 
 namespace MW5_Mod_Manager
 {
+    [SupportedOSPlatform("windows")]
     internal static class Utils
     {
         public static bool StringNullEmptyOrWhiteSpace(string txt)
@@ -80,6 +82,7 @@ namespace MW5_Mod_Manager
     #region extra designer items
 
     //The rotating label for priority indication.
+    [SupportedOSPlatform("windows")]
     public class RotatingLabel : System.Windows.Forms.Label
     {
         private int m_RotateAngle = 0;
@@ -156,6 +159,7 @@ namespace MW5_Mod_Manager
         TextAndCurrProgress
     }
 
+    [SupportedOSPlatform("windows")]
     public class TextProgressBar : ProgressBar
     {
         [Description("Font of the text on ProgressBar"), Category("Additional Options")]
@@ -358,6 +362,7 @@ namespace MW5_Mod_Manager
         public Dictionary<string, List<string>> overriddenBy { set; get; }
     }
 
+    [SupportedOSPlatform("windows")]
     public class ModListItem : ListViewItem
     {
         public ModListItem() : base("", 0)
