@@ -64,6 +64,7 @@ namespace MW5_Mod_Manager
         //called upon loading the form
         private void Form1_Load(object sender, EventArgs e)
         {
+            this.Icon = Properties.Resources.MainIcon;
             this.logic = new MainLogic();
             if (logic.TryLoadProgramData())
             {

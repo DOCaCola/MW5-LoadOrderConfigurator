@@ -32,7 +32,6 @@ namespace MW5_Mod_Manager
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
@@ -68,6 +67,17 @@ namespace MW5_Mod_Manager
             this.listBox4 = new System.Windows.Forms.ListBox();
             this.button11 = new System.Windows.Forms.Button();
             this.button7 = new System.Windows.Forms.Button();
+            this.tabPageModInfo = new System.Windows.Forms.TabPage();
+            this.panelModInfo = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.richTextBoxModDescription = new System.Windows.Forms.RichTextBox();
+            this.labelSteamId = new System.Windows.Forms.Label();
+            this.linkLabelSteamId = new System.Windows.Forms.LinkLabel();
+            this.linkLabelModAuthorUrl = new System.Windows.Forms.LinkLabel();
+            this.labelModBuildNumber = new System.Windows.Forms.Label();
+            this.labelModVersion = new System.Windows.Forms.Label();
+            this.labelModAuthor = new System.Windows.Forms.Label();
+            this.labelModName = new System.Windows.Forms.Label();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.listView2 = new System.Windows.Forms.ListView();
@@ -102,27 +112,16 @@ namespace MW5_Mod_Manager
             this.rotatingLabel1 = new MW5_Mod_Manager.RotatingLabel();
             this.contextMenuStripMod = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.openFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tabPageModInfo = new System.Windows.Forms.TabPage();
-            this.panelModInfo = new System.Windows.Forms.Panel();
-            this.labelModName = new System.Windows.Forms.Label();
-            this.labelModAuthor = new System.Windows.Forms.Label();
-            this.labelModVersion = new System.Windows.Forms.Label();
-            this.labelModBuildNumber = new System.Windows.Forms.Label();
-            this.linkLabelModAuthorUrl = new System.Windows.Forms.LinkLabel();
-            this.linkLabelSteamId = new System.Windows.Forms.LinkLabel();
-            this.labelSteamId = new System.Windows.Forms.Label();
-            this.richTextBoxModDescription = new System.Windows.Forms.RichTextBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage3.SuspendLayout();
+            this.tabPageModInfo.SuspendLayout();
+            this.panelModInfo.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.textProgressBarBindingSource)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.contextMenuStripMod.SuspendLayout();
-            this.tabPageModInfo.SuspendLayout();
-            this.panelModInfo.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
@@ -454,6 +453,124 @@ namespace MW5_Mod_Manager
             this.button7.UseVisualStyleBackColor = true;
             this.button7.Click += new System.EventHandler(this.button7_Click);
             // 
+            // tabPageModInfo
+            // 
+            this.tabPageModInfo.Controls.Add(this.panelModInfo);
+            this.tabPageModInfo.Location = new System.Drawing.Point(4, 22);
+            this.tabPageModInfo.Name = "tabPageModInfo";
+            this.tabPageModInfo.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageModInfo.Size = new System.Drawing.Size(338, 502);
+            this.tabPageModInfo.TabIndex = 3;
+            this.tabPageModInfo.Text = "Overview";
+            this.tabPageModInfo.UseVisualStyleBackColor = true;
+            // 
+            // panelModInfo
+            // 
+            this.panelModInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panelModInfo.Controls.Add(this.label1);
+            this.panelModInfo.Controls.Add(this.richTextBoxModDescription);
+            this.panelModInfo.Controls.Add(this.labelSteamId);
+            this.panelModInfo.Controls.Add(this.linkLabelSteamId);
+            this.panelModInfo.Controls.Add(this.linkLabelModAuthorUrl);
+            this.panelModInfo.Controls.Add(this.labelModBuildNumber);
+            this.panelModInfo.Controls.Add(this.labelModVersion);
+            this.panelModInfo.Controls.Add(this.labelModAuthor);
+            this.panelModInfo.Controls.Add(this.labelModName);
+            this.panelModInfo.Location = new System.Drawing.Point(6, 6);
+            this.panelModInfo.Name = "panelModInfo";
+            this.panelModInfo.Size = new System.Drawing.Size(324, 487);
+            this.panelModInfo.TabIndex = 1;
+            this.panelModInfo.Visible = false;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 154);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(69, 13);
+            this.label1.TabIndex = 10;
+            this.label1.Text = "Description:";
+            // 
+            // richTextBoxModDescription
+            // 
+            this.richTextBoxModDescription.Location = new System.Drawing.Point(15, 173);
+            this.richTextBoxModDescription.Name = "richTextBoxModDescription";
+            this.richTextBoxModDescription.ReadOnly = true;
+            this.richTextBoxModDescription.Size = new System.Drawing.Size(295, 221);
+            this.richTextBoxModDescription.TabIndex = 9;
+            this.richTextBoxModDescription.Text = "";
+            this.richTextBoxModDescription.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.richTextBoxModDescription_LinkClicked);
+            // 
+            // labelSteamId
+            // 
+            this.labelSteamId.AutoSize = true;
+            this.labelSteamId.Location = new System.Drawing.Point(12, 124);
+            this.labelSteamId.Name = "labelSteamId";
+            this.labelSteamId.Size = new System.Drawing.Size(55, 13);
+            this.labelSteamId.TabIndex = 8;
+            this.labelSteamId.Text = "Steam ID:";
+            // 
+            // linkLabelSteamId
+            // 
+            this.linkLabelSteamId.AutoSize = true;
+            this.linkLabelSteamId.Location = new System.Drawing.Point(73, 124);
+            this.linkLabelSteamId.Name = "linkLabelSteamId";
+            this.linkLabelSteamId.Size = new System.Drawing.Size(94, 13);
+            this.linkLabelSteamId.TabIndex = 7;
+            this.linkLabelSteamId.TabStop = true;
+            this.linkLabelSteamId.Text = "linkLabelSteamId";
+            this.linkLabelSteamId.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelSteamId_LinkClicked);
+            // 
+            // linkLabelModAuthorUrl
+            // 
+            this.linkLabelModAuthorUrl.AutoSize = true;
+            this.linkLabelModAuthorUrl.Location = new System.Drawing.Point(12, 54);
+            this.linkLabelModAuthorUrl.Name = "linkLabelModAuthorUrl";
+            this.linkLabelModAuthorUrl.Size = new System.Drawing.Size(59, 13);
+            this.linkLabelModAuthorUrl.TabIndex = 6;
+            this.linkLabelModAuthorUrl.TabStop = true;
+            this.linkLabelModAuthorUrl.Text = "linkLabel1";
+            this.linkLabelModAuthorUrl.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelModAuthorUrl_LinkClicked);
+            // 
+            // labelModBuildNumber
+            // 
+            this.labelModBuildNumber.AutoSize = true;
+            this.labelModBuildNumber.Location = new System.Drawing.Point(12, 98);
+            this.labelModBuildNumber.Name = "labelModBuildNumber";
+            this.labelModBuildNumber.Size = new System.Drawing.Size(123, 13);
+            this.labelModBuildNumber.TabIndex = 4;
+            this.labelModBuildNumber.Text = "labelModBuildNumber";
+            // 
+            // labelModVersion
+            // 
+            this.labelModVersion.AutoSize = true;
+            this.labelModVersion.Location = new System.Drawing.Point(12, 81);
+            this.labelModVersion.Name = "labelModVersion";
+            this.labelModVersion.Size = new System.Drawing.Size(94, 13);
+            this.labelModVersion.TabIndex = 3;
+            this.labelModVersion.Text = "labelModVersion";
+            // 
+            // labelModAuthor
+            // 
+            this.labelModAuthor.AutoSize = true;
+            this.labelModAuthor.Location = new System.Drawing.Point(12, 36);
+            this.labelModAuthor.Name = "labelModAuthor";
+            this.labelModAuthor.Size = new System.Drawing.Size(92, 13);
+            this.labelModAuthor.TabIndex = 2;
+            this.labelModAuthor.Text = "labelModAuthor";
+            // 
+            // labelModName
+            // 
+            this.labelModName.AutoSize = true;
+            this.labelModName.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelModName.Location = new System.Drawing.Point(12, 10);
+            this.labelModName.Name = "labelModName";
+            this.labelModName.Size = new System.Drawing.Size(88, 13);
+            this.labelModName.TabIndex = 1;
+            this.labelModName.Text = "labelModName";
+            // 
             // tabPage1
             // 
             this.tabPage1.Controls.Add(this.label6);
@@ -715,12 +832,12 @@ namespace MW5_Mod_Manager
             // rotatingLabel1
             // 
             this.rotatingLabel1.AutoSize = true;
-            this.rotatingLabel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.rotatingLabel1.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.rotatingLabel1.Location = new System.Drawing.Point(100, 118);
             this.rotatingLabel1.Name = "rotatingLabel1";
             this.rotatingLabel1.NewText = "";
             this.rotatingLabel1.RotateAngle = 0;
-            this.rotatingLabel1.Size = new System.Drawing.Size(18, 17);
+            this.rotatingLabel1.Size = new System.Drawing.Size(18, 19);
             this.rotatingLabel1.TabIndex = 12;
             this.rotatingLabel1.Text = "X";
             // 
@@ -737,124 +854,6 @@ namespace MW5_Mod_Manager
             this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.openFolderToolStripMenuItem.Text = "Open &Folder";
             this.openFolderToolStripMenuItem.Click += new System.EventHandler(this.openFolderToolStripMenuItem_Click);
-            // 
-            // tabPageModInfo
-            // 
-            this.tabPageModInfo.Controls.Add(this.panelModInfo);
-            this.tabPageModInfo.Location = new System.Drawing.Point(4, 22);
-            this.tabPageModInfo.Name = "tabPageModInfo";
-            this.tabPageModInfo.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageModInfo.Size = new System.Drawing.Size(338, 502);
-            this.tabPageModInfo.TabIndex = 3;
-            this.tabPageModInfo.Text = "Overview";
-            this.tabPageModInfo.UseVisualStyleBackColor = true;
-            // 
-            // panelModInfo
-            // 
-            this.panelModInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.panelModInfo.Controls.Add(this.label1);
-            this.panelModInfo.Controls.Add(this.richTextBoxModDescription);
-            this.panelModInfo.Controls.Add(this.labelSteamId);
-            this.panelModInfo.Controls.Add(this.linkLabelSteamId);
-            this.panelModInfo.Controls.Add(this.linkLabelModAuthorUrl);
-            this.panelModInfo.Controls.Add(this.labelModBuildNumber);
-            this.panelModInfo.Controls.Add(this.labelModVersion);
-            this.panelModInfo.Controls.Add(this.labelModAuthor);
-            this.panelModInfo.Controls.Add(this.labelModName);
-            this.panelModInfo.Location = new System.Drawing.Point(6, 6);
-            this.panelModInfo.Name = "panelModInfo";
-            this.panelModInfo.Size = new System.Drawing.Size(324, 487);
-            this.panelModInfo.TabIndex = 1;
-            this.panelModInfo.Visible = false;
-            // 
-            // labelModName
-            // 
-            this.labelModName.AutoSize = true;
-            this.labelModName.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelModName.Location = new System.Drawing.Point(12, 10);
-            this.labelModName.Name = "labelModName";
-            this.labelModName.Size = new System.Drawing.Size(88, 13);
-            this.labelModName.TabIndex = 1;
-            this.labelModName.Text = "labelModName";
-            // 
-            // labelModAuthor
-            // 
-            this.labelModAuthor.AutoSize = true;
-            this.labelModAuthor.Location = new System.Drawing.Point(12, 36);
-            this.labelModAuthor.Name = "labelModAuthor";
-            this.labelModAuthor.Size = new System.Drawing.Size(92, 13);
-            this.labelModAuthor.TabIndex = 2;
-            this.labelModAuthor.Text = "labelModAuthor";
-            // 
-            // labelModVersion
-            // 
-            this.labelModVersion.AutoSize = true;
-            this.labelModVersion.Location = new System.Drawing.Point(12, 81);
-            this.labelModVersion.Name = "labelModVersion";
-            this.labelModVersion.Size = new System.Drawing.Size(94, 13);
-            this.labelModVersion.TabIndex = 3;
-            this.labelModVersion.Text = "labelModVersion";
-            // 
-            // labelModBuildNumber
-            // 
-            this.labelModBuildNumber.AutoSize = true;
-            this.labelModBuildNumber.Location = new System.Drawing.Point(12, 98);
-            this.labelModBuildNumber.Name = "labelModBuildNumber";
-            this.labelModBuildNumber.Size = new System.Drawing.Size(123, 13);
-            this.labelModBuildNumber.TabIndex = 4;
-            this.labelModBuildNumber.Text = "labelModBuildNumber";
-            // 
-            // linkLabelModAuthorUrl
-            // 
-            this.linkLabelModAuthorUrl.AutoSize = true;
-            this.linkLabelModAuthorUrl.Location = new System.Drawing.Point(12, 54);
-            this.linkLabelModAuthorUrl.Name = "linkLabelModAuthorUrl";
-            this.linkLabelModAuthorUrl.Size = new System.Drawing.Size(59, 13);
-            this.linkLabelModAuthorUrl.TabIndex = 6;
-            this.linkLabelModAuthorUrl.TabStop = true;
-            this.linkLabelModAuthorUrl.Text = "linkLabel1";
-            this.linkLabelModAuthorUrl.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelModAuthorUrl_LinkClicked);
-            // 
-            // linkLabelSteamId
-            // 
-            this.linkLabelSteamId.AutoSize = true;
-            this.linkLabelSteamId.Location = new System.Drawing.Point(73, 124);
-            this.linkLabelSteamId.Name = "linkLabelSteamId";
-            this.linkLabelSteamId.Size = new System.Drawing.Size(94, 13);
-            this.linkLabelSteamId.TabIndex = 7;
-            this.linkLabelSteamId.TabStop = true;
-            this.linkLabelSteamId.Text = "linkLabelSteamId";
-            this.linkLabelSteamId.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelSteamId_LinkClicked);
-            // 
-            // labelSteamId
-            // 
-            this.labelSteamId.AutoSize = true;
-            this.labelSteamId.Location = new System.Drawing.Point(12, 124);
-            this.labelSteamId.Name = "labelSteamId";
-            this.labelSteamId.Size = new System.Drawing.Size(55, 13);
-            this.labelSteamId.TabIndex = 8;
-            this.labelSteamId.Text = "Steam ID:";
-            // 
-            // richTextBoxModDescription
-            // 
-            this.richTextBoxModDescription.Location = new System.Drawing.Point(15, 173);
-            this.richTextBoxModDescription.Name = "richTextBoxModDescription";
-            this.richTextBoxModDescription.ReadOnly = true;
-            this.richTextBoxModDescription.Size = new System.Drawing.Size(295, 221);
-            this.richTextBoxModDescription.TabIndex = 9;
-            this.richTextBoxModDescription.Text = "";
-            this.richTextBoxModDescription.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.richTextBoxModDescription_LinkClicked);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 154);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(69, 13);
-            this.label1.TabIndex = 10;
-            this.label1.Text = "Description:";
             // 
             // MainWindow
             // 
@@ -879,7 +878,6 @@ namespace MW5_Mod_Manager
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(900, 300);
             this.Name = "MainWindow";
@@ -888,6 +886,9 @@ namespace MW5_Mod_Manager
             this.tabControl1.ResumeLayout(false);
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
+            this.tabPageModInfo.ResumeLayout(false);
+            this.panelModInfo.ResumeLayout(false);
+            this.panelModInfo.PerformLayout();
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
@@ -898,9 +899,6 @@ namespace MW5_Mod_Manager
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.contextMenuStripMod.ResumeLayout(false);
-            this.tabPageModInfo.ResumeLayout(false);
-            this.panelModInfo.ResumeLayout(false);
-            this.panelModInfo.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
