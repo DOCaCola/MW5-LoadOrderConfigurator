@@ -356,3 +356,5 @@ bin/Release/MW5 Mod Manager.exe
 *.pspdb
 *.exe
 /packages
+/bin
+/.vscode
