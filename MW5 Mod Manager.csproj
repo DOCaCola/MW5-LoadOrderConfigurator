@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="packages\PostSharp.6.9.7\build\PostSharp.props" Condition="Exists('packages\PostSharp.6.9.7\build\PostSharp.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -85,15 +84,14 @@
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Microsoft.VisualBasic.Compatibility" />
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="PostSharp, Version=6.9.7.0, Culture=neutral, PublicKeyToken=b13fd38b8f9c99d7, processorArchitecture=MSIL">
-      <HintPath>packages\PostSharp.Redist.6.9.7\lib\net45\PostSharp.dll</HintPath>
+      <HintPath>packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PostSharp.Community.Packer, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\PostSharp.Community.Packer.1.2.0\lib\netstandard2.0\PostSharp.Community.Packer.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
+    <Reference Include="System">
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Design" />
     <Reference Include="System.DirectoryServices" />
@@ -216,14 +214,4 @@
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('packages\PostSharp.6.9.7\build\PostSharp.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\PostSharp.6.9.7\build\PostSharp.props'))" />
-    <Error Condition="!Exists('packages\PostSharp.6.9.7\build\PostSharp.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\PostSharp.6.9.7\build\PostSharp.targets'))" />
-    <Error Condition="!Exists('packages\PostSharp.Community.Packer.1.2.0\build\PostSharp.Community.Packer.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\PostSharp.Community.Packer.1.2.0\build\PostSharp.Community.Packer.targets'))" />
-  </Target>
-  <Import Project="packages\PostSharp.6.9.7\build\PostSharp.targets" Condition="Exists('packages\PostSharp.6.9.7\build\PostSharp.targets')" />
-  <Import Project="packages\PostSharp.Community.Packer.1.2.0\build\PostSharp.Community.Packer.targets" Condition="Exists('packages\PostSharp.Community.Packer.1.2.0\build\PostSharp.Community.Packer.targets')" />
 </Project>

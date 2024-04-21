@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using PostSharp.Community.Packer;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,7 +12,6 @@ using System.Threading;
 using System.Windows.Forms;
 using Application = System.Windows.Forms.Application;
 
-[assembly: Packer]
 namespace MW5_Mod_Manager
 {
     internal static class Program

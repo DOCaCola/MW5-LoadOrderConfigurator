@@ -355,3 +355,4 @@ bin/Release/MW5 Mod Manager.exe
 *.pssym
 *.pspdb
 *.exe
+/packages
