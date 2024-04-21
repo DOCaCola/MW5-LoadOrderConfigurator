@@ -34,7 +34,6 @@ namespace MW5_Mod_Manager
         {
             InitializeComponent();
             MainForm = this;
-            this.logic.MainForm = this;
             //this.fileShare = new TCPFileShare(logic, this);
             this.markedForRemoval = new List<ListViewItem>();
 
@@ -307,7 +306,7 @@ namespace MW5_Mod_Manager
                 List<string> modNames = new List<string>();
                 foreach (ListViewItem item in this.markedForRemoval)
                 {
-                    modNames.Add(item.SubItems[1].Text);
+                    modNames.Add(item.SubItems[displayHeader.Index].Text);
                 }
 
                 string m = "The following mods will be permanently be removed:\n" + string.Join("\n---", modNames) + "\nARE YOU SURE?";
@@ -321,8 +320,8 @@ namespace MW5_Mod_Manager
                     {
                         ListViewData.Remove(item);
                         modsListView.Items.Remove(item);
-                        logic.DeleteMod(logic.DirectoryToPathDict[item.SubItems[2].Text]);
-                        this.logic.ModDetails.Remove(logic.DirectoryToPathDict[item.SubItems[2].Text]);
+                        logic.DeleteMod(logic.DirectoryToPathDict[item.SubItems[folderHeader.Index].Text]);
+                        this.logic.ModDetails.Remove(logic.DirectoryToPathDict[item.SubItems[folderHeader.Index].Text]);
                     }
                     markedForRemoval.Clear();
                 }
@@ -344,7 +343,7 @@ namespace MW5_Mod_Manager
             //Super ugly as we are undoing stuff we just did here but i'm lazy.
             foreach (ListViewItem item in this.modsListView.Items)
             {
-                item.SubItems[5].BackColor = Color.White;
+                item.SubItems[dependenciesHeader.Index].BackColor = Color.White;
             }
 
             if (CheckResult.Count > 0)
@@ -386,7 +385,7 @@ namespace MW5_Mod_Manager
             int length = modsListView.Items.Count;
             for (int i = 0; i < length; i++)
             {
-                string modName = modsListView.Items[i].SubItems[2].Text;
+                string modName = modsListView.Items[i].SubItems[folderHeader.Index].Text;
                 string modDir = logic.DirectoryToPathDict[modName];
                 try
                 {
@@ -434,19 +433,19 @@ namespace MW5_Mod_Manager
             {
                 if (this.logic.Platform == "EPIC")
                 {
-                    this.toolStripVendorLabel.Text = "Platform: Epic Store";
+                    this.toolStripPlatformLabel.Text = "Platform: Epic Store";
                     this.button4.Enabled = true;
                     button5.Enabled = true;
                 }
                 else if (this.logic.Platform == "WINDOWS")
                 {
-                    this.toolStripVendorLabel.Text = "Platform: Windows Store";
+                    this.toolStripPlatformLabel.Text = "Platform: Windows Store";
                     this.button4.Enabled = false;
                     button5.Enabled = true;
                 }
                 else if (this.logic.Platform == "STEAM")
                 {
-                    this.toolStripVendorLabel.Text = "Platform: Steam";
+                    this.toolStripPlatformLabel.Text = "Platform: Steam";
                     button5.Enabled = false;
                     this.button4.Enabled = true;
 
@@ -455,7 +454,7 @@ namespace MW5_Mod_Manager
                 }
                 else if (this.logic.Platform == "GOG")
                 {
-                    this.toolStripVendorLabel.Text = "Platform: GOG";
+                    this.toolStripPlatformLabel.Text = "Platform: GOG";
                     this.button4.Enabled = true;
                     button5.Enabled = true;
                 }
@@ -519,6 +518,8 @@ namespace MW5_Mod_Manager
             item1.SubItems.Add(logic.PathToDirectoryDict[modName]);
             item1.SubItems.Add(logic.ModDetails[entry.Key].author);
             item1.SubItems.Add(logic.ModDetails[entry.Key].version);
+            item1.SubItems.Add(logic.ModDetails[entry.Key].buildNumber.ToString());
+            // dependencies
             item1.SubItems.Add(" ");
             item1.EnsureVisible();
             item1.Tag = entry.Key;
@@ -806,10 +807,10 @@ namespace MW5_Mod_Manager
                 {
                     foreach (ListViewItem x in this.ListViewData)
                     {
-                        x.SubItems[1].BackColor = Color.White;
-                        x.SubItems[2].BackColor = Color.White;
-                        x.SubItems[3].BackColor = Color.White;
-                        x.SubItems[4].BackColor = Color.White;
+                        x.SubItems[displayHeader.Index].BackColor = Color.White;
+                        x.SubItems[folderHeader.Index].BackColor = Color.White;
+                        x.SubItems[authorHeader.Index].BackColor = Color.White;
+                        x.SubItems[versionHeader.Index].BackColor = Color.White;
                     }
                     UpdateListView();
                 }
@@ -834,18 +835,18 @@ namespace MW5_Mod_Manager
                         //Check if there is a hit.
                         if (MatchItemToText(filtertext, item))
                         {
-                            item.SubItems[1].BackColor = Color.Yellow;
-                            item.SubItems[2].BackColor = Color.Yellow;
-                            item.SubItems[3].BackColor = Color.Yellow;
-                            item.SubItems[4].BackColor = Color.Yellow;
+                            item.SubItems[displayHeader.Index].BackColor = Color.Yellow;
+                            item.SubItems[folderHeader.Index].BackColor = Color.Yellow;
+                            item.SubItems[authorHeader.Index].BackColor = Color.Yellow;
+                            item.SubItems[versionHeader.Index].BackColor = Color.Yellow;
                         }
                         //if not set to white.
                         else
                         {
-                            item.SubItems[1].BackColor = Color.White;
-                            item.SubItems[2].BackColor = Color.White;
-                            item.SubItems[3].BackColor = Color.White;
-                            item.SubItems[4].BackColor = Color.White;
+                            item.SubItems[displayHeader.Index].BackColor = Color.White;
+                            item.SubItems[folderHeader.Index].BackColor = Color.White;
+                            item.SubItems[authorHeader.Index].BackColor = Color.White;
+                            item.SubItems[versionHeader.Index].BackColor = Color.White;
                         }
                     }
                 }
@@ -859,10 +860,10 @@ namespace MW5_Mod_Manager
                     {
                         if (MatchItemToText(filtertext, item))
                         {
-                            item.SubItems[1].BackColor = Color.White;
-                            item.SubItems[2].BackColor = Color.White;
-                            item.SubItems[3].BackColor = Color.White;
-                            item.SubItems[4].BackColor = Color.White;
+                            item.SubItems[displayHeader.Index].BackColor = Color.White;
+                            item.SubItems[folderHeader.Index].BackColor = Color.White;
+                            item.SubItems[authorHeader.Index].BackColor = Color.White;
+                            item.SubItems[versionHeader.Index].BackColor = Color.White;
                             MainForm.modsListView.Items.Add(item);
                         }
                     }
@@ -878,12 +879,12 @@ namespace MW5_Mod_Manager
         {
             if
                 (
-                    item.SubItems[1].Text.ToLower().StartsWith(filtertext) ||
-                    item.SubItems[2].Text.ToLower().StartsWith(filtertext) ||
-                    item.SubItems[3].Text.ToLower().StartsWith(filtertext) ||
-                    item.SubItems[1].Text.ToLower().Contains(filtertext) ||
-                    item.SubItems[2].Text.ToLower().Contains(filtertext) ||
-                    item.SubItems[3].Text.ToLower().Contains(filtertext)
+                    item.SubItems[displayHeader.Index].Text.ToLower().StartsWith(filtertext) ||
+                    item.SubItems[folderHeader.Index].Text.ToLower().StartsWith(filtertext) ||
+                    item.SubItems[authorHeader.Index].Text.ToLower().StartsWith(filtertext) ||
+                    item.SubItems[displayHeader.Index].Text.ToLower().Contains(filtertext) ||
+                    item.SubItems[folderHeader.Index].Text.ToLower().Contains(filtertext) ||
+                    item.SubItems[authorHeader.Index].Text.ToLower().Contains(filtertext)
                 )
             {
                 return true;
@@ -913,14 +914,14 @@ namespace MW5_Mod_Manager
                 if (this.markedForRemoval.Contains(item))
                 {
                     markedForRemoval.Remove(item);
-                    item.SubItems[1].ForeColor = Color.Black;
+                    item.SubItems[displayHeader.Index].ForeColor = Color.Black;
                     item.Selected = false;
                     logic.ColorizeListViewItems(ListViewData);
                 }
                 else
                 {
                     this.markedForRemoval.Add(item);
-                    item.SubItems[1].ForeColor = Color.Red;
+                    item.SubItems[displayHeader.Index].ForeColor = Color.Red;
                     item.Selected = false;
                 }
             }
@@ -947,7 +948,7 @@ namespace MW5_Mod_Manager
             if (Utils.StringNullEmptyOrWhiteSpace(selectedMod))
                 return;
 
-            string superMod = modsListView.SelectedItems[0].SubItems[2].Text;
+            string superMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
 
             if (!logic.OverrridingData.ContainsKey(superMod))
                 return;
@@ -978,7 +979,7 @@ namespace MW5_Mod_Manager
             if (Utils.StringNullEmptyOrWhiteSpace(selectedMod))
                 return;
 
-            string superMod = modsListView.SelectedItems[0].SubItems[2].Text;
+            string superMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
 
             if (!logic.OverrridingData.ContainsKey(superMod))
                 return;
@@ -1002,8 +1003,8 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-            string SelectedMod = modsListView.SelectedItems[0].SubItems[2].Text;
-            string SelectedModDisplayName = modsListView.SelectedItems[0].SubItems[1].Text;
+            string SelectedMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
+            string SelectedModDisplayName = modsListView.SelectedItems[0].SubItems[displayHeader.Index].Text;
 
             if (Utils.StringNullEmptyOrWhiteSpace(SelectedMod) ||
                 Utils.StringNullEmptyOrWhiteSpace(SelectedModDisplayName)
@@ -1070,15 +1071,15 @@ namespace MW5_Mod_Manager
 
         private void HandleDependencies(ListViewItem Item, string SelectedModDisplayName)
         {
-            string SelectedMod = Item.SubItems[2].Text;
+            string SelectedMod = Item.SubItems[folderHeader.Index].Text;
             label8.Text = SelectedModDisplayName;
             List<string> Dependencies = logic.GetModDependencies(SelectedMod);
             this.listView2.Items.Clear();
 
             if (!Item.Checked)
             {
-                Item.SubItems[5].BackColor = Color.White;
-                Item.SubItems[5].Text = "---";
+                Item.SubItems[dependenciesHeader.Index].BackColor = Color.White;
+                Item.SubItems[dependenciesHeader.Index].Text = "---";
             }
 
             List<string> MissingDependencies = new List<string>();
@@ -1121,8 +1122,8 @@ namespace MW5_Mod_Manager
 
             logic.UpdateNewModOverrideData(ListViewData, ListViewData[e.Item.Index]);
             logic.CheckRequires(ListViewData);
-            HandleOverrding(e.Item.SubItems[2].Text);
-            HandleDependencies(e.Item, e.Item.SubItems[1].Text);
+            HandleOverrding(e.Item.SubItems[folderHeader.Index].Text);
+            HandleDependencies(e.Item, e.Item.SubItems[displayHeader.Index].Text);
         }
 
         //Check for mod overrding data

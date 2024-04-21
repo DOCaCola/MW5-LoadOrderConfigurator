@@ -38,14 +38,15 @@ namespace MW5_Mod_Manager
             backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             openFileDialog1 = new OpenFileDialog();
             button6 = new Button();
-            toolStripVendorLabel = new ToolStripStatusLabel();
+            toolStripPlatformLabel = new ToolStripStatusLabel();
             modsListView = new ListView();
-            enabled = new ColumnHeader();
-            display = new ColumnHeader();
-            folder = new ColumnHeader();
-            author = new ColumnHeader();
-            version = new ColumnHeader();
-            dependencies = new ColumnHeader();
+            enabledHeader = new ColumnHeader();
+            displayHeader = new ColumnHeader();
+            folderHeader = new ColumnHeader();
+            authorHeader = new ColumnHeader();
+            versionHeader = new ColumnHeader();
+            buildHeader = new ColumnHeader();
+            dependenciesHeader = new ColumnHeader();
             button4 = new Button();
             label3 = new Label();
             filterBox = new TextBox();
@@ -164,15 +165,15 @@ namespace MW5_Mod_Manager
             // 
             // toolStripVendorLabel
             // 
-            toolStripVendorLabel.Name = "toolStripVendorLabel";
-            toolStripVendorLabel.Size = new System.Drawing.Size(22, 17);
-            toolStripVendorLabel.Text = "---";
+            toolStripPlatformLabel.Name = "toolStripPlatformLabel";
+            toolStripPlatformLabel.Size = new System.Drawing.Size(22, 17);
+            toolStripPlatformLabel.Text = "---";
             // 
             // modsListView
             // 
             modsListView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             modsListView.CheckBoxes = true;
-            modsListView.Columns.AddRange(new ColumnHeader[] { enabled, display, folder, author, version, dependencies });
+            modsListView.Columns.AddRange(new ColumnHeader[] { enabledHeader, displayHeader, folderHeader, authorHeader, versionHeader, buildHeader, dependenciesHeader });
             modsListView.FullRowSelect = true;
             modsListView.GridLines = true;
             modsListView.LabelWrap = false;
@@ -188,42 +189,46 @@ namespace MW5_Mod_Manager
             modsListView.SelectedIndexChanged += listView1_SelectedIndexChanged;
             modsListView.MouseClick += modsListView_MouseClick;
             // 
-            // enabled
+            // enabledHeader
             // 
-            enabled.Tag = "enabled";
-            enabled.Text = "X";
-            enabled.Width = 20;
+            enabledHeader.Tag = "";
+            enabledHeader.Text = "";
+            enabledHeader.Width = 20;
             // 
-            // display
+            // displayHeader
             // 
-            display.Tag = "display";
-            display.Text = "Display Name";
-            display.Width = 188;
+            displayHeader.Tag = "";
+            displayHeader.Text = "Display Name";
+            displayHeader.Width = 188;
             // 
-            // folder
+            // folderHeader
             // 
-            folder.Tag = "folder";
-            folder.Text = "Mod Folder";
-            folder.Width = 196;
+            folderHeader.Tag = "";
+            folderHeader.Text = "Mod Folder";
+            folderHeader.Width = 196;
             // 
-            // author
+            // authorHeader
             // 
-            author.Tag = "author";
-            author.Text = "Author";
-            author.Width = 72;
+            authorHeader.Tag = "";
+            authorHeader.Text = "Author";
+            authorHeader.Width = 72;
             // 
-            // version
+            // versionHeader
             // 
-            version.Tag = "version";
-            version.Text = "Version";
-            version.Width = 54;
+            versionHeader.Tag = "";
+            versionHeader.Text = "Version";
+            versionHeader.Width = 54;
             // 
-            // dependencies
+            // buildHeader
             // 
-            dependencies.Tag = "dependencies";
-            dependencies.Text = "Dependencies";
-            dependencies.TextAlign = HorizontalAlignment.Center;
-            dependencies.Width = 88;
+            buildHeader.Text = "Build";
+            // 
+            // dependenciesHeader
+            // 
+            dependenciesHeader.Tag = "";
+            dependenciesHeader.Text = "Dependencies";
+            dependenciesHeader.TextAlign = HorizontalAlignment.Center;
+            dependenciesHeader.Width = 88;
             // 
             // button4
             // 
@@ -726,7 +731,7 @@ namespace MW5_Mod_Manager
             // 
             // statusStrip1
             // 
-            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripVendorLabel, toolStripStatusLabelMwVersion });
+            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripPlatformLabel, toolStripStatusLabelMwVersion });
             statusStrip1.Location = new System.Drawing.Point(0, 557);
             statusStrip1.Name = "statusStrip1";
             statusStrip1.Size = new System.Drawing.Size(1184, 22);
@@ -816,11 +821,11 @@ namespace MW5_Mod_Manager
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.Button button6;
         public System.Windows.Forms.ListView modsListView;
-        public System.Windows.Forms.ColumnHeader display;
-        public System.Windows.Forms.ColumnHeader folder;
-        public System.Windows.Forms.ColumnHeader author;
-        private System.Windows.Forms.ColumnHeader enabled;
-        private System.Windows.Forms.ColumnHeader version;
+        public System.Windows.Forms.ColumnHeader displayHeader;
+        public System.Windows.Forms.ColumnHeader folderHeader;
+        public System.Windows.Forms.ColumnHeader authorHeader;
+        public System.Windows.Forms.ColumnHeader enabledHeader;
+        public System.Windows.Forms.ColumnHeader versionHeader;
         public System.Windows.Forms.ToolStripLabel toolStripVendorLabeltoolStripLabel1;
         private RotatingLabel rotatingLabel1;
         private System.Windows.Forms.Button button4;
@@ -835,7 +840,7 @@ namespace MW5_Mod_Manager
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.ColumnHeader dependencies;
+        public System.Windows.Forms.ColumnHeader dependenciesHeader;
         private TabControl tabControl1;
         private TabPage tabPage1;
         private TabPage tabPage2;
@@ -857,7 +862,7 @@ namespace MW5_Mod_Manager
         private ToolStripSeparator toolStripSeparator7;
         private ToolStripMenuItem exportmodsFolderToolStripMenuItem1;
         private ToolStripMenuItem shareModsViaTCPToolStripMenuItem;
-        private ToolStripStatusLabel toolStripVendorLabel;
+        private ToolStripStatusLabel toolStripPlatformLabel;
         private ToolStripMenuItem modsToolStripMenuItem;
         private ToolStripMenuItem openModsFolderToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator1;
@@ -884,6 +889,7 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem toolStripMenuItemSettings;
         private ToolStripSeparator toolStripSeparator3;
         private ToolStripMenuItem toolStripMenuItemOpenModFolderSteam;
+        private ColumnHeader buildHeader;
     }
 }
 

@@ -36,8 +36,6 @@ namespace MW5_Mod_Manager
     [SupportedOSPlatform("windows")]
     public class MainLogic
     {
-        public MainWindow MainForm;
-
         public float Version = 0f;
         public string Platform = "";
         public string InstallPath = "";
@@ -539,8 +537,8 @@ namespace MW5_Mod_Manager
         //Reset the overriding data between two mods and check if after mods are still overriding/being overriden
         public void ResetOverrdingBetweenMods(ModListItem listItemA, ModListItem listItemB)
         {
-            string modA = listItemA.SubItems[2].Text;
-            string modB = listItemB.SubItems[2].Text;
+            string modA = listItemA.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
+            string modB = listItemB.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
 
             if (this.OverrridingData.ContainsKey(modA))
             {
@@ -615,7 +613,7 @@ namespace MW5_Mod_Manager
         //Used to update the override data when a new item is added or removed to/from the mod list instead of checking all items agains each other again.
         public void UpdateNewModOverrideData(List<ModListItem> items, ModListItem newListItem)
         {
-            string modA = newListItem.SubItems[2].Text;
+            string modA = newListItem.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
             ////Console.WriteLine("UpdateNewModOverrideData");
             ////Console.WriteLine("Mod checked or unchecked: " + modA);
 
@@ -656,7 +654,7 @@ namespace MW5_Mod_Manager
                 //check each mod for changes
                 foreach (ModListItem item in items)
                 {
-                    string modB = item.SubItems[2].Text;
+                    string modB = item.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
 
                     //Again dont compare mods to themselves.
                     if (modA == modB)
@@ -681,7 +679,7 @@ namespace MW5_Mod_Manager
         //used to update the overriding data when a mod is moved ONE up or ONE down.
         public void UpdateModOverridingdata(List<ModListItem> items, ModListItem movedModItem, bool movedUp)
         {
-            string modA = movedModItem.SubItems[2].Text;
+            string modA = movedModItem.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
 
             //Console.WriteLine("UpdateModOverridingdata");
             //Console.WriteLine("--" + modA);
@@ -693,7 +691,7 @@ namespace MW5_Mod_Manager
                 indexToCheck = movedModItem.Index - 1;
 
             ModListItem listItemB = items[indexToCheck];
-            string modB = listItemB.SubItems[2].Text;
+            string modB = listItemB.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
             //Console.WriteLine("++" + modB);
 
             if (!this.OverrridingData.ContainsKey(modA))
@@ -728,8 +726,8 @@ namespace MW5_Mod_Manager
         //See if items A and B are interacting in terms of manifest and return the intersect
         public void GetModOverridingData(ModListItem listItemA, ModListItem listItemB, int itemCount, OverridingData A, OverridingData B)
         {
-            string modA = listItemA.SubItems[2].Text;
-            string modB = listItemB.SubItems[2].Text;
+            string modA = listItemA.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
+            string modB = listItemB.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
 
             if (modA == modB)
                 return;
@@ -891,24 +889,24 @@ namespace MW5_Mod_Manager
         {
             foreach (ModListItem item in items)
             {
-                string modName = item.SubItems[2].Text;
+                string modName = item.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
 
                 //marked for removal so don't color.
-                if (item.SubItems[1].ForeColor == Color.Red)
+                if (item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor == Color.Red)
                 {
                     continue;
                 }
                 
                 if (!item.Checked)
                 {
-                    item.SubItems[1].ForeColor = Color.Gray;
+                    item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = Color.Gray;
                     continue;
                 }
 
                 ////Console.WriteLine("Coloring mod: " + mod);
                 if (!this.OverrridingData.ContainsKey(modName))
                 {
-                    item.SubItems[1].ForeColor = Color.Black;
+                    item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = Color.Black;
                     ////Console.WriteLine("Black");
 
                     continue;
@@ -917,22 +915,22 @@ namespace MW5_Mod_Manager
                 if (A.isOverriden)
                 {
                     ////Console.WriteLine("OrangeRed");
-                    item.SubItems[1].ForeColor = Color.OrangeRed;
+                    item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = Color.OrangeRed;
                 }
                 if (A.isOverriding)
                 {
                     ////Console.WriteLine("Green");
-                    item.SubItems[1].ForeColor = Color.Green;
+                    item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = Color.Green;
                 }
                 if (A.isOverriding && A.isOverriden)
                 {
                     ////Console.WriteLine("Orange");
-                    item.SubItems[1].ForeColor = Color.Orange;
+                    item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = Color.Orange;
                 }
                 if (!A.isOverriding && !A.isOverriden)
                 {
                     ////Console.WriteLine("Black");
-                    item.SubItems[1].ForeColor = Color.Black;
+                    item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = Color.Black;
                 }
             }
         }
@@ -949,8 +947,8 @@ namespace MW5_Mod_Manager
                 //Console.WriteLine("---" + item.SubItems[1].Text);
                 if (!item.Checked)
                 {
-                    item.SubItems[5].BackColor = Color.White;
-                    item.SubItems[5].Text = "---";
+                    item.SubItems[MainWindow.MainForm.dependenciesHeader.Index].BackColor = Color.White;
+                    item.SubItems[MainWindow.MainForm.dependenciesHeader.Index].Text = "---";
                     continue;
                 }
 
@@ -962,8 +960,8 @@ namespace MW5_Mod_Manager
 
                 if (ModDetails[modFolderName].Requires == null)
                 {
-                    item.SubItems[5].BackColor = Color.White;
-                    item.SubItems[5].Text = "NONE";
+                    item.SubItems[MainWindow.MainForm.dependenciesHeader.Index].BackColor = Color.White;
+                    item.SubItems[MainWindow.MainForm.dependenciesHeader.Index].Text = "NONE";
                     continue;
                 }
 
@@ -986,13 +984,13 @@ namespace MW5_Mod_Manager
                 if (missingMods.Count == 0)
                 {
                     ////Console.WriteLine("All subset items found!");
-                    item.SubItems[5].BackColor = Color.Green;
-                    item.SubItems[5].Text = "FOUND";
+                    item.SubItems[MainWindow.MainForm.dependenciesHeader.Index].BackColor = Color.Green;
+                    item.SubItems[MainWindow.MainForm.dependenciesHeader.Index].Text = "FOUND";
                     continue;
                 }
                 ////Console.WriteLine("Not all subset items found!");
-                item.SubItems[5].BackColor = Color.Red;
-                item.SubItems[5].Text = "MISSING";
+                item.SubItems[MainWindow.MainForm.dependenciesHeader.Index].BackColor = Color.Red;
+                item.SubItems[MainWindow.MainForm.dependenciesHeader.Index].Text = "MISSING";
                 MissingModsDependenciesDict[modDisplayName] = missingMods;
             }
             return MissingModsDependenciesDict;
