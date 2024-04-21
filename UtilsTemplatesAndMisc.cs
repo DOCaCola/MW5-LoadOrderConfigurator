@@ -350,9 +350,9 @@ namespace MW5_Mod_Manager
         public Dictionary<string, List<string>> overriddenBy { set; get; }
     }
 
-    public class ModItem : ListViewItem
+    public class ModListItem : ListViewItem
     {
-        public ModItem() : base("", 0)
+        public ModListItem() : base("", 0)
         {
             //other stuff here
         }

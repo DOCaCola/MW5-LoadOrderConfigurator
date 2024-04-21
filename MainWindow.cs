@@ -20,7 +20,7 @@ namespace MW5_Mod_Manager
         public MainLogic logic = new MainLogic();
         //public TCPFileShare fileShare;
         bool filtered = false;
-        private List<ModItem> ListViewData = new List<ModItem>();
+        private List<ModListItem> ListViewData = new List<ModListItem>();
         private List<ListViewItem> markedForRemoval;
         public Form4 WaitForm;
         private bool MovingItem = false;
@@ -228,25 +228,25 @@ namespace MW5_Mod_Manager
                 this.MovingItem = false;
                 return;
             }
-            ModItem item = ListViewData[i];
+            ModListItem listItem = ListViewData[i];
             items.RemoveAt(i);
             ListViewData.RemoveAt(i);
 
             if (Control.ModifierKeys == Keys.Shift)
             {
                 //Move to top
-                items.Insert(0, item);
-                ListViewData.Insert(0, item);
+                items.Insert(0, listItem);
+                ListViewData.Insert(0, listItem);
 
             }
             else
             {
                 //move one up
-                items.Insert(i - 1, item);
-                ListViewData.Insert(i - 1, item);
+                items.Insert(i - 1, listItem);
+                ListViewData.Insert(i - 1, listItem);
 
             }
-            item.Selected = true;
+            listItem.Selected = true;
 
             this.logic.GetOverridingData(this.ListViewData);
             this.logic.CheckRequires(this.ListViewData);
@@ -267,23 +267,23 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-            ModItem item = ListViewData[i];
+            ModListItem listItem = ListViewData[i];
             items.RemoveAt(i);
             ListViewData.RemoveAt(i);
 
             if (Control.ModifierKeys == Keys.Shift)
             {
                 //Move to bottom
-                items.Insert(ListViewData.Count, item);
-                ListViewData.Insert(ListViewData.Count, item);
+                items.Insert(ListViewData.Count, listItem);
+                ListViewData.Insert(ListViewData.Count, listItem);
             }
             else
             {
                 //move one down
-                items.Insert(i + 1, item);
-                ListViewData.Insert(i + 1, item);
+                items.Insert(i + 1, listItem);
+                ListViewData.Insert(i + 1, listItem);
             }
-            item.Selected = true;
+            listItem.Selected = true;
 
             //Move to below when refactor is complete
             //UpdateListView();
@@ -315,7 +315,7 @@ namespace MW5_Mod_Manager
 
                 if (r == DialogResult.Yes)
                 {
-                    foreach (ModItem item in markedForRemoval)
+                    foreach (ModListItem item in markedForRemoval)
                     {
                         ListViewData.Remove(item);
                         modsListView.Items.Remove(item);
@@ -532,7 +532,7 @@ namespace MW5_Mod_Manager
         private void AddEntryToListViewAndData(KeyValuePair<string, bool> entry)
         {
             string modName = entry.Key;
-            ModItem item1 = new ModItem
+            ModListItem item1 = new ModListItem
             {
                 UseItemStyleForSubItems = false,
                 Checked = entry.Value
@@ -953,7 +953,7 @@ namespace MW5_Mod_Manager
             if (checkBox1.Checked)
             {
                 this.modsListView.Items.Clear();
-                foreach (ModItem item in this.ListViewData)
+                foreach (ModListItem item in this.ListViewData)
                 {
                     modsListView.Items.Add(item);
                 }
@@ -971,7 +971,7 @@ namespace MW5_Mod_Manager
                     markedForRemoval.Remove(item);
                     item.SubItems[1].ForeColor = Color.Black;
                     item.Selected = false;
-                    logic.ColorItemsOnOverridingData(ListViewData);
+                    logic.ColorizeListViewItems(ListViewData);
                 }
                 else
                 {

@@ -7,7 +7,6 @@ using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using Application = System.Windows.Forms.Application;
@@ -528,10 +527,10 @@ namespace MW5_Mod_Manager
         #endregion pack mods to zip
 
         //Reset the overriding data between two mods and check if after mods are still overriding/being overriden
-        public void ResetOverrdingBetweenMods(ModItem itemA, ModItem itemB)
+        public void ResetOverrdingBetweenMods(ModListItem listItemA, ModListItem listItemB)
         {
-            string modA = itemA.SubItems[2].Text;
-            string modB = itemB.SubItems[2].Text;
+            string modA = listItemA.SubItems[2].Text;
+            string modB = listItemB.SubItems[2].Text;
 
             if (this.OverrridingData.ContainsKey(modA))
             {
@@ -604,13 +603,13 @@ namespace MW5_Mod_Manager
         }
 
         //Used to update the override data when a new item is added or removed to/from the mod list instead of checking all items agains each other again.
-        public void UpdateNewModOverrideData(List<ModItem> items, ModItem newItem)
+        public void UpdateNewModOverrideData(List<ModListItem> items, ModListItem newListItem)
         {
-            string modA = newItem.SubItems[2].Text;
+            string modA = newListItem.SubItems[2].Text;
             ////Console.WriteLine("UpdateNewModOverrideData");
             ////Console.WriteLine("Mod checked or unchecked: " + modA);
 
-            if (!newItem.Checked)
+            if (!newListItem.Checked)
             {
                 ////Console.WriteLine("--Unchecked");
                 if (this.OverrridingData.ContainsKey(modA))
@@ -645,7 +644,7 @@ namespace MW5_Mod_Manager
                 }
 
                 //check each mod for changes
-                foreach (ModItem item in items)
+                foreach (ModListItem item in items)
                 {
                     string modB = item.SubItems[2].Text;
 
@@ -662,29 +661,29 @@ namespace MW5_Mod_Manager
                             overriddenBy = new Dictionary<string, List<string>>()
                         };
                     }
-                    GetModOverridingData(newItem, item, items.Count, this.OverrridingData[modA], this.OverrridingData[modB]);
+                    GetModOverridingData(newListItem, item, items.Count, this.OverrridingData[modA], this.OverrridingData[modB]);
                 }
             }
 
-            ColorItemsOnOverridingData(items);
+            ColorizeListViewItems(items);
         }
 
         //used to update the overriding data when a mod is moved ONE up or ONE down.
-        public void UpdateModOverridingdata(List<ModItem> items, ModItem movedMod, bool movedUp)
+        public void UpdateModOverridingdata(List<ModListItem> items, ModListItem movedModItem, bool movedUp)
         {
-            string modA = movedMod.SubItems[2].Text;
+            string modA = movedModItem.SubItems[2].Text;
 
             //Console.WriteLine("UpdateModOverridingdata");
             //Console.WriteLine("--" + modA);
 
             int indexToCheck = 0;
             if (movedUp)
-                indexToCheck = movedMod.Index + 1;
+                indexToCheck = movedModItem.Index + 1;
             else
-                indexToCheck = movedMod.Index - 1;
+                indexToCheck = movedModItem.Index - 1;
 
-            ModItem itemB = items[indexToCheck];
-            string modB = itemB.SubItems[2].Text;
+            ModListItem listItemB = items[indexToCheck];
+            string modB = listItemB.SubItems[2].Text;
             //Console.WriteLine("++" + modB);
 
             if (!this.OverrridingData.ContainsKey(modA))
@@ -706,27 +705,27 @@ namespace MW5_Mod_Manager
                 };
             }
 
-            ResetOverrdingBetweenMods(movedMod, itemB);
+            ResetOverrdingBetweenMods(movedModItem, listItemB);
 
-            GetModOverridingData(movedMod, items[indexToCheck], items.Count, OverrridingData[modA], OverrridingData[modA]);
+            GetModOverridingData(movedModItem, items[indexToCheck], items.Count, OverrridingData[modA], OverrridingData[modA]);
 
             OverridingData A = OverrridingData[modA];
             OverridingData B = OverrridingData[modB];
 
-            ColorItemsOnOverridingData(items);
+            ColorizeListViewItems(items);
         }
 
         //See if items A and B are interacting in terms of manifest and return the intersect
-        public void GetModOverridingData(ModItem itemA, ModItem itemB, int itemCount, OverridingData A, OverridingData B)
+        public void GetModOverridingData(ModListItem listItemA, ModListItem listItemB, int itemCount, OverridingData A, OverridingData B)
         {
-            string modA = itemA.SubItems[2].Text;
-            string modB = itemB.SubItems[2].Text;
+            string modA = listItemA.SubItems[2].Text;
+            string modB = listItemB.SubItems[2].Text;
 
             if (modA == modB)
                 return;
 
-            int priorityA = itemCount - itemA.Index;
-            int priorityB = itemCount - itemB.Index;
+            int priorityA = itemCount - listItemA.Index;
+            int priorityB = itemCount - listItemB.Index;
 
             //Now we have a mod that is not the mod we are looking at is enbabled.
             //Lets compare the manifest!
@@ -773,13 +772,13 @@ namespace MW5_Mod_Manager
 
         //Return a dict of all overriden mods with a list of overriden files as values.
         //else returns an empty string.
-        public void GetOverridingData(List<ModItem> items)
+        public void GetOverridingData(List<ModListItem> items)
         {
             ////Console.WriteLine(Environment.StackTrace);
             ////Console.WriteLine("Starting Overriding data check");
             this.OverrridingData.Clear();
 
-            foreach (ModItem itemA in items)
+            foreach (ModListItem itemA in items)
             {
                 //We only wanna check this for items actually enabled.
                 if (!itemA.Checked)
@@ -801,7 +800,7 @@ namespace MW5_Mod_Manager
                 OverridingData A = this.OverrridingData[modA];
 
                 //Console.WriteLine("Checking: " + modA + " : " + priorityA.ToString());
-                foreach (ModItem itemB in items)
+                foreach (ModListItem itemB in items)
                 {
                     string modB = itemB.FolderName;
 
@@ -868,37 +867,43 @@ namespace MW5_Mod_Manager
 
             #endregion debug output
 
-            ColorItemsOnOverridingData(items);
+            ColorizeListViewItems(items);
         }
 
         //Check color of a single mod.
-        public void ColorItemOnOverrdingData(ModItem item)
+        public void ColorItemOnOverrdingData(ModListItem listItem)
         {
-            ColorItemsOnOverridingData(new List<ModItem>() { item });
+            ColorizeListViewItems(new List<ModListItem>() { listItem });
         }
 
         //Color the list view items based on data
-        public void ColorItemsOnOverridingData(List<ModItem> items)
+        public void ColorizeListViewItems(List<ModListItem> items)
         {
-            foreach (ListViewItem item in items)
+            foreach (ModListItem item in items)
             {
-                string mod = item.SubItems[2].Text;
+                string modName = item.SubItems[2].Text;
 
-                //market for removal so don't color.
+                //marked for removal so don't color.
                 if (item.SubItems[1].ForeColor == Color.Red)
                 {
                     continue;
                 }
+                
+                if (!item.Checked)
+                {
+                    item.SubItems[1].ForeColor = Color.Gray;
+                    continue;
+                }
 
                 ////Console.WriteLine("Coloring mod: " + mod);
-                if (!this.OverrridingData.ContainsKey(mod))
+                if (!this.OverrridingData.ContainsKey(modName))
                 {
                     item.SubItems[1].ForeColor = Color.Black;
                     ////Console.WriteLine("Black");
 
                     continue;
                 }
-                OverridingData A = OverrridingData[mod];
+                OverridingData A = OverrridingData[modName];
                 if (A.isOverriden)
                 {
                     ////Console.WriteLine("OrangeRed");
@@ -923,13 +928,13 @@ namespace MW5_Mod_Manager
         }
 
         //Check for all active mods in list provided if the mods in the required section are also active.
-        public Dictionary<string, List<string>> CheckRequires(List<ModItem> items)
+        public Dictionary<string, List<string>> CheckRequires(List<ModListItem> items)
         {
             ////Console.WriteLine("Checking mods Requires");
             this.MissingModsDependenciesDict = new Dictionary<string, List<string>>();
 
             //For each mod check if their requires list is a sub list of the active mods list... aka see if the required mods are active.
-            foreach (ModItem item in items)
+            foreach (ModListItem item in items)
             {
                 //Console.WriteLine("---" + item.SubItems[1].Text);
                 if (!item.Checked)
@@ -955,7 +960,7 @@ namespace MW5_Mod_Manager
                 List<string> Requires = ModDetails[modFolderName].Requires;
                 List<string> activeMods = new List<string>();
 
-                foreach (ModItem itemB in items)
+                foreach (ModListItem itemB in items)
                 {
                     if (!itemB.Checked)
                         continue;
