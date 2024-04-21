@@ -41,26 +41,7 @@ namespace MW5_Mod_Manager
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.button6 = new System.Windows.Forms.Button();
             this.button8 = new System.Windows.Forms.Button();
-            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
-            this.installDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.selectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.changeVendorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.epicStoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.gogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.steamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.windowsStoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.exportLoadOrderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.importLoadOrderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exportModsFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripVendorLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.listView1 = new System.Windows.Forms.ListView();
             this.enabled = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.display = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -100,13 +81,33 @@ namespace MW5_Mod_Manager
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.textProgressBarBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.rotatingLabel1 = new MW5_Mod_Manager.RotatingLabel();
-            this.toolStrip1.SuspendLayout();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.installDirectoryToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.setvendorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.epicStoreToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.gOGToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.steamToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.windowsStoreToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
+            this.exportLoadOrderToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.importLoadOrderToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
+            this.exportmodsFolderToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.shareModsViaTCPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.modsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openModsFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.textProgressBarBindingSource)).BeginInit();
+            this.menuStrip1.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
@@ -174,165 +175,10 @@ namespace MW5_Mod_Manager
             this.button8.UseVisualStyleBackColor = true;
             this.button8.Click += new System.EventHandler(this.button8_Click);
             // 
-            // toolStrip1
+            // toolStripVendorLabel
             // 
-            this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripDropDownButton1,
-            this.toolStripSeparator3,
-            this.toolStripLabel1,
-            this.toolStripSeparator2,
-            this.toolStripButton1,
-            this.toolStripSeparator4});
-            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
-            this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1184, 25);
-            this.toolStrip1.TabIndex = 10;
-            this.toolStrip1.Text = "toolStrip1";
-            // 
-            // toolStripDropDownButton1
-            // 
-            this.toolStripDropDownButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.toolStripDropDownButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.installDirectoryToolStripMenuItem,
-            this.changeVendorToolStripMenuItem,
-            this.toolStripSeparator1,
-            this.exportLoadOrderToolStripMenuItem,
-            this.importLoadOrderToolStripMenuItem,
-            this.exportModsFolderToolStripMenuItem,
-            this.toolStripSeparator5,
-            this.toolStripMenuItem1});
-            this.toolStripDropDownButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton1.Image")));
-            this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
-            this.toolStripDropDownButton1.Size = new System.Drawing.Size(38, 22);
-            this.toolStripDropDownButton1.Text = "File";
-            this.toolStripDropDownButton1.Click += new System.EventHandler(this.toolStripDropDownButton1_Click);
-            // 
-            // installDirectoryToolStripMenuItem
-            // 
-            this.installDirectoryToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.selectToolStripMenuItem});
-            this.installDirectoryToolStripMenuItem.Name = "installDirectoryToolStripMenuItem";
-            this.installDirectoryToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.installDirectoryToolStripMenuItem.Text = "Install Directory";
-            // 
-            // selectToolStripMenuItem
-            // 
-            this.selectToolStripMenuItem.Name = "selectToolStripMenuItem";
-            this.selectToolStripMenuItem.Size = new System.Drawing.Size(105, 22);
-            this.selectToolStripMenuItem.Text = "Select";
-            this.selectToolStripMenuItem.Click += new System.EventHandler(this.selectToolStripMenuItem_Click);
-            // 
-            // changeVendorToolStripMenuItem
-            // 
-            this.changeVendorToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.epicStoreToolStripMenuItem,
-            this.gogToolStripMenuItem,
-            this.steamToolStripMenuItem,
-            this.windowsStoreToolStripMenuItem});
-            this.changeVendorToolStripMenuItem.Name = "changeVendorToolStripMenuItem";
-            this.changeVendorToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.changeVendorToolStripMenuItem.Text = "Set Vendor";
-            // 
-            // epicStoreToolStripMenuItem
-            // 
-            this.epicStoreToolStripMenuItem.Name = "epicStoreToolStripMenuItem";
-            this.epicStoreToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
-            this.epicStoreToolStripMenuItem.Text = "Epic Store";
-            this.epicStoreToolStripMenuItem.Click += new System.EventHandler(this.epicStoreToolStripMenuItem_Click);
-            // 
-            // gogToolStripMenuItem
-            // 
-            this.gogToolStripMenuItem.Name = "gogToolStripMenuItem";
-            this.gogToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
-            this.gogToolStripMenuItem.Text = "GOG";
-            this.gogToolStripMenuItem.Click += new System.EventHandler(this.gogToolStripMenuItem_Click);
-            // 
-            // steamToolStripMenuItem
-            // 
-            this.steamToolStripMenuItem.Name = "steamToolStripMenuItem";
-            this.steamToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
-            this.steamToolStripMenuItem.Text = "Steam";
-            this.steamToolStripMenuItem.Click += new System.EventHandler(this.steamToolStripMenuItem_Click);
-            // 
-            // windowsStoreToolStripMenuItem
-            // 
-            this.windowsStoreToolStripMenuItem.Name = "windowsStoreToolStripMenuItem";
-            this.windowsStoreToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
-            this.windowsStoreToolStripMenuItem.Text = "Windows Store";
-            this.windowsStoreToolStripMenuItem.Click += new System.EventHandler(this.windowsStoreToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(175, 6);
-            // 
-            // exportLoadOrderToolStripMenuItem
-            // 
-            this.exportLoadOrderToolStripMenuItem.Name = "exportLoadOrderToolStripMenuItem";
-            this.exportLoadOrderToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.exportLoadOrderToolStripMenuItem.Text = "Export Load Order";
-            this.exportLoadOrderToolStripMenuItem.Click += new System.EventHandler(this.ExportLoadOrderToolStripMenuItem_Click);
-            // 
-            // importLoadOrderToolStripMenuItem
-            // 
-            this.importLoadOrderToolStripMenuItem.Name = "importLoadOrderToolStripMenuItem";
-            this.importLoadOrderToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.importLoadOrderToolStripMenuItem.Text = "Import Load Order";
-            this.importLoadOrderToolStripMenuItem.Click += new System.EventHandler(this.ImportLoadOrderToolStripMenuItem_Click);
-            // 
-            // exportModsFolderToolStripMenuItem
-            // 
-            this.exportModsFolderToolStripMenuItem.Name = "exportModsFolderToolStripMenuItem";
-            this.exportModsFolderToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.exportModsFolderToolStripMenuItem.Text = "Export Mods Folder";
-            this.exportModsFolderToolStripMenuItem.Click += new System.EventHandler(this.exportModsFolderToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator5
-            // 
-            this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(175, 6);
-            this.toolStripSeparator5.Visible = false;
-            // 
-            // toolStripMenuItem1
-            // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(178, 22);
-            this.toolStripMenuItem1.Text = "Share Mods Via TCP";
-            this.toolStripMenuItem1.Visible = false;
-            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
-            // 
-            // toolStripSeparator3
-            // 
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
-            // 
-            // toolStripLabel1
-            // 
-            this.toolStripLabel1.Name = "toolStripLabel1";
-            this.toolStripLabel1.Size = new System.Drawing.Size(67, 22);
-            this.toolStripLabel1.Text = "------------";
-            // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
-            // 
-            // toolStripButton1
-            // 
-            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
-            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(109, 22);
-            this.toolStripButton1.Text = "Open Mods Folder";
-            this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click);
-            // 
-            // toolStripSeparator4
-            // 
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
+            this.toolStripVendorLabel.Name = "toolStripVendorLabel";
+            this.toolStripVendorLabel.Size = new System.Drawing.Size(0, 17);
             // 
             // listView1
             // 
@@ -355,7 +201,7 @@ namespace MW5_Mod_Manager
             this.listView1.MultiSelect = false;
             this.listView1.Name = "listView1";
             this.listView1.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.listView1.Size = new System.Drawing.Size(640, 446);
+            this.listView1.Size = new System.Drawing.Size(640, 464);
             this.listView1.TabIndex = 11;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -543,7 +389,7 @@ namespace MW5_Mod_Manager
             this.tabControl1.Location = new System.Drawing.Point(838, 26);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(346, 510);
+            this.tabControl1.Size = new System.Drawing.Size(346, 528);
             this.tabControl1.TabIndex = 30;
             // 
             // tabPage3
@@ -556,7 +402,7 @@ namespace MW5_Mod_Manager
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(338, 484);
+            this.tabPage3.Size = new System.Drawing.Size(338, 502);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Save/Load Presets";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -587,7 +433,7 @@ namespace MW5_Mod_Manager
             this.listBox4.FormattingEnabled = true;
             this.listBox4.Location = new System.Drawing.Point(7, 125);
             this.listBox4.Name = "listBox4";
-            this.listBox4.Size = new System.Drawing.Size(323, 355);
+            this.listBox4.Size = new System.Drawing.Size(323, 368);
             this.listBox4.TabIndex = 3;
             this.listBox4.SelectedIndexChanged += new System.EventHandler(this.listBox4_SelectedIndexChanged);
             // 
@@ -623,7 +469,7 @@ namespace MW5_Mod_Manager
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(338, 484);
+            this.tabPage1.Size = new System.Drawing.Size(338, 502);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Overrding Data";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -638,7 +484,7 @@ namespace MW5_Mod_Manager
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(338, 484);
+            this.tabPage2.Size = new System.Drawing.Size(338, 502);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Dependencies";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -722,11 +568,163 @@ namespace MW5_Mod_Manager
             this.rotatingLabel1.TabIndex = 12;
             this.rotatingLabel1.Text = "X";
             // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem,
+            this.modsToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(1184, 24);
+            this.menuStrip1.TabIndex = 35;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.installDirectoryToolStripMenuItem1,
+            this.setvendorToolStripMenuItem,
+            this.toolStripSeparator6,
+            this.exportLoadOrderToolStripMenuItem1,
+            this.importLoadOrderToolStripMenuItem1,
+            this.toolStripSeparator7,
+            this.exportmodsFolderToolStripMenuItem1,
+            this.shareModsViaTCPToolStripMenuItem,
+            this.toolStripSeparator1,
+            this.exitToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "&File";
+            this.fileToolStripMenuItem.Click += new System.EventHandler(this.fileToolStripMenuItem_Click);
+            // 
+            // installDirectoryToolStripMenuItem1
+            // 
+            this.installDirectoryToolStripMenuItem1.Name = "installDirectoryToolStripMenuItem1";
+            this.installDirectoryToolStripMenuItem1.Size = new System.Drawing.Size(189, 22);
+            this.installDirectoryToolStripMenuItem1.Text = "Select &install directory";
+            this.installDirectoryToolStripMenuItem1.Click += new System.EventHandler(this.installDirectoryToolStripMenuItem1_Click);
+            // 
+            // setvendorToolStripMenuItem
+            // 
+            this.setvendorToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.epicStoreToolStripMenuItem1,
+            this.gOGToolStripMenuItem1,
+            this.steamToolStripMenuItem1,
+            this.windowsStoreToolStripMenuItem1});
+            this.setvendorToolStripMenuItem.Name = "setvendorToolStripMenuItem";
+            this.setvendorToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.setvendorToolStripMenuItem.Text = "Set &vendor";
+            // 
+            // epicStoreToolStripMenuItem1
+            // 
+            this.epicStoreToolStripMenuItem1.Name = "epicStoreToolStripMenuItem1";
+            this.epicStoreToolStripMenuItem1.Size = new System.Drawing.Size(153, 22);
+            this.epicStoreToolStripMenuItem1.Text = "E&pic Store";
+            this.epicStoreToolStripMenuItem1.Click += new System.EventHandler(this.epicStoreToolStripMenuItem1_Click);
+            // 
+            // gOGToolStripMenuItem1
+            // 
+            this.gOGToolStripMenuItem1.Name = "gOGToolStripMenuItem1";
+            this.gOGToolStripMenuItem1.Size = new System.Drawing.Size(153, 22);
+            this.gOGToolStripMenuItem1.Text = "&GOG";
+            this.gOGToolStripMenuItem1.Click += new System.EventHandler(this.gOGToolStripMenuItem1_Click);
+            // 
+            // steamToolStripMenuItem1
+            // 
+            this.steamToolStripMenuItem1.Name = "steamToolStripMenuItem1";
+            this.steamToolStripMenuItem1.Size = new System.Drawing.Size(153, 22);
+            this.steamToolStripMenuItem1.Text = "&Steam";
+            this.steamToolStripMenuItem1.Click += new System.EventHandler(this.steamToolStripMenuItem1_Click);
+            // 
+            // windowsStoreToolStripMenuItem1
+            // 
+            this.windowsStoreToolStripMenuItem1.Name = "windowsStoreToolStripMenuItem1";
+            this.windowsStoreToolStripMenuItem1.Size = new System.Drawing.Size(153, 22);
+            this.windowsStoreToolStripMenuItem1.Text = "&Windows Store";
+            this.windowsStoreToolStripMenuItem1.Click += new System.EventHandler(this.windowsStoreToolStripMenuItem1_Click);
+            // 
+            // toolStripSeparator6
+            // 
+            this.toolStripSeparator6.Name = "toolStripSeparator6";
+            this.toolStripSeparator6.Size = new System.Drawing.Size(186, 6);
+            // 
+            // exportLoadOrderToolStripMenuItem1
+            // 
+            this.exportLoadOrderToolStripMenuItem1.Name = "exportLoadOrderToolStripMenuItem1";
+            this.exportLoadOrderToolStripMenuItem1.Size = new System.Drawing.Size(189, 22);
+            this.exportLoadOrderToolStripMenuItem1.Text = "&Export load order";
+            this.exportLoadOrderToolStripMenuItem1.Click += new System.EventHandler(this.exportLoadOrderToolStripMenuItem1_Click);
+            // 
+            // importLoadOrderToolStripMenuItem1
+            // 
+            this.importLoadOrderToolStripMenuItem1.Name = "importLoadOrderToolStripMenuItem1";
+            this.importLoadOrderToolStripMenuItem1.Size = new System.Drawing.Size(189, 22);
+            this.importLoadOrderToolStripMenuItem1.Text = "&Import load order";
+            this.importLoadOrderToolStripMenuItem1.Click += new System.EventHandler(this.importLoadOrderToolStripMenuItem1_Click);
+            // 
+            // toolStripSeparator7
+            // 
+            this.toolStripSeparator7.Name = "toolStripSeparator7";
+            this.toolStripSeparator7.Size = new System.Drawing.Size(186, 6);
+            // 
+            // exportmodsFolderToolStripMenuItem1
+            // 
+            this.exportmodsFolderToolStripMenuItem1.Name = "exportmodsFolderToolStripMenuItem1";
+            this.exportmodsFolderToolStripMenuItem1.Size = new System.Drawing.Size(189, 22);
+            this.exportmodsFolderToolStripMenuItem1.Text = "Export &mods folder";
+            this.exportmodsFolderToolStripMenuItem1.Click += new System.EventHandler(this.exportmodsFolderToolStripMenuItem1_Click);
+            // 
+            // shareModsViaTCPToolStripMenuItem
+            // 
+            this.shareModsViaTCPToolStripMenuItem.Name = "shareModsViaTCPToolStripMenuItem";
+            this.shareModsViaTCPToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.shareModsViaTCPToolStripMenuItem.Text = "Share mods via &TCP";
+            this.shareModsViaTCPToolStripMenuItem.Visible = false;
+            this.shareModsViaTCPToolStripMenuItem.Click += new System.EventHandler(this.shareModsViaTCPToolStripMenuItem_Click);
+            // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripVendorLabel});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 557);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(1184, 22);
+            this.statusStrip1.TabIndex = 36;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // modsToolStripMenuItem
+            // 
+            this.modsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openModsFolderToolStripMenuItem});
+            this.modsToolStripMenuItem.Name = "modsToolStripMenuItem";
+            this.modsToolStripMenuItem.Size = new System.Drawing.Size(49, 20);
+            this.modsToolStripMenuItem.Text = "&Mods";
+            // 
+            // openModsFolderToolStripMenuItem
+            // 
+            this.openModsFolderToolStripMenuItem.Name = "openModsFolderToolStripMenuItem";
+            this.openModsFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openModsFolderToolStripMenuItem.Text = "&Open Mods Folder";
+            this.openModsFolderToolStripMenuItem.Click += new System.EventHandler(this.openModsFolderToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(186, 6);
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.exitToolStripMenuItem.Text = "E&xit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1184, 561);
+            this.ClientSize = new System.Drawing.Size(1184, 579);
+            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.textBox3);
             this.Controls.Add(this.rotatingLabel1);
             this.Controls.Add(this.panel1);
@@ -740,19 +738,18 @@ namespace MW5_Mod_Manager
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.listView1);
-            this.Controls.Add(this.toolStrip1);
+            this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(900, 300);
             this.Name = "MainWindow";
             this.Text = "MW5 LoadOrderManager";
             this.Load += new System.EventHandler(this.Form1_Load);
-            this.toolStrip1.ResumeLayout(false);
-            this.toolStrip1.PerformLayout();
             this.tabControl1.ResumeLayout(false);
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
@@ -762,6 +759,10 @@ namespace MW5_Mod_Manager
             this.tabPage2.PerformLayout();
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.textProgressBarBindingSource)).EndInit();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -775,31 +776,15 @@ namespace MW5_Mod_Manager
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.Button button8;
-        private System.Windows.Forms.ToolStrip toolStrip1;
-        private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
-        private System.Windows.Forms.ToolStripMenuItem exportLoadOrderToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem importLoadOrderToolStripMenuItem;
         public System.Windows.Forms.ListView listView1;
         public System.Windows.Forms.ColumnHeader display;
         public System.Windows.Forms.ColumnHeader folder;
         public System.Windows.Forms.ColumnHeader author;
         private System.Windows.Forms.ColumnHeader enabled;
         private System.Windows.Forms.ColumnHeader version;
-        private System.Windows.Forms.ToolStripMenuItem changeVendorToolStripMenuItem;
-        public System.Windows.Forms.ToolStripLabel toolStripLabel1;
-        private System.Windows.Forms.ToolStripMenuItem steamToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem gogToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem windowsStoreToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem epicStoreToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem installDirectoryToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem selectToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
-        private System.Windows.Forms.ToolStripButton toolStripButton1;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        public System.Windows.Forms.ToolStripLabel toolStripVendorLabeltoolStripLabel1;
         private RotatingLabel rotatingLabel1;
         private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
@@ -819,13 +804,10 @@ namespace MW5_Mod_Manager
         private TabPage tabPage2;
         private Label label8;
         private ListView listView2;
-        private ToolStripMenuItem exportModsFolderToolStripMenuItem;
         public System.ComponentModel.BackgroundWorker backgroundWorker2;
         private Button button9;
         private Button button10;
         private Panel panel1;
-        private ToolStripSeparator toolStripSeparator5;
-        private ToolStripMenuItem toolStripMenuItem1;
         private TabPage tabPage3;
         public TextBox textBox2;
         public ListBox listBox4;
@@ -834,6 +816,26 @@ namespace MW5_Mod_Manager
         public Button button12;
         public TextBox textBox3;
         private BindingSource textProgressBarBindingSource;
+        private MenuStrip menuStrip1;
+        private ToolStripMenuItem fileToolStripMenuItem;
+        private StatusStrip statusStrip1;
+        private ToolStripMenuItem installDirectoryToolStripMenuItem1;
+        private ToolStripMenuItem setvendorToolStripMenuItem;
+        private ToolStripMenuItem epicStoreToolStripMenuItem1;
+        private ToolStripMenuItem gOGToolStripMenuItem1;
+        private ToolStripMenuItem steamToolStripMenuItem1;
+        private ToolStripMenuItem windowsStoreToolStripMenuItem1;
+        private ToolStripSeparator toolStripSeparator6;
+        private ToolStripMenuItem exportLoadOrderToolStripMenuItem1;
+        private ToolStripMenuItem importLoadOrderToolStripMenuItem1;
+        private ToolStripSeparator toolStripSeparator7;
+        private ToolStripMenuItem exportmodsFolderToolStripMenuItem1;
+        private ToolStripMenuItem shareModsViaTCPToolStripMenuItem;
+        private ToolStripStatusLabel toolStripVendorLabel;
+        private ToolStripMenuItem modsToolStripMenuItem;
+        private ToolStripMenuItem openModsFolderToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator1;
+        private ToolStripMenuItem exitToolStripMenuItem;
     }
 }
 

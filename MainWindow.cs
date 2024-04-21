@@ -70,7 +70,7 @@ namespace MW5_Mod_Manager
                 LoadAndFill(false);
             }
             this.LoadPresets();
-            this.SetVersionAndVender();
+            this.SetVersionAndVendor();
 
             SetupRotatingLabel();
         }
@@ -420,7 +420,7 @@ namespace MW5_Mod_Manager
         }
 
         //For processing internals and updating ui after setting a vendor
-        private void SetVersionAndVender()
+        private void SetVersionAndVendor()
         {
             if (this.logic.Version > 0f)
             {
@@ -430,13 +430,11 @@ namespace MW5_Mod_Manager
             {
                 if (this.logic.Vendor == "EPIC")
                 {
-                    this.toolStripLabel1.Text = "Game Vendor : Epic Store";
-                    this.selectToolStripMenuItem.Enabled = true;
-                    //this.searcgToolStripMenuItem.Enabled = true;
-                    this.steamToolStripMenuItem.Enabled = true;
-                    this.gogToolStripMenuItem.Enabled = true;
-                    this.windowsStoreToolStripMenuItem.Enabled = true;
-                    this.epicStoreToolStripMenuItem.Enabled = false;
+                    this.toolStripVendorLabel.Text = "Game Vendor : Epic Store";
+                    steamToolStripMenuItem1.Checked = false;
+                    gOGToolStripMenuItem1.Checked = false;
+                    windowsStoreToolStripMenuItem1.Checked = false;
+                    epicStoreToolStripMenuItem1.Checked = true;
                     this.button4.Enabled = true;
                     this.MainForm.button5.Enabled = true;
 
@@ -445,13 +443,11 @@ namespace MW5_Mod_Manager
                 }
                 else if (this.logic.Vendor == "WINDOWS")
                 {
-                    this.toolStripLabel1.Text = "Game Vendor : Windows Store";
-                    this.selectToolStripMenuItem.Enabled = false;
-                    //this.searcgToolStripMenuItem.Enabled = false;
-                    this.steamToolStripMenuItem.Enabled = true;
-                    this.gogToolStripMenuItem.Enabled = true;
-                    this.windowsStoreToolStripMenuItem.Enabled = false;
-                    this.epicStoreToolStripMenuItem.Enabled = true;
+                    this.toolStripVendorLabel.Text = "Game Vendor : Windows Store";
+                    steamToolStripMenuItem1.Checked = false;
+                    gOGToolStripMenuItem1.Checked = false;
+                    windowsStoreToolStripMenuItem1.Checked = true;
+                    epicStoreToolStripMenuItem1.Checked = false;
                     this.button4.Enabled = false;
                     this.MainForm.button5.Enabled = true;
 
@@ -461,13 +457,11 @@ namespace MW5_Mod_Manager
                 }
                 else if (this.logic.Vendor == "STEAM")
                 {
-                    this.toolStripLabel1.Text = "Game Vendor : Steam";
-                    this.selectToolStripMenuItem.Enabled = true;
-                    //this.searcgToolStripMenuItem.Enabled = true;
-                    this.steamToolStripMenuItem.Enabled = false;
-                    this.gogToolStripMenuItem.Enabled = true;
-                    this.windowsStoreToolStripMenuItem.Enabled = true;
-                    this.epicStoreToolStripMenuItem.Enabled = true;
+                    this.toolStripVendorLabel.Text = "Game Vendor : Steam";
+                    steamToolStripMenuItem1.Checked = true;
+                    gOGToolStripMenuItem1.Checked = false;
+                    windowsStoreToolStripMenuItem1.Checked = false;
+                    epicStoreToolStripMenuItem1.Checked = false;
                     this.MainForm.button5.Enabled = false;
                     this.button4.Enabled = true;
 
@@ -478,13 +472,11 @@ namespace MW5_Mod_Manager
                 }
                 else if (this.logic.Vendor == "GOG")
                 {
-                    this.toolStripLabel1.Text = "Game Vendor : GOG";
-                    this.selectToolStripMenuItem.Enabled = true;
-                    //this.searcgToolStripMenuItem.Enabled = true;
-                    this.steamToolStripMenuItem.Enabled = true;
-                    this.gogToolStripMenuItem.Enabled = false;
-                    this.windowsStoreToolStripMenuItem.Enabled = true;
-                    this.epicStoreToolStripMenuItem.Enabled = true;
+                    this.toolStripVendorLabel.Text = "Game Vendor : GOG";
+                    steamToolStripMenuItem1.Checked = false;
+                    gOGToolStripMenuItem1.Checked = true;
+                    windowsStoreToolStripMenuItem1.Checked = false;
+                    epicStoreToolStripMenuItem1.Checked = false;
                     this.button4.Enabled = true;
                     this.MainForm.button5.Enabled = true;
 
@@ -721,60 +713,13 @@ namespace MW5_Mod_Manager
         //Export load order
         private void ExportLoadOrderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Dictionary<string, bool> FolderNameModList = new Dictionary<string, bool>();
 
-            //Get the folder names from the paths in modlist
-            foreach (string key in logic.ModList.Keys)
-            {
-                string folderName = logic.PathToDirectoryDict[key];
-                FolderNameModList[folderName] = logic.ModList[key];
-            }
-
-            string json = JsonConvert.SerializeObject(FolderNameModList, Formatting.Indented);
-            ExportWindow exportDialog = new ExportWindow();
-
-            // Show testDialog as a modal dialog and determine if DialogResult = OK.
-            exportDialog.textBox1.Text = json; //logic.Scramble(json);
-            exportDialog.ShowDialog(this);
-            exportDialog.Dispose();
         }
 
         //Import load order
         private void ImportLoadOrderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ImportWindow testDialog = new ImportWindow();
-            string txtResult = "";
 
-            // Show testDialog as a modal dialog and determine if DialogResult = OK.
-            testDialog.ShowDialog(this);
-            txtResult = testDialog.textBox1.Text;
-            testDialog.Dispose();
-
-            if (Utils.StringNullEmptyOrWhiteSpace(txtResult) ||
-                txtResult == "Paste load order clipboard here, any mods that you do not have but are in the pasted load order will be ignored.")
-                return;
-
-            Dictionary<string, bool> temp;
-            try
-            {
-                temp = JsonConvert.DeserializeObject<Dictionary<string, bool>>(txtResult);//logic.UnScramble(txtResult));
-            }
-            catch (Exception Ex)
-            {
-                string message = "There was an error in decoding the load order string.";
-                string caption = "Load Order Decoding Error";
-                MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, caption, buttons);
-                return;
-            }
-            //this.ClearAll();
-            this.listView1.Items.Clear();
-            this.ListViewData.Clear();
-            this.logic.ModDetails = new Dictionary<string, ModObject>();
-            this.logic.ModList = new Dictionary<string, bool>();
-            this.logic.ModList = temp;
-            this.LoadAndFill(true);
-            this.filterBox_TextChanged(null, null);
         }
 
         #region Vendor Selection Tool Strip buttons
@@ -782,71 +727,19 @@ namespace MW5_Mod_Manager
         //Tool strip for selecting steam as a vendor
         private void steamToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ClearAll();
-            this.logic.Vendor = "STEAM";
-            this.toolStripLabel1.Text = "Game Vendor : Steam";
-            this.selectToolStripMenuItem.Enabled = true;
-            //this.searcgToolStripMenuItem.Enabled = true;
-            this.button4.Enabled = true;
-            this.steamToolStripMenuItem.Enabled = false;
-            this.windowsStoreToolStripMenuItem.Enabled = true;
-            this.epicStoreToolStripMenuItem.Enabled = true;
-            this.MainForm.button5.Enabled = false;
-            this.textBox1.Text = logic.BasePath[0];
-            this.textBox3.Text = logic.BasePath[1];
-            this.textBox3.Visible = true;
-            this.textBox1.Size = new Size(250, 20);
-            logic.SaveProgramData();
+
         }
 
         //Tool strip for selecting gog as a vendor
         private void gogToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ClearAll();
-            this.logic.Vendor = "GOG";
-            this.toolStripLabel1.Text = "Game Vendor : GOG";
-            this.selectToolStripMenuItem.Enabled = true;
-            //this.searcgToolStripMenuItem.Enabled = true;
-            this.button4.Enabled = true;
-            this.steamToolStripMenuItem.Enabled = true;
-            this.gogToolStripMenuItem.Enabled = false;
-            this.windowsStoreToolStripMenuItem.Enabled = true;
-            this.epicStoreToolStripMenuItem.Enabled = true;
-            this.textBox1.Text = logic.BasePath[0];
-            this.MainForm.button5.Enabled = true;
 
-            this.textBox3.Visible = false;
-            this.textBox1.Size = new Size(506, 20);
-            logic.SaveProgramData();
         }
 
         //Tool strip for selecting windows store as a vendor
         private void windowsStoreToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ClearAll();
-            this.logic.Vendor = "WINDOWS";
-            this.toolStripLabel1.Text = "Game Vendor : Windows Store";
-            this.selectToolStripMenuItem.Enabled = false;
-            this.button4.Enabled = false;
-            this.steamToolStripMenuItem.Enabled = true;
-            this.gogToolStripMenuItem.Enabled = true;
-            this.windowsStoreToolStripMenuItem.Enabled = false;
-            this.epicStoreToolStripMenuItem.Enabled = true;
 
-            string AppDataRoaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-
-            this.logic.BasePath[0] = GetBasePathFromAppDataRoaming(AppDataRoaming);
-            this.logic.CheckModsDir();
-
-            Console.WriteLine("BasePath from AppDataRoaming" + this.logic.BasePath[0]);
-
-            this.textBox1.Text = logic.BasePath[0];
-            this.MainForm.button5.Enabled = true;
-
-            this.textBox3.Visible = false;
-            this.textBox1.Size = new Size(506, 20);
-            logic.SaveProgramData();
-            RefreshAll();
         }
 
         private static string GetBasePathFromAppDataRoaming(string AppDataRoaming)
@@ -867,23 +760,7 @@ namespace MW5_Mod_Manager
         //Tool strip for selecting epic store as a vendor
         private void epicStoreToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ClearAll();
-            this.logic.Vendor = "EPIC";
-            this.toolStripLabel1.Text = "Game Vendor : Epic Store";
-            this.selectToolStripMenuItem.Enabled = true;
-            //this.searcgToolStripMenuItem.Enabled = true;
-            this.button4.Enabled = true;
-            this.steamToolStripMenuItem.Enabled = true;
-            this.gogToolStripMenuItem.Enabled = true;
-            this.windowsStoreToolStripMenuItem.Enabled = true;
-            this.epicStoreToolStripMenuItem.Enabled = false;
-            this.textBox1.Text = logic.BasePath[0];
-            this.MainForm.button5.Enabled = true;
 
-            this.textBox3.Visible = false;
-            this.textBox1.Size = new Size(506, 20);
-
-            logic.SaveProgramData();
         }
         #endregion
 
@@ -994,27 +871,7 @@ namespace MW5_Mod_Manager
         //Open mods folder button
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
-            if (Utils.StringNullEmptyOrWhiteSpace(this.logic.BasePath[0]))
-            {
-                return;
-            }
-            try
-            {
-                Process.Start(this.logic.BasePath[0]);
-                if (!Utils.StringNullEmptyOrWhiteSpace(this.logic.BasePath[1]))
-                {
-                    Process.Start(this.logic.BasePath[1]);
-                }
-            }
-            catch (Win32Exception win32Exception)
-            {
-                Console.WriteLine(win32Exception.Message);
-                Console.WriteLine(win32Exception.StackTrace);
-                string message = "While trying to open the mods folder, windows has encountered an error. Your folder does not exist, is not valid or was not set.";
-                string caption = "Error Opening Mods Folder";
-                MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, caption, buttons);
-            }
+ 
         }
 
         //Crude filter because to lazy to add a proper list as backup for the items.
@@ -1339,27 +1196,7 @@ namespace MW5_Mod_Manager
         //Export all mods in the mods foler (after pressing apply)
         internal void exportModsFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //apply current settings to file
-            this.button3_Click(null, null);
-
-            //start packing worker
-            backgroundWorker1.RunWorkerAsync();
-            //A little time to start up
-            System.Threading.Thread.Sleep(100);
-            //Start monitoring worker
-            backgroundWorker2.RunWorkerAsync();
-
-            //Show Form 4 with informing user that we are packaging mods..
-            Console.WriteLine("Opening form:");
-            this.WaitForm = new Form4(backgroundWorker1, backgroundWorker2);
-            string message = "Packaging Mods.zip, this may take several minutes depending on the combinded size of your mods...";
-            this.WaitForm.textBox1.Text = message;
-            string caption = "Packing Mods.zip";
-            this.WaitForm.Text = caption;
-            WaitForm.ShowDialog(this);
-
-            backgroundWorker2.CancelAsync();
-            //For the rest of the code see "background"
+ 
         }
 
         #region background workers for zipping up files
@@ -1471,8 +1308,7 @@ namespace MW5_Mod_Manager
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            Form5 form5 = new Form5(this);
-            form5.ShowDialog(this);
+
         }
 
         private void tabPage3_Click(object sender, EventArgs e)
@@ -1594,6 +1430,229 @@ namespace MW5_Mod_Manager
         private void toolStripDropDownButton1_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void fileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void installDirectoryToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            SelectInstallDirectory();
+        }
+
+        private void epicStoreToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (logic.Vendor == "EPIC")
+                return;
+
+            ClearAll();
+            this.logic.Vendor = "EPIC";
+            this.toolStripVendorLabel.Text = "Game Vendor : Epic Store";
+            this.button4.Enabled = true;
+            steamToolStripMenuItem1.Checked = false;
+            gOGToolStripMenuItem1.Checked = false;
+            windowsStoreToolStripMenuItem1.Checked = false;
+            epicStoreToolStripMenuItem1.Checked = true;
+            this.textBox1.Text = logic.BasePath[0];
+            this.MainForm.button5.Enabled = true;
+
+            this.textBox3.Visible = false;
+            this.textBox1.Size = new Size(506, 20);
+
+            logic.SaveProgramData();
+        }
+
+        private void gOGToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (logic.Vendor == "GOG")
+                return;
+
+            ClearAll();
+            this.logic.Vendor = "GOG";
+            this.toolStripVendorLabel.Text = "Game Vendor : GOG";
+            //this.searcgToolStripMenuItem.Enabled = true;
+            this.button4.Enabled = true;
+            steamToolStripMenuItem1.Checked = false;
+            gOGToolStripMenuItem1.Checked = true;
+            windowsStoreToolStripMenuItem1.Checked = false;
+            epicStoreToolStripMenuItem1.Checked = false;
+            this.textBox1.Text = logic.BasePath[0];
+            this.MainForm.button5.Enabled = true;
+
+            this.textBox3.Visible = false;
+            this.textBox1.Size = new Size(506, 20);
+            logic.SaveProgramData();
+        }
+
+        private void steamToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (logic.Vendor == "STEAM")
+                return;
+
+            ClearAll();
+            this.logic.Vendor = "STEAM";
+            this.toolStripVendorLabel.Text = "Game Vendor : Steam";
+            this.button4.Enabled = true;
+            steamToolStripMenuItem1.Checked = true;
+            gOGToolStripMenuItem1.Checked = false;
+            windowsStoreToolStripMenuItem1.Checked = false;
+            epicStoreToolStripMenuItem1.Checked = false;
+            this.MainForm.button5.Enabled = false;
+            this.textBox1.Text = logic.BasePath[0];
+            this.textBox3.Text = logic.BasePath[1];
+            this.textBox3.Visible = true;
+            this.textBox1.Size = new Size(250, 20);
+            logic.SaveProgramData();
+        }
+
+        private void windowsStoreToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (logic.Vendor == "WINDOWS")
+                return;
+
+            ClearAll();
+            this.logic.Vendor = "WINDOWS";
+            this.toolStripVendorLabel.Text = "Game Vendor : Windows Store";
+            this.button4.Enabled = false;
+            steamToolStripMenuItem1.Checked = false;
+            gOGToolStripMenuItem1.Checked = false;
+            windowsStoreToolStripMenuItem1.Checked = true;
+            epicStoreToolStripMenuItem1.Checked = false;
+
+            string AppDataRoaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+
+            this.logic.BasePath[0] = GetBasePathFromAppDataRoaming(AppDataRoaming);
+            this.logic.CheckModsDir();
+
+            Console.WriteLine("BasePath from AppDataRoaming" + this.logic.BasePath[0]);
+
+            this.textBox1.Text = logic.BasePath[0];
+            this.MainForm.button5.Enabled = true;
+
+            this.textBox3.Visible = false;
+            this.textBox1.Size = new Size(506, 20);
+            logic.SaveProgramData();
+            RefreshAll();
+        }
+
+        private void shareModsViaTCPToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Form5 form5 = new Form5(this);
+            form5.ShowDialog(this);
+        }
+
+        private void exportLoadOrderToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            Dictionary<string, bool> FolderNameModList = new Dictionary<string, bool>();
+
+            //Get the folder names from the paths in modlist
+            foreach (string key in logic.ModList.Keys)
+            {
+                string folderName = logic.PathToDirectoryDict[key];
+                FolderNameModList[folderName] = logic.ModList[key];
+            }
+
+            string json = JsonConvert.SerializeObject(FolderNameModList, Formatting.Indented);
+            ExportWindow exportDialog = new ExportWindow();
+
+            // Show testDialog as a modal dialog and determine if DialogResult = OK.
+            exportDialog.textBox1.Text = json; //logic.Scramble(json);
+            exportDialog.ShowDialog(this);
+            exportDialog.Dispose();
+        }
+
+        private void importLoadOrderToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            ImportWindow testDialog = new ImportWindow();
+            string txtResult = "";
+
+            // Show testDialog as a modal dialog and determine if DialogResult = OK.
+            testDialog.ShowDialog(this);
+            txtResult = testDialog.textBox1.Text;
+            testDialog.Dispose();
+
+            if (Utils.StringNullEmptyOrWhiteSpace(txtResult) ||
+                txtResult == "Paste load order clipboard here, any mods that you do not have but are in the pasted load order will be ignored.")
+                return;
+
+            Dictionary<string, bool> temp;
+            try
+            {
+                temp = JsonConvert.DeserializeObject<Dictionary<string, bool>>(txtResult);//logic.UnScramble(txtResult));
+            }
+            catch (Exception Ex)
+            {
+                string message = "There was an error in decoding the load order string.";
+                string caption = "Load Order Decoding Error";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, caption, buttons);
+                return;
+            }
+            //this.ClearAll();
+            this.listView1.Items.Clear();
+            this.ListViewData.Clear();
+            this.logic.ModDetails = new Dictionary<string, ModObject>();
+            this.logic.ModList = new Dictionary<string, bool>();
+            this.logic.ModList = temp;
+            this.LoadAndFill(true);
+            this.filterBox_TextChanged(null, null);
+        }
+
+        private void exportmodsFolderToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            //apply current settings to file
+            this.button3_Click(null, null);
+
+            //start packing worker
+            backgroundWorker1.RunWorkerAsync();
+            //A little time to start up
+            System.Threading.Thread.Sleep(100);
+            //Start monitoring worker
+            backgroundWorker2.RunWorkerAsync();
+
+            //Show Form 4 with informing user that we are packaging mods..
+            Console.WriteLine("Opening form:");
+            this.WaitForm = new Form4(backgroundWorker1, backgroundWorker2);
+            string message = "Packaging Mods.zip, this may take several minutes depending on the combinded size of your mods...";
+            this.WaitForm.textBox1.Text = message;
+            string caption = "Packing Mods.zip";
+            this.WaitForm.Text = caption;
+            WaitForm.ShowDialog(this);
+
+            backgroundWorker2.CancelAsync();
+            //For the rest of the code see "background"
+        }
+
+        private void openModsFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (Utils.StringNullEmptyOrWhiteSpace(this.logic.BasePath[0]))
+            {
+                return;
+            }
+            try
+            {
+                Process.Start(this.logic.BasePath[0]);
+                if (!Utils.StringNullEmptyOrWhiteSpace(this.logic.BasePath[1]))
+                {
+                    Process.Start(this.logic.BasePath[1]);
+                }
+            }
+            catch (Win32Exception win32Exception)
+            {
+                Console.WriteLine(win32Exception.Message);
+                Console.WriteLine(win32Exception.StackTrace);
+                string message = "While trying to open the mods folder, windows has encountered an error. Your folder does not exist, is not valid or was not set.";
+                string caption = "Error Opening Mods Folder";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, caption, buttons);
+            }
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }
