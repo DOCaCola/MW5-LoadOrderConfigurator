@@ -5,10 +5,10 @@ namespace MW5_Mod_Manager
 {
     public partial class Form5 : Form
     {
-        private Form1 MainForm;
+        private MainWindow MainForm;
         //TCPFileShare fileShare;
 
-        public Form5(Form1 MainForm)
+        public Form5(MainWindow MainForm)
         {
             InitializeComponent();
             this.MainForm = MainForm;

@@ -3,9 +3,9 @@ using System.Windows.Forms;
 
 namespace MW5_Mod_Manager
 {
-    public partial class Form3 : Form
+    public partial class ExportWindow : Form
     {
-        public Form3()
+        public ExportWindow()
         {
             InitializeComponent();
         }

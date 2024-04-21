@@ -14,9 +14,9 @@ using Application = System.Windows.Forms.Application;
 
 namespace MW5_Mod_Manager
 {
-    public partial class Form1 : Form
+    public partial class MainWindow : Form
     {
-        public Form1 MainForm;
+        public MainWindow MainForm;
         public MainLogic logic = new MainLogic();
         //public TCPFileShare fileShare;
         bool filtered = false;
@@ -28,7 +28,7 @@ namespace MW5_Mod_Manager
 
         public bool LoadingAndFilling { get; private set; }
 
-        public Form1()
+        public MainWindow()
         {
             InitializeComponent();
             this.MainForm = this;
@@ -731,7 +731,7 @@ namespace MW5_Mod_Manager
             }
 
             string json = JsonConvert.SerializeObject(FolderNameModList, Formatting.Indented);
-            Form3 exportDialog = new Form3();
+            ExportWindow exportDialog = new ExportWindow();
 
             // Show testDialog as a modal dialog and determine if DialogResult = OK.
             exportDialog.textBox1.Text = json; //logic.Scramble(json);
@@ -742,7 +742,7 @@ namespace MW5_Mod_Manager
         //Import load order
         private void ImportLoadOrderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form2 testDialog = new Form2();
+            ImportWindow testDialog = new ImportWindow();
             string txtResult = "";
 
             // Show testDialog as a modal dialog and determine if DialogResult = OK.

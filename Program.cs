@@ -24,7 +24,7 @@ namespace MW5_Mod_Manager
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Application.Run(new MainWindow());
         }
     }
 
@@ -34,7 +34,7 @@ namespace MW5_Mod_Manager
     /// </summary>
     public class MainLogic
     {
-        public Form1 MainForm;
+        public MainWindow MainForm;
 
         public float Version = 0f;
         public string Vendor = "";

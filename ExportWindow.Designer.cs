@@ -1,6 +1,6 @@
 ﻿namespace MW5_Mod_Manager
 {
-    partial class Form3
+    partial class ExportWindow
     {
         /// <summary>
         /// Required designer variable.

@@ -1,6 +1,6 @@
 ﻿namespace MW5_Mod_Manager
 {
-    partial class Form2
+    partial class ImportWindow
     {
         /// <summary>
         /// Required designer variable.
