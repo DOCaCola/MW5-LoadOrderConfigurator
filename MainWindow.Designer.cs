@@ -214,7 +214,7 @@ namespace MW5_Mod_Manager
             this.installDirectoryToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.selectToolStripMenuItem});
             this.installDirectoryToolStripMenuItem.Name = "installDirectoryToolStripMenuItem";
-            this.installDirectoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.installDirectoryToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
             this.installDirectoryToolStripMenuItem.Text = "Install Directory";
             // 
             // selectToolStripMenuItem
@@ -232,7 +232,7 @@ namespace MW5_Mod_Manager
             this.steamToolStripMenuItem,
             this.windowsStoreToolStripMenuItem});
             this.changeVendorToolStripMenuItem.Name = "changeVendorToolStripMenuItem";
-            this.changeVendorToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.changeVendorToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
             this.changeVendorToolStripMenuItem.Text = "Set Vendor";
             // 
             // epicStoreToolStripMenuItem
@@ -266,39 +266,39 @@ namespace MW5_Mod_Manager
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(175, 6);
             // 
             // exportLoadOrderToolStripMenuItem
             // 
             this.exportLoadOrderToolStripMenuItem.Name = "exportLoadOrderToolStripMenuItem";
-            this.exportLoadOrderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exportLoadOrderToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
             this.exportLoadOrderToolStripMenuItem.Text = "Export Load Order";
             this.exportLoadOrderToolStripMenuItem.Click += new System.EventHandler(this.ExportLoadOrderToolStripMenuItem_Click);
             // 
             // importLoadOrderToolStripMenuItem
             // 
             this.importLoadOrderToolStripMenuItem.Name = "importLoadOrderToolStripMenuItem";
-            this.importLoadOrderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.importLoadOrderToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
             this.importLoadOrderToolStripMenuItem.Text = "Import Load Order";
             this.importLoadOrderToolStripMenuItem.Click += new System.EventHandler(this.ImportLoadOrderToolStripMenuItem_Click);
             // 
             // exportModsFolderToolStripMenuItem
             // 
             this.exportModsFolderToolStripMenuItem.Name = "exportModsFolderToolStripMenuItem";
-            this.exportModsFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exportModsFolderToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
             this.exportModsFolderToolStripMenuItem.Text = "Export Mods Folder";
             this.exportModsFolderToolStripMenuItem.Click += new System.EventHandler(this.exportModsFolderToolStripMenuItem_Click);
             // 
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator5.Size = new System.Drawing.Size(175, 6);
             this.toolStripSeparator5.Visible = false;
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(178, 22);
             this.toolStripMenuItem1.Text = "Share Mods Via TCP";
             this.toolStripMenuItem1.Visible = false;
             this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
@@ -336,6 +336,9 @@ namespace MW5_Mod_Manager
             // 
             // listView1
             // 
+            this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.listView1.CheckBoxes = true;
             this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.enabled,
@@ -483,6 +486,8 @@ namespace MW5_Mod_Manager
             // 
             // listBox2
             // 
+            this.listBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.listBox2.FormattingEnabled = true;
             this.listBox2.HorizontalScrollbar = true;
             this.listBox2.Location = new System.Drawing.Point(6, 256);
@@ -530,6 +535,8 @@ namespace MW5_Mod_Manager
             // 
             // tabControl1
             // 
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
@@ -575,6 +582,8 @@ namespace MW5_Mod_Manager
             // 
             // listBox4
             // 
+            this.listBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.listBox4.FormattingEnabled = true;
             this.listBox4.Location = new System.Drawing.Point(7, 125);
             this.listBox4.Name = "listBox4";
@@ -636,6 +645,8 @@ namespace MW5_Mod_Manager
             // 
             // listView2
             // 
+            this.listView2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.listView2.HideSelection = false;
             this.listView2.Location = new System.Drawing.Point(6, 69);
             this.listView2.Name = "listView2";
@@ -711,7 +722,7 @@ namespace MW5_Mod_Manager
             this.rotatingLabel1.TabIndex = 12;
             this.rotatingLabel1.Text = "X";
             // 
-            // Form1
+            // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -735,12 +746,9 @@ namespace MW5_Mod_Manager
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
-            this.HelpButton = true;
-            this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(1200, 600);
-            this.MinimumSize = new System.Drawing.Size(1200, 600);
-            this.Name = "Form1";
-            this.ShowIcon = false;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MinimumSize = new System.Drawing.Size(900, 300);
+            this.Name = "MainWindow";
             this.Text = "MW5 LoadOrderManager";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.toolStrip1.ResumeLayout(false);
