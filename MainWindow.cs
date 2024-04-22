@@ -11,7 +11,6 @@ using System.Media;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using MethodInvoker = System.Windows.Forms.MethodInvoker;
 
 namespace MW5_Mod_Manager
 {
@@ -336,7 +335,7 @@ namespace MW5_Mod_Manager
             }
             #endregion
 
-            #region mod dependencies/requirments
+            #region mod dependencies/requirements
             //Checking requirements:
             Dictionary<string, List<string>> CheckResult = logic.CheckRequires(ListViewData);
 
@@ -420,7 +419,10 @@ namespace MW5_Mod_Manager
             listBox3.Items.Clear();
             listView2.Items.Clear();
             panelModInfo.Visible = false;
-            pictureBoxModImage.Image = null;
+            if (pictureBoxModImage.Image != null)
+            {
+                pictureBoxModImage.Image.Dispose();
+            }
             this.ListViewData.Clear();
             this.modsListView.Items.Clear();
             logic.ClearAll();
@@ -492,7 +494,7 @@ namespace MW5_Mod_Manager
                     AddEntryToListViewAndData(entry);
                 }
                 UpdateListView();
-                logic.SaveProgramData();
+                logic.SaveSettings();
             }
             catch (Exception e)
             {
@@ -514,22 +516,26 @@ namespace MW5_Mod_Manager
         private void AddEntryToListViewAndData(KeyValuePair<string, bool> entry)
         {
             string modName = entry.Key;
-            ModListItem item1 = new ModListItem
+            ModListItem newItem = new ModListItem
             {
                 UseItemStyleForSubItems = false,
                 Checked = entry.Value
             };
-            item1.SubItems.Add(logic.ModDetails[entry.Key].displayName);
+            newItem.SubItems.Add(logic.ModDetails[entry.Key].displayName);
 
-            item1.SubItems.Add(logic.PathToDirectoryDict[modName]);
-            item1.SubItems.Add(logic.ModDetails[entry.Key].author);
-            item1.SubItems.Add(logic.ModDetails[entry.Key].version);
-            item1.SubItems.Add(logic.ModDetails[entry.Key].buildNumber.ToString());
-            // dependencies
-            item1.SubItems.Add(" ");
-            item1.EnsureVisible();
-            item1.Tag = entry.Key;
-            ListViewData.Add(item1);
+            newItem.SubItems.Add(logic.PathToDirectoryDict[modName]);
+            newItem.SubItems.Add(logic.ModDetails[entry.Key].author);
+            newItem.SubItems.Add(logic.ModDetails[entry.Key].version);
+            // Buildheader
+            newItem.SubItems.Add(logic.ModDetails[entry.Key].buildNumber.ToString());
+            // dependenciesheader
+            newItem.SubItems.Add(" ");
+            // original load order header
+            newItem.SubItems.Add(logic.Mods[entry.Key].OriginalLoadOrder.ToString());
+
+            newItem.EnsureVisible();
+            newItem.Tag = entry.Key;
+            ListViewData.Add(newItem);
         }
 
         //Fill list view from internal list of data.
@@ -579,7 +585,7 @@ namespace MW5_Mod_Manager
                     string AppDataRoaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
                     this.logic.BasePath[0] = GetBasePathFromAppDataRoaming(AppDataRoaming);
-                    this.logic.CheckModsDir();
+                    this.logic.CheckModDirectories();
                     break;
             }
 
@@ -660,6 +666,7 @@ namespace MW5_Mod_Manager
             this.logic.ModDetails = new Dictionary<string, ModObject>();
             this.logic.ModList.Clear();
             this.logic.ModList = temp;
+            this.logic.Mods.Clear();
             this.LoadAndFill(true);
             this.filterBox_TextChanged(null, null);
         }
@@ -1048,13 +1055,14 @@ namespace MW5_Mod_Manager
 
             string imagePath = modPath + "\\Resources\\Icon128.png";
 
+            if (pictureBoxModImage.Image != null)
+            {
+                pictureBoxModImage.Image.Dispose();
+            }
+            
             if (File.Exists(imagePath))
             {
-                pictureBoxModImage.Image = Image.FromFile(imagePath);
-            }
-            else
-            {
-                pictureBoxModImage.Image = null;
+                pictureBoxModImage.Image = Image.FromStream(new MemoryStream(File.ReadAllBytes(imagePath)));
             }
         }
 

@@ -86,7 +86,7 @@ namespace MW5_Mod_Manager
 
             MainWindow.MainForm.ClearAll();
             MainWindow.MainForm.SetInstallDirectory(path);
-            MainWindow.MainForm.logic.SaveProgramData();
+            MainWindow.MainForm.logic.SaveSettings();
             MainWindow.MainForm.RefreshAll();
 
             Close();

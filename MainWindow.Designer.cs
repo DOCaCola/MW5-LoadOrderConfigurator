@@ -108,6 +108,7 @@ namespace MW5_Mod_Manager
             rotatingLabel1 = new RotatingLabel();
             contextMenuStripMod = new ContextMenuStrip(components);
             openFolderToolStripMenuItem = new ToolStripMenuItem();
+            originalLoadOrderHeader = new ColumnHeader();
             tabControl1.SuspendLayout();
             tabPage3.SuspendLayout();
             tabPageModInfo.SuspendLayout();
@@ -175,7 +176,7 @@ namespace MW5_Mod_Manager
             // 
             modsListView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             modsListView.CheckBoxes = true;
-            modsListView.Columns.AddRange(new ColumnHeader[] { enabledHeader, displayHeader, folderHeader, authorHeader, versionHeader, buildHeader, dependenciesHeader });
+            modsListView.Columns.AddRange(new ColumnHeader[] { enabledHeader, displayHeader, folderHeader, authorHeader, versionHeader, buildHeader, dependenciesHeader, originalLoadOrderHeader });
             modsListView.FullRowSelect = true;
             modsListView.GridLines = true;
             modsListView.LabelWrap = false;
@@ -446,7 +447,7 @@ namespace MW5_Mod_Manager
             pictureBoxModImage.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             pictureBoxModImage.Location = new System.Drawing.Point(12, 13);
             pictureBoxModImage.Name = "pictureBoxModImage";
-            pictureBoxModImage.Size = new System.Drawing.Size(318, 141);
+            pictureBoxModImage.Size = new System.Drawing.Size(318, 143);
             pictureBoxModImage.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxModImage.TabIndex = 2;
             pictureBoxModImage.TabStop = false;
@@ -463,7 +464,7 @@ namespace MW5_Mod_Manager
             panelModInfo.Controls.Add(labelModVersion);
             panelModInfo.Controls.Add(labelModAuthor);
             panelModInfo.Controls.Add(labelModName);
-            panelModInfo.Location = new System.Drawing.Point(0, 152);
+            panelModInfo.Location = new System.Drawing.Point(0, 154);
             panelModInfo.Name = "panelModInfo";
             panelModInfo.Size = new System.Drawing.Size(338, 365);
             panelModInfo.TabIndex = 1;
@@ -565,10 +566,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(listBox2);
             tabPage1.Controls.Add(listBox3);
             tabPage1.Controls.Add(label5);
-            tabPage1.Location = new System.Drawing.Point(4, 22);
+            tabPage1.Location = new System.Drawing.Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new System.Drawing.Size(338, 502);
+            tabPage1.Size = new System.Drawing.Size(338, 500);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrding Data";
             tabPage1.UseVisualStyleBackColor = true;
@@ -579,10 +580,10 @@ namespace MW5_Mod_Manager
             tabPage2.BackColor = System.Drawing.Color.Transparent;
             tabPage2.Controls.Add(listView2);
             tabPage2.Controls.Add(label8);
-            tabPage2.Location = new System.Drawing.Point(4, 22);
+            tabPage2.Location = new System.Drawing.Point(4, 24);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new System.Drawing.Size(338, 502);
+            tabPage2.Size = new System.Drawing.Size(338, 500);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "Dependencies";
             tabPage2.UseVisualStyleBackColor = true;
@@ -782,6 +783,10 @@ namespace MW5_Mod_Manager
             openFolderToolStripMenuItem.Text = "Open &Folder";
             openFolderToolStripMenuItem.Click += openFolderToolStripMenuItem_Click;
             // 
+            // originalLoadOrderHeader
+            // 
+            originalLoadOrderHeader.Text = "Def. Load Order";
+            // 
             // MainWindow
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -905,6 +910,7 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem toolStripMenuItemOpenModFolderSteam;
         private ColumnHeader buildHeader;
         private PictureBox pictureBoxModImage;
+        private ColumnHeader originalLoadOrderHeader;
     }
 }
 

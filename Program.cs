@@ -47,11 +47,23 @@ namespace MW5_Mod_Manager
         public Dictionary<string, string> DirectoryToPathDict = new Dictionary<string, string>();
         public Dictionary<string, string> PathToDirectoryDict = new Dictionary<string, string>();
 
+        // Mod data as loaded from the mods' mod.json file
         public Dictionary<string, ModObject> ModDetails = new Dictionary<string, ModObject>();
         public Dictionary<string, bool> ModList = new Dictionary<string, bool>();
         public Dictionary<string, OverridingData> OverrridingData = new Dictionary<string, OverridingData>();
         public Dictionary<string, List<string>> MissingModsDependenciesDict = new Dictionary<string, List<string>>();
         public Dictionary<string, string> Presets = new Dictionary<string, string>();
+
+        public struct ModData
+        {
+            public float OriginalLoadOrder = Single.NaN;
+
+            public ModData()
+            {
+            }
+        }
+
+        public Dictionary<string, ModData> Mods = new Dictionary<string, ModData>();
 
         public bool CreatedModlist = false;
 
@@ -66,7 +78,7 @@ namespace MW5_Mod_Manager
         public void LoadFromFiles()
         {
             //Check if the Mods directory exits:
-            CheckModsDir();
+            CheckModDirectories();
             //find all mod directories and parse them into just folder names:
             ParseDirectories();
             //parse modlist.json
@@ -152,13 +164,13 @@ namespace MW5_Mod_Manager
         /// Checks if the set mods directory exists, if not creates one.
         /// </summary>
         /// <returns></returns>
-        public void CheckModsDir()
+        public void CheckModDirectories()
         {
-            CheckInstallDirModsDir();
-            CheckSteamDirModsDir();
+            CheckMainModDirectory();
+            CheckSteamModDirectory();
         }
 
-        private void CheckSteamDirModsDir()
+        private void CheckSteamModDirectory()
         {
             if (Utils.StringNullEmptyOrWhiteSpace(this.BasePath[1]))
             {
@@ -178,7 +190,7 @@ namespace MW5_Mod_Manager
             }
         }
 
-        private void CheckInstallDirModsDir()
+        private void CheckMainModDirectory()
         {
             if (Utils.StringNullEmptyOrWhiteSpace(this.BasePath[0]))
             {
@@ -202,16 +214,16 @@ namespace MW5_Mod_Manager
         public bool TryLoadProgramData()
         {
             //Load install dir from previous session:
-            string systemPath = System.Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-            string complete = Path.Combine(systemPath, @"MW5LoadOrderManager");
-            if (!File.Exists(complete))
+            string appDataDir = System.Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+            string settingsDir = Path.Combine(appDataDir, @"MW5LoadOrderManager");
+            if (!File.Exists(settingsDir))
             {
-                Directory.CreateDirectory(complete);
+                Directory.CreateDirectory(settingsDir);
             }
 
             try
             {
-                string json = File.ReadAllText(complete + @"\ProgramData.json");
+                string json = File.ReadAllText(settingsDir + @"\ProgramData.json");
                 this.ProgramData = JsonConvert.DeserializeObject<ProgramData>(json);
 
                 Console.WriteLine("Finshed loading ProgramData.json:"
@@ -269,10 +281,8 @@ namespace MW5_Mod_Manager
             if (BasePath == null)
                 return;
 
-            HandleInstallDirDirectories();
-
-            HandleSteamDirectories();
-
+            HandleMainModDirectories();
+            HandleSteamModDirectories();
             AddDirectoryPathsToDict();
         }
 
@@ -292,7 +302,7 @@ namespace MW5_Mod_Manager
             }
         }
 
-        private void HandleInstallDirDirectories()
+        private void HandleMainModDirectories()
         {
             if (Utils.StringNullEmptyOrWhiteSpace(BasePath[0]))
             {
@@ -301,7 +311,7 @@ namespace MW5_Mod_Manager
             this.Directories.AddRange(Directory.GetDirectories(BasePath[0]));
         }
 
-        private void HandleSteamDirectories()
+        private void HandleSteamModDirectories()
         {
             if (Utils.StringNullEmptyOrWhiteSpace(BasePath[1]))
             {
@@ -310,18 +320,18 @@ namespace MW5_Mod_Manager
             this.Directories.AddRange(Directory.GetDirectories(BasePath[1]));
         }
 
-        public void SaveProgramData()
+        public void SaveSettings()
         {
+            string settingsDir = System.Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + @"\MW5LoadOrderManager";
+
             ProgramData.InstallPath = this.InstallPath;
             this.ProgramData.ModPaths = this.BasePath;
             this.ProgramData.platform = this.Platform;
-
-            string complete = System.Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + @"\MW5LoadOrderManager";
             JsonSerializer serializer = new JsonSerializer
             {
                 Formatting = Formatting.Indented
             };
-            using (StreamWriter sw = new StreamWriter(complete + @"\ProgramData.json"))
+            using (StreamWriter sw = new StreamWriter(settingsDir + @"\ProgramData.json"))
             using (JsonWriter writer = new JsonTextWriter(sw))
             {
                 serializer.Serialize(writer, this.ProgramData);
@@ -364,6 +374,7 @@ namespace MW5_Mod_Manager
         //TODO Fix
         public void ClearAll()
         {
+            this.Mods.Clear();
             this.ModDetails = new Dictionary<string, ModObject>();
             this.ModList = new Dictionary<string, bool>();
             this.DirectoryToPathDict = new Dictionary<string, string>();
@@ -407,10 +418,30 @@ namespace MW5_Mod_Manager
             {
                 try
                 {
-                    //string modJson = File.ReadAllText(BasePath + @"\" + modDir + @"\mod.json");
                     string modJson = File.ReadAllText(modDir + @"\mod.json");
-                    ModObject mod = JsonConvert.DeserializeObject<ModObject>(modJson);
-                    this.ModDetails.Add(modDir, mod);
+                    JObject modDetailsJ = JObject.Parse(modJson);
+
+                    ModObject modDetails = modDetailsJ.ToObject<ModObject>();
+
+                    this.ModDetails.Add(modDir, modDetails);
+
+                    ModData modData = new ModData();
+
+                    if (modDetailsJ.ContainsKey("lomOriginalLoadOrder"))
+                    {
+                        modData.OriginalLoadOrder = modDetails.lomOriginalLoadOrder;
+                    }
+                    else if (modDetailsJ.ContainsKey("lotsOriginalLoadOrder"))
+                    {
+                        // Might have been set by the MW5-LOTS mod order manager
+                        modData.OriginalLoadOrder = modDetailsJ["lotsOriginalLoadOrder"].Value<float>();
+                    }
+                    else
+                    {
+                        modData.OriginalLoadOrder = modDetails.defaultLoadOrder;
+                    }
+
+                    this.Mods.Add(modDir, modData);
                 }
                 catch (Exception e)
                 {
@@ -438,12 +469,22 @@ namespace MW5_Mod_Manager
             foreach (KeyValuePair<string, ModObject> entry in this.ModDetails)
             {
                 string modJsonPath = entry.Key + @"\mod.json";
+
+                string modJsonExisting = File.ReadAllText(modJsonPath);
+                JObject modDetailsNew = JObject.Parse(modJsonExisting);
+
+                //JObject modDetailsUpdate = JObject.FromObject(entry.Value);
+                modDetailsNew["lomOriginalLoadOrder"] = Mods[entry.Key].OriginalLoadOrder;
+                modDetailsNew["defaultLoadOrder"] = entry.Value.defaultLoadOrder;
+
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Formatting = Formatting.Indented;
                 using (StreamWriter sw = new StreamWriter(modJsonPath))
                 using (JsonWriter writer = new JsonTextWriter(sw))
                 {
-                    serializer.Serialize(writer, entry.Value);
+                    //modDetailsNew.WriteTo(writer);
+
+                    serializer.Serialize(writer, modDetailsNew);
                 }
             }
         }

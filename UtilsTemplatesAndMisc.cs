@@ -344,6 +344,7 @@ namespace MW5_Mod_Manager
         public long steamLastSubmittedBuildNumber { set; get; }
         public string steamModVisibility { set; get; }
         public List<string> Requires { set; get; }
+        public float lomOriginalLoadOrder { set; get; }
     }
 
     public class ProgramData
