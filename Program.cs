@@ -51,7 +51,6 @@ namespace MW5_Mod_Manager
         public Dictionary<string, ModObject> ModDetails = new Dictionary<string, ModObject>();
         public Dictionary<string, bool> ModList = new Dictionary<string, bool>();
         public Dictionary<string, OverridingData> OverrridingData = new Dictionary<string, OverridingData>();
-        public Dictionary<string, List<string>> MissingModsDependenciesDict = new Dictionary<string, List<string>>();
         public Dictionary<string, string> Presets = new Dictionary<string, string>();
 
         public struct ModData
@@ -379,7 +378,6 @@ namespace MW5_Mod_Manager
             this.ModList = new Dictionary<string, bool>();
             this.DirectoryToPathDict = new Dictionary<string, string>();
             this.OverrridingData = new Dictionary<string, OverridingData>();
-            this.MissingModsDependenciesDict = new Dictionary<string, List<string>>();
             this.BasePath = new string[2] { "", "" };
         }
 
@@ -974,78 +972,6 @@ namespace MW5_Mod_Manager
                     item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = Color.Black;
                 }
             }
-        }
-
-        //Check for all active mods in list provided if the mods in the required section are also active.
-        public Dictionary<string, List<string>> CheckRequires(List<ModListItem> items)
-        {
-            ////Console.WriteLine("Checking mods Requires");
-            this.MissingModsDependenciesDict = new Dictionary<string, List<string>>();
-
-            //For each mod check if their requires list is a sub list of the active mods list... aka see if the required mods are active.
-            foreach (ModListItem item in items)
-            {
-                //Console.WriteLine("---" + item.SubItems[1].Text);
-                if (!item.Checked)
-                {
-                    item.SubItems[MainWindow.MainForm.dependenciesHeader.Index].BackColor = Color.White;
-                    item.SubItems[MainWindow.MainForm.dependenciesHeader.Index].Text = "---";
-                    continue;
-                }
-
-                string modDisplayName = item.SubItems[1].Text;
-                string modFolderName = this.DirectoryToPathDict[item.SubItems[2].Text];
-
-                if (!ModDetails.ContainsKey(modFolderName))
-                    continue;
-
-                if (ModDetails[modFolderName].Requires == null)
-                {
-                    item.SubItems[MainWindow.MainForm.dependenciesHeader.Index].BackColor = Color.White;
-                    item.SubItems[MainWindow.MainForm.dependenciesHeader.Index].Text = "NONE";
-                    continue;
-                }
-
-                List<string> Requires = ModDetails[modFolderName].Requires;
-                List<string> activeMods = new List<string>();
-
-                foreach (ModListItem itemB in items)
-                {
-                    if (!itemB.Checked)
-                        continue;
-                    if (!(items.IndexOf(itemB) > items.IndexOf(item)))
-                        continue;
-                    ////Console.WriteLine(itemB.SubItems[1].Text);
-                    activeMods.Add(itemB.SubItems[1].Text);
-                }
-
-                //Make a list of all mods we need but are not in the active mods.
-                List<string> missingMods = Requires.Except(activeMods).ToList<string>();
-
-                if (missingMods.Count == 0)
-                {
-                    ////Console.WriteLine("All subset items found!");
-                    item.SubItems[MainWindow.MainForm.dependenciesHeader.Index].BackColor = Color.Green;
-                    item.SubItems[MainWindow.MainForm.dependenciesHeader.Index].Text = "FOUND";
-                    continue;
-                }
-                ////Console.WriteLine("Not all subset items found!");
-                item.SubItems[MainWindow.MainForm.dependenciesHeader.Index].BackColor = Color.Red;
-                item.SubItems[MainWindow.MainForm.dependenciesHeader.Index].Text = "MISSING";
-                MissingModsDependenciesDict[modDisplayName] = missingMods;
-            }
-            return MissingModsDependenciesDict;
-        }
-
-        //Get display names of all dependencies of given mod.
-        public List<string> GetModDependencies(string selectedMod)
-        {
-            selectedMod = this.DirectoryToPathDict[selectedMod];
-            if (!ModDetails.ContainsKey(selectedMod))
-            {
-                return new List<string>();
-            }
-            return ModDetails[selectedMod].Requires;
         }
 
         //Monitor the size of a given zip file

@@ -47,43 +47,12 @@ namespace MW5_Mod_Manager
             authorHeader = new ColumnHeader();
             versionHeader = new ColumnHeader();
             buildHeader = new ColumnHeader();
-            dependenciesHeader = new ColumnHeader();
             originalLoadOrderHeader = new ColumnHeader();
             button4 = new Button();
             label3 = new Label();
             filterBox = new TextBox();
             checkBox1 = new CheckBox();
             button5 = new Button();
-            label4 = new Label();
-            listBox1 = new ListBox();
-            listBox2 = new ListBox();
-            listBox3 = new ListBox();
-            label5 = new Label();
-            label6 = new Label();
-            label7 = new Label();
-            tabControl1 = new TabControl();
-            tabPage3 = new TabPage();
-            button12 = new Button();
-            textBox2 = new TextBox();
-            listBox4 = new ListBox();
-            button11 = new Button();
-            button7 = new Button();
-            tabPageModInfo = new TabPage();
-            pictureBoxModImage = new PictureBox();
-            panelModInfo = new Panel();
-            label1 = new Label();
-            richTextBoxModDescription = new RichTextBox();
-            labelSteamId = new Label();
-            linkLabelSteamId = new LinkLabel();
-            linkLabelModAuthorUrl = new LinkLabel();
-            labelModBuildNumber = new Label();
-            labelModVersion = new Label();
-            labelModAuthor = new Label();
-            labelModName = new Label();
-            tabPage1 = new TabPage();
-            tabPage2 = new TabPage();
-            listView2 = new ListView();
-            label8 = new Label();
             backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
             textProgressBarBindingSource = new BindingSource(components);
             menuStrip1 = new MenuStrip();
@@ -110,17 +79,43 @@ namespace MW5_Mod_Manager
             rotatingLabel1 = new RotatingLabel();
             contextMenuStripMod = new ContextMenuStrip(components);
             openFolderToolStripMenuItem = new ToolStripMenuItem();
-            tabControl1.SuspendLayout();
-            tabPage3.SuspendLayout();
-            tabPageModInfo.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBoxModImage).BeginInit();
-            panelModInfo.SuspendLayout();
-            tabPage1.SuspendLayout();
-            tabPage2.SuspendLayout();
+            tabPage1 = new TabPage();
+            label6 = new Label();
+            label4 = new Label();
+            listBox1 = new ListBox();
+            label7 = new Label();
+            listBox2 = new ListBox();
+            listBox3 = new ListBox();
+            label5 = new Label();
+            tabPageModInfo = new TabPage();
+            pictureBoxModImage = new PictureBox();
+            panelModInfo = new Panel();
+            label1 = new Label();
+            richTextBoxModDescription = new RichTextBox();
+            labelSteamId = new Label();
+            linkLabelSteamId = new LinkLabel();
+            linkLabelModAuthorUrl = new LinkLabel();
+            labelModBuildNumber = new Label();
+            labelModVersion = new Label();
+            labelModAuthor = new Label();
+            labelModName = new Label();
+            tabPage3 = new TabPage();
+            button12 = new Button();
+            textBox2 = new TextBox();
+            listBox4 = new ListBox();
+            button11 = new Button();
+            button7 = new Button();
+            tabControl1 = new TabControl();
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
             contextMenuStripMod.SuspendLayout();
+            tabPage1.SuspendLayout();
+            tabPageModInfo.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxModImage).BeginInit();
+            panelModInfo.SuspendLayout();
+            tabPage3.SuspendLayout();
+            tabControl1.SuspendLayout();
             SuspendLayout();
             // 
             // button1
@@ -178,7 +173,7 @@ namespace MW5_Mod_Manager
             modsListView.AllowDrop = true;
             modsListView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             modsListView.CheckBoxes = true;
-            modsListView.Columns.AddRange(new ColumnHeader[] { enabledHeader, displayHeader, folderHeader, authorHeader, versionHeader, buildHeader, dependenciesHeader, originalLoadOrderHeader });
+            modsListView.Columns.AddRange(new ColumnHeader[] { enabledHeader, displayHeader, folderHeader, authorHeader, versionHeader, buildHeader, originalLoadOrderHeader });
             modsListView.FullRowSelect = true;
             modsListView.GridLines = true;
             modsListView.LabelWrap = false;
@@ -233,16 +228,9 @@ namespace MW5_Mod_Manager
             // 
             buildHeader.Text = "Build";
             // 
-            // dependenciesHeader
-            // 
-            dependenciesHeader.Tag = "";
-            dependenciesHeader.Text = "Dependencies";
-            dependenciesHeader.TextAlign = HorizontalAlignment.Center;
-            dependenciesHeader.Width = 88;
-            // 
             // originalLoadOrderHeader
             // 
-            originalLoadOrderHeader.Text = "Def. Load Order";
+            originalLoadOrderHeader.Text = "Default Load Order";
             // 
             // button4
             // 
@@ -295,329 +283,6 @@ namespace MW5_Mod_Manager
             button5.UseVisualStyleBackColor = true;
             button5.Click += button5_Click;
             // 
-            // label4
-            // 
-            label4.AutoSize = true;
-            label4.Location = new Point(6, 11);
-            label4.Name = "label4";
-            label4.Size = new Size(19, 13);
-            label4.TabIndex = 20;
-            label4.Text = "---";
-            // 
-            // listBox1
-            // 
-            listBox1.FormattingEnabled = true;
-            listBox1.ItemHeight = 13;
-            listBox1.Location = new Point(6, 70);
-            listBox1.Name = "listBox1";
-            listBox1.Size = new Size(160, 147);
-            listBox1.TabIndex = 21;
-            listBox1.SelectedIndexChanged += listBox1_SelectedIndexChanged;
-            // 
-            // listBox2
-            // 
-            listBox2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
-            listBox2.FormattingEnabled = true;
-            listBox2.HorizontalScrollbar = true;
-            listBox2.ItemHeight = 13;
-            listBox2.Location = new Point(6, 256);
-            listBox2.Name = "listBox2";
-            listBox2.SelectionMode = SelectionMode.None;
-            listBox2.Size = new Size(329, 225);
-            listBox2.TabIndex = 22;
-            listBox2.SelectedIndexChanged += listBox2_SelectedIndexChanged;
-            // 
-            // listBox3
-            // 
-            listBox3.FormattingEnabled = true;
-            listBox3.ItemHeight = 13;
-            listBox3.Location = new Point(175, 70);
-            listBox3.Name = "listBox3";
-            listBox3.Size = new Size(160, 147);
-            listBox3.TabIndex = 23;
-            listBox3.SelectedIndexChanged += listBox3_SelectedIndexChanged;
-            // 
-            // label5
-            // 
-            label5.AutoSize = true;
-            label5.Location = new Point(172, 54);
-            label5.Name = "label5";
-            label5.Size = new Size(79, 13);
-            label5.TabIndex = 24;
-            label5.Text = "Overridden By";
-            // 
-            // label6
-            // 
-            label6.AutoSize = true;
-            label6.Location = new Point(3, 54);
-            label6.Name = "label6";
-            label6.Size = new Size(62, 13);
-            label6.TabIndex = 25;
-            label6.Text = "Overriding";
-            // 
-            // label7
-            // 
-            label7.AutoSize = true;
-            label7.Location = new Point(3, 240);
-            label7.Name = "label7";
-            label7.Size = new Size(90, 13);
-            label7.TabIndex = 26;
-            label7.Text = "Manifest Entries";
-            // 
-            // tabControl1
-            // 
-            tabControl1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
-            tabControl1.Controls.Add(tabPage3);
-            tabControl1.Controls.Add(tabPageModInfo);
-            tabControl1.Controls.Add(tabPage1);
-            tabControl1.Controls.Add(tabPage2);
-            tabControl1.Location = new Point(838, 26);
-            tabControl1.Name = "tabControl1";
-            tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(346, 528);
-            tabControl1.TabIndex = 30;
-            // 
-            // tabPage3
-            // 
-            tabPage3.Controls.Add(button12);
-            tabPage3.Controls.Add(textBox2);
-            tabPage3.Controls.Add(listBox4);
-            tabPage3.Controls.Add(button11);
-            tabPage3.Controls.Add(button7);
-            tabPage3.Location = new Point(4, 22);
-            tabPage3.Name = "tabPage3";
-            tabPage3.Padding = new Padding(3);
-            tabPage3.Size = new Size(338, 502);
-            tabPage3.TabIndex = 2;
-            tabPage3.Text = "Save/Load Presets";
-            tabPage3.UseVisualStyleBackColor = true;
-            // 
-            // button12
-            // 
-            button12.Location = new Point(243, 13);
-            button12.Name = "button12";
-            button12.Size = new Size(86, 41);
-            button12.TabIndex = 5;
-            button12.Text = "Delete Preset";
-            button12.UseVisualStyleBackColor = true;
-            button12.Click += button12_Click;
-            // 
-            // textBox2
-            // 
-            textBox2.Location = new Point(6, 84);
-            textBox2.Name = "textBox2";
-            textBox2.Size = new Size(323, 22);
-            textBox2.TabIndex = 4;
-            textBox2.TextChanged += textBox2_TextChanged;
-            // 
-            // listBox4
-            // 
-            listBox4.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
-            listBox4.FormattingEnabled = true;
-            listBox4.ItemHeight = 13;
-            listBox4.Location = new Point(7, 125);
-            listBox4.Name = "listBox4";
-            listBox4.Size = new Size(323, 342);
-            listBox4.TabIndex = 3;
-            listBox4.SelectedIndexChanged += listBox4_SelectedIndexChanged;
-            // 
-            // button11
-            // 
-            button11.Location = new Point(125, 13);
-            button11.Name = "button11";
-            button11.Size = new Size(86, 41);
-            button11.TabIndex = 2;
-            button11.Text = "Load Preset";
-            button11.UseVisualStyleBackColor = true;
-            button11.Click += button11_Click;
-            // 
-            // button7
-            // 
-            button7.Location = new Point(7, 13);
-            button7.Name = "button7";
-            button7.Size = new Size(86, 41);
-            button7.TabIndex = 1;
-            button7.Text = "Save Preset";
-            button7.UseVisualStyleBackColor = true;
-            button7.Click += button7_Click;
-            // 
-            // tabPageModInfo
-            // 
-            tabPageModInfo.Controls.Add(pictureBoxModImage);
-            tabPageModInfo.Controls.Add(panelModInfo);
-            tabPageModInfo.Location = new Point(4, 24);
-            tabPageModInfo.Name = "tabPageModInfo";
-            tabPageModInfo.Padding = new Padding(3);
-            tabPageModInfo.Size = new Size(338, 500);
-            tabPageModInfo.TabIndex = 3;
-            tabPageModInfo.Text = "Overview";
-            tabPageModInfo.UseVisualStyleBackColor = true;
-            // 
-            // pictureBoxModImage
-            // 
-            pictureBoxModImage.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            pictureBoxModImage.Location = new Point(12, 13);
-            pictureBoxModImage.Name = "pictureBoxModImage";
-            pictureBoxModImage.Size = new Size(318, 143);
-            pictureBoxModImage.SizeMode = PictureBoxSizeMode.Zoom;
-            pictureBoxModImage.TabIndex = 2;
-            pictureBoxModImage.TabStop = false;
-            // 
-            // panelModInfo
-            // 
-            panelModInfo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            panelModInfo.Controls.Add(label1);
-            panelModInfo.Controls.Add(richTextBoxModDescription);
-            panelModInfo.Controls.Add(labelSteamId);
-            panelModInfo.Controls.Add(linkLabelSteamId);
-            panelModInfo.Controls.Add(linkLabelModAuthorUrl);
-            panelModInfo.Controls.Add(labelModBuildNumber);
-            panelModInfo.Controls.Add(labelModVersion);
-            panelModInfo.Controls.Add(labelModAuthor);
-            panelModInfo.Controls.Add(labelModName);
-            panelModInfo.Location = new Point(0, 154);
-            panelModInfo.Name = "panelModInfo";
-            panelModInfo.Size = new Size(338, 365);
-            panelModInfo.TabIndex = 1;
-            panelModInfo.Visible = false;
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(12, 154);
-            label1.Name = "label1";
-            label1.Size = new Size(69, 13);
-            label1.TabIndex = 10;
-            label1.Text = "Description:";
-            // 
-            // richTextBoxModDescription
-            // 
-            richTextBoxModDescription.Location = new Point(15, 175);
-            richTextBoxModDescription.Name = "richTextBoxModDescription";
-            richTextBoxModDescription.ReadOnly = true;
-            richTextBoxModDescription.Size = new Size(295, 166);
-            richTextBoxModDescription.TabIndex = 9;
-            richTextBoxModDescription.Text = "";
-            richTextBoxModDescription.LinkClicked += richTextBoxModDescription_LinkClicked;
-            // 
-            // labelSteamId
-            // 
-            labelSteamId.AutoSize = true;
-            labelSteamId.Location = new Point(12, 124);
-            labelSteamId.Name = "labelSteamId";
-            labelSteamId.Size = new Size(55, 13);
-            labelSteamId.TabIndex = 8;
-            labelSteamId.Text = "Steam ID:";
-            // 
-            // linkLabelSteamId
-            // 
-            linkLabelSteamId.AutoSize = true;
-            linkLabelSteamId.Location = new Point(73, 124);
-            linkLabelSteamId.Name = "linkLabelSteamId";
-            linkLabelSteamId.Size = new Size(94, 13);
-            linkLabelSteamId.TabIndex = 7;
-            linkLabelSteamId.TabStop = true;
-            linkLabelSteamId.Text = "linkLabelSteamId";
-            linkLabelSteamId.LinkClicked += linkLabelSteamId_LinkClicked;
-            // 
-            // linkLabelModAuthorUrl
-            // 
-            linkLabelModAuthorUrl.AutoSize = true;
-            linkLabelModAuthorUrl.Location = new Point(12, 54);
-            linkLabelModAuthorUrl.Name = "linkLabelModAuthorUrl";
-            linkLabelModAuthorUrl.Size = new Size(59, 13);
-            linkLabelModAuthorUrl.TabIndex = 6;
-            linkLabelModAuthorUrl.TabStop = true;
-            linkLabelModAuthorUrl.Text = "linkLabel1";
-            linkLabelModAuthorUrl.LinkClicked += linkLabelModAuthorUrl_LinkClicked;
-            // 
-            // labelModBuildNumber
-            // 
-            labelModBuildNumber.AutoSize = true;
-            labelModBuildNumber.Location = new Point(12, 98);
-            labelModBuildNumber.Name = "labelModBuildNumber";
-            labelModBuildNumber.Size = new Size(123, 13);
-            labelModBuildNumber.TabIndex = 4;
-            labelModBuildNumber.Text = "labelModBuildNumber";
-            // 
-            // labelModVersion
-            // 
-            labelModVersion.AutoSize = true;
-            labelModVersion.Location = new Point(12, 81);
-            labelModVersion.Name = "labelModVersion";
-            labelModVersion.Size = new Size(94, 13);
-            labelModVersion.TabIndex = 3;
-            labelModVersion.Text = "labelModVersion";
-            // 
-            // labelModAuthor
-            // 
-            labelModAuthor.AutoSize = true;
-            labelModAuthor.Location = new Point(12, 36);
-            labelModAuthor.Name = "labelModAuthor";
-            labelModAuthor.Size = new Size(92, 13);
-            labelModAuthor.TabIndex = 2;
-            labelModAuthor.Text = "labelModAuthor";
-            // 
-            // labelModName
-            // 
-            labelModName.AutoSize = true;
-            labelModName.Font = new Font("Segoe UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            labelModName.Location = new Point(12, 10);
-            labelModName.Name = "labelModName";
-            labelModName.Size = new Size(88, 13);
-            labelModName.TabIndex = 1;
-            labelModName.Text = "labelModName";
-            // 
-            // tabPage1
-            // 
-            tabPage1.Controls.Add(label6);
-            tabPage1.Controls.Add(label4);
-            tabPage1.Controls.Add(listBox1);
-            tabPage1.Controls.Add(label7);
-            tabPage1.Controls.Add(listBox2);
-            tabPage1.Controls.Add(listBox3);
-            tabPage1.Controls.Add(label5);
-            tabPage1.Location = new Point(4, 24);
-            tabPage1.Name = "tabPage1";
-            tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(338, 500);
-            tabPage1.TabIndex = 0;
-            tabPage1.Text = "Overrding Data";
-            tabPage1.UseVisualStyleBackColor = true;
-            tabPage1.Click += tabPage1_Click;
-            // 
-            // tabPage2
-            // 
-            tabPage2.BackColor = Color.Transparent;
-            tabPage2.Controls.Add(listView2);
-            tabPage2.Controls.Add(label8);
-            tabPage2.Location = new Point(4, 24);
-            tabPage2.Name = "tabPage2";
-            tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new Size(338, 500);
-            tabPage2.TabIndex = 1;
-            tabPage2.Text = "Dependencies";
-            tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // listView2
-            // 
-            listView2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
-            listView2.Location = new Point(6, 69);
-            listView2.Name = "listView2";
-            listView2.Size = new Size(329, 412);
-            listView2.TabIndex = 32;
-            listView2.UseCompatibleStateImageBehavior = false;
-            listView2.View = View.List;
-            // 
-            // label8
-            // 
-            label8.AutoSize = true;
-            label8.Location = new Point(6, 11);
-            label8.Name = "label8";
-            label8.Size = new Size(19, 13);
-            label8.TabIndex = 31;
-            label8.Text = "---";
-            // 
             // backgroundWorker2
             // 
             backgroundWorker2.DoWork += backgroundWorker2_DoWork;
@@ -659,12 +324,14 @@ namespace MW5_Mod_Manager
             // 
             toolStripSeparator7.Name = "toolStripSeparator7";
             toolStripSeparator7.Size = new Size(174, 6);
+            toolStripSeparator7.Visible = false;
             // 
             // exportmodsFolderToolStripMenuItem1
             // 
             exportmodsFolderToolStripMenuItem1.Name = "exportmodsFolderToolStripMenuItem1";
             exportmodsFolderToolStripMenuItem1.Size = new Size(177, 22);
             exportmodsFolderToolStripMenuItem1.Text = "Export &mods folder";
+            exportmodsFolderToolStripMenuItem1.Visible = false;
             exportmodsFolderToolStripMenuItem1.Click += exportmodsFolderToolStripMenuItem1_Click;
             // 
             // shareModsViaTCPToolStripMenuItem
@@ -794,6 +461,296 @@ namespace MW5_Mod_Manager
             openFolderToolStripMenuItem.Text = "Open &Folder";
             openFolderToolStripMenuItem.Click += openFolderToolStripMenuItem_Click;
             // 
+            // tabPage1
+            // 
+            tabPage1.Controls.Add(label6);
+            tabPage1.Controls.Add(label4);
+            tabPage1.Controls.Add(listBox1);
+            tabPage1.Controls.Add(label7);
+            tabPage1.Controls.Add(listBox2);
+            tabPage1.Controls.Add(listBox3);
+            tabPage1.Controls.Add(label5);
+            tabPage1.Location = new Point(4, 24);
+            tabPage1.Name = "tabPage1";
+            tabPage1.Padding = new Padding(3);
+            tabPage1.Size = new Size(338, 500);
+            tabPage1.TabIndex = 0;
+            tabPage1.Text = "Overrides";
+            tabPage1.UseVisualStyleBackColor = true;
+            tabPage1.Click += tabPage1_Click;
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Location = new Point(3, 54);
+            label6.Name = "label6";
+            label6.Size = new Size(62, 13);
+            label6.TabIndex = 25;
+            label6.Text = "Overriding";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(6, 11);
+            label4.Name = "label4";
+            label4.Size = new Size(19, 13);
+            label4.TabIndex = 20;
+            label4.Text = "---";
+            // 
+            // listBox1
+            // 
+            listBox1.FormattingEnabled = true;
+            listBox1.ItemHeight = 13;
+            listBox1.Location = new Point(6, 70);
+            listBox1.Name = "listBox1";
+            listBox1.Size = new Size(160, 147);
+            listBox1.TabIndex = 21;
+            listBox1.SelectedIndexChanged += listBox1_SelectedIndexChanged;
+            // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.Location = new Point(3, 240);
+            label7.Name = "label7";
+            label7.Size = new Size(90, 13);
+            label7.TabIndex = 26;
+            label7.Text = "Manifest Entries";
+            // 
+            // listBox2
+            // 
+            listBox2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            listBox2.FormattingEnabled = true;
+            listBox2.HorizontalScrollbar = true;
+            listBox2.ItemHeight = 13;
+            listBox2.Location = new Point(6, 256);
+            listBox2.Name = "listBox2";
+            listBox2.SelectionMode = SelectionMode.None;
+            listBox2.Size = new Size(329, 225);
+            listBox2.TabIndex = 22;
+            listBox2.SelectedIndexChanged += listBox2_SelectedIndexChanged;
+            // 
+            // listBox3
+            // 
+            listBox3.FormattingEnabled = true;
+            listBox3.ItemHeight = 13;
+            listBox3.Location = new Point(175, 70);
+            listBox3.Name = "listBox3";
+            listBox3.Size = new Size(160, 147);
+            listBox3.TabIndex = 23;
+            listBox3.SelectedIndexChanged += listBox3_SelectedIndexChanged;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new Point(172, 54);
+            label5.Name = "label5";
+            label5.Size = new Size(79, 13);
+            label5.TabIndex = 24;
+            label5.Text = "Overridden By";
+            // 
+            // tabPageModInfo
+            // 
+            tabPageModInfo.Controls.Add(pictureBoxModImage);
+            tabPageModInfo.Controls.Add(panelModInfo);
+            tabPageModInfo.Location = new Point(4, 24);
+            tabPageModInfo.Name = "tabPageModInfo";
+            tabPageModInfo.Padding = new Padding(3);
+            tabPageModInfo.Size = new Size(338, 500);
+            tabPageModInfo.TabIndex = 3;
+            tabPageModInfo.Text = "Overview";
+            tabPageModInfo.UseVisualStyleBackColor = true;
+            // 
+            // pictureBoxModImage
+            // 
+            pictureBoxModImage.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            pictureBoxModImage.Location = new Point(12, 13);
+            pictureBoxModImage.Name = "pictureBoxModImage";
+            pictureBoxModImage.Size = new Size(318, 145);
+            pictureBoxModImage.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxModImage.TabIndex = 2;
+            pictureBoxModImage.TabStop = false;
+            // 
+            // panelModInfo
+            // 
+            panelModInfo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            panelModInfo.Controls.Add(label1);
+            panelModInfo.Controls.Add(richTextBoxModDescription);
+            panelModInfo.Controls.Add(labelSteamId);
+            panelModInfo.Controls.Add(linkLabelSteamId);
+            panelModInfo.Controls.Add(linkLabelModAuthorUrl);
+            panelModInfo.Controls.Add(labelModBuildNumber);
+            panelModInfo.Controls.Add(labelModVersion);
+            panelModInfo.Controls.Add(labelModAuthor);
+            panelModInfo.Controls.Add(labelModName);
+            panelModInfo.Location = new Point(0, 156);
+            panelModInfo.Name = "panelModInfo";
+            panelModInfo.Size = new Size(338, 365);
+            panelModInfo.TabIndex = 1;
+            panelModInfo.Visible = false;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(12, 154);
+            label1.Name = "label1";
+            label1.Size = new Size(69, 13);
+            label1.TabIndex = 10;
+            label1.Text = "Description:";
+            // 
+            // richTextBoxModDescription
+            // 
+            richTextBoxModDescription.Location = new Point(15, 175);
+            richTextBoxModDescription.Name = "richTextBoxModDescription";
+            richTextBoxModDescription.ReadOnly = true;
+            richTextBoxModDescription.Size = new Size(295, 166);
+            richTextBoxModDescription.TabIndex = 9;
+            richTextBoxModDescription.Text = "";
+            richTextBoxModDescription.LinkClicked += richTextBoxModDescription_LinkClicked;
+            // 
+            // labelSteamId
+            // 
+            labelSteamId.AutoSize = true;
+            labelSteamId.Location = new Point(12, 124);
+            labelSteamId.Name = "labelSteamId";
+            labelSteamId.Size = new Size(55, 13);
+            labelSteamId.TabIndex = 8;
+            labelSteamId.Text = "Steam ID:";
+            // 
+            // linkLabelSteamId
+            // 
+            linkLabelSteamId.AutoSize = true;
+            linkLabelSteamId.Location = new Point(73, 124);
+            linkLabelSteamId.Name = "linkLabelSteamId";
+            linkLabelSteamId.Size = new Size(94, 13);
+            linkLabelSteamId.TabIndex = 7;
+            linkLabelSteamId.TabStop = true;
+            linkLabelSteamId.Text = "linkLabelSteamId";
+            linkLabelSteamId.LinkClicked += linkLabelSteamId_LinkClicked;
+            // 
+            // linkLabelModAuthorUrl
+            // 
+            linkLabelModAuthorUrl.AutoSize = true;
+            linkLabelModAuthorUrl.Location = new Point(12, 54);
+            linkLabelModAuthorUrl.Name = "linkLabelModAuthorUrl";
+            linkLabelModAuthorUrl.Size = new Size(59, 13);
+            linkLabelModAuthorUrl.TabIndex = 6;
+            linkLabelModAuthorUrl.TabStop = true;
+            linkLabelModAuthorUrl.Text = "linkLabel1";
+            linkLabelModAuthorUrl.LinkClicked += linkLabelModAuthorUrl_LinkClicked;
+            // 
+            // labelModBuildNumber
+            // 
+            labelModBuildNumber.AutoSize = true;
+            labelModBuildNumber.Location = new Point(12, 98);
+            labelModBuildNumber.Name = "labelModBuildNumber";
+            labelModBuildNumber.Size = new Size(123, 13);
+            labelModBuildNumber.TabIndex = 4;
+            labelModBuildNumber.Text = "labelModBuildNumber";
+            // 
+            // labelModVersion
+            // 
+            labelModVersion.AutoSize = true;
+            labelModVersion.Location = new Point(12, 81);
+            labelModVersion.Name = "labelModVersion";
+            labelModVersion.Size = new Size(94, 13);
+            labelModVersion.TabIndex = 3;
+            labelModVersion.Text = "labelModVersion";
+            // 
+            // labelModAuthor
+            // 
+            labelModAuthor.AutoSize = true;
+            labelModAuthor.Location = new Point(12, 36);
+            labelModAuthor.Name = "labelModAuthor";
+            labelModAuthor.Size = new Size(92, 13);
+            labelModAuthor.TabIndex = 2;
+            labelModAuthor.Text = "labelModAuthor";
+            // 
+            // labelModName
+            // 
+            labelModName.AutoSize = true;
+            labelModName.Font = new Font("Segoe UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            labelModName.Location = new Point(12, 10);
+            labelModName.Name = "labelModName";
+            labelModName.Size = new Size(88, 13);
+            labelModName.TabIndex = 1;
+            labelModName.Text = "labelModName";
+            // 
+            // tabPage3
+            // 
+            tabPage3.Controls.Add(button12);
+            tabPage3.Controls.Add(textBox2);
+            tabPage3.Controls.Add(listBox4);
+            tabPage3.Controls.Add(button11);
+            tabPage3.Controls.Add(button7);
+            tabPage3.Location = new Point(4, 22);
+            tabPage3.Name = "tabPage3";
+            tabPage3.Padding = new Padding(3);
+            tabPage3.Size = new Size(338, 502);
+            tabPage3.TabIndex = 2;
+            tabPage3.Text = "Save/Load Presets";
+            tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // button12
+            // 
+            button12.Location = new Point(243, 13);
+            button12.Name = "button12";
+            button12.Size = new Size(86, 41);
+            button12.TabIndex = 5;
+            button12.Text = "Delete Preset";
+            button12.UseVisualStyleBackColor = true;
+            button12.Click += button12_Click;
+            // 
+            // textBox2
+            // 
+            textBox2.Location = new Point(6, 84);
+            textBox2.Name = "textBox2";
+            textBox2.Size = new Size(323, 22);
+            textBox2.TabIndex = 4;
+            textBox2.TextChanged += textBox2_TextChanged;
+            // 
+            // listBox4
+            // 
+            listBox4.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            listBox4.FormattingEnabled = true;
+            listBox4.ItemHeight = 13;
+            listBox4.Location = new Point(7, 125);
+            listBox4.Name = "listBox4";
+            listBox4.Size = new Size(323, 342);
+            listBox4.TabIndex = 3;
+            listBox4.SelectedIndexChanged += listBox4_SelectedIndexChanged;
+            // 
+            // button11
+            // 
+            button11.Location = new Point(125, 13);
+            button11.Name = "button11";
+            button11.Size = new Size(86, 41);
+            button11.TabIndex = 2;
+            button11.Text = "Load Preset";
+            button11.UseVisualStyleBackColor = true;
+            button11.Click += button11_Click;
+            // 
+            // button7
+            // 
+            button7.Location = new Point(7, 13);
+            button7.Name = "button7";
+            button7.Size = new Size(86, 41);
+            button7.TabIndex = 1;
+            button7.Text = "Save Preset";
+            button7.UseVisualStyleBackColor = true;
+            button7.Click += button7_Click;
+            // 
+            // tabControl1
+            // 
+            tabControl1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+            tabControl1.Controls.Add(tabPage3);
+            tabControl1.Controls.Add(tabPageModInfo);
+            tabControl1.Controls.Add(tabPage1);
+            tabControl1.Location = new Point(838, 26);
+            tabControl1.Name = "tabControl1";
+            tabControl1.SelectedIndex = 0;
+            tabControl1.Size = new Size(346, 528);
+            tabControl1.TabIndex = 30;
+            // 
             // MainWindow
             // 
             AutoScaleDimensions = new SizeF(6F, 13F);
@@ -819,23 +776,21 @@ namespace MW5_Mod_Manager
             Name = "MainWindow";
             Text = "MW5 LoadOrderManager";
             Load += Form1_Load;
-            tabControl1.ResumeLayout(false);
-            tabPage3.ResumeLayout(false);
-            tabPage3.PerformLayout();
-            tabPageModInfo.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)pictureBoxModImage).EndInit();
-            panelModInfo.ResumeLayout(false);
-            panelModInfo.PerformLayout();
-            tabPage1.ResumeLayout(false);
-            tabPage1.PerformLayout();
-            tabPage2.ResumeLayout(false);
-            tabPage2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).EndInit();
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             statusStrip1.ResumeLayout(false);
             statusStrip1.PerformLayout();
             contextMenuStripMod.ResumeLayout(false);
+            tabPage1.ResumeLayout(false);
+            tabPage1.PerformLayout();
+            tabPageModInfo.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)pictureBoxModImage).EndInit();
+            panelModInfo.ResumeLayout(false);
+            panelModInfo.PerformLayout();
+            tabPage3.ResumeLayout(false);
+            tabPage3.PerformLayout();
+            tabControl1.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -859,26 +814,7 @@ namespace MW5_Mod_Manager
         private System.Windows.Forms.TextBox filterBox;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.ListBox listBox1;
-        private System.Windows.Forms.ListBox listBox2;
-        private System.Windows.Forms.ListBox listBox3;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label7;
-        public System.Windows.Forms.ColumnHeader dependenciesHeader;
-        private TabControl tabControl1;
-        private TabPage tabPage1;
-        private TabPage tabPage2;
-        private Label label8;
-        private ListView listView2;
         public System.ComponentModel.BackgroundWorker backgroundWorker2;
-        private TabPage tabPage3;
-        public TextBox textBox2;
-        public ListBox listBox4;
-        public Button button11;
-        public Button button7;
-        public Button button12;
         private BindingSource textProgressBarBindingSource;
         private MenuStrip menuStrip1;
         private ToolStripMenuItem fileToolStripMenuItem;
@@ -900,24 +836,39 @@ namespace MW5_Mod_Manager
         private ToolStripStatusLabel toolStripStatusLabelMwVersion;
         private ContextMenuStrip contextMenuStripMod;
         private ToolStripMenuItem openFolderToolStripMenuItem;
-        private TabPage tabPageModInfo;
-        private Panel panelModInfo;
-        private Label labelModName;
-        private Label labelModAuthor;
-        private Label labelModVersion;
-        private Label labelModBuildNumber;
-        private LinkLabel linkLabelModAuthorUrl;
-        private Label labelSteamId;
-        private LinkLabel linkLabelSteamId;
-        private RichTextBox richTextBoxModDescription;
-        private Label label1;
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripMenuItem toolStripMenuItemSettings;
         private ToolStripSeparator toolStripSeparator3;
         private ToolStripMenuItem toolStripMenuItemOpenModFolderSteam;
         private ColumnHeader buildHeader;
-        private PictureBox pictureBoxModImage;
         private ColumnHeader originalLoadOrderHeader;
+        private TabPage tabPage1;
+        private Label label6;
+        private Label label4;
+        private ListBox listBox1;
+        private Label label7;
+        private ListBox listBox2;
+        private ListBox listBox3;
+        private Label label5;
+        private TabPage tabPageModInfo;
+        private PictureBox pictureBoxModImage;
+        private Panel panelModInfo;
+        private Label label1;
+        private RichTextBox richTextBoxModDescription;
+        private Label labelSteamId;
+        private LinkLabel linkLabelSteamId;
+        private LinkLabel linkLabelModAuthorUrl;
+        private Label labelModBuildNumber;
+        private Label labelModVersion;
+        private Label labelModAuthor;
+        private Label labelModName;
+        private TabPage tabPage3;
+        public Button button12;
+        public TextBox textBox2;
+        public ListBox listBox4;
+        public Button button11;
+        public Button button7;
+        private TabControl tabControl1;
     }
 }
 

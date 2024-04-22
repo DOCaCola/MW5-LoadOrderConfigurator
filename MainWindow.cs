@@ -250,7 +250,6 @@ namespace MW5_Mod_Manager
             listItem.Selected = true;
 
             this.logic.GetOverridingData(this.ListViewData);
-            this.logic.CheckRequires(this.ListViewData);
             listView1_SelectedIndexChanged(null, null);
             this.MovingItem = false;
         }
@@ -290,7 +289,6 @@ namespace MW5_Mod_Manager
             //UpdateListView();
 
             this.logic.GetOverridingData(ListViewData);
-            this.logic.CheckRequires(ListViewData);
             listView1_SelectedIndexChanged(null, null);
             this.MovingItem = false;
         }
@@ -333,37 +331,6 @@ namespace MW5_Mod_Manager
                     }
                     return;
                 }
-            }
-            #endregion
-
-            #region mod dependencies/requirements
-            //Checking requirements:
-            Dictionary<string, List<string>> CheckResult = logic.CheckRequires(ListViewData);
-
-            //Super ugly as we are undoing stuff we just did here but i'm lazy.
-            foreach (ListViewItem item in this.modsListView.Items)
-            {
-                item.SubItems[dependenciesHeader.Index].BackColor = Color.White;
-            }
-
-            if (CheckResult.Count > 0)
-            {
-                string wText = "";
-                foreach (string key in CheckResult.Keys)
-                {
-                    wText += (key + "\n");
-                    foreach (string value in CheckResult[key])
-                    {
-                        wText += ("--" + value + "\n");
-                    }
-                }
-
-                string m2 = "Mods are missing or loaded after required dependencies: \n\n" + wText + "\nDo you want to apply anyway?";
-                string c2 = "Mods Missing Dependencies";
-                MessageBoxButtons b2 = MessageBoxButtons.YesNo;
-                DialogResult r2 = MessageBox.Show(m2, c2, b2);
-                if (r2 == DialogResult.No)
-                    return;
             }
             #endregion
 
@@ -418,7 +385,6 @@ namespace MW5_Mod_Manager
             listBox1.Items.Clear();
             listBox2.Items.Clear();
             listBox3.Items.Clear();
-            listView2.Items.Clear();
             panelModInfo.Visible = false;
             if (pictureBoxModImage.Image != null)
             {
@@ -510,7 +476,6 @@ namespace MW5_Mod_Manager
                 MessageBox.Show(message, caption, buttons);
             }
             this.LoadingAndFilling = false;
-            logic.CheckRequires(ListViewData);
             logic.GetOverridingData(ListViewData);
         }
 
@@ -529,8 +494,6 @@ namespace MW5_Mod_Manager
             newItem.SubItems.Add(logic.ModDetails[entry.Key].version);
             // Buildheader
             newItem.SubItems.Add(logic.ModDetails[entry.Key].buildNumber.ToString());
-            // dependenciesheader
-            newItem.SubItems.Add(" ");
             // original load order header
             newItem.SubItems.Add(logic.Mods[entry.Key].OriginalLoadOrder.ToString());
 
@@ -627,7 +590,6 @@ namespace MW5_Mod_Manager
                 LoadAndFill(false);
                 filterBox_TextChanged(null, null);
                 logic.GetOverridingData(ListViewData);
-                logic.CheckRequires(ListViewData);
             }
         }
 
@@ -1052,7 +1014,6 @@ namespace MW5_Mod_Manager
             richTextBoxModDescription.Text = modDetails.description;
 
             HandleOverrding(SelectedMod);
-            HandleDependencies(modsListView.SelectedItems[0], SelectedModDisplayName);
 
             string imagePath = modPath + "\\Resources\\Icon128.png";
 
@@ -1094,48 +1055,6 @@ namespace MW5_Mod_Manager
             }
         }
 
-        private void HandleDependencies(ListViewItem Item, string SelectedModDisplayName)
-        {
-            string SelectedMod = Item.SubItems[folderHeader.Index].Text;
-            label8.Text = SelectedModDisplayName;
-            List<string> Dependencies = logic.GetModDependencies(SelectedMod);
-            this.listView2.Items.Clear();
-
-            if (!Item.Checked)
-            {
-                Item.SubItems[dependenciesHeader.Index].BackColor = Color.White;
-                Item.SubItems[dependenciesHeader.Index].Text = "---";
-            }
-
-            List<string> MissingDependencies = new List<string>();
-            if (logic.MissingModsDependenciesDict.ContainsKey(SelectedModDisplayName))
-            {
-                MissingDependencies = logic.MissingModsDependenciesDict[SelectedModDisplayName];
-            }
-
-            if (Dependencies == null)
-            {
-                ListViewItem item = new ListViewItem
-                {
-                    Text = "No Dependencies"
-                };
-                return;
-            }
-
-            foreach (string mod in Dependencies)
-            {
-                ListViewItem item = new ListViewItem
-                {
-                    Text = mod
-                };
-                if (MissingDependencies.Contains(mod))
-                {
-                    item.ForeColor = Color.Red;
-                }
-                listView2.Items.Add(item);
-            }
-        }
-
         //Fires when an item is checked or unchecked.
         private void listView1_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
@@ -1146,21 +1065,13 @@ namespace MW5_Mod_Manager
             }
 
             logic.UpdateNewModOverrideData(ListViewData, ListViewData[e.Item.Index]);
-            logic.CheckRequires(ListViewData);
             HandleOverrding(e.Item.SubItems[folderHeader.Index].Text);
-            HandleDependencies(e.Item, e.Item.SubItems[displayHeader.Index].Text);
         }
 
         //Check for mod overrding data
         private void checkBox2_CheckedChanged(object sender, EventArgs e)
         {
             this.logic.GetOverridingData(ListViewData);
-        }
-
-        //Check for mod requirements/dependencies
-        private void checkBox3_CheckedChanged(object sender, EventArgs e)
-        {
-            this.logic.CheckRequires(ListViewData);
         }
 
         //On tap click?
@@ -1496,7 +1407,6 @@ namespace MW5_Mod_Manager
             }
             this.MovingItem = false;
             this.logic.GetOverridingData(this.ListViewData);
-            this.logic.CheckRequires(this.ListViewData);
         }
 
         private void disableAllModsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1508,7 +1418,6 @@ namespace MW5_Mod_Manager
             }
             this.MovingItem = false;
             this.logic.GetOverridingData(ListViewData);
-            this.logic.CheckRequires(ListViewData);
         }
 
         private void modsListView_MouseClick(object sender, MouseEventArgs e)
@@ -1646,7 +1555,7 @@ namespace MW5_Mod_Manager
             int targetIndex = modsListView.InsertionMark.Index;
 
             // If the insertion mark is not visible, exit the method.
-            if (targetIndex == -1) 
+            if (targetIndex == -1)
             {
                 return;
             }
@@ -1659,16 +1568,17 @@ namespace MW5_Mod_Manager
             }*/
 
             // Retrieve the dragged item.
-            ModListItem draggedItem = 
+            ModListItem draggedItem =
                 (ModListItem)e.Data.GetData(typeof(ModListItem));
 
             ListView.ListViewItemCollection items = modsListView.Items;
             int itemIndex = draggedItem.Index;
 
-            targetIndex = itemIndex < targetIndex ? targetIndex-1 : targetIndex;
+            targetIndex = itemIndex < targetIndex ? targetIndex - 1 : targetIndex;
 
             if (itemIndex != targetIndex)
             {
+                modsListView.SuspendLayout();
                 items.RemoveAt(itemIndex);
                 ListViewData.RemoveAt(itemIndex);
 
@@ -1676,8 +1586,8 @@ namespace MW5_Mod_Manager
                 ListViewData.Insert(targetIndex, draggedItem);
 
                 this.logic.GetOverridingData(this.ListViewData);
-                this.logic.CheckRequires(this.ListViewData);
                 listView1_SelectedIndexChanged(null, null);
+                modsListView.ResumeLayout();
             }
 
             modsListView.InsertionMark.Index = -1;
