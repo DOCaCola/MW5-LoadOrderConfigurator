@@ -11,6 +11,7 @@ using System.Media;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ListView = System.Windows.Forms.ListView;
 
 namespace MW5_Mod_Manager
 {
@@ -1059,7 +1060,7 @@ namespace MW5_Mod_Manager
             {
                 pictureBoxModImage.Image.Dispose();
             }
-            
+
             if (File.Exists(imagePath))
             {
                 pictureBoxModImage.Image = Image.FromStream(new MemoryStream(File.ReadAllBytes(imagePath)));
@@ -1593,6 +1594,98 @@ namespace MW5_Mod_Manager
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, caption, buttons);
             }
+        }
+
+        private void modsListView_ItemDrag(object sender, ItemDragEventArgs e)
+        {
+            MovingItem = true;
+            DoDragDrop(e.Item, DragDropEffects.Move);
+            MovingItem = false;
+        }
+
+        private void modsListView_DragEnter(object sender, DragEventArgs e)
+        {
+            if (MovingItem) e.Effect = e.AllowedEffect;
+        }
+
+        private void modsListView_DragOver(object sender, DragEventArgs e)
+        {
+            // Retrieve the client coordinates of the mouse pointer.
+            Point targetPoint =
+                modsListView.PointToClient(new Point(e.X, e.Y));
+
+            // Retrieve the index of the item closest to the mouse pointer.
+            int targetIndex = modsListView.InsertionMark.NearestIndex(targetPoint);
+
+            // Confirm that the mouse pointer is not over the dragged item.
+            if (targetIndex > -1)
+            {
+                // Determine whether the mouse pointer is to the left or
+                // the right of the midpoint of the closest item and set
+                // the InsertionMark.AppearsAfterItem property accordingly.
+                Rectangle itemBounds = modsListView.GetItemRect(targetIndex);
+                if (targetPoint.X > itemBounds.Left + (itemBounds.Width / 2))
+                {
+                    modsListView.InsertionMark.AppearsAfterItem = true;
+                }
+                else
+                {
+                    modsListView.InsertionMark.AppearsAfterItem = false;
+                }
+            }
+
+            // Set the location of the insertion mark. If the mouse is
+            // over the dragged item, the targetIndex value is -1 and
+            // the insertion mark disappears.
+            modsListView.InsertionMark.Index = targetIndex;
+        }
+
+        private void modsListView_DragDrop(object sender, DragEventArgs e)
+        {
+            // Retrieve the index of the insertion mark;
+            int targetIndex = modsListView.InsertionMark.Index;
+
+            // If the insertion mark is not visible, exit the method.
+            if (targetIndex == -1) 
+            {
+                return;
+            }
+
+            // If the insertion mark is to the right of the item with
+            // the corresponding index, increment the target index.
+            /*if (modsListView.InsertionMark.AppearsAfterItem) 
+            {
+                targetIndex++;
+            }*/
+
+            // Retrieve the dragged item.
+            ModListItem draggedItem = 
+                (ModListItem)e.Data.GetData(typeof(ModListItem));
+
+            ListView.ListViewItemCollection items = modsListView.Items;
+            int itemIndex = draggedItem.Index;
+
+            targetIndex = itemIndex < targetIndex ? targetIndex-1 : targetIndex;
+
+            if (itemIndex != targetIndex)
+            {
+                items.RemoveAt(itemIndex);
+                ListViewData.RemoveAt(itemIndex);
+
+                items.Insert(targetIndex, draggedItem);
+                ListViewData.Insert(targetIndex, draggedItem);
+
+                this.logic.GetOverridingData(this.ListViewData);
+                this.logic.CheckRequires(this.ListViewData);
+                listView1_SelectedIndexChanged(null, null);
+            }
+
+            modsListView.InsertionMark.Index = -1;
+        }
+
+        private void modsListView_DragLeave(object sender, EventArgs e)
+        {
+            modsListView.InsertionMark.Index = -1;
         }
     }
 }
