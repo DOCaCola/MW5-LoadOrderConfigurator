@@ -29,70 +29,75 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AboutWindow));
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.button1 = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            this.SuspendLayout();
+            label1 = new System.Windows.Forms.Label();
+            label2 = new System.Windows.Forms.Label();
+            pictureBox1 = new System.Windows.Forms.PictureBox();
+            buttonClose = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            SuspendLayout();
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 148);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(129, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Maintained by DOCa Cola";
+            label1.AutoSize = true;
+            label1.Location = new System.Drawing.Point(14, 171);
+            label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label1.Name = "label1";
+            label1.Size = new System.Drawing.Size(144, 15);
+            label1.TabIndex = 0;
+            label1.Text = "Maintained by DOCa Cola";
             // 
             // label2
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 171);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(149, 13);
-            this.label2.TabIndex = 1;
-            this.label2.Text = "Based on rjtwins\' original code";
+            label2.AutoSize = true;
+            label2.Location = new System.Drawing.Point(14, 197);
+            label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label2.Name = "label2";
+            label2.Size = new System.Drawing.Size(168, 15);
+            label2.TabIndex = 1;
+            label2.Text = "Based on rjtwins' original code";
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(12, 12);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(136, 133);
-            this.pictureBox1.TabIndex = 3;
-            this.pictureBox1.TabStop = false;
+            pictureBox1.Image = (System.Drawing.Image)resources.GetObject("pictureBox1.Image");
+            pictureBox1.Location = new System.Drawing.Point(14, 14);
+            pictureBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            pictureBox1.Name = "pictureBox1";
+            pictureBox1.Size = new System.Drawing.Size(159, 153);
+            pictureBox1.TabIndex = 3;
+            pictureBox1.TabStop = false;
             // 
-            // button1
+            // buttonClose
             // 
-            this.button1.Location = new System.Drawing.Point(12, 204);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 4;
-            this.button1.Text = "Close";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            buttonClose.Location = new System.Drawing.Point(14, 235);
+            buttonClose.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            buttonClose.Name = "buttonClose";
+            buttonClose.Size = new System.Drawing.Size(88, 27);
+            buttonClose.TabIndex = 4;
+            buttonClose.Text = "Close";
+            buttonClose.UseVisualStyleBackColor = true;
+            buttonClose.Click += button1_Click;
             // 
             // AboutWindow
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(230, 274);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.pictureBox1);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "AboutWindow";
-            this.ShowIcon = false;
-            this.ShowInTaskbar = false;
-            this.Text = "About";
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            CancelButton = buttonClose;
+            ClientSize = new System.Drawing.Size(268, 316);
+            Controls.Add(buttonClose);
+            Controls.Add(pictureBox1);
+            Controls.Add(label2);
+            Controls.Add(label1);
+            FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "AboutWindow";
+            ShowIcon = false;
+            ShowInTaskbar = false;
+            Text = "About";
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -100,6 +105,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button buttonClose;
     }
 }

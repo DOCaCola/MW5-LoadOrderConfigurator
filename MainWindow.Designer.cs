@@ -66,6 +66,11 @@ namespace MW5_Mod_Manager
             toolStripMenuItemSettings = new ToolStripMenuItem();
             toolStripSeparator1 = new ToolStripSeparator();
             exitToolStripMenuItem = new ToolStripMenuItem();
+            presetsToolStripMenuItem = new ToolStripMenuItem();
+            toolStripMenuItemLoadPresets = new ToolStripMenuItem();
+            toolStripSeparator4 = new ToolStripSeparator();
+            savePresetToolStripMenuItem = new ToolStripMenuItem();
+            deletePresetToolStripMenuItem = new ToolStripMenuItem();
             modsToolStripMenuItem = new ToolStripMenuItem();
             enableAllModsToolStripMenuItem = new ToolStripMenuItem();
             disableAllModsToolStripMenuItem = new ToolStripMenuItem();
@@ -99,12 +104,6 @@ namespace MW5_Mod_Manager
             labelModVersion = new Label();
             labelModAuthor = new Label();
             labelModName = new Label();
-            tabPage3 = new TabPage();
-            button12 = new Button();
-            textBox2 = new TextBox();
-            listBox4 = new ListBox();
-            button11 = new Button();
-            button7 = new Button();
             tabControl1 = new TabControl();
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
             menuStrip1.SuspendLayout();
@@ -114,7 +113,6 @@ namespace MW5_Mod_Manager
             tabPageModInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxModImage).BeginInit();
             panelModInfo.SuspendLayout();
-            tabPage3.SuspendLayout();
             tabControl1.SuspendLayout();
             SuspendLayout();
             // 
@@ -291,7 +289,7 @@ namespace MW5_Mod_Manager
             // 
             // menuStrip1
             // 
-            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, modsToolStripMenuItem, helpToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, presetsToolStripMenuItem, modsToolStripMenuItem, helpToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(1184, 24);
@@ -304,7 +302,6 @@ namespace MW5_Mod_Manager
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             fileToolStripMenuItem.Size = new Size(37, 20);
             fileToolStripMenuItem.Text = "&File";
-            fileToolStripMenuItem.Click += fileToolStripMenuItem_Click;
             // 
             // exportLoadOrderToolStripMenuItem1
             // 
@@ -365,6 +362,39 @@ namespace MW5_Mod_Manager
             exitToolStripMenuItem.Size = new Size(177, 22);
             exitToolStripMenuItem.Text = "E&xit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
+            // 
+            // presetsToolStripMenuItem
+            // 
+            presetsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { toolStripMenuItemLoadPresets, toolStripSeparator4, savePresetToolStripMenuItem, deletePresetToolStripMenuItem });
+            presetsToolStripMenuItem.Name = "presetsToolStripMenuItem";
+            presetsToolStripMenuItem.Size = new Size(56, 20);
+            presetsToolStripMenuItem.Text = "&Presets";
+            // 
+            // toolStripMenuItemLoadPresets
+            // 
+            toolStripMenuItemLoadPresets.Enabled = false;
+            toolStripMenuItemLoadPresets.Name = "toolStripMenuItemLoadPresets";
+            toolStripMenuItemLoadPresets.Size = new Size(151, 22);
+            toolStripMenuItemLoadPresets.Text = "Load Preset:";
+            // 
+            // toolStripSeparator4
+            // 
+            toolStripSeparator4.Name = "toolStripSeparator4";
+            toolStripSeparator4.Size = new Size(148, 6);
+            // 
+            // savePresetToolStripMenuItem
+            // 
+            savePresetToolStripMenuItem.Name = "savePresetToolStripMenuItem";
+            savePresetToolStripMenuItem.Size = new Size(151, 22);
+            savePresetToolStripMenuItem.Text = "&Save Preset...";
+            savePresetToolStripMenuItem.Click += savePresetToolStripMenuItem_Click;
+            // 
+            // deletePresetToolStripMenuItem
+            // 
+            deletePresetToolStripMenuItem.Name = "deletePresetToolStripMenuItem";
+            deletePresetToolStripMenuItem.Size = new Size(151, 22);
+            deletePresetToolStripMenuItem.Text = "&Delete Preset...";
+            deletePresetToolStripMenuItem.Click += deletePresetToolStripMenuItem_Click;
             // 
             // modsToolStripMenuItem
             // 
@@ -470,10 +500,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(listBox2);
             tabPage1.Controls.Add(listBox3);
             tabPage1.Controls.Add(label5);
-            tabPage1.Location = new Point(4, 24);
+            tabPage1.Location = new Point(4, 22);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(338, 500);
+            tabPage1.Size = new Size(338, 502);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
@@ -552,10 +582,10 @@ namespace MW5_Mod_Manager
             // 
             tabPageModInfo.Controls.Add(pictureBoxModImage);
             tabPageModInfo.Controls.Add(panelModInfo);
-            tabPageModInfo.Location = new Point(4, 24);
+            tabPageModInfo.Location = new Point(4, 22);
             tabPageModInfo.Name = "tabPageModInfo";
             tabPageModInfo.Padding = new Padding(3);
-            tabPageModInfo.Size = new Size(338, 500);
+            tabPageModInfo.Size = new Size(338, 502);
             tabPageModInfo.TabIndex = 3;
             tabPageModInfo.Text = "Overview";
             tabPageModInfo.UseVisualStyleBackColor = true;
@@ -565,7 +595,7 @@ namespace MW5_Mod_Manager
             pictureBoxModImage.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             pictureBoxModImage.Location = new Point(12, 13);
             pictureBoxModImage.Name = "pictureBoxModImage";
-            pictureBoxModImage.Size = new Size(318, 145);
+            pictureBoxModImage.Size = new Size(318, 147);
             pictureBoxModImage.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxModImage.TabIndex = 2;
             pictureBoxModImage.TabStop = false;
@@ -582,7 +612,7 @@ namespace MW5_Mod_Manager
             panelModInfo.Controls.Add(labelModVersion);
             panelModInfo.Controls.Add(labelModAuthor);
             panelModInfo.Controls.Add(labelModName);
-            panelModInfo.Location = new Point(0, 156);
+            panelModInfo.Location = new Point(0, 158);
             panelModInfo.Name = "panelModInfo";
             panelModInfo.Size = new Size(338, 365);
             panelModInfo.TabIndex = 1;
@@ -675,74 +705,9 @@ namespace MW5_Mod_Manager
             labelModName.TabIndex = 1;
             labelModName.Text = "labelModName";
             // 
-            // tabPage3
-            // 
-            tabPage3.Controls.Add(button12);
-            tabPage3.Controls.Add(textBox2);
-            tabPage3.Controls.Add(listBox4);
-            tabPage3.Controls.Add(button11);
-            tabPage3.Controls.Add(button7);
-            tabPage3.Location = new Point(4, 22);
-            tabPage3.Name = "tabPage3";
-            tabPage3.Padding = new Padding(3);
-            tabPage3.Size = new Size(338, 502);
-            tabPage3.TabIndex = 2;
-            tabPage3.Text = "Save/Load Presets";
-            tabPage3.UseVisualStyleBackColor = true;
-            // 
-            // button12
-            // 
-            button12.Location = new Point(243, 13);
-            button12.Name = "button12";
-            button12.Size = new Size(86, 41);
-            button12.TabIndex = 5;
-            button12.Text = "Delete Preset";
-            button12.UseVisualStyleBackColor = true;
-            button12.Click += button12_Click;
-            // 
-            // textBox2
-            // 
-            textBox2.Location = new Point(6, 84);
-            textBox2.Name = "textBox2";
-            textBox2.Size = new Size(323, 22);
-            textBox2.TabIndex = 4;
-            textBox2.TextChanged += textBox2_TextChanged;
-            // 
-            // listBox4
-            // 
-            listBox4.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
-            listBox4.FormattingEnabled = true;
-            listBox4.ItemHeight = 13;
-            listBox4.Location = new Point(7, 125);
-            listBox4.Name = "listBox4";
-            listBox4.Size = new Size(323, 342);
-            listBox4.TabIndex = 3;
-            listBox4.SelectedIndexChanged += listBox4_SelectedIndexChanged;
-            // 
-            // button11
-            // 
-            button11.Location = new Point(125, 13);
-            button11.Name = "button11";
-            button11.Size = new Size(86, 41);
-            button11.TabIndex = 2;
-            button11.Text = "Load Preset";
-            button11.UseVisualStyleBackColor = true;
-            button11.Click += button11_Click;
-            // 
-            // button7
-            // 
-            button7.Location = new Point(7, 13);
-            button7.Name = "button7";
-            button7.Size = new Size(86, 41);
-            button7.TabIndex = 1;
-            button7.Text = "Save Preset";
-            button7.UseVisualStyleBackColor = true;
-            button7.Click += button7_Click;
-            // 
             // tabControl1
             // 
             tabControl1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
-            tabControl1.Controls.Add(tabPage3);
             tabControl1.Controls.Add(tabPageModInfo);
             tabControl1.Controls.Add(tabPage1);
             tabControl1.Location = new Point(838, 26);
@@ -788,8 +753,6 @@ namespace MW5_Mod_Manager
             ((System.ComponentModel.ISupportInitialize)pictureBoxModImage).EndInit();
             panelModInfo.ResumeLayout(false);
             panelModInfo.PerformLayout();
-            tabPage3.ResumeLayout(false);
-            tabPage3.PerformLayout();
             tabControl1.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
@@ -862,13 +825,12 @@ namespace MW5_Mod_Manager
         private Label labelModVersion;
         private Label labelModAuthor;
         private Label labelModName;
-        private TabPage tabPage3;
-        public Button button12;
-        public TextBox textBox2;
-        public ListBox listBox4;
-        public Button button11;
-        public Button button7;
         private TabControl tabControl1;
+        public ToolStripMenuItem presetsToolStripMenuItem;
+        private ToolStripMenuItem toolStripMenuItemLoadPresets;
+        private ToolStripSeparator toolStripSeparator4;
+        private ToolStripMenuItem savePresetToolStripMenuItem;
+        private ToolStripMenuItem deletePresetToolStripMenuItem;
     }
 }
 

@@ -35,7 +35,7 @@
             label1 = new System.Windows.Forms.Label();
             textBoxMw5Path = new System.Windows.Forms.TextBox();
             buttonSave = new System.Windows.Forms.Button();
-            button1 = new System.Windows.Forms.Button();
+            buttonCancel = new System.Windows.Forms.Button();
             groupBox1.SuspendLayout();
             SuspendLayout();
             // 
@@ -109,22 +109,25 @@
             buttonSave.UseVisualStyleBackColor = true;
             buttonSave.Click += buttonSave_Click;
             // 
-            // button1
+            // buttonCancel
             // 
-            button1.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-            button1.Location = new System.Drawing.Point(93, 114);
-            button1.Name = "button1";
-            button1.Size = new System.Drawing.Size(75, 23);
-            button1.TabIndex = 5;
-            button1.Text = "&Cancel";
-            button1.UseVisualStyleBackColor = true;
+            buttonCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            buttonCancel.Location = new System.Drawing.Point(93, 114);
+            buttonCancel.Name = "buttonCancel";
+            buttonCancel.Size = new System.Drawing.Size(75, 23);
+            buttonCancel.TabIndex = 5;
+            buttonCancel.Text = "&Cancel";
+            buttonCancel.UseVisualStyleBackColor = true;
+            buttonCancel.Click += buttonCancel_Click;
             // 
             // SettingsWindow
             // 
+            AcceptButton = buttonSave;
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            CancelButton = buttonCancel;
             ClientSize = new System.Drawing.Size(653, 149);
-            Controls.Add(button1);
+            Controls.Add(buttonCancel);
             Controls.Add(buttonSave);
             Controls.Add(groupBox1);
             FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -132,6 +135,7 @@
             MinimizeBox = false;
             Name = "SettingsWindow";
             ShowIcon = false;
+            ShowInTaskbar = false;
             Text = "Settings";
             Load += SettingsWindow_Load;
             groupBox1.ResumeLayout(false);
@@ -148,6 +152,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox textBoxMw5Path;
         private System.Windows.Forms.Button buttonSave;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button buttonCancel;
     }
 }

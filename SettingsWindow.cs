@@ -44,7 +44,7 @@ namespace MW5_Mod_Manager
 
 
 
-            
+
         }
 
         private void buttonBrowse_Click(object sender, EventArgs e)
@@ -89,6 +89,11 @@ namespace MW5_Mod_Manager
             MainWindow.MainForm.logic.SaveSettings();
             MainWindow.MainForm.RefreshAll();
 
+            Close();
+        }
+
+        private void buttonCancel_Click(object sender, EventArgs e)
+        {
             Close();
         }
     }

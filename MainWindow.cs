@@ -11,6 +11,7 @@ using System.Media;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.ComponentModel.Design.ObjectSelectorEditor;
 using ListView = System.Windows.Forms.ListView;
 
 namespace MW5_Mod_Manager
@@ -40,8 +41,6 @@ namespace MW5_Mod_Manager
             this.AllowDrop = true;
             this.DragEnter += new DragEventHandler(Form1_DragEnter);
             this.DragDrop += new DragEventHandler(Form1_DragDrop);
-
-            this.listBox4.MouseDoubleClick += new MouseEventHandler(listBox4_OnMouseClick);
 
             this.BringToFront();
             this.Focus();
@@ -594,7 +593,7 @@ namespace MW5_Mod_Manager
         }
 
         //Saves current load order to preset.
-        private void SavePreset(string name)
+        public void SavePreset(string name)
         {
             Dictionary<string, bool> NoPathModlist = new Dictionary<string, bool>();
             foreach (KeyValuePair<string, bool> entry in logic.ModList)
@@ -638,9 +637,32 @@ namespace MW5_Mod_Manager
         private void LoadPresets()
         {
             this.logic.LoadPresets();
+            RebuildPresetsMenu();
+        }
+        public void RebuildPresetsMenu()
+        {
+            // Clear all preset menu items first
+            var dropDownItems = MainWindow.MainForm.presetsToolStripMenuItem.DropDownItems;
+
+            for (int i = dropDownItems.Count - 1; i >= 0; i--)
+            {
+                ToolStripItem item = dropDownItems[i];
+                if (item.Tag != null)
+                {
+                    dropDownItems.Remove(item);
+                }
+            }
+
+            int menuIndex = presetsToolStripMenuItem.DropDownItems.IndexOf(toolStripMenuItemLoadPresets);
             foreach (string key in logic.Presets.Keys)
             {
-                this.listBox4.Items.Add(key);
+                menuIndex++;
+
+                string menuItemName = key.Replace("&", "&&");
+                ToolStripItem subItem = new ToolStripMenuItem(menuItemName);
+                subItem.Tag = key;
+                subItem.Click += presetMenuItem_Click;
+                presetsToolStripMenuItem.DropDownItems.Insert(menuIndex, subItem);
             }
         }
 
@@ -1080,12 +1102,6 @@ namespace MW5_Mod_Manager
 
         }
 
-        //Export all mods in the mods foler (after pressing apply)
-        internal void exportModsFolderToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
         #region background workers for zipping up files
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
@@ -1160,127 +1176,6 @@ namespace MW5_Mod_Manager
             });*/
         }
         #endregion
-
-        //Text in the preset save naming text box has changed
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
-            this.listBox4.SelectedIndex = -1;
-        }
-
-        //Load preset
-        private void button11_Click(object sender, EventArgs e)
-        {
-            if (listBox4.SelectedItem == null)
-                return;
-            string selected = listBox4.SelectedItem.ToString();
-            if (Utils.StringNullEmptyOrWhiteSpace(selected))
-                return;
-            this.LoadPreset(selected);
-        }
-
-        //Save preset
-        private void button7_Click(object sender, EventArgs e)
-        {
-            if (textBox2.Text == null)
-                return;
-
-            bool Overriding = false;
-            string selected = textBox2.Text;
-
-            if (listBox4.SelectedIndex != -1)
-            {
-                selected = listBox4.SelectedItem.ToString();
-                string message = selected + " selected do you want to override?";
-                string caption = "Override?";
-                MessageBoxButtons buttons = MessageBoxButtons.YesNo;
-                DialogResult result = MessageBox.Show(message, caption, buttons);
-                if (result != DialogResult.Yes)
-                {
-                    return;
-                }
-                Overriding = true;
-            }
-
-            if (Utils.StringNullEmptyOrWhiteSpace(selected))
-                return;
-
-            if (this.listBox4.Items.Contains(selected) & !Overriding)
-            {
-                //No duplicates for your own god damn sake!
-                string message = "For your own sake don't save two presets with the same name.";
-                string caption = "I'm sorry, Mechwarrior. I'm afraid I can't do that.";
-                MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, caption, buttons);
-                return;
-            }
-
-            this.SavePreset(selected);
-            if (!Overriding)
-            {
-                this.listBox4.Items.Add(selected);
-                this.listBox4.SelectedIndex = this.listBox4.Items.Count - 1;
-            }
-            this.textBox2.Text = "";
-
-        }
-
-        //Delete preset
-        private void button12_Click(object sender, EventArgs e)
-        {
-            if (listBox4.SelectedItem == null)
-                return;
-            string selected = listBox4.SelectedItem.ToString();
-            if (Utils.StringNullEmptyOrWhiteSpace(selected))
-                return;
-            this.logic.Presets.Remove(selected);
-            int index = listBox4.SelectedIndex;
-            this.listBox4.Items.RemoveAt(index);
-            //where we the only item?
-            if (listBox4.Items.Count != 0)
-            {
-                //No
-                //where we the top item?
-                if (index == 0)
-                {
-                    listBox4.SelectedIndex = 0;
-                }
-                //where we the last item?
-                else if (index == listBox4.Items.Count)
-                {
-                    listBox4.SelectedIndex = listBox4.Items.Count - 1;
-                }
-                else
-                {
-                    //there are items above and below us
-                    listBox4.SelectedIndex = index;
-                }
-            }
-            this.logic.SavePresets();
-        }
-
-        //For unselecting items in listbox4
-        void listBox4_OnMouseClick(object sender, MouseEventArgs e)
-        {
-            int index = this.listBox4.IndexFromPoint(e.Location);
-            if (listBox4.SelectedIndex == index)
-                listBox4.SelectedIndex = -1;
-        }
-
-        //Unused
-        private void listBox4_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void toolStripDropDownButton1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void fileToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private void shareModsViaTCPToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -1596,6 +1491,28 @@ namespace MW5_Mod_Manager
         private void modsListView_DragLeave(object sender, EventArgs e)
         {
             modsListView.InsertionMark.Index = -1;
+        }
+
+        private void presetMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem presetMenuItem = sender as ToolStripMenuItem;
+            this.LoadPreset(presetMenuItem.Tag.ToString());
+        }
+
+        private void savePresetToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PresetSaveWindow saveDialog = new PresetSaveWindow();
+
+            saveDialog.ShowDialog(this);
+            saveDialog.Dispose();
+        }
+
+        private void deletePresetToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PresetDeleteWindow deleteDialog = new PresetDeleteWindow();
+
+            deleteDialog.ShowDialog(this);
+            deleteDialog.Dispose();
         }
     }
 }
