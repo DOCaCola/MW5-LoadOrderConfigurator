@@ -500,10 +500,13 @@ namespace MW5_Mod_Manager
             switch (logic.Mods[entry.Key].Origin)
             {
                 case MainLogic.ModData.ModOrigin.Steam:
-                    newItem.ImageIndex = 0;
+                    newItem.ImageKey = "Steam";
+                    break;
+                case MainLogic.ModData.ModOrigin.Nexusmods:
+                    newItem.ImageKey = "Nexusmods";
                     break;
                 default:
-                    newItem.ImageIndex = -1;
+                    newItem.ImageKey = "Folder";
                     break;
             }
 
@@ -1042,12 +1045,14 @@ namespace MW5_Mod_Manager
             long steamId = modDetails.steamPublishedFileId;
             if (steamId > 0)
             {
+                pictureBoxSteamIcon.Visible = true;
                 labelSteamId.Visible = true;
                 linkLabelSteamId.Visible = true;
                 linkLabelSteamId.Text = steamId.ToString();
             }
             else
             {
+                pictureBoxSteamIcon.Visible = false;
                 labelSteamId.Visible = false;
                 linkLabelSteamId.Visible = false;
             }

@@ -97,6 +97,7 @@ namespace MW5_Mod_Manager
             tabPageModInfo = new TabPage();
             pictureBoxModImage = new PictureBox();
             panelModInfo = new Panel();
+            pictureBoxSteamIcon = new PictureBox();
             label1 = new Label();
             richTextBoxModDescription = new RichTextBox();
             labelSteamId = new Label();
@@ -115,6 +116,7 @@ namespace MW5_Mod_Manager
             tabPageModInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxModImage).BeginInit();
             panelModInfo.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxSteamIcon).BeginInit();
             tabControl1.SuspendLayout();
             SuspendLayout();
             // 
@@ -238,7 +240,9 @@ namespace MW5_Mod_Manager
             imageListIcons.ColorDepth = ColorDepth.Depth32Bit;
             imageListIcons.ImageStream = (ImageListStreamer)resources.GetObject("imageListIcons.ImageStream");
             imageListIcons.TransparentColor = Color.Transparent;
-            imageListIcons.Images.SetKeyName(0, "steam.png");
+            imageListIcons.Images.SetKeyName(0, "Folder");
+            imageListIcons.Images.SetKeyName(1, "Steam");
+            imageListIcons.Images.SetKeyName(2, "Nexusmods");
             // 
             // button4
             // 
@@ -613,6 +617,7 @@ namespace MW5_Mod_Manager
             // panelModInfo
             // 
             panelModInfo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            panelModInfo.Controls.Add(pictureBoxSteamIcon);
             panelModInfo.Controls.Add(label1);
             panelModInfo.Controls.Add(richTextBoxModDescription);
             panelModInfo.Controls.Add(labelSteamId);
@@ -627,6 +632,15 @@ namespace MW5_Mod_Manager
             panelModInfo.Size = new Size(338, 365);
             panelModInfo.TabIndex = 1;
             panelModInfo.Visible = false;
+            // 
+            // pictureBoxSteamIcon
+            // 
+            pictureBoxSteamIcon.Image = (Image)resources.GetObject("pictureBoxSteamIcon.Image");
+            pictureBoxSteamIcon.Location = new Point(15, 124);
+            pictureBoxSteamIcon.Name = "pictureBoxSteamIcon";
+            pictureBoxSteamIcon.Size = new Size(16, 16);
+            pictureBoxSteamIcon.TabIndex = 11;
+            pictureBoxSteamIcon.TabStop = false;
             // 
             // label1
             // 
@@ -650,7 +664,7 @@ namespace MW5_Mod_Manager
             // labelSteamId
             // 
             labelSteamId.AutoSize = true;
-            labelSteamId.Location = new Point(12, 124);
+            labelSteamId.Location = new Point(33, 125);
             labelSteamId.Name = "labelSteamId";
             labelSteamId.Size = new Size(55, 13);
             labelSteamId.TabIndex = 8;
@@ -659,7 +673,7 @@ namespace MW5_Mod_Manager
             // linkLabelSteamId
             // 
             linkLabelSteamId.AutoSize = true;
-            linkLabelSteamId.Location = new Point(73, 124);
+            linkLabelSteamId.Location = new Point(89, 125);
             linkLabelSteamId.Name = "linkLabelSteamId";
             linkLabelSteamId.Size = new Size(94, 13);
             linkLabelSteamId.TabIndex = 7;
@@ -763,6 +777,7 @@ namespace MW5_Mod_Manager
             ((System.ComponentModel.ISupportInitialize)pictureBoxModImage).EndInit();
             panelModInfo.ResumeLayout(false);
             panelModInfo.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxSteamIcon).EndInit();
             tabControl1.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
@@ -842,6 +857,7 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem savePresetToolStripMenuItem;
         private ToolStripMenuItem deletePresetToolStripMenuItem;
         private ImageList imageListIcons;
+        private PictureBox pictureBoxSteamIcon;
     }
 }
 

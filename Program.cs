@@ -8,6 +8,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Runtime.Versioning;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using Application = System.Windows.Forms.Application;
@@ -70,7 +71,8 @@ namespace MW5_Mod_Manager
             public enum ModOrigin
             {
                 Unknown,
-                Steam
+                Steam,
+                Nexusmods
             }
 
             public ModOrigin Origin = ModOrigin.Unknown;
@@ -439,7 +441,8 @@ namespace MW5_Mod_Manager
             {
                 try
                 {
-                    string modJson = File.ReadAllText(modDir + @"\mod.json");
+                    string modJsonFilePath = modDir + @"\mod.json";
+                    string modJson = File.ReadAllText(modJsonFilePath);
                     JObject modDetailsJ = JObject.Parse(modJson);
 
                     ModObject modDetails = modDetailsJ.ToObject<ModObject>();
@@ -469,6 +472,46 @@ namespace MW5_Mod_Manager
                             modData.Origin = ModData.ModOrigin.Steam;
                         }
                     }
+
+                    if (modData.Origin == ModData.ModOrigin.Unknown)
+                    {
+                        if (File.Exists(modDir + @"\__folder_managed_by_vortex"))
+                        {
+                            modData.Origin = ModData.ModOrigin.Nexusmods;
+                        }
+                    }
+
+                    if (modData.Origin == ModData.ModOrigin.Unknown)
+                    {
+                        bool isNexusModsVortex = false;
+                        // Check for vortex (nexus mods) manager hardlinks
+                        List<string> hardlinks = HardlinkUtils.HardLinkHelper.GetHardLinks(modJsonFilePath);
+                        if (hardlinks.Count > 0)
+                        {
+                            foreach (string hardlinkPath in hardlinks)
+                            {
+                                // Looking for part of a path like C:\\Users\\XYZ\\AppData\\Roaming\\Vortex\\mechwarrior5mercenaries\\mods\\Advanced Zoom-412-1-2-6-1679946838\\advanced_zoom\\mod.json
+                                bool foundMatch = false;
+                                try {
+                                    foundMatch = Regex.IsMatch(hardlinkPath, @"\\[^\\]+-[\d]+-[\d]+-[\d]+", RegexOptions.Multiline);
+                                } catch (ArgumentException ex) {
+                                    // Syntax error in the regular expression
+                                }
+
+                                if (foundMatch)
+                                {
+                                    isNexusModsVortex = true;
+                                    break;
+                                }
+                            }
+
+                            if (isNexusModsVortex)
+                            {
+                                modData.Origin = ModData.ModOrigin.Nexusmods;
+                            }
+                        }
+                    }
+                    
 
                     this.Mods.Add(modDir, modData);
                 }
