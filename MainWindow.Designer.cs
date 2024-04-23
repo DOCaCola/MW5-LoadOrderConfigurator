@@ -97,6 +97,9 @@ namespace MW5_Mod_Manager
             tabPageModInfo = new TabPage();
             pictureBoxModImage = new PictureBox();
             panelModInfo = new Panel();
+            pictureBoxNexusmodsIcon = new PictureBox();
+            labelNexusmods = new Label();
+            linkLabelNexusmods = new LinkLabel();
             pictureBoxSteamIcon = new PictureBox();
             label1 = new Label();
             richTextBoxModDescription = new RichTextBox();
@@ -116,6 +119,7 @@ namespace MW5_Mod_Manager
             tabPageModInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxModImage).BeginInit();
             panelModInfo.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxNexusmodsIcon).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxSteamIcon).BeginInit();
             tabControl1.SuspendLayout();
             SuspendLayout();
@@ -201,19 +205,19 @@ namespace MW5_Mod_Manager
             // 
             enabledHeader.Tag = "";
             enabledHeader.Text = "";
-            enabledHeader.Width = 40;
+            enabledHeader.Width = 38;
             // 
             // displayHeader
             // 
             displayHeader.Tag = "";
             displayHeader.Text = "Display Name";
-            displayHeader.Width = 188;
+            displayHeader.Width = 260;
             // 
             // folderHeader
             // 
             folderHeader.Tag = "";
             folderHeader.Text = "Mod Folder";
-            folderHeader.Width = 196;
+            folderHeader.Width = 110;
             // 
             // authorHeader
             // 
@@ -609,7 +613,7 @@ namespace MW5_Mod_Manager
             pictureBoxModImage.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             pictureBoxModImage.Location = new Point(12, 13);
             pictureBoxModImage.Name = "pictureBoxModImage";
-            pictureBoxModImage.Size = new Size(318, 147);
+            pictureBoxModImage.Size = new Size(318, 139);
             pictureBoxModImage.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxModImage.TabIndex = 2;
             pictureBoxModImage.TabStop = false;
@@ -617,6 +621,9 @@ namespace MW5_Mod_Manager
             // panelModInfo
             // 
             panelModInfo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            panelModInfo.Controls.Add(pictureBoxNexusmodsIcon);
+            panelModInfo.Controls.Add(labelNexusmods);
+            panelModInfo.Controls.Add(linkLabelNexusmods);
             panelModInfo.Controls.Add(pictureBoxSteamIcon);
             panelModInfo.Controls.Add(label1);
             panelModInfo.Controls.Add(richTextBoxModDescription);
@@ -627,16 +634,45 @@ namespace MW5_Mod_Manager
             panelModInfo.Controls.Add(labelModVersion);
             panelModInfo.Controls.Add(labelModAuthor);
             panelModInfo.Controls.Add(labelModName);
-            panelModInfo.Location = new Point(0, 158);
+            panelModInfo.Location = new Point(0, 150);
             panelModInfo.Name = "panelModInfo";
-            panelModInfo.Size = new Size(338, 365);
+            panelModInfo.Size = new Size(338, 373);
             panelModInfo.TabIndex = 1;
             panelModInfo.Visible = false;
+            // 
+            // pictureBoxNexusmodsIcon
+            // 
+            pictureBoxNexusmodsIcon.Image = (Image)resources.GetObject("pictureBoxNexusmodsIcon.Image");
+            pictureBoxNexusmodsIcon.Location = new Point(15, 125);
+            pictureBoxNexusmodsIcon.Name = "pictureBoxNexusmodsIcon";
+            pictureBoxNexusmodsIcon.Size = new Size(16, 16);
+            pictureBoxNexusmodsIcon.TabIndex = 14;
+            pictureBoxNexusmodsIcon.TabStop = false;
+            // 
+            // labelNexusmods
+            // 
+            labelNexusmods.AutoSize = true;
+            labelNexusmods.Location = new Point(33, 127);
+            labelNexusmods.Name = "labelNexusmods";
+            labelNexusmods.Size = new Size(83, 13);
+            labelNexusmods.TabIndex = 13;
+            labelNexusmods.Text = "Nexusmods ID:";
+            // 
+            // linkLabelNexusmods
+            // 
+            linkLabelNexusmods.AutoSize = true;
+            linkLabelNexusmods.Location = new Point(118, 128);
+            linkLabelNexusmods.Name = "linkLabelNexusmods";
+            linkLabelNexusmods.Size = new Size(112, 13);
+            linkLabelNexusmods.TabIndex = 12;
+            linkLabelNexusmods.TabStop = true;
+            linkLabelNexusmods.Text = "linkLabelNexusmods";
+            linkLabelNexusmods.LinkClicked += linkLabelNexusmods_LinkClicked;
             // 
             // pictureBoxSteamIcon
             // 
             pictureBoxSteamIcon.Image = (Image)resources.GetObject("pictureBoxSteamIcon.Image");
-            pictureBoxSteamIcon.Location = new Point(15, 124);
+            pictureBoxSteamIcon.Location = new Point(15, 103);
             pictureBoxSteamIcon.Name = "pictureBoxSteamIcon";
             pictureBoxSteamIcon.Size = new Size(16, 16);
             pictureBoxSteamIcon.TabIndex = 11;
@@ -645,7 +681,7 @@ namespace MW5_Mod_Manager
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(12, 154);
+            label1.Location = new Point(12, 165);
             label1.Name = "label1";
             label1.Size = new Size(69, 13);
             label1.TabIndex = 10;
@@ -653,10 +689,10 @@ namespace MW5_Mod_Manager
             // 
             // richTextBoxModDescription
             // 
-            richTextBoxModDescription.Location = new Point(15, 175);
+            richTextBoxModDescription.Location = new Point(15, 184);
             richTextBoxModDescription.Name = "richTextBoxModDescription";
             richTextBoxModDescription.ReadOnly = true;
-            richTextBoxModDescription.Size = new Size(295, 166);
+            richTextBoxModDescription.Size = new Size(295, 157);
             richTextBoxModDescription.TabIndex = 9;
             richTextBoxModDescription.Text = "";
             richTextBoxModDescription.LinkClicked += richTextBoxModDescription_LinkClicked;
@@ -664,7 +700,7 @@ namespace MW5_Mod_Manager
             // labelSteamId
             // 
             labelSteamId.AutoSize = true;
-            labelSteamId.Location = new Point(33, 125);
+            labelSteamId.Location = new Point(33, 105);
             labelSteamId.Name = "labelSteamId";
             labelSteamId.Size = new Size(55, 13);
             labelSteamId.TabIndex = 8;
@@ -673,7 +709,7 @@ namespace MW5_Mod_Manager
             // linkLabelSteamId
             // 
             linkLabelSteamId.AutoSize = true;
-            linkLabelSteamId.Location = new Point(89, 125);
+            linkLabelSteamId.Location = new Point(118, 105);
             linkLabelSteamId.Name = "linkLabelSteamId";
             linkLabelSteamId.Size = new Size(94, 13);
             linkLabelSteamId.TabIndex = 7;
@@ -684,7 +720,7 @@ namespace MW5_Mod_Manager
             // linkLabelModAuthorUrl
             // 
             linkLabelModAuthorUrl.AutoSize = true;
-            linkLabelModAuthorUrl.Location = new Point(12, 54);
+            linkLabelModAuthorUrl.Location = new Point(12, 48);
             linkLabelModAuthorUrl.Name = "linkLabelModAuthorUrl";
             linkLabelModAuthorUrl.Size = new Size(59, 13);
             linkLabelModAuthorUrl.TabIndex = 6;
@@ -695,7 +731,7 @@ namespace MW5_Mod_Manager
             // labelModBuildNumber
             // 
             labelModBuildNumber.AutoSize = true;
-            labelModBuildNumber.Location = new Point(12, 98);
+            labelModBuildNumber.Location = new Point(154, 75);
             labelModBuildNumber.Name = "labelModBuildNumber";
             labelModBuildNumber.Size = new Size(123, 13);
             labelModBuildNumber.TabIndex = 4;
@@ -704,7 +740,7 @@ namespace MW5_Mod_Manager
             // labelModVersion
             // 
             labelModVersion.AutoSize = true;
-            labelModVersion.Location = new Point(12, 81);
+            labelModVersion.Location = new Point(12, 75);
             labelModVersion.Name = "labelModVersion";
             labelModVersion.Size = new Size(94, 13);
             labelModVersion.TabIndex = 3;
@@ -713,7 +749,7 @@ namespace MW5_Mod_Manager
             // labelModAuthor
             // 
             labelModAuthor.AutoSize = true;
-            labelModAuthor.Location = new Point(12, 36);
+            labelModAuthor.Location = new Point(12, 30);
             labelModAuthor.Name = "labelModAuthor";
             labelModAuthor.Size = new Size(92, 13);
             labelModAuthor.TabIndex = 2;
@@ -777,6 +813,7 @@ namespace MW5_Mod_Manager
             ((System.ComponentModel.ISupportInitialize)pictureBoxModImage).EndInit();
             panelModInfo.ResumeLayout(false);
             panelModInfo.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxNexusmodsIcon).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxSteamIcon).EndInit();
             tabControl1.ResumeLayout(false);
             ResumeLayout(false);
@@ -858,6 +895,9 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem deletePresetToolStripMenuItem;
         private ImageList imageListIcons;
         private PictureBox pictureBoxSteamIcon;
+        private PictureBox pictureBoxNexusmodsIcon;
+        private Label labelNexusmods;
+        private LinkLabel linkLabelNexusmods;
     }
 }
 

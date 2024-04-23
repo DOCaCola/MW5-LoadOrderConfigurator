@@ -32,7 +32,7 @@ namespace MW5_Mod_Manager
 
     /// <summary>
     /// Contains most of the background logic and operations
-    /// Also has some dataobjects to keep track of various interal statuses.
+    /// Also has some dataobjects to keep track of various internal statuses.
     /// </summary>
     [SupportedOSPlatform("windows")]
     public class MainLogic
@@ -76,6 +76,7 @@ namespace MW5_Mod_Manager
             }
 
             public ModOrigin Origin = ModOrigin.Unknown;
+            public string NexusModsId = "";
 
             public ModData()
             {
@@ -475,15 +476,6 @@ namespace MW5_Mod_Manager
 
                     if (modData.Origin == ModData.ModOrigin.Unknown)
                     {
-                        if (File.Exists(modDir + @"\__folder_managed_by_vortex"))
-                        {
-                            modData.Origin = ModData.ModOrigin.Nexusmods;
-                        }
-                    }
-
-                    if (modData.Origin == ModData.ModOrigin.Unknown)
-                    {
-                        bool isNexusModsVortex = false;
                         // Check for vortex (nexus mods) manager hardlinks
                         List<string> hardlinks = HardlinkUtils.HardLinkHelper.GetHardLinks(modJsonFilePath);
                         if (hardlinks.Count > 0)
@@ -493,25 +485,35 @@ namespace MW5_Mod_Manager
                                 // Looking for part of a path like C:\\Users\\XYZ\\AppData\\Roaming\\Vortex\\mechwarrior5mercenaries\\mods\\Advanced Zoom-412-1-2-6-1679946838\\advanced_zoom\\mod.json
                                 bool foundMatch = false;
                                 try {
-                                    foundMatch = Regex.IsMatch(hardlinkPath, @"\\[^\\]+-[\d]+-[\d]+-[\d]+", RegexOptions.Multiline);
+                                    Regex regexObj = new Regex(@"\\[^\\]{2,}?-([\d]+)-[\d-]+-[\d]{10}\\", RegexOptions.Multiline);
+                                    Match regexMatch = regexObj.Match(hardlinkPath);
+                                    if (regexMatch.Success)
+                                    {
+                                        modData.NexusModsId = regexMatch.Groups[1].Value;
+                                        foundMatch = true;
+                                        break;
+                                    }
+
                                 } catch (ArgumentException ex) {
                                     // Syntax error in the regular expression
                                 }
 
                                 if (foundMatch)
                                 {
-                                    isNexusModsVortex = true;
+                                    modData.Origin = ModData.ModOrigin.Nexusmods;
                                     break;
                                 }
-                            }
-
-                            if (isNexusModsVortex)
-                            {
-                                modData.Origin = ModData.ModOrigin.Nexusmods;
                             }
                         }
                     }
                     
+                    if (modData.Origin == ModData.ModOrigin.Unknown)
+                    {
+                        if (File.Exists(modDir + @"\__folder_managed_by_vortex"))
+                        {
+                            modData.Origin = ModData.ModOrigin.Nexusmods;
+                        }
+                    }
 
                     this.Mods.Add(modDir, modData);
                 }
@@ -1009,10 +1011,23 @@ namespace MW5_Mod_Manager
                 {
                     continue;
                 }
-                
+
+                if (item.Checked)
+                {
+                    item.SubItems[MainWindow.MainForm.displayHeader.Index].Font = new Font(MainWindow.MainForm.modsListView.Font, MainWindow.MainForm.modsListView.Font.Style | FontStyle.Bold);  
+                }
+                else
+                {
+                    item.SubItems[MainWindow.MainForm.displayHeader.Index].Font = new Font(MainWindow.MainForm.modsListView.Font, MainWindow.MainForm.modsListView.Font.Style);  
+                }
+
+                foreach (ListViewItem.ListViewSubItem curItem in item.SubItems)
+                {
+                    curItem.ForeColor = item.Checked ? Color.Black : Color.Gray;
+                }
+
                 if (!item.Checked)
                 {
-                    item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = Color.Gray;
                     continue;
                 }
 

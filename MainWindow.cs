@@ -1056,6 +1056,22 @@ namespace MW5_Mod_Manager
                 labelSteamId.Visible = false;
                 linkLabelSteamId.Visible = false;
             }
+
+            string nexusModsId = logic.Mods[modPath].NexusModsId;
+            if (nexusModsId != "")
+            {
+                pictureBoxNexusmodsIcon.Visible = true;
+                labelNexusmods.Visible = true;
+                linkLabelNexusmods.Visible = true;
+                linkLabelNexusmods.Text = nexusModsId;
+            }
+            else
+            {
+                pictureBoxNexusmodsIcon.Visible = false;
+                labelNexusmods.Visible = false;
+                linkLabelNexusmods.Visible = false;
+            }
+
             richTextBoxModDescription.Text = modDetails.description;
 
             HandleOverrding(SelectedMod);
@@ -1377,7 +1393,12 @@ namespace MW5_Mod_Manager
         {
             string modKey = (string)modsListView.SelectedItems[0].Tag;
             string steamUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=" + logic.ModDetails[modKey].steamPublishedFileId;
-            Process.Start(steamUrl);
+            var psi = new System.Diagnostics.ProcessStartInfo()
+            {
+                FileName = steamUrl,
+                UseShellExecute = true
+            };
+            System.Diagnostics.Process.Start(psi);
         }
 
         private void richTextBoxModDescription_LinkClicked(object sender, LinkClickedEventArgs e)
@@ -1385,7 +1406,12 @@ namespace MW5_Mod_Manager
             bool isValidUrl = Utils.IsUrlValid(e.LinkText);
             if (isValidUrl)
             {
-                Process.Start(e.LinkText);
+                var psi = new System.Diagnostics.ProcessStartInfo()
+                {
+                    FileName = e.LinkText,
+                    UseShellExecute = true
+                };
+                System.Diagnostics.Process.Start(psi);
             }
         }
 
@@ -1536,6 +1562,19 @@ namespace MW5_Mod_Manager
 
             deleteDialog.ShowDialog(this);
             deleteDialog.Dispose();
+        }
+
+        private void linkLabelNexusmods_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            string modKey = (string)modsListView.SelectedItems[0].Tag;
+            string nexusUrl = "https://www.nexusmods.com/mechwarrior5mercenaries/mods/" + logic.Mods[modKey].NexusModsId;
+
+            var psi = new System.Diagnostics.ProcessStartInfo()
+            {
+                FileName = nexusUrl,
+                UseShellExecute = true
+            };
+            System.Diagnostics.Process.Start(psi);
         }
     }
 }
