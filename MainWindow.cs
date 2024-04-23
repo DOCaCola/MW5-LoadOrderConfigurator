@@ -785,7 +785,12 @@ namespace MW5_Mod_Manager
         {
             try
             {
-                Process.Start(@"com.epicgames.launcher://apps/Hoopoe?action=launch&silent=false");
+                var psi = new System.Diagnostics.ProcessStartInfo()
+                {
+                    FileName = @"com.epicgames.launcher://apps/Hoopoe?action=launch&silent=false",
+                    UseShellExecute = true
+                };
+                System.Diagnostics.Process.Start(psi);
             }
             catch (Exception Ex)
             {
@@ -802,7 +807,12 @@ namespace MW5_Mod_Manager
         {
             try
             {
-                System.Diagnostics.Process.Start(@"steam://rungameid/784080");
+                var psi = new System.Diagnostics.ProcessStartInfo()
+                {
+                    FileName = @"steam://rungameid/784080",
+                    UseShellExecute = true
+                };
+                System.Diagnostics.Process.Start(psi);
             }
             catch (Exception Ex)
             {
