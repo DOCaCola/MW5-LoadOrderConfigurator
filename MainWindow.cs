@@ -360,7 +360,7 @@ namespace MW5_Mod_Manager
                     int priority = modsListView.Items.Count - i;
                     this.logic.ModList[modDir] = modEnabled;
                     this.logic.ModDetails[modDir].defaultLoadOrder = priority;
-                    Console.WriteLine(modDir + " : " + priority.ToString());
+                    Console.WriteLine(modDir + @" : " + priority.ToString());
                 }
                 catch (Exception Ex)
                 {
@@ -386,6 +386,7 @@ namespace MW5_Mod_Manager
             listBoxManifestOverridden.Items.Clear();
             listBoxOverriddenBy.Items.Clear();
             pictureBoxModImage.Visible = false;
+            labelModNameOverrides.Text = "";
             panelModInfo.Visible = false;
             this.ListViewData.Clear();
             this.modsListView.Items.Clear();
@@ -843,7 +844,7 @@ namespace MW5_Mod_Manager
             {
                 this.filtered = true;
                 //If we are filtering with highlight
-                if (MainForm.checkBox1.Checked)
+                if (!MainForm.checkBoxFilter.Checked)
                 {
                     //For each item in the list
                     foreach (ListViewItem item in this.ListViewData)
@@ -911,7 +912,7 @@ namespace MW5_Mod_Manager
         //Filter or Highlight checkbox on tick action
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            if (checkBox1.Checked)
+            if (!checkBoxFilter.Checked)
             {
                 this.modsListView.Items.Clear();
                 foreach (ModListViewItem item in this.ListViewData)
@@ -1590,7 +1591,7 @@ namespace MW5_Mod_Manager
         {
             foreach (ListViewItem modListItem in modsListView.Items)
             {
-                if (modListItem.Tag == modKey)
+                if (modListItem.Tag.ToString() == modKey)
                 {
                     modListItem.Selected = true;
                     break;
@@ -1616,6 +1617,12 @@ namespace MW5_Mod_Manager
                 ModListBoxItem modListBoxItem = listBoxOverriddenBy.Items[index] as ModListBoxItem;
                 SelectModInList(modListBoxItem.ModKey);
             }
+        }
+
+        private void buttonClearHighlight_Click(object sender, EventArgs e)
+        {
+            filterBox.Text = "";
+            filterBox.Focus();
         }
     }
 }

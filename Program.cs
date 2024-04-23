@@ -235,7 +235,7 @@ namespace MW5_Mod_Manager
         {
             //Load install dir from previous session:
             string appDataDir = System.Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-            string settingsDir = Path.Combine(appDataDir, @"MW5LoadOrderManager");
+            string settingsDir = Path.Combine(appDataDir, @"MW5LoadOrderConfigurator");
             if (!File.Exists(settingsDir))
             {
                 Directory.CreateDirectory(settingsDir);
@@ -347,7 +347,7 @@ namespace MW5_Mod_Manager
 
         public void SaveSettings()
         {
-            string settingsDir = System.Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + @"\MW5LoadOrderManager";
+            string settingsDir = System.Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + @"\MW5LoadOrderConfigurator";
 
             ProgramData.InstallPath = this.InstallPath;
             this.ProgramData.ModPaths = this.BasePath;
@@ -683,7 +683,7 @@ namespace MW5_Mod_Manager
         //Save presets from memory to file for use in next session.
         internal void SavePresets()
         {
-            string JsonFile = System.Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + @"\MW5LoadOrderManager\presets.json";
+            string JsonFile = System.Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + @"\MW5LoadOrderConfigurator\presets.json";
             string JsonString = JsonConvert.SerializeObject(this.Presets, Formatting.Indented);
 
             if (File.Exists(JsonFile))
@@ -699,7 +699,7 @@ namespace MW5_Mod_Manager
         //Load prests from file
         public void LoadPresets()
         {
-            string JsonFile = System.Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + @"\MW5LoadOrderManager\presets.json";
+            string JsonFile = System.Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + @"\MW5LoadOrderConfigurator\presets.json";
             //parse to dict of strings.
 
             if (!File.Exists(JsonFile))

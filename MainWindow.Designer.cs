@@ -53,7 +53,7 @@ namespace MW5_Mod_Manager
             button4 = new Button();
             label3 = new Label();
             filterBox = new TextBox();
-            checkBox1 = new CheckBox();
+            checkBoxFilter = new CheckBox();
             button5 = new Button();
             backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
             textProgressBarBindingSource = new BindingSource(components);
@@ -111,6 +111,7 @@ namespace MW5_Mod_Manager
             labelModAuthor = new Label();
             labelModName = new Label();
             tabControl1 = new TabControl();
+            buttonClearHighlight = new Button();
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -264,30 +265,30 @@ namespace MW5_Mod_Manager
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(180, 33);
+            label3.Location = new Point(124, 31);
             label3.Name = "label3";
-            label3.Size = new Size(65, 13);
+            label3.Size = new Size(44, 13);
             label3.TabIndex = 16;
-            label3.Text = "Filter Mods";
+            label3.Text = "Search:";
             // 
             // filterBox
             // 
-            filterBox.Location = new Point(339, 30);
+            filterBox.Location = new Point(171, 28);
             filterBox.Name = "filterBox";
             filterBox.Size = new Size(425, 22);
             filterBox.TabIndex = 17;
             filterBox.TextChanged += filterBox_TextChanged;
             // 
-            // checkBox1
+            // checkBoxFilter
             // 
-            checkBox1.AutoSize = true;
-            checkBox1.Location = new Point(258, 32);
-            checkBox1.Name = "checkBox1";
-            checkBox1.Size = new Size(75, 17);
-            checkBox1.TabIndex = 18;
-            checkBox1.Text = "Highlight";
-            checkBox1.UseVisualStyleBackColor = true;
-            checkBox1.CheckedChanged += checkBox1_CheckedChanged;
+            checkBoxFilter.AutoSize = true;
+            checkBoxFilter.Location = new Point(630, 30);
+            checkBoxFilter.Name = "checkBoxFilter";
+            checkBoxFilter.Size = new Size(52, 17);
+            checkBoxFilter.TabIndex = 18;
+            checkBoxFilter.Text = "Filter";
+            checkBoxFilter.UseVisualStyleBackColor = true;
+            checkBoxFilter.CheckedChanged += checkBox1_CheckedChanged;
             // 
             // button5
             // 
@@ -518,10 +519,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(listBoxManifestOverridden);
             tabPage1.Controls.Add(listBoxOverriddenBy);
             tabPage1.Controls.Add(label5);
-            tabPage1.Location = new Point(4, 22);
+            tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(338, 502);
+            tabPage1.Size = new Size(338, 500);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
@@ -779,17 +780,28 @@ namespace MW5_Mod_Manager
             tabControl1.Size = new Size(346, 528);
             tabControl1.TabIndex = 30;
             // 
+            // buttonClearHighlight
+            // 
+            buttonClearHighlight.Location = new Point(600, 27);
+            buttonClearHighlight.Name = "buttonClearHighlight";
+            buttonClearHighlight.Size = new Size(21, 24);
+            buttonClearHighlight.TabIndex = 37;
+            buttonClearHighlight.Text = "X";
+            buttonClearHighlight.UseVisualStyleBackColor = true;
+            buttonClearHighlight.Click += buttonClearHighlight_Click;
+            // 
             // MainWindow
             // 
             AutoScaleDimensions = new SizeF(6F, 13F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1184, 579);
+            Controls.Add(buttonClearHighlight);
             Controls.Add(button4);
             Controls.Add(statusStrip1);
             Controls.Add(rotatingLabel1);
             Controls.Add(tabControl1);
             Controls.Add(button5);
-            Controls.Add(checkBox1);
+            Controls.Add(checkBoxFilter);
             Controls.Add(filterBox);
             Controls.Add(label3);
             Controls.Add(modsListView);
@@ -800,9 +812,9 @@ namespace MW5_Mod_Manager
             Controls.Add(button1);
             Font = new Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
             MainMenuStrip = menuStrip1;
-            MinimumSize = new Size(900, 300);
+            MinimumSize = new Size(900, 550);
             Name = "MainWindow";
-            Text = "MW5 LoadOrderManager";
+            Text = "MechWarrior 5 Load Order Configurator";
             Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).EndInit();
             menuStrip1.ResumeLayout(false);
@@ -840,7 +852,7 @@ namespace MW5_Mod_Manager
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox filterBox;
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox checkBoxFilter;
         private System.Windows.Forms.Button button5;
         public System.ComponentModel.BackgroundWorker backgroundWorker2;
         private BindingSource textProgressBarBindingSource;
@@ -901,6 +913,7 @@ namespace MW5_Mod_Manager
         private PictureBox pictureBoxNexusmodsIcon;
         private Label labelNexusmods;
         private LinkLabel linkLabelNexusmods;
+        private Button buttonClearHighlight;
     }
 }
 
