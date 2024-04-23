@@ -34,12 +34,12 @@ namespace MW5_Mod_Manager
         {
             components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
-            button1 = new Button();
-            button2 = new Button();
-            button3 = new Button();
+            buttonMoveUp = new Button();
+            buttonMoveDown = new Button();
+            buttonApply = new Button();
             backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             openFileDialog1 = new OpenFileDialog();
-            button6 = new Button();
+            buttonReload = new Button();
             toolStripPlatformLabel = new ToolStripStatusLabel();
             modsListView = new ListView();
             enabledHeader = new ColumnHeader();
@@ -48,13 +48,14 @@ namespace MW5_Mod_Manager
             authorHeader = new ColumnHeader();
             versionHeader = new ColumnHeader();
             buildHeader = new ColumnHeader();
+            currentLoadOrderHeader = new ColumnHeader();
             originalLoadOrderHeader = new ColumnHeader();
             imageListIcons = new ImageList(components);
-            button4 = new Button();
+            buttonStart = new Button();
             label3 = new Label();
             filterBox = new TextBox();
             checkBoxFilter = new CheckBox();
-            button5 = new Button();
+            buttonRemove = new Button();
             backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
             textProgressBarBindingSource = new BindingSource(components);
             menuStrip1 = new MenuStrip();
@@ -112,6 +113,7 @@ namespace MW5_Mod_Manager
             labelModName = new Label();
             tabControl1 = new TabControl();
             buttonClearHighlight = new Button();
+            toolTip1 = new ToolTip(components);
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -125,49 +127,51 @@ namespace MW5_Mod_Manager
             tabControl1.SuspendLayout();
             SuspendLayout();
             // 
-            // button1
+            // buttonMoveUp
             // 
-            button1.Location = new Point(13, 122);
-            button1.Name = "button1";
-            button1.Size = new Size(70, 38);
-            button1.TabIndex = 1;
-            button1.Text = "&UP";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
+            buttonMoveUp.Location = new Point(13, 122);
+            buttonMoveUp.Name = "buttonMoveUp";
+            buttonMoveUp.Size = new Size(70, 38);
+            buttonMoveUp.TabIndex = 5;
+            buttonMoveUp.Text = "&UP";
+            buttonMoveUp.UseVisualStyleBackColor = true;
+            buttonMoveUp.Click += button1_Click;
             // 
-            // button2
+            // buttonMoveDown
             // 
-            button2.Location = new Point(13, 166);
-            button2.Name = "button2";
-            button2.Size = new Size(70, 38);
-            button2.TabIndex = 2;
-            button2.Text = "&DOWN";
-            button2.UseVisualStyleBackColor = true;
-            button2.Click += button2_Click;
+            buttonMoveDown.Location = new Point(13, 166);
+            buttonMoveDown.Name = "buttonMoveDown";
+            buttonMoveDown.Size = new Size(70, 38);
+            buttonMoveDown.TabIndex = 6;
+            buttonMoveDown.Text = "&DOWN";
+            buttonMoveDown.UseVisualStyleBackColor = true;
+            buttonMoveDown.Click += button2_Click;
             // 
-            // button3
+            // buttonApply
             // 
-            button3.Location = new Point(13, 279);
-            button3.Name = "button3";
-            button3.Size = new Size(70, 38);
-            button3.TabIndex = 3;
-            button3.Text = "&Apply";
-            button3.UseVisualStyleBackColor = true;
-            button3.Click += button3_Click;
+            buttonApply.Location = new Point(13, 279);
+            buttonApply.Name = "buttonApply";
+            buttonApply.Size = new Size(70, 38);
+            buttonApply.TabIndex = 7;
+            buttonApply.Text = "&Apply";
+            toolTip1.SetToolTip(buttonApply, "Save settings to game files.");
+            buttonApply.UseVisualStyleBackColor = true;
+            buttonApply.Click += button3_Click;
             // 
             // backgroundWorker1
             // 
             backgroundWorker1.DoWork += backgroundWorker1_DoWork;
             // 
-            // button6
+            // buttonReload
             // 
-            button6.Location = new Point(13, 46);
-            button6.Name = "button6";
-            button6.Size = new Size(70, 38);
-            button6.TabIndex = 7;
-            button6.Text = "Refresh";
-            button6.UseVisualStyleBackColor = true;
-            button6.Click += button6_Click;
+            buttonReload.Location = new Point(13, 46);
+            buttonReload.Name = "buttonReload";
+            buttonReload.Size = new Size(70, 38);
+            buttonReload.TabIndex = 4;
+            buttonReload.Text = "Reload";
+            toolTip1.SetToolTip(buttonReload, "Reload configuration from game files. Reverts current changes.");
+            buttonReload.UseVisualStyleBackColor = true;
+            buttonReload.Click += button6_Click;
             // 
             // toolStripPlatformLabel
             // 
@@ -180,7 +184,7 @@ namespace MW5_Mod_Manager
             modsListView.AllowDrop = true;
             modsListView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             modsListView.CheckBoxes = true;
-            modsListView.Columns.AddRange(new ColumnHeader[] { enabledHeader, displayHeader, folderHeader, authorHeader, versionHeader, buildHeader, originalLoadOrderHeader });
+            modsListView.Columns.AddRange(new ColumnHeader[] { enabledHeader, displayHeader, folderHeader, authorHeader, versionHeader, buildHeader, currentLoadOrderHeader, originalLoadOrderHeader });
             modsListView.FullRowSelect = true;
             modsListView.GridLines = true;
             modsListView.LabelWrap = false;
@@ -190,7 +194,7 @@ namespace MW5_Mod_Manager
             modsListView.RightToLeft = RightToLeft.No;
             modsListView.Size = new Size(708, 493);
             modsListView.SmallImageList = imageListIcons;
-            modsListView.TabIndex = 11;
+            modsListView.TabIndex = 10;
             modsListView.UseCompatibleStateImageBehavior = false;
             modsListView.View = View.Details;
             modsListView.ItemChecked += listView1_ItemChecked;
@@ -230,15 +234,22 @@ namespace MW5_Mod_Manager
             // 
             versionHeader.Tag = "";
             versionHeader.Text = "Version";
-            versionHeader.Width = 54;
+            versionHeader.Width = 45;
             // 
             // buildHeader
             // 
             buildHeader.Text = "Build";
+            buildHeader.Width = 45;
+            // 
+            // currentLoadOrderHeader
+            // 
+            currentLoadOrderHeader.Text = "Current Load Order";
+            currentLoadOrderHeader.Width = 40;
             // 
             // originalLoadOrderHeader
             // 
             originalLoadOrderHeader.Text = "Default Load Order";
+            originalLoadOrderHeader.Width = 40;
             // 
             // imageListIcons
             // 
@@ -249,18 +260,18 @@ namespace MW5_Mod_Manager
             imageListIcons.Images.SetKeyName(1, "Steam");
             imageListIcons.Images.SetKeyName(2, "Nexusmods");
             // 
-            // button4
+            // buttonStart
             // 
-            button4.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            button4.Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button4.Location = new Point(13, 451);
-            button4.Margin = new Padding(0);
-            button4.Name = "button4";
-            button4.Size = new Size(70, 90);
-            button4.TabIndex = 13;
-            button4.Text = "Start MW5";
-            button4.UseVisualStyleBackColor = true;
-            button4.Click += button4_Click;
+            buttonStart.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            buttonStart.Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            buttonStart.Location = new Point(13, 451);
+            buttonStart.Margin = new Padding(0);
+            buttonStart.Name = "buttonStart";
+            buttonStart.Size = new Size(70, 90);
+            buttonStart.TabIndex = 9;
+            buttonStart.Text = "Start MW5";
+            buttonStart.UseVisualStyleBackColor = true;
+            buttonStart.Click += button4_Click;
             // 
             // label3
             // 
@@ -276,7 +287,7 @@ namespace MW5_Mod_Manager
             filterBox.Location = new Point(171, 28);
             filterBox.Name = "filterBox";
             filterBox.Size = new Size(425, 22);
-            filterBox.TabIndex = 17;
+            filterBox.TabIndex = 1;
             filterBox.TextChanged += filterBox_TextChanged;
             // 
             // checkBoxFilter
@@ -285,20 +296,20 @@ namespace MW5_Mod_Manager
             checkBoxFilter.Location = new Point(630, 30);
             checkBoxFilter.Name = "checkBoxFilter";
             checkBoxFilter.Size = new Size(52, 17);
-            checkBoxFilter.TabIndex = 18;
+            checkBoxFilter.TabIndex = 3;
             checkBoxFilter.Text = "Filter";
             checkBoxFilter.UseVisualStyleBackColor = true;
             checkBoxFilter.CheckedChanged += checkBox1_CheckedChanged;
             // 
-            // button5
+            // buttonRemove
             // 
-            button5.Location = new Point(13, 327);
-            button5.Name = "button5";
-            button5.Size = new Size(70, 38);
-            button5.TabIndex = 19;
-            button5.Text = "Mark for Removal";
-            button5.UseVisualStyleBackColor = true;
-            button5.Click += button5_Click;
+            buttonRemove.Location = new Point(13, 327);
+            buttonRemove.Name = "buttonRemove";
+            buttonRemove.Size = new Size(70, 38);
+            buttonRemove.TabIndex = 8;
+            buttonRemove.Text = "Mark for Removal";
+            buttonRemove.UseVisualStyleBackColor = true;
+            buttonRemove.Click += button5_Click;
             // 
             // backgroundWorker2
             // 
@@ -778,14 +789,14 @@ namespace MW5_Mod_Manager
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
             tabControl1.Size = new Size(346, 528);
-            tabControl1.TabIndex = 30;
+            tabControl1.TabIndex = 11;
             // 
             // buttonClearHighlight
             // 
             buttonClearHighlight.Location = new Point(600, 27);
             buttonClearHighlight.Name = "buttonClearHighlight";
             buttonClearHighlight.Size = new Size(21, 24);
-            buttonClearHighlight.TabIndex = 37;
+            buttonClearHighlight.TabIndex = 2;
             buttonClearHighlight.Text = "X";
             buttonClearHighlight.UseVisualStyleBackColor = true;
             buttonClearHighlight.Click += buttonClearHighlight_Click;
@@ -796,20 +807,20 @@ namespace MW5_Mod_Manager
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1184, 579);
             Controls.Add(buttonClearHighlight);
-            Controls.Add(button4);
+            Controls.Add(buttonStart);
             Controls.Add(statusStrip1);
             Controls.Add(rotatingLabel1);
             Controls.Add(tabControl1);
-            Controls.Add(button5);
+            Controls.Add(buttonRemove);
             Controls.Add(checkBoxFilter);
             Controls.Add(filterBox);
             Controls.Add(label3);
             Controls.Add(modsListView);
             Controls.Add(menuStrip1);
-            Controls.Add(button6);
-            Controls.Add(button3);
-            Controls.Add(button2);
-            Controls.Add(button1);
+            Controls.Add(buttonReload);
+            Controls.Add(buttonApply);
+            Controls.Add(buttonMoveDown);
+            Controls.Add(buttonMoveUp);
             Font = new Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
             MainMenuStrip = menuStrip1;
             MinimumSize = new Size(900, 550);
@@ -835,12 +846,12 @@ namespace MW5_Mod_Manager
             PerformLayout();
         }
         #endregion
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button buttonMoveUp;
+        private System.Windows.Forms.Button buttonMoveDown;
+        private System.Windows.Forms.Button buttonApply;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
-        private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.Button buttonReload;
         public System.Windows.Forms.ListView modsListView;
         public System.Windows.Forms.ColumnHeader displayHeader;
         public System.Windows.Forms.ColumnHeader folderHeader;
@@ -849,11 +860,11 @@ namespace MW5_Mod_Manager
         public System.Windows.Forms.ColumnHeader versionHeader;
         public System.Windows.Forms.ToolStripLabel toolStripVendorLabeltoolStripLabel1;
         private RotatingLabel rotatingLabel1;
-        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button buttonStart;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox filterBox;
         private System.Windows.Forms.CheckBox checkBoxFilter;
-        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button buttonRemove;
         public System.ComponentModel.BackgroundWorker backgroundWorker2;
         private BindingSource textProgressBarBindingSource;
         private MenuStrip menuStrip1;
@@ -914,6 +925,8 @@ namespace MW5_Mod_Manager
         private Label labelNexusmods;
         private LinkLabel linkLabelNexusmods;
         private Button buttonClearHighlight;
+        private ColumnHeader currentLoadOrderHeader;
+        private ToolTip toolTip1;
     }
 }
 

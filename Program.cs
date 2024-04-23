@@ -545,6 +545,10 @@ namespace MW5_Mod_Manager
         {
             foreach (KeyValuePair<string, ModObject> entry in this.ModDetails)
             {
+                // Make sure the folder still exists, in case the mod was deleted
+                if (!Directory.Exists(entry.Key.ToString()))
+                    continue;
+
                 string modJsonPath = entry.Key + @"\mod.json";
 
                 string modJsonExisting = File.ReadAllText(modJsonPath);

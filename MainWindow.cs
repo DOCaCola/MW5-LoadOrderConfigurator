@@ -92,8 +92,8 @@ namespace MW5_Mod_Manager
             if (e.KeyCode == Keys.ShiftKey)
             {
                 await Task.Delay(50);
-                this.button1.Text = "&UP";
-                this.button2.Text = "&DOWN";
+                this.buttonMoveUp.Text = "&UP";
+                this.buttonMoveDown.Text = "&DOWN";
             }
         }
 
@@ -102,8 +102,8 @@ namespace MW5_Mod_Manager
             //Console.WriteLine("KEY Pressed: " + e.KeyCode);
             if (e.Shift)
             {
-                this.button1.Text = "MOVE TO TOP";
-                this.button2.Text = "MOVE TO BOTTOM";
+                this.buttonMoveUp.Text = "MOVE TO TOP";
+                this.buttonMoveDown.Text = "MOVE TO BOTTOM";
             }
         }
 
@@ -250,6 +250,7 @@ namespace MW5_Mod_Manager
             listItem.Selected = true;
 
             this.logic.GetOverridingData(this.ListViewData);
+            UpdateLoadOrdersInList();
             listView1_SelectedIndexChanged(null, null);
             this.MovingItem = false;
         }
@@ -289,6 +290,7 @@ namespace MW5_Mod_Manager
             //UpdateListView();
 
             this.logic.GetOverridingData(ListViewData);
+            UpdateLoadOrdersInList();
             listView1_SelectedIndexChanged(null, null);
             this.MovingItem = false;
         }
@@ -408,22 +410,22 @@ namespace MW5_Mod_Manager
                 case MainLogic.GamePlatformEnum.Epic:
                     {
                         this.toolStripPlatformLabel.Text = "Platform: Epic Store";
-                        this.button4.Enabled = true;
-                        button5.Enabled = true;
+                        this.buttonStart.Enabled = true;
+                        buttonRemove.Enabled = true;
                         break;
                     }
                 case MainLogic.GamePlatformEnum.WindowsStore:
                     {
                         this.toolStripPlatformLabel.Text = "Platform: Windows Store";
-                        this.button4.Enabled = false;
-                        button5.Enabled = true;
+                        this.buttonStart.Enabled = false;
+                        buttonRemove.Enabled = true;
                     }
                     break;
                 case MainLogic.GamePlatformEnum.Steam:
                     {
                         this.toolStripPlatformLabel.Text = "Platform: Steam";
-                        button5.Enabled = false;
-                        this.button4.Enabled = true;
+                        buttonRemove.Enabled = false;
+                        this.buttonStart.Enabled = true;
 
                         isSteam = true;
                     }
@@ -431,8 +433,8 @@ namespace MW5_Mod_Manager
                 case MainLogic.GamePlatformEnum.Gog:
                     {
                         this.toolStripPlatformLabel.Text = "Platform: GOG";
-                        this.button4.Enabled = true;
-                        button5.Enabled = true;
+                        this.buttonStart.Enabled = true;
+                        buttonRemove.Enabled = true;
                     }
                     break;
             }
@@ -516,6 +518,7 @@ namespace MW5_Mod_Manager
             newItem.SubItems[authorHeader.Index].Text = logic.ModDetails[entry.Key].author;
             newItem.SubItems[versionHeader.Index].Text = logic.ModDetails[entry.Key].version;
             newItem.SubItems[buildHeader.Index].Text = logic.ModDetails[entry.Key].buildNumber.ToString();
+            newItem.SubItems[currentLoadOrderHeader.Index].Text = logic.ModDetails[entry.Key].defaultLoadOrder.ToString();
             newItem.SubItems[originalLoadOrderHeader.Index].Text = logic.Mods[entry.Key].OriginalLoadOrder.ToString();
 
             newItem.EnsureVisible();
@@ -849,8 +852,8 @@ namespace MW5_Mod_Manager
                     //This should never happen. We can't return from a filter we never entered.
                     // do nothing
                 }
-                MainForm.button1.Enabled = true;
-                MainForm.button2.Enabled = true;
+                MainForm.buttonMoveUp.Enabled = true;
+                MainForm.buttonMoveDown.Enabled = true;
                 this.filtered = false;
             }
             else
@@ -899,8 +902,8 @@ namespace MW5_Mod_Manager
                     }
                 }
                 //While filtering disable the up/down buttons (tough this should no longer be needed).
-                MainForm.button1.Enabled = false;
-                MainForm.button2.Enabled = false;
+                MainForm.buttonMoveUp.Enabled = false;
+                MainForm.buttonMoveDown.Enabled = false;
             }
         }
 
@@ -1553,6 +1556,7 @@ namespace MW5_Mod_Manager
                 ListViewData.Insert(targetIndex, draggedItem);
 
                 this.logic.GetOverridingData(this.ListViewData);
+                UpdateLoadOrdersInList();
                 listView1_SelectedIndexChanged(null, null);
                 modsListView.ResumeLayout();
             }
@@ -1609,6 +1613,38 @@ namespace MW5_Mod_Manager
                     modListItem.Selected = true;
                     break;
                 }
+            }
+        }
+
+        public void UpdateLoadOrdersInList()
+        {
+            int length = modsListView.Items.Count;
+            for (int i = 0; i < length; i++)
+            {
+                string modName = modsListView.Items[i].SubItems[folderHeader.Index].Text;
+                string modDir = logic.DirectoryToPathDict[modName];
+                try
+                {
+                    bool modEnabled = modsListView.Items[i].Checked;
+                    int priority = modsListView.Items.Count - i;
+                    this.logic.ModDetails[modDir].defaultLoadOrder = priority;
+                }
+                catch (Exception Ex)
+                {
+                    string message = "ERROR Mismatch between list key and details key : " + modName
+                        + ". Details keys available: " + string.Join(",", this.logic.ModDetails.Keys.ToList()) + ". This mod will be skipped and the operation continued.";
+                    string caption = "ERROR Key Mismatch";
+                    MessageBoxButtons buttons = MessageBoxButtons.OK;
+                    MessageBox.Show(message, caption, buttons);
+                    continue;
+                }
+
+            }
+
+            foreach (ListViewItem modListItem in modsListView.Items)
+            {
+                modListItem.SubItems[currentLoadOrderHeader.Index].Text =
+                    this.logic.ModDetails[modListItem.Tag.ToString()].defaultLoadOrder.ToString();
             }
         }
 
