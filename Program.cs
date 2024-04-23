@@ -452,9 +452,13 @@ namespace MW5_Mod_Manager
 
                     ModData modData = new ModData();
 
+                    if (modDetailsJ.ContainsKey("locOriginalLoadOrder"))
+                    {
+                        modData.OriginalLoadOrder = modDetails.locOriginalLoadOrder;
+                    }
                     if (modDetailsJ.ContainsKey("lomOriginalLoadOrder"))
                     {
-                        modData.OriginalLoadOrder = modDetails.lomOriginalLoadOrder;
+                        modData.OriginalLoadOrder = modDetailsJ["lomOriginalLoadOrder"].Value<float>();
                     }
                     else if (modDetailsJ.ContainsKey("lotsOriginalLoadOrder"))
                     {
@@ -547,7 +551,7 @@ namespace MW5_Mod_Manager
                 JObject modDetailsNew = JObject.Parse(modJsonExisting);
 
                 //JObject modDetailsUpdate = JObject.FromObject(entry.Value);
-                modDetailsNew["lomOriginalLoadOrder"] = Mods[entry.Key].OriginalLoadOrder;
+                modDetailsNew["locOriginalLoadOrder"] = Mods[entry.Key].OriginalLoadOrder;
                 modDetailsNew["defaultLoadOrder"] = entry.Value.defaultLoadOrder;
 
                 JsonSerializer serializer = new JsonSerializer();

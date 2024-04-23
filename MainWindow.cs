@@ -443,6 +443,9 @@ namespace MW5_Mod_Manager
         //Load mod data and fill in the list box..
         public void LoadAndFill(bool FromClipboard)
         {
+            if (!Directory.Exists(logic.InstallPath))
+                return;
+
             this.LoadingAndFilling = true;
             KeyValuePair<string, bool> currentEntry = new KeyValuePair<string, bool>();
             try
@@ -771,7 +774,7 @@ namespace MW5_Mod_Manager
             {
                 Console.WriteLine(Ex.Message);
                 Console.WriteLine(Ex.StackTrace);
-                string message = "There was an error while trying to launch Mechwarrior 5.";
+                string message = "There was an error while trying to launch MechWarrior 5.";
                 string caption = "Error Launching";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, caption, buttons);

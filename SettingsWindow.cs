@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
 using System.Text;
@@ -55,6 +56,12 @@ namespace MW5_Mod_Manager
 
                 if (result == DialogResult.OK && !Utils.StringNullEmptyOrWhiteSpace(fbd.SelectedPath))
                 {
+                    if (!File.Exists(fbd.SelectedPath + "\\mechwarrior.exe"))
+                    {
+                        MessageBox.Show(@"The 'MechWarrior.exe' file could not be found in the selected directory.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
                     textBoxMw5Path.Text = fbd.SelectedPath;
                 }
             }
@@ -84,10 +91,13 @@ namespace MW5_Mod_Manager
 
             string path = textBoxMw5Path.Text;
 
-            MainWindow.MainForm.ClearAll();
-            MainWindow.MainForm.SetInstallDirectory(path);
-            MainWindow.MainForm.logic.SaveSettings();
-            MainWindow.MainForm.RefreshAll();
+            if (!string.IsNullOrEmpty(path))
+            {
+                MainWindow.MainForm.ClearAll();
+                MainWindow.MainForm.SetInstallDirectory(path);
+                MainWindow.MainForm.logic.SaveSettings();
+                MainWindow.MainForm.RefreshAll();
+            }
 
             Close();
         }
