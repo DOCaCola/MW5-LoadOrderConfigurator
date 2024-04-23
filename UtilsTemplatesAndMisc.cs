@@ -371,18 +371,6 @@ namespace MW5_Mod_Manager
         {
             //other stuff here
         }
-
-        public string DisplayName
-        {
-            get { return this.SubItems[1].Text; }
-            set { this.SubItems[1].Text = value; }
-        }
-
-        public string FolderName
-        {
-            get { return this.SubItems[2].Text; }
-            set { this.SubItems[2].Text = value; }
-        }
     }
 
 

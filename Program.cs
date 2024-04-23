@@ -37,7 +37,17 @@ namespace MW5_Mod_Manager
     public class MainLogic
     {
         public float Version = 0f;
-        public string Platform = "";
+
+        public enum GamePlatformEnum
+        {
+            None,
+            Epic,
+            Gog,
+            Steam,
+            WindowsStore
+        }
+
+        public GamePlatformEnum GamePlatform = GamePlatformEnum.None;
         public string InstallPath = "";
         public string[] BasePath = new string[2];
         public ProgramData ProgramData = new ProgramData();
@@ -56,6 +66,14 @@ namespace MW5_Mod_Manager
         public struct ModData
         {
             public float OriginalLoadOrder = Single.NaN;
+
+            public enum ModOrigin
+            {
+                Unknown,
+                Steam
+            }
+
+            public ModOrigin Origin = ModOrigin.Unknown;
 
             public ModData()
             {
@@ -240,7 +258,12 @@ namespace MW5_Mod_Manager
                 }
                 if (!Utils.StringNullEmptyOrWhiteSpace(ProgramData.platform))
                 {
-                    Platform = ProgramData.platform;
+                    if (!Enum.TryParse(ProgramData.platform, out GamePlatformEnum platform))
+                    {
+                        platform = GamePlatformEnum.None;
+                    }
+
+                    GamePlatform = platform;
                 }
 
                 if (!Utils.StringNullEmptyOrWhiteSpace(ProgramData.InstallPath))
@@ -325,7 +348,7 @@ namespace MW5_Mod_Manager
 
             ProgramData.InstallPath = this.InstallPath;
             this.ProgramData.ModPaths = this.BasePath;
-            this.ProgramData.platform = this.Platform;
+            this.ProgramData.platform = this.GamePlatform.ToString();
             JsonSerializer serializer = new JsonSerializer
             {
                 Formatting = Formatting.Indented
@@ -437,6 +460,14 @@ namespace MW5_Mod_Manager
                     else
                     {
                         modData.OriginalLoadOrder = modDetails.defaultLoadOrder;
+                    }
+
+                    if (MainWindow.MainForm.logic.GamePlatform == GamePlatformEnum.Steam)
+                    {
+                        if (modDir.StartsWith(MainWindow.MainForm.logic.BasePath[1]))
+                        {
+                            modData.Origin = ModData.ModOrigin.Steam;
+                        }
                     }
 
                     this.Mods.Add(modDir, modData);
@@ -831,7 +862,7 @@ namespace MW5_Mod_Manager
                 if (!itemA.Checked)
                     continue;
 
-                string modA = itemA.FolderName;
+                string modA = itemA.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
                 int priorityA = items.Count - items.IndexOf(itemA);
 
                 //Check if we allready have this mod in the dict if not create an entry for it.
@@ -849,7 +880,7 @@ namespace MW5_Mod_Manager
                 //Console.WriteLine("Checking: " + modA + " : " + priorityA.ToString());
                 foreach (ModListItem itemB in items)
                 {
-                    string modB = itemB.FolderName;
+                    string modB = itemB.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
 
                     if (modA == modB)
                         continue;

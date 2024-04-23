@@ -23,18 +23,18 @@ namespace MW5_Mod_Manager
         {
             textBoxMw5Path.Text = MainWindow.MainForm.logic.InstallPath;
 
-            switch (MainWindow.MainForm.logic.Platform)
+            switch (MainWindow.MainForm.logic.GamePlatform)
             {
-                case "EPIC":
+                case MainLogic.GamePlatformEnum.Epic:
                     comboBoxPlatform.SelectedIndex = 1;
                     break;
-                case "GOG":
+                case MainLogic.GamePlatformEnum.Gog:
                     comboBoxPlatform.SelectedIndex = 2;
                     break;
-                case "STEAM":
+                case MainLogic.GamePlatformEnum.Steam:
                     comboBoxPlatform.SelectedIndex = 3;
                     break;
-                case "WINDOWS":
+                case MainLogic.GamePlatformEnum.WindowsStore:
                     comboBoxPlatform.SelectedIndex = 4;
                     break;
                 default:
@@ -66,19 +66,19 @@ namespace MW5_Mod_Manager
             switch (comboBoxPlatform.SelectedIndex)
             {
                 case 1:
-                    MainWindow.MainForm.logic.Platform = "EPIC";
+                    MainWindow.MainForm.logic.GamePlatform = MainLogic.GamePlatformEnum.Epic;
                     break;
                 case 2:
-                    MainWindow.MainForm.logic.Platform = "GOG";
+                    MainWindow.MainForm.logic.GamePlatform = MainLogic.GamePlatformEnum.Gog;
                     break;
                 case 3:
-                    MainWindow.MainForm.logic.Platform = "STEAM";
+                    MainWindow.MainForm.logic.GamePlatform = MainLogic.GamePlatformEnum.Steam;
                     break;
                 case 4:
-                    MainWindow.MainForm.logic.Platform = "WINDOWS";
+                    MainWindow.MainForm.logic.GamePlatform = MainLogic.GamePlatformEnum.WindowsStore;
                     break;
                 default:
-                    MainWindow.MainForm.logic.Platform = "";
+                    MainWindow.MainForm.logic.GamePlatform = MainLogic.GamePlatformEnum.None;
                     break;
             }
 

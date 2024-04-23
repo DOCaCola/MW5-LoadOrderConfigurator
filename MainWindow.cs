@@ -12,6 +12,7 @@ using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.ComponentModel.Design.ObjectSelectorEditor;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using ListView = System.Windows.Forms.ListView;
 
 namespace MW5_Mod_Manager
@@ -403,35 +404,39 @@ namespace MW5_Mod_Manager
             {
                 toolStripStatusLabelMwVersion.Text = @"~RJ v." + this.logic.Version.ToString();
             }
-            if (this.logic.Platform != "")
+
+            switch (this.logic.GamePlatform)
             {
-                if (this.logic.Platform == "EPIC")
-                {
-                    this.toolStripPlatformLabel.Text = "Platform: Epic Store";
-                    this.button4.Enabled = true;
-                    button5.Enabled = true;
-                }
-                else if (this.logic.Platform == "WINDOWS")
-                {
-                    this.toolStripPlatformLabel.Text = "Platform: Windows Store";
-                    this.button4.Enabled = false;
-                    button5.Enabled = true;
-                }
-                else if (this.logic.Platform == "STEAM")
-                {
-                    this.toolStripPlatformLabel.Text = "Platform: Steam";
-                    button5.Enabled = false;
-                    this.button4.Enabled = true;
+                case MainLogic.GamePlatformEnum.Epic:
+                    {
+                        this.toolStripPlatformLabel.Text = "Platform: Epic Store";
+                        this.button4.Enabled = true;
+                        button5.Enabled = true;
+                        break;
+                    }
+                case MainLogic.GamePlatformEnum.WindowsStore:
+                    {
+                        this.toolStripPlatformLabel.Text = "Platform: Windows Store";
+                        this.button4.Enabled = false;
+                        button5.Enabled = true;
+                    }
+                    break;
+                case MainLogic.GamePlatformEnum.Steam:
+                    {
+                        this.toolStripPlatformLabel.Text = "Platform: Steam";
+                        button5.Enabled = false;
+                        this.button4.Enabled = true;
 
-                    isSteam = true;
-
-                }
-                else if (this.logic.Platform == "GOG")
-                {
-                    this.toolStripPlatformLabel.Text = "Platform: GOG";
-                    this.button4.Enabled = true;
-                    button5.Enabled = true;
-                }
+                        isSteam = true;
+                    }
+                    break;
+                case MainLogic.GamePlatformEnum.Gog:
+                    {
+                        this.toolStripPlatformLabel.Text = "Platform: GOG";
+                        this.button4.Enabled = true;
+                        button5.Enabled = true;
+                    }
+                    break;
             }
 
             toolStripMenuItemOpenModFolderSteam.Visible = isSteam;
@@ -486,15 +491,28 @@ namespace MW5_Mod_Manager
                 UseItemStyleForSubItems = false,
                 Checked = entry.Value
             };
-            newItem.SubItems.Add(logic.ModDetails[entry.Key].displayName);
 
-            newItem.SubItems.Add(logic.PathToDirectoryDict[modName]);
-            newItem.SubItems.Add(logic.ModDetails[entry.Key].author);
-            newItem.SubItems.Add(logic.ModDetails[entry.Key].version);
-            // Buildheader
-            newItem.SubItems.Add(logic.ModDetails[entry.Key].buildNumber.ToString());
-            // original load order header
-            newItem.SubItems.Add(logic.Mods[entry.Key].OriginalLoadOrder.ToString());
+            for (int i = 1; i < modsListView.Columns.Count; i++)
+            {
+                newItem.SubItems.Add("");
+            }
+
+            switch (logic.Mods[entry.Key].Origin)
+            {
+                case MainLogic.ModData.ModOrigin.Steam:
+                    newItem.ImageIndex = 0;
+                    break;
+                default:
+                    newItem.ImageIndex = -1;
+                    break;
+            }
+
+            newItem.SubItems[displayHeader.Index].Text = logic.ModDetails[entry.Key].displayName;
+            newItem.SubItems[folderHeader.Index].Text = logic.PathToDirectoryDict[modName];
+            newItem.SubItems[authorHeader.Index].Text = logic.ModDetails[entry.Key].author;
+            newItem.SubItems[versionHeader.Index].Text = logic.ModDetails[entry.Key].version;
+            newItem.SubItems[buildHeader.Index].Text = logic.ModDetails[entry.Key].buildNumber.ToString();
+            newItem.SubItems[originalLoadOrderHeader.Index].Text = logic.Mods[entry.Key].OriginalLoadOrder.ToString();
 
             newItem.EnsureVisible();
             newItem.Tag = entry.Key;
@@ -534,9 +552,9 @@ namespace MW5_Mod_Manager
 
             bool isSteam = false;
 
-            switch (this.logic.Platform)
+            switch (this.logic.GamePlatform)
             {
-                case "STEAM":
+                case MainLogic.GamePlatformEnum.Steam:
                     SetSteamWorkshopPath();
                     isSteam = true;
                     break;
@@ -544,7 +562,7 @@ namespace MW5_Mod_Manager
                 //    SetGamepassPath();
                 //    break;
 
-                case "WINDOWS":
+                case MainLogic.GamePlatformEnum.WindowsStore:
                     string AppDataRoaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
                     this.logic.BasePath[0] = GetBasePathFromAppDataRoaming(AppDataRoaming);
@@ -711,18 +729,18 @@ namespace MW5_Mod_Manager
         //Launch game button
         private void button4_Click(object sender, EventArgs e)
         {
-            switch (logic.Platform)
+            switch (logic.GamePlatform)
             {
-                case "EPIC":
+                case MainLogic.GamePlatformEnum.Epic:
                     LaunchEpicGame();
                     break;
-                case "STEAM":
+                case MainLogic.GamePlatformEnum.Steam:
                     LaunchSteamGame();
                     break;
-                case "GOG":
+                case MainLogic.GamePlatformEnum.Gog:
                     LaunchGogGame();
                     break;
-                case "WINDOWS":
+                case MainLogic.GamePlatformEnum.WindowsStore:
                     LaunchWindowsGame();
                     break;
             }

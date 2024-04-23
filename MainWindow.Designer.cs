@@ -33,6 +33,7 @@ namespace MW5_Mod_Manager
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             button1 = new Button();
             button2 = new Button();
             button3 = new Button();
@@ -48,6 +49,7 @@ namespace MW5_Mod_Manager
             versionHeader = new ColumnHeader();
             buildHeader = new ColumnHeader();
             originalLoadOrderHeader = new ColumnHeader();
+            imageListIcons = new ImageList(components);
             button4 = new Button();
             label3 = new Label();
             filterBox = new TextBox();
@@ -180,6 +182,7 @@ namespace MW5_Mod_Manager
             modsListView.Name = "modsListView";
             modsListView.RightToLeft = RightToLeft.No;
             modsListView.Size = new Size(708, 493);
+            modsListView.SmallImageList = imageListIcons;
             modsListView.TabIndex = 11;
             modsListView.UseCompatibleStateImageBehavior = false;
             modsListView.View = View.Details;
@@ -196,7 +199,7 @@ namespace MW5_Mod_Manager
             // 
             enabledHeader.Tag = "";
             enabledHeader.Text = "";
-            enabledHeader.Width = 20;
+            enabledHeader.Width = 40;
             // 
             // displayHeader
             // 
@@ -229,6 +232,13 @@ namespace MW5_Mod_Manager
             // originalLoadOrderHeader
             // 
             originalLoadOrderHeader.Text = "Default Load Order";
+            // 
+            // imageListIcons
+            // 
+            imageListIcons.ColorDepth = ColorDepth.Depth32Bit;
+            imageListIcons.ImageStream = (ImageListStreamer)resources.GetObject("imageListIcons.ImageStream");
+            imageListIcons.TransparentColor = Color.Transparent;
+            imageListIcons.Images.SetKeyName(0, "steam.png");
             // 
             // button4
             // 
@@ -500,10 +510,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(listBox2);
             tabPage1.Controls.Add(listBox3);
             tabPage1.Controls.Add(label5);
-            tabPage1.Location = new Point(4, 22);
+            tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(338, 502);
+            tabPage1.Size = new Size(338, 500);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
@@ -831,6 +841,7 @@ namespace MW5_Mod_Manager
         private ToolStripSeparator toolStripSeparator4;
         private ToolStripMenuItem savePresetToolStripMenuItem;
         private ToolStripMenuItem deletePresetToolStripMenuItem;
+        private ImageList imageListIcons;
     }
 }
 
