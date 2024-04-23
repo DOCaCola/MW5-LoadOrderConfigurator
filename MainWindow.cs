@@ -385,11 +385,8 @@ namespace MW5_Mod_Manager
             listBox1.Items.Clear();
             listBox2.Items.Clear();
             listBox3.Items.Clear();
+            pictureBoxModImage.Visible = false;
             panelModInfo.Visible = false;
-            if (pictureBoxModImage.Image != null)
-            {
-                pictureBoxModImage.Image.Dispose();
-            }
             this.ListViewData.Clear();
             this.modsListView.Items.Clear();
             logic.ClearAll();
@@ -1077,14 +1074,15 @@ namespace MW5_Mod_Manager
             HandleOverrding(SelectedMod);
 
             string imagePath = modPath + "\\Resources\\Icon128.png";
-
+            /*
             if (pictureBoxModImage.Image != null)
             {
                 pictureBoxModImage.Image.Dispose();
-            }
+            }*/
 
             if (File.Exists(imagePath))
             {
+                pictureBoxModImage.Visible = true;
                 pictureBoxModImage.Image = Image.FromStream(new MemoryStream(File.ReadAllBytes(imagePath)));
             }
         }
@@ -1258,12 +1256,13 @@ namespace MW5_Mod_Manager
                 MessageBox.Show(message, caption, buttons);
                 return;
             }
+
             //this.ClearAll();
             this.modsListView.Items.Clear();
             this.ListViewData.Clear();
             this.logic.ModDetails = new Dictionary<string, ModObject>();
-            this.logic.ModList = new Dictionary<string, bool>();
             this.logic.ModList = temp;
+            this.logic.Mods.Clear();
             this.LoadAndFill(true);
             this.filterBox_TextChanged(null, null);
         }

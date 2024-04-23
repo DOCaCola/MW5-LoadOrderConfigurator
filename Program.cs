@@ -111,14 +111,14 @@ namespace MW5_Mod_Manager
 
         /// <summary>
         /// Used to load mods when using a preset or importing a load order string.
-        /// Starts suquence to load all mods from folders, loads modlist, checks mod folder names against their possible paths
+        /// Starts sequence to load all mods from folders, loads modlist, checks mod folder names against their possible paths
         /// and adds those paths, combines modlist with found folders structure and loads details of each found mod.
         /// </summary>
         public void LoadFromImportString()
         {
             //find all mod directories and parse them into just folder names:
             ParseDirectories();
-            //We need to check if the mod we wanna load from a preset is actually present on the system.
+            //We need to check if the mod we want to load from a preset is actually present on the system.
             CheckModDirPresent();
             //We are coming from an string of just modfolder names and no directory paths in the modlist object
             //so we need to convert using the DirectoryToPathDict
@@ -491,7 +491,6 @@ namespace MW5_Mod_Manager
                                     {
                                         modData.NexusModsId = regexMatch.Groups[1].Value;
                                         foundMatch = true;
-                                        break;
                                     }
 
                                 } catch (ArgumentException ex) {
