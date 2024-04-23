@@ -365,11 +365,25 @@ namespace MW5_Mod_Manager
     }
 
     [SupportedOSPlatform("windows")]
-    public class ModListItem : ListViewItem
+    public class ModListViewItem : ListViewItem
     {
-        public ModListItem() : base("", 0)
+        public ModListViewItem() : base("", 0)
         {
             //other stuff here
+        }
+    }
+
+    public class ModListBoxItem
+    {
+        public string DisplayName { get; set; }
+
+        public string ModKey { get; set; }
+
+        public string ModDirName { get; set; }
+
+        public override string ToString()
+        {
+            return DisplayName;
         }
     }
 

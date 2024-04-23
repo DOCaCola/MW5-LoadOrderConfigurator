@@ -88,11 +88,11 @@ namespace MW5_Mod_Manager
             openFolderToolStripMenuItem = new ToolStripMenuItem();
             tabPage1 = new TabPage();
             label6 = new Label();
-            label4 = new Label();
-            listBox1 = new ListBox();
+            labelModNameOverrides = new Label();
+            listBoxOverriding = new ListBox();
             label7 = new Label();
-            listBox2 = new ListBox();
-            listBox3 = new ListBox();
+            listBoxManifestOverridden = new ListBox();
+            listBoxOverriddenBy = new ListBox();
             label5 = new Label();
             tabPageModInfo = new TabPage();
             pictureBoxModImage = new PictureBox();
@@ -512,16 +512,16 @@ namespace MW5_Mod_Manager
             // tabPage1
             // 
             tabPage1.Controls.Add(label6);
-            tabPage1.Controls.Add(label4);
-            tabPage1.Controls.Add(listBox1);
+            tabPage1.Controls.Add(labelModNameOverrides);
+            tabPage1.Controls.Add(listBoxOverriding);
             tabPage1.Controls.Add(label7);
-            tabPage1.Controls.Add(listBox2);
-            tabPage1.Controls.Add(listBox3);
+            tabPage1.Controls.Add(listBoxManifestOverridden);
+            tabPage1.Controls.Add(listBoxOverriddenBy);
             tabPage1.Controls.Add(label5);
-            tabPage1.Location = new Point(4, 24);
+            tabPage1.Location = new Point(4, 22);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(338, 500);
+            tabPage1.Size = new Size(338, 502);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
@@ -536,24 +536,26 @@ namespace MW5_Mod_Manager
             label6.TabIndex = 25;
             label6.Text = "Overriding";
             // 
-            // label4
+            // labelModNameOverrides
             // 
-            label4.AutoSize = true;
-            label4.Location = new Point(6, 11);
-            label4.Name = "label4";
-            label4.Size = new Size(19, 13);
-            label4.TabIndex = 20;
-            label4.Text = "---";
+            labelModNameOverrides.AutoSize = true;
+            labelModNameOverrides.Font = new Font("Segoe UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            labelModNameOverrides.Location = new Point(6, 11);
+            labelModNameOverrides.Name = "labelModNameOverrides";
+            labelModNameOverrides.Size = new Size(19, 13);
+            labelModNameOverrides.TabIndex = 20;
+            labelModNameOverrides.Text = "---";
             // 
-            // listBox1
+            // listBoxOverriding
             // 
-            listBox1.FormattingEnabled = true;
-            listBox1.ItemHeight = 13;
-            listBox1.Location = new Point(6, 70);
-            listBox1.Name = "listBox1";
-            listBox1.Size = new Size(160, 147);
-            listBox1.TabIndex = 21;
-            listBox1.SelectedIndexChanged += listBox1_SelectedIndexChanged;
+            listBoxOverriding.FormattingEnabled = true;
+            listBoxOverriding.ItemHeight = 13;
+            listBoxOverriding.Location = new Point(6, 70);
+            listBoxOverriding.Name = "listBoxOverriding";
+            listBoxOverriding.Size = new Size(160, 147);
+            listBoxOverriding.TabIndex = 21;
+            listBoxOverriding.SelectedIndexChanged += listBox1_SelectedIndexChanged;
+            listBoxOverriding.MouseDoubleClick += listBoxOverriding_MouseDoubleClick;
             // 
             // label7
             // 
@@ -564,28 +566,29 @@ namespace MW5_Mod_Manager
             label7.TabIndex = 26;
             label7.Text = "Manifest Entries";
             // 
-            // listBox2
+            // listBoxManifestOverridden
             // 
-            listBox2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
-            listBox2.FormattingEnabled = true;
-            listBox2.HorizontalScrollbar = true;
-            listBox2.ItemHeight = 13;
-            listBox2.Location = new Point(6, 256);
-            listBox2.Name = "listBox2";
-            listBox2.SelectionMode = SelectionMode.None;
-            listBox2.Size = new Size(329, 225);
-            listBox2.TabIndex = 22;
-            listBox2.SelectedIndexChanged += listBox2_SelectedIndexChanged;
+            listBoxManifestOverridden.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            listBoxManifestOverridden.FormattingEnabled = true;
+            listBoxManifestOverridden.HorizontalScrollbar = true;
+            listBoxManifestOverridden.ItemHeight = 13;
+            listBoxManifestOverridden.Location = new Point(6, 256);
+            listBoxManifestOverridden.Name = "listBoxManifestOverridden";
+            listBoxManifestOverridden.SelectionMode = SelectionMode.None;
+            listBoxManifestOverridden.Size = new Size(329, 225);
+            listBoxManifestOverridden.TabIndex = 22;
+            listBoxManifestOverridden.SelectedIndexChanged += listBox2_SelectedIndexChanged;
             // 
-            // listBox3
+            // listBoxOverriddenBy
             // 
-            listBox3.FormattingEnabled = true;
-            listBox3.ItemHeight = 13;
-            listBox3.Location = new Point(175, 70);
-            listBox3.Name = "listBox3";
-            listBox3.Size = new Size(160, 147);
-            listBox3.TabIndex = 23;
-            listBox3.SelectedIndexChanged += listBox3_SelectedIndexChanged;
+            listBoxOverriddenBy.FormattingEnabled = true;
+            listBoxOverriddenBy.ItemHeight = 13;
+            listBoxOverriddenBy.Location = new Point(175, 70);
+            listBoxOverriddenBy.Name = "listBoxOverriddenBy";
+            listBoxOverriddenBy.Size = new Size(160, 147);
+            listBoxOverriddenBy.TabIndex = 23;
+            listBoxOverriddenBy.SelectedIndexChanged += listBox3_SelectedIndexChanged;
+            listBoxOverriddenBy.MouseDoubleClick += listBoxOverriddenBy_MouseDoubleClick;
             // 
             // label5
             // 
@@ -869,11 +872,11 @@ namespace MW5_Mod_Manager
         private ColumnHeader originalLoadOrderHeader;
         private TabPage tabPage1;
         private Label label6;
-        private Label label4;
-        private ListBox listBox1;
+        private Label labelModNameOverrides;
+        private ListBox listBoxOverriding;
         private Label label7;
-        private ListBox listBox2;
-        private ListBox listBox3;
+        private ListBox listBoxManifestOverridden;
+        private ListBox listBoxOverriddenBy;
         private Label label5;
         private TabPage tabPageModInfo;
         private PictureBox pictureBoxModImage;

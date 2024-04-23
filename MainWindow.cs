@@ -24,7 +24,7 @@ namespace MW5_Mod_Manager
         public MainLogic logic = new MainLogic();
         //public TCPFileShare fileShare;
         bool filtered = false;
-        private List<ModListItem> ListViewData = new List<ModListItem>();
+        private List<ModListViewItem> ListViewData = new List<ModListViewItem>();
         private List<ListViewItem> markedForRemoval;
         public Form4 WaitForm;
         private bool MovingItem = false;
@@ -229,7 +229,7 @@ namespace MW5_Mod_Manager
                 this.MovingItem = false;
                 return;
             }
-            ModListItem listItem = ListViewData[i];
+            ModListViewItem listItem = ListViewData[i];
             items.RemoveAt(i);
             ListViewData.RemoveAt(i);
 
@@ -267,7 +267,7 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-            ModListItem listItem = ListViewData[i];
+            ModListViewItem listItem = ListViewData[i];
             items.RemoveAt(i);
             ListViewData.RemoveAt(i);
 
@@ -314,7 +314,7 @@ namespace MW5_Mod_Manager
 
                 if (r == DialogResult.Yes)
                 {
-                    foreach (ModListItem item in markedForRemoval)
+                    foreach (ModListViewItem item in markedForRemoval)
                     {
                         ListViewData.Remove(item);
                         modsListView.Items.Remove(item);
@@ -382,9 +382,9 @@ namespace MW5_Mod_Manager
         //For clearing the entire applications data
         public void ClearAll()
         {
-            listBox1.Items.Clear();
-            listBox2.Items.Clear();
-            listBox3.Items.Clear();
+            listBoxOverriding.Items.Clear();
+            listBoxManifestOverridden.Items.Clear();
+            listBoxOverriddenBy.Items.Clear();
             pictureBoxModImage.Visible = false;
             panelModInfo.Visible = false;
             this.ListViewData.Clear();
@@ -483,7 +483,7 @@ namespace MW5_Mod_Manager
         private void AddEntryToListViewAndData(KeyValuePair<string, bool> entry)
         {
             string modName = entry.Key;
-            ModListItem newItem = new ModListItem
+            ModListViewItem newItem = new ModListViewItem
             {
                 UseItemStyleForSubItems = false,
                 Checked = entry.Value
@@ -914,7 +914,7 @@ namespace MW5_Mod_Manager
             if (checkBox1.Checked)
             {
                 this.modsListView.Items.Clear();
-                foreach (ModListItem item in this.ListViewData)
+                foreach (ModListViewItem item in this.ListViewData)
                 {
                     modsListView.Items.Add(item);
                 }
@@ -952,17 +952,18 @@ namespace MW5_Mod_Manager
         //Selected index of mods overriding the currently selected mod has changed.
         private void listBox3_SelectedIndexChanged(object sender, EventArgs e)
         {
-            listBox2.Items.Clear();
-            listBox1.ClearSelected();
-            if (listBox3.Items.Count == 0 || modsListView.Items.Count == 0)
+            if (listBoxOverriddenBy.SelectedIndex == -1)
                 return;
 
-            if (listBox3.SelectedItem == null)
+            listBoxManifestOverridden.Items.Clear();
+            listBoxOverriding.SelectedIndex = -1;
+            if (listBoxOverriddenBy.Items.Count == 0 || modsListView.Items.Count == 0)
                 return;
 
-            string selectedMod = listBox3.SelectedItem.ToString();
-            if (Utils.StringNullEmptyOrWhiteSpace(selectedMod))
+            if (listBoxOverriddenBy.SelectedItem == null)
                 return;
+
+            ModListBoxItem selectedMod = (ModListBoxItem)listBoxOverriddenBy.SelectedItem;
 
             string superMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
 
@@ -971,29 +972,29 @@ namespace MW5_Mod_Manager
 
             OverridingData modData = logic.OverrridingData[superMod];
 
-            if (!modData.overriddenBy.ContainsKey(selectedMod))
+            if (!modData.overriddenBy.ContainsKey(selectedMod.ModDirName))
                 return;
 
-            foreach (string entry in modData.overriddenBy[selectedMod])
+            foreach (string entry in modData.overriddenBy[selectedMod.ModDirName])
             {
-                listBox2.Items.Add(entry);
+                listBoxManifestOverridden.Items.Add(entry);
             }
         }
 
         //Selected indox of mods that are beeing overriden by the currently selected mod had changed.
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            listBox2.Items.Clear();
-            listBox3.ClearSelected();
-            if (listBox1.Items.Count == 0 || modsListView.Items.Count == 0)
+            if (listBoxOverriding.SelectedIndex == -1)
                 return;
 
-            if (listBox1.SelectedItem == null)
+            listBoxManifestOverridden.Items.Clear();
+            listBoxOverriddenBy.SelectedIndex = -1;
+            if (listBoxOverriding.Items.Count == 0 || modsListView.Items.Count == 0)
                 return;
-            string selectedMod = listBox1.SelectedItem.ToString();
 
-            if (Utils.StringNullEmptyOrWhiteSpace(selectedMod))
+            if (listBoxOverriding.SelectedItem == null)
                 return;
+            ModListBoxItem selectedMod = (ModListBoxItem)listBoxOverriding.SelectedItem;
 
             string superMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
 
@@ -1002,17 +1003,15 @@ namespace MW5_Mod_Manager
 
             OverridingData modData = logic.OverrridingData[superMod];
 
-            foreach (string entry in modData.overrides[selectedMod])
+            foreach (string entry in modData.overrides[selectedMod.ModDirName])
             {
-                listBox2.Items.Add(entry);
+                listBoxManifestOverridden.Items.Add(entry);
             }
         }
 
         //Selected item in the list view has cahnged
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            this.label4.Text = "";
-
             if (modsListView.SelectedItems.Count == 0)
             {
                 panelModInfo.Visible = false;
@@ -1035,6 +1034,7 @@ namespace MW5_Mod_Manager
 
             panelModInfo.Visible = true;
             labelModName.Text = SelectedModDisplayName;
+            labelModNameOverrides.Text = SelectedModDisplayName;
             labelModAuthor.Text = @"Author: " + modDetails.author;
             linkLabelModAuthorUrl.Text = modDetails.authorURL;
             labelModVersion.Text = @"Version: " + modDetails.version;
@@ -1093,24 +1093,34 @@ namespace MW5_Mod_Manager
             if (logic.OverrridingData.Count == 0)
                 return;
 
-            this.listBox1.Items.Clear();
-            this.listBox2.Items.Clear();
-            this.listBox3.Items.Clear();
-
-            this.label4.Text = SelectedMod;
+            this.listBoxOverriding.Items.Clear();
+            this.listBoxManifestOverridden.Items.Clear();
+            this.listBoxOverriddenBy.Items.Clear();
 
             //If we select a mod that is not ticked its data is never gotten so will get an error if we don't do this.
             if (!logic.OverrridingData.ContainsKey(SelectedMod))
                 return;
 
             OverridingData modData = logic.OverrridingData[SelectedMod];
-            foreach (string orverriding in modData.overriddenBy.Keys)
+            foreach (string overriding in modData.overriddenBy.Keys)
             {
-                this.listBox3.Items.Add(orverriding);
+                ModListBoxItem modListBoxItem = new ModListBoxItem();
+                string modKey = logic.DirectoryToPathDict[overriding];
+                modListBoxItem.DisplayName = logic.ModDetails[modKey].displayName;
+                modListBoxItem.ModDirName = overriding;
+                modListBoxItem.ModKey = modKey;
+                this.listBoxOverriddenBy.Items.Add(modListBoxItem);
+
+                //this.listBoxOverriddenBy.Items.Add(overriding);
             }
             foreach (string overrides in modData.overrides.Keys)
             {
-                this.listBox1.Items.Add(overrides);
+                ModListBoxItem modListBoxItem = new ModListBoxItem();
+                string modKey = logic.DirectoryToPathDict[overrides];
+                modListBoxItem.DisplayName = logic.ModDetails[modKey].displayName;
+                modListBoxItem.ModDirName = overrides;
+                modListBoxItem.ModKey = modKey;
+                this.listBoxOverriding.Items.Add(modListBoxItem);
             }
         }
 
@@ -1334,7 +1344,7 @@ namespace MW5_Mod_Manager
         private void enableAllModsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.MovingItem = true;
-            foreach (ModListItem item in this.ListViewData)
+            foreach (ModListViewItem item in this.ListViewData)
             {
                 item.Checked = true;
             }
@@ -1511,8 +1521,8 @@ namespace MW5_Mod_Manager
             }*/
 
             // Retrieve the dragged item.
-            ModListItem draggedItem =
-                (ModListItem)e.Data.GetData(typeof(ModListItem));
+            ModListViewItem draggedItem =
+                (ModListViewItem)e.Data.GetData(typeof(ModListViewItem));
 
             ListView.ListViewItemCollection items = modsListView.Items;
             int itemIndex = draggedItem.Index;
@@ -1574,6 +1584,38 @@ namespace MW5_Mod_Manager
                 UseShellExecute = true
             };
             System.Diagnostics.Process.Start(psi);
+        }
+
+        public void SelectModInList(string modKey)
+        {
+            foreach (ListViewItem modListItem in modsListView.Items)
+            {
+                if (modListItem.Tag == modKey)
+                {
+                    modListItem.Selected = true;
+                    break;
+                }
+            }
+        }
+
+        private void listBoxOverriding_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            int index = this.listBoxOverriding.IndexFromPoint(e.Location);
+            if (index != System.Windows.Forms.ListBox.NoMatches)
+            {
+                ModListBoxItem modListBoxItem = listBoxOverriding.Items[index] as ModListBoxItem;
+                SelectModInList(modListBoxItem.ModKey);
+            }
+        }
+
+        private void listBoxOverriddenBy_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            int index = this.listBoxOverriddenBy.IndexFromPoint(e.Location);
+            if (index != System.Windows.Forms.ListBox.NoMatches)
+            {
+                ModListBoxItem modListBoxItem = listBoxOverriddenBy.Items[index] as ModListBoxItem;
+                SelectModInList(modListBoxItem.ModKey);
+            }
         }
     }
 }

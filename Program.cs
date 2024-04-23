@@ -649,7 +649,7 @@ namespace MW5_Mod_Manager
         #endregion pack mods to zip
 
         //Reset the overriding data between two mods and check if after mods are still overriding/being overriden
-        public void ResetOverrdingBetweenMods(ModListItem listItemA, ModListItem listItemB)
+        public void ResetOverrdingBetweenMods(ModListViewItem listItemA, ModListViewItem listItemB)
         {
             string modA = listItemA.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
             string modB = listItemB.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
@@ -725,7 +725,7 @@ namespace MW5_Mod_Manager
         }
 
         //Used to update the override data when a new item is added or removed to/from the mod list instead of checking all items agains each other again.
-        public void UpdateNewModOverrideData(List<ModListItem> items, ModListItem newListItem)
+        public void UpdateNewModOverrideData(List<ModListViewItem> items, ModListViewItem newListItem)
         {
             string modA = newListItem.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
             ////Console.WriteLine("UpdateNewModOverrideData");
@@ -766,7 +766,7 @@ namespace MW5_Mod_Manager
                 }
 
                 //check each mod for changes
-                foreach (ModListItem item in items)
+                foreach (ModListViewItem item in items)
                 {
                     string modB = item.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
 
@@ -791,7 +791,7 @@ namespace MW5_Mod_Manager
         }
 
         //used to update the overriding data when a mod is moved ONE up or ONE down.
-        public void UpdateModOverridingdata(List<ModListItem> items, ModListItem movedModItem, bool movedUp)
+        public void UpdateModOverridingdata(List<ModListViewItem> items, ModListViewItem movedModItem, bool movedUp)
         {
             string modA = movedModItem.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
 
@@ -804,7 +804,7 @@ namespace MW5_Mod_Manager
             else
                 indexToCheck = movedModItem.Index - 1;
 
-            ModListItem listItemB = items[indexToCheck];
+            ModListViewItem listItemB = items[indexToCheck];
             string modB = listItemB.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
             //Console.WriteLine("++" + modB);
 
@@ -838,7 +838,7 @@ namespace MW5_Mod_Manager
         }
 
         //See if items A and B are interacting in terms of manifest and return the intersect
-        public void GetModOverridingData(ModListItem listItemA, ModListItem listItemB, int itemCount, OverridingData A, OverridingData B)
+        public void GetModOverridingData(ModListViewItem listItemA, ModListViewItem listItemB, int itemCount, OverridingData A, OverridingData B)
         {
             string modA = listItemA.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
             string modB = listItemB.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
@@ -894,13 +894,13 @@ namespace MW5_Mod_Manager
 
         //Return a dict of all overriden mods with a list of overriden files as values.
         //else returns an empty string.
-        public void GetOverridingData(List<ModListItem> items)
+        public void GetOverridingData(List<ModListViewItem> items)
         {
             ////Console.WriteLine(Environment.StackTrace);
             ////Console.WriteLine("Starting Overriding data check");
             this.OverrridingData.Clear();
 
-            foreach (ModListItem itemA in items)
+            foreach (ModListViewItem itemA in items)
             {
                 //We only wanna check this for items actually enabled.
                 if (!itemA.Checked)
@@ -922,7 +922,7 @@ namespace MW5_Mod_Manager
                 OverridingData A = this.OverrridingData[modA];
 
                 //Console.WriteLine("Checking: " + modA + " : " + priorityA.ToString());
-                foreach (ModListItem itemB in items)
+                foreach (ModListViewItem itemB in items)
                 {
                     string modB = itemB.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
 
@@ -993,15 +993,15 @@ namespace MW5_Mod_Manager
         }
 
         //Check color of a single mod.
-        public void ColorItemOnOverrdingData(ModListItem listItem)
+        public void ColorItemOnOverrdingData(ModListViewItem listItem)
         {
-            ColorizeListViewItems(new List<ModListItem>() { listItem });
+            ColorizeListViewItems(new List<ModListViewItem>() { listItem });
         }
 
         //Color the list view items based on data
-        public void ColorizeListViewItems(List<ModListItem> items)
+        public void ColorizeListViewItems(List<ModListViewItem> items)
         {
-            foreach (ModListItem item in items)
+            foreach (ModListViewItem item in items)
             {
                 string modName = item.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
 
