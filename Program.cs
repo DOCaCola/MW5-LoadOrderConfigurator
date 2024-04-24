@@ -541,11 +541,11 @@ namespace MW5_Mod_Manager
         {
             foreach (KeyValuePair<string, ModObject> entry in this.ModDetails)
             {
-                // Make sure the folder still exists, in case the mod was deleted
-                if (!Directory.Exists(entry.Key.ToString()))
-                    continue;
-
                 string modJsonPath = entry.Key + @"\mod.json";
+
+                // Make sure the file still exists, in case the mod was deleted
+                if (!File.Exists(modJsonPath))
+                    continue;
 
                 string modJsonExisting = File.ReadAllText(modJsonPath);
                 JObject modDetailsNew = JObject.Parse(modJsonExisting);
@@ -584,11 +584,32 @@ namespace MW5_Mod_Manager
 
         public void SaveModListJson()
         {
-            string jsonString = this.parent.ToString();
-            StreamWriter sw = File.CreateText(BasePath[0] + @"\modlist.json");
-            sw.WriteLine(jsonString);
-            sw.Flush();
-            sw.Close();
+            string modListJsonPath = BasePath[0] + @"\modlist.json";
+
+            if (File.Exists(modListJsonPath))
+            {
+                string modListJsonExisting = File.ReadAllText(modListJsonPath);
+                JObject modListNew = JObject.Parse(modListJsonExisting);
+
+                modListNew["modStatus"] = parent["modStatus"];
+
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Formatting = Formatting.Indented;
+                using (StreamWriter sw = new StreamWriter(modListJsonPath))
+                using (JsonWriter writer = new JsonTextWriter(sw))
+                {
+                    serializer.Serialize(writer, modListNew);
+                }
+            }
+            else
+            {
+                string jsonString = this.parent.ToString();
+                StreamWriter sw = File.CreateText(modListJsonPath);
+                sw.WriteLine(jsonString);
+                sw.Flush();
+                sw.Close();
+            }
+
         }
 
         public void AddModToJObject(string ModName, bool status)
