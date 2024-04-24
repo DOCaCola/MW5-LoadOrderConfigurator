@@ -340,41 +340,10 @@ namespace MW5_Mod_Manager
             //Stuff for applying mods activation and load order:
 
             //Reset filter:
-            this.filterBox.Text = "";
+            /*this.filterBox.Text = "";
             this.filterBox_TextChanged(null, null);
-
-            //Regenerate ModList dict
-            this.logic.ModList = new Dictionary<string, bool>();
-
-            //For each mod in the list view:
-            //Check if mod enabled
-            //Get its priority
-            //Put mod in the ModList with it status
-            //Adjust the ModDetails priority
-            int length = modsListView.Items.Count;
-            for (int i = 0; i < length; i++)
-            {
-                string modName = modsListView.Items[i].SubItems[folderHeader.Index].Text;
-                string modDir = logic.DirectoryToPathDict[modName];
-                try
-                {
-                    bool modEnabled = modsListView.Items[i].Checked;
-                    int priority = modsListView.Items.Count - i;
-                    this.logic.ModList[modDir] = modEnabled;
-                    this.logic.ModDetails[modDir].defaultLoadOrder = priority;
-                    Console.WriteLine(modDir + @" : " + priority.ToString());
-                }
-                catch (Exception Ex)
-                {
-                    string message = "ERROR Mismatch between list key and details key : " + modName
-                        + ". Details keys available: " + string.Join(",", this.logic.ModDetails.Keys.ToList()) + ". This mod will be skipped and the operation continued.";
-                    string caption = "ERROR Key Mismatch";
-                    MessageBoxButtons buttons = MessageBoxButtons.OK;
-                    MessageBox.Show(message, caption, buttons);
-                    continue;
-                }
-
-            }
+            */
+            RecomputeLoadOrders();
 
             //Save the ModDetails to json file.
             this.logic.SaveToFiles();
@@ -482,6 +451,7 @@ namespace MW5_Mod_Manager
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, caption, buttons);
             }
+            UpdateLoadOrdersInList();
             this.LoadingAndFilling = false;
             logic.GetOverridingData(ListViewData);
         }
@@ -863,7 +833,7 @@ namespace MW5_Mod_Manager
                 if (!MainForm.checkBoxFilter.Checked)
                 {
                     //For each item in the list
-                    foreach (ListViewItem item in this.ListViewData)
+                    foreach (ModListViewItem item in this.ListViewData)
                     {
                         //Check if there is a hit.
                         if (MatchItemToText(filtertext, item))
@@ -1145,10 +1115,15 @@ namespace MW5_Mod_Manager
         private void listView1_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
             //While we are removing/inserting items this will fire and we dont want that to happen when we move an item.
-            if (MovingItem || this.filtered || this.LoadingAndFilling)
+            if (MovingItem || this.LoadingAndFilling)
             {
                 return;
             }
+
+            // set mod enabled state
+            this.logic.ModList[e.Item.Tag.ToString()] = e.Item.Checked;
+
+            UpdateLoadOrdersInList();
 
             logic.UpdateNewModOverrideData(ListViewData, ListViewData[e.Item.Index]);
             HandleOverrding(e.Item.SubItems[folderHeader.Index].Text);
@@ -1616,32 +1591,49 @@ namespace MW5_Mod_Manager
             }
         }
 
-        public void UpdateLoadOrdersInList()
+        private int GetModCount(bool enabledOnly)
         {
-            int length = modsListView.Items.Count;
-            for (int i = 0; i < length; i++)
+            int count = 0;
+            if (enabledOnly)
             {
-                string modName = modsListView.Items[i].SubItems[folderHeader.Index].Text;
-                string modDir = logic.DirectoryToPathDict[modName];
-                try
+                foreach (bool curModState in this.logic.ModList.Values)
                 {
-                    bool modEnabled = modsListView.Items[i].Checked;
-                    int priority = modsListView.Items.Count - i;
-                    this.logic.ModDetails[modDir].defaultLoadOrder = priority;
+                    if (curModState) { count++; }
                 }
-                catch (Exception Ex)
-                {
-                    string message = "ERROR Mismatch between list key and details key : " + modName
-                        + ". Details keys available: " + string.Join(",", this.logic.ModDetails.Keys.ToList()) + ". This mod will be skipped and the operation continued.";
-                    string caption = "ERROR Key Mismatch";
-                    MessageBoxButtons buttons = MessageBoxButtons.OK;
-                    MessageBox.Show(message, caption, buttons);
-                    continue;
-                }
-
+            }
+            else
+            {
+                count = this.logic.Mods.Count;
             }
 
-            foreach (ListViewItem modListItem in modsListView.Items)
+            return count;
+        }
+
+        public void RecomputeLoadOrders()
+        {
+            int curLoadOrder = GetModCount(true);
+
+            foreach (ListViewItem curModListItem in ListViewData)
+            {
+                string modKey = curModListItem.Tag.ToString();
+                // mod enabled state check
+                if (this.logic.ModList[modKey])
+                {
+                    this.logic.ModDetails[modKey].defaultLoadOrder = curLoadOrder;
+                    --curLoadOrder;
+                }
+                else
+                {
+                    this.logic.ModDetails[modKey].defaultLoadOrder = this.logic.ModDetails[modKey].locOriginalLoadOrder;
+                }
+            }
+        }
+
+        public void UpdateLoadOrdersInList()
+        {
+            RecomputeLoadOrders();
+
+            foreach (ListViewItem modListItem in ListViewData)
             {
                 modListItem.SubItems[currentLoadOrderHeader.Index].Text =
                     this.logic.ModDetails[modListItem.Tag.ToString()].defaultLoadOrder.ToString();

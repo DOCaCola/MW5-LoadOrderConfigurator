@@ -456,10 +456,6 @@ namespace MW5_Mod_Manager
                     {
                         modData.OriginalLoadOrder = modDetails.locOriginalLoadOrder;
                     }
-                    if (modDetailsJ.ContainsKey("lomOriginalLoadOrder"))
-                    {
-                        modData.OriginalLoadOrder = modDetailsJ["lomOriginalLoadOrder"].Value<float>();
-                    }
                     else if (modDetailsJ.ContainsKey("lotsOriginalLoadOrder"))
                     {
                         // Might have been set by the MW5-LOTS mod order manager
@@ -1019,7 +1015,9 @@ namespace MW5_Mod_Manager
                     continue;
                 }
 
-                if (item.Checked)
+                bool modEnabled = MainWindow.MainForm.logic.ModList[item.Tag.ToString()];
+
+                if (modEnabled)
                 {
                     item.SubItems[MainWindow.MainForm.displayHeader.Index].Font = new Font(MainWindow.MainForm.modsListView.Font, MainWindow.MainForm.modsListView.Font.Style | FontStyle.Bold);  
                 }
@@ -1030,10 +1028,10 @@ namespace MW5_Mod_Manager
 
                 foreach (ListViewItem.ListViewSubItem curItem in item.SubItems)
                 {
-                    curItem.ForeColor = item.Checked ? Color.Black : Color.Gray;
+                    curItem.ForeColor = modEnabled ? Color.Black : Color.Gray;
                 }
 
-                if (!item.Checked)
+                if (!modEnabled)
                 {
                     continue;
                 }
