@@ -47,7 +47,6 @@ namespace MW5_Mod_Manager
             folderHeader = new ColumnHeader();
             authorHeader = new ColumnHeader();
             versionHeader = new ColumnHeader();
-            buildHeader = new ColumnHeader();
             currentLoadOrderHeader = new ColumnHeader();
             originalLoadOrderHeader = new ColumnHeader();
             imageListIcons = new ImageList(components);
@@ -83,6 +82,9 @@ namespace MW5_Mod_Manager
             helpToolStripMenuItem = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
             statusStrip1 = new StatusStrip();
+            toolStripStatusLabel1 = new ToolStripStatusLabel();
+            toolStripStatusLabelModsActive = new ToolStripStatusLabel();
+            toolStripStatusLabelModCountTotal = new ToolStripStatusLabel();
             toolStripStatusLabelMwVersion = new ToolStripStatusLabel();
             rotatingLabel1 = new RotatingLabel();
             contextMenuStripMod = new ContextMenuStrip(components);
@@ -175,16 +177,17 @@ namespace MW5_Mod_Manager
             // 
             // toolStripPlatformLabel
             // 
+            toolStripPlatformLabel.BorderSides = ToolStripStatusLabelBorderSides.Left;
             toolStripPlatformLabel.Name = "toolStripPlatformLabel";
-            toolStripPlatformLabel.Size = new Size(22, 17);
-            toolStripPlatformLabel.Text = "---";
+            toolStripPlatformLabel.Size = new Size(57, 19);
+            toolStripPlatformLabel.Text = "platform";
             // 
             // modsListView
             // 
             modsListView.AllowDrop = true;
             modsListView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             modsListView.CheckBoxes = true;
-            modsListView.Columns.AddRange(new ColumnHeader[] { enabledHeader, displayHeader, folderHeader, authorHeader, versionHeader, buildHeader, currentLoadOrderHeader, originalLoadOrderHeader });
+            modsListView.Columns.AddRange(new ColumnHeader[] { enabledHeader, displayHeader, folderHeader, authorHeader, versionHeader, currentLoadOrderHeader, originalLoadOrderHeader });
             modsListView.FullRowSelect = true;
             modsListView.GridLines = true;
             modsListView.LabelWrap = false;
@@ -228,18 +231,13 @@ namespace MW5_Mod_Manager
             // 
             authorHeader.Tag = "";
             authorHeader.Text = "Author";
-            authorHeader.Width = 72;
+            authorHeader.Width = 90;
             // 
             // versionHeader
             // 
             versionHeader.Tag = "";
             versionHeader.Text = "Version";
-            versionHeader.Width = 45;
-            // 
-            // buildHeader
-            // 
-            buildHeader.Text = "Build";
-            buildHeader.Width = 45;
+            versionHeader.Width = 72;
             // 
             // currentLoadOrderHeader
             // 
@@ -483,18 +481,40 @@ namespace MW5_Mod_Manager
             // 
             // statusStrip1
             // 
-            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripPlatformLabel, toolStripStatusLabelMwVersion });
-            statusStrip1.Location = new Point(0, 557);
+            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1, toolStripStatusLabelModsActive, toolStripStatusLabelModCountTotal, toolStripPlatformLabel, toolStripStatusLabelMwVersion });
+            statusStrip1.Location = new Point(0, 555);
             statusStrip1.Name = "statusStrip1";
-            statusStrip1.Size = new Size(1184, 22);
+            statusStrip1.Size = new Size(1184, 24);
             statusStrip1.TabIndex = 36;
             statusStrip1.Text = "statusStrip1";
             // 
+            // toolStripStatusLabel1
+            // 
+            toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            toolStripStatusLabel1.Size = new Size(903, 19);
+            toolStripStatusLabel1.Spring = true;
+            // 
+            // toolStripStatusLabelModsActive
+            // 
+            toolStripStatusLabelModsActive.BorderSides = ToolStripStatusLabelBorderSides.Left;
+            toolStripStatusLabelModsActive.Name = "toolStripStatusLabelModsActive";
+            toolStripStatusLabelModsActive.Size = new Size(69, 19);
+            toolStripStatusLabelModsActive.Text = "modActive";
+            // 
+            // toolStripStatusLabelModCountTotal
+            // 
+            toolStripStatusLabelModCountTotal.BorderSides = ToolStripStatusLabelBorderSides.Left;
+            toolStripStatusLabelModCountTotal.Name = "toolStripStatusLabelModCountTotal";
+            toolStripStatusLabelModCountTotal.Size = new Size(61, 19);
+            toolStripStatusLabelModCountTotal.Text = "modTotal";
+            // 
             // toolStripStatusLabelMwVersion
             // 
+            toolStripStatusLabelMwVersion.BorderSides = ToolStripStatusLabelBorderSides.Left;
+            toolStripStatusLabelMwVersion.Margin = new Padding(0, 3, 30, 2);
             toolStripStatusLabelMwVersion.Name = "toolStripStatusLabelMwVersion";
-            toolStripStatusLabelMwVersion.Size = new Size(22, 17);
-            toolStripStatusLabelMwVersion.Text = "---";
+            toolStripStatusLabelMwVersion.Size = new Size(49, 19);
+            toolStripStatusLabelMwVersion.Text = "version";
             // 
             // rotatingLabel1
             // 
@@ -537,7 +557,6 @@ namespace MW5_Mod_Manager
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
-            tabPage1.Click += tabPage1_Click;
             // 
             // label6
             // 
@@ -884,14 +903,13 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem aboutToolStripMenuItem;
         private ToolStripMenuItem enableAllModsToolStripMenuItem;
         private ToolStripMenuItem disableAllModsToolStripMenuItem;
-        private ToolStripStatusLabel toolStripStatusLabelMwVersion;
+        public ToolStripStatusLabel toolStripStatusLabelMwVersion;
         private ContextMenuStrip contextMenuStripMod;
         private ToolStripMenuItem openFolderToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripMenuItem toolStripMenuItemSettings;
         private ToolStripSeparator toolStripSeparator3;
         private ToolStripMenuItem toolStripMenuItemOpenModFolderSteam;
-        private ColumnHeader buildHeader;
         private ColumnHeader originalLoadOrderHeader;
         private TabPage tabPage1;
         private Label label6;
@@ -927,6 +945,9 @@ namespace MW5_Mod_Manager
         private Button buttonClearHighlight;
         private ColumnHeader currentLoadOrderHeader;
         private ToolTip toolTip1;
+        private ToolStripStatusLabel toolStripStatusLabel1;
+        private ToolStripStatusLabel toolStripStatusLabelModCountTotal;
+        private ToolStripStatusLabel toolStripStatusLabelModsActive;
     }
 }
 

@@ -455,6 +455,7 @@ namespace MW5_Mod_Manager
             UpdateLoadOrdersInList();
             this.LoadingAndFilling = false;
             logic.GetOverridingData(ModListData);
+            UpdateModCountDisplay();
         }
 
         private void AddEntryToListViewAndData(KeyValuePair<string, bool> entry)
@@ -487,8 +488,7 @@ namespace MW5_Mod_Manager
             newItem.SubItems[displayHeader.Index].Text = logic.ModDetails[entry.Key].displayName;
             newItem.SubItems[folderHeader.Index].Text = logic.PathToDirectoryDict[modName];
             newItem.SubItems[authorHeader.Index].Text = logic.ModDetails[entry.Key].author;
-            newItem.SubItems[versionHeader.Index].Text = logic.ModDetails[entry.Key].version;
-            newItem.SubItems[buildHeader.Index].Text = logic.ModDetails[entry.Key].buildNumber.ToString();
+            newItem.SubItems[versionHeader.Index].Text = logic.ModDetails[entry.Key].version + " (" + logic.ModDetails[entry.Key].buildNumber.ToString() + ")";
             newItem.SubItems[currentLoadOrderHeader.Index].Text = logic.ModDetails[entry.Key].defaultLoadOrder.ToString();
             newItem.SubItems[originalLoadOrderHeader.Index].Text = logic.Mods[entry.Key].OriginalLoadOrder.ToString();
 
@@ -1119,18 +1119,13 @@ namespace MW5_Mod_Manager
 
             logic.UpdateNewModOverrideData(ModListData, ModListData[e.Item.Index]);
             HandleOverrding(e.Item.SubItems[folderHeader.Index].Text);
+            UpdateModCountDisplay();
         }
 
         //Check for mod overrding data
         private void checkBox2_CheckedChanged(object sender, EventArgs e)
         {
             this.logic.GetOverridingData(ModListData);
-        }
-
-        //On tap click?
-        private void tabPage1_Click(object sender, EventArgs e)
-        {
-
         }
 
         #region background workers for zipping up files
@@ -1317,7 +1312,14 @@ namespace MW5_Mod_Manager
                 item.Checked = true;
             }
             this.MovingItem = false;
+            
+            foreach (var key in this.logic.ModList.Keys)
+            {
+                this.logic.ModList[key] = true;
+            }
+            
             this.logic.GetOverridingData(this.ModListData);
+            UpdateModCountDisplay();
         }
 
         private void disableAllModsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1328,7 +1330,14 @@ namespace MW5_Mod_Manager
                 item.Checked = false;
             }
             this.MovingItem = false;
+            
+            foreach (var key in this.logic.ModList.Keys)
+            {
+                this.logic.ModList[key] = false;
+            }
+
             this.logic.GetOverridingData(ModListData);
+            UpdateModCountDisplay();
         }
 
         private void modsListView_MouseClick(object sender, MouseEventArgs e)
@@ -1641,6 +1650,12 @@ namespace MW5_Mod_Manager
         {
             filterBox.Text = "";
             filterBox.Focus();
+        }
+
+        public void UpdateModCountDisplay()
+        {
+            toolStripStatusLabelModCountTotal.Text = @"Total: " + GetModCount(false);
+            toolStripStatusLabelModsActive.Text = @"Active: " + GetModCount(true);
         }
     }
 }

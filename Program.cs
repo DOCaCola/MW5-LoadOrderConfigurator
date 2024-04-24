@@ -132,6 +132,7 @@ namespace MW5_Mod_Manager
             }
 
             this.GameVersion = bestAvailableVersion;
+            MainWindow.MainForm.toolStripStatusLabelMwVersion.Text = @"Game Version: " + bestAvailableVersion;
         }
 
         /// <summary>
