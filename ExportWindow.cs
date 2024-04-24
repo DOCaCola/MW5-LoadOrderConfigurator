@@ -17,7 +17,7 @@ namespace MW5_Mod_Manager
         //Copy txt to clipboard
         private void button1_Click(object sender, EventArgs e)
         {
-            Clipboard.SetText(this.textBox1.Text);
+            ClipboardUtils.ClipboardHelper.CopyTextToClipboard(textBox1.Text);
         }
 
         private void ExportWindow_Load(object sender, EventArgs e)
@@ -50,6 +50,11 @@ namespace MW5_Mod_Manager
         private void checkBoxEnabledOnly_CheckedChanged(object sender, EventArgs e)
         {
             RefreshList(checkBoxEnabledOnly.Checked);
+        }
+
+        private void buttonCancel_Click(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }

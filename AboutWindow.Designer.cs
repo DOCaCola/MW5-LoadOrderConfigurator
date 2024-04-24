@@ -74,7 +74,7 @@
             buttonClose.Location = new System.Drawing.Point(25, 260);
             buttonClose.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             buttonClose.Name = "buttonClose";
-            buttonClose.Size = new System.Drawing.Size(88, 27);
+            buttonClose.Size = new System.Drawing.Size(88, 26);
             buttonClose.TabIndex = 4;
             buttonClose.Text = "Nice";
             buttonClose.UseVisualStyleBackColor = true;

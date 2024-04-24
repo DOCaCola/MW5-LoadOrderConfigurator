@@ -28,66 +28,88 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
-            this.checkBoxEnabledOnly = new System.Windows.Forms.CheckBox();
-            this.SuspendLayout();
+            textBox1 = new System.Windows.Forms.TextBox();
+            button1 = new System.Windows.Forms.Button();
+            checkBoxEnabledOnly = new System.Windows.Forms.CheckBox();
+            buttonCancel = new System.Windows.Forms.Button();
+            SuspendLayout();
             // 
             // textBox1
             // 
-            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Location = new System.Drawing.Point(12, 66);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(348, 147);
-            this.textBox1.TabIndex = 0;
+            textBox1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            textBox1.Location = new System.Drawing.Point(12, 12);
+            textBox1.Multiline = true;
+            textBox1.Name = "textBox1";
+            textBox1.ReadOnly = true;
+            textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            textBox1.Size = new System.Drawing.Size(351, 153);
+            textBox1.TabIndex = 4;
+            textBox1.WordWrap = false;
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(12, 3);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(100, 34);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "Copy to Clipboard";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            button1.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            button1.Location = new System.Drawing.Point(12, 198);
+            button1.Name = "button1";
+            button1.Size = new System.Drawing.Size(88, 26);
+            button1.TabIndex = 1;
+            button1.Text = "Co&py";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
             // 
             // checkBoxEnabledOnly
             // 
-            this.checkBoxEnabledOnly.AutoSize = true;
-            this.checkBoxEnabledOnly.Location = new System.Drawing.Point(12, 43);
-            this.checkBoxEnabledOnly.Name = "checkBoxEnabledOnly";
-            this.checkBoxEnabledOnly.Size = new System.Drawing.Size(124, 17);
-            this.checkBoxEnabledOnly.TabIndex = 2;
-            this.checkBoxEnabledOnly.Text = "Enabled mods only";
-            this.checkBoxEnabledOnly.UseVisualStyleBackColor = true;
-            this.checkBoxEnabledOnly.CheckedChanged += new System.EventHandler(this.checkBoxEnabledOnly_CheckedChanged);
+            checkBoxEnabledOnly.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            checkBoxEnabledOnly.AutoSize = true;
+            checkBoxEnabledOnly.Checked = true;
+            checkBoxEnabledOnly.CheckState = System.Windows.Forms.CheckState.Checked;
+            checkBoxEnabledOnly.Location = new System.Drawing.Point(12, 175);
+            checkBoxEnabledOnly.Name = "checkBoxEnabledOnly";
+            checkBoxEnabledOnly.Size = new System.Drawing.Size(143, 17);
+            checkBoxEnabledOnly.TabIndex = 3;
+            checkBoxEnabledOnly.Text = "Exclude disabled mods";
+            checkBoxEnabledOnly.UseVisualStyleBackColor = true;
+            checkBoxEnabledOnly.CheckedChanged += checkBoxEnabledOnly_CheckedChanged;
+            // 
+            // buttonCancel
+            // 
+            buttonCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            buttonCancel.Location = new System.Drawing.Point(108, 198);
+            buttonCancel.Name = "buttonCancel";
+            buttonCancel.Size = new System.Drawing.Size(88, 26);
+            buttonCancel.TabIndex = 2;
+            buttonCancel.Text = "&Close";
+            buttonCancel.UseVisualStyleBackColor = true;
+            buttonCancel.Click += buttonCancel_Click;
             // 
             // ExportWindow
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(372, 225);
-            this.Controls.Add(this.checkBoxEnabledOnly);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.textBox1);
-            this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.MinimumSize = new System.Drawing.Size(388, 259);
-            this.Name = "ExportWindow";
-            this.ShowIcon = false;
-            this.Text = "Export";
-            this.Load += new System.EventHandler(this.ExportWindow_Load);
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AcceptButton = button1;
+            AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            CancelButton = buttonCancel;
+            ClientSize = new System.Drawing.Size(375, 242);
+            Controls.Add(buttonCancel);
+            Controls.Add(checkBoxEnabledOnly);
+            Controls.Add(button1);
+            Controls.Add(textBox1);
+            Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
+            MaximizeBox = false;
+            MinimizeBox = false;
+            MinimumSize = new System.Drawing.Size(388, 259);
+            Name = "ExportWindow";
+            ShowIcon = false;
+            ShowInTaskbar = false;
+            Text = "Export";
+            Load += ExportWindow_Load;
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
         private System.Windows.Forms.Button button1;
         public System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.CheckBox checkBoxEnabledOnly;
+        private System.Windows.Forms.Button buttonCancel;
     }
 }

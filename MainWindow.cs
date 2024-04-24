@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.ComponentModel.Design.ObjectSelectorEditor;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 using ListView = System.Windows.Forms.ListView;
 
 namespace MW5_Mod_Manager
@@ -24,7 +25,7 @@ namespace MW5_Mod_Manager
         public MainLogic logic = new MainLogic();
         //public TCPFileShare fileShare;
         bool filtered = false;
-        private List<ModListViewItem> ListViewData = new List<ModListViewItem>();
+        private List<ModListViewItem> ModListData = new List<ModListViewItem>();
         private List<ListViewItem> markedForRemoval;
         public Form4 WaitForm;
         private bool MovingItem = false;
@@ -229,27 +230,27 @@ namespace MW5_Mod_Manager
                 this.MovingItem = false;
                 return;
             }
-            ModListViewItem listItem = ListViewData[i];
+            ModListViewItem listItem = ModListData[i];
             items.RemoveAt(i);
-            ListViewData.RemoveAt(i);
+            ModListData.RemoveAt(i);
 
             if (Control.ModifierKeys == Keys.Shift)
             {
                 //Move to top
                 items.Insert(0, listItem);
-                ListViewData.Insert(0, listItem);
+                ModListData.Insert(0, listItem);
 
             }
             else
             {
                 //move one up
                 items.Insert(i - 1, listItem);
-                ListViewData.Insert(i - 1, listItem);
+                ModListData.Insert(i - 1, listItem);
 
             }
             listItem.Selected = true;
 
-            this.logic.GetOverridingData(this.ListViewData);
+            this.logic.GetOverridingData(this.ModListData);
             UpdateLoadOrdersInList();
             listView1_SelectedIndexChanged(null, null);
             this.MovingItem = false;
@@ -262,34 +263,34 @@ namespace MW5_Mod_Manager
             ListView.ListViewItemCollection items = modsListView.Items;
             this.MovingItem = true;
             int i = SelectedItemIndex();
-            if (i > ListViewData.Count - 2 || i < 0)
+            if (i > ModListData.Count - 2 || i < 0)
             {
                 this.MovingItem = false;
                 return;
             }
 
-            ModListViewItem listItem = ListViewData[i];
+            ModListViewItem listItem = ModListData[i];
             items.RemoveAt(i);
-            ListViewData.RemoveAt(i);
+            ModListData.RemoveAt(i);
 
             if (Control.ModifierKeys == Keys.Shift)
             {
                 //Move to bottom
-                items.Insert(ListViewData.Count, listItem);
-                ListViewData.Insert(ListViewData.Count, listItem);
+                items.Insert(ModListData.Count, listItem);
+                ModListData.Insert(ModListData.Count, listItem);
             }
             else
             {
                 //move one down
                 items.Insert(i + 1, listItem);
-                ListViewData.Insert(i + 1, listItem);
+                ModListData.Insert(i + 1, listItem);
             }
             listItem.Selected = true;
 
             //Move to below when refactor is complete
             //UpdateListView();
 
-            this.logic.GetOverridingData(ListViewData);
+            this.logic.GetOverridingData(ModListData);
             UpdateLoadOrdersInList();
             listView1_SelectedIndexChanged(null, null);
             this.MovingItem = false;
@@ -318,7 +319,7 @@ namespace MW5_Mod_Manager
                 {
                     foreach (ModListViewItem item in markedForRemoval)
                     {
-                        ListViewData.Remove(item);
+                        ModListData.Remove(item);
                         modsListView.Items.Remove(item);
                         logic.DeleteMod(logic.DirectoryToPathDict[item.SubItems[folderHeader.Index].Text]);
                         this.logic.ModDetails.Remove(logic.DirectoryToPathDict[item.SubItems[folderHeader.Index].Text]);
@@ -359,7 +360,7 @@ namespace MW5_Mod_Manager
             pictureBoxModImage.Visible = false;
             labelModNameOverrides.Text = "";
             panelModInfo.Visible = false;
-            this.ListViewData.Clear();
+            this.ModListData.Clear();
             this.modsListView.Items.Clear();
             logic.ClearAll();
         }
@@ -453,7 +454,7 @@ namespace MW5_Mod_Manager
             }
             UpdateLoadOrdersInList();
             this.LoadingAndFilling = false;
-            logic.GetOverridingData(ListViewData);
+            logic.GetOverridingData(ModListData);
         }
 
         private void AddEntryToListViewAndData(KeyValuePair<string, bool> entry)
@@ -493,14 +494,14 @@ namespace MW5_Mod_Manager
 
             newItem.EnsureVisible();
             newItem.Tag = entry.Key;
-            ListViewData.Add(newItem);
+            ModListData.Add(newItem);
         }
 
         //Fill list view from internal list of data.
         private void UpdateListView()
         {
             modsListView.Items.Clear();
-            modsListView.Items.AddRange(ListViewData.ToArray());
+            modsListView.Items.AddRange(ModListData.ToArray());
         }
 
         //gets the index of the selected item in listview1.
@@ -583,7 +584,7 @@ namespace MW5_Mod_Manager
             {
                 LoadAndFill(false);
                 filterBox_TextChanged(null, null);
-                logic.GetOverridingData(ListViewData);
+                logic.GetOverridingData(ModListData);
             }
         }
 
@@ -619,7 +620,7 @@ namespace MW5_Mod_Manager
             }
 
             this.modsListView.Items.Clear();
-            this.ListViewData.Clear();
+            this.ModListData.Clear();
             this.logic.ModDetails = new Dictionary<string, ModObject>();
             this.logic.ModList.Clear();
             this.logic.ModList = temp;
@@ -808,7 +809,7 @@ namespace MW5_Mod_Manager
                 //Console.WriteLine("No filter text");
                 if (this.filtered) //we are returning from filtering
                 {
-                    foreach (ListViewItem x in this.ListViewData)
+                    foreach (ListViewItem x in this.ModListData)
                     {
                         x.SubItems[displayHeader.Index].BackColor = Color.White;
                         x.SubItems[folderHeader.Index].BackColor = Color.White;
@@ -833,7 +834,7 @@ namespace MW5_Mod_Manager
                 if (!MainForm.checkBoxFilter.Checked)
                 {
                     //For each item in the list
-                    foreach (ModListViewItem item in this.ListViewData)
+                    foreach (ModListViewItem item in this.ModListData)
                     {
                         //Check if there is a hit.
                         if (MatchItemToText(filtertext, item))
@@ -859,7 +860,7 @@ namespace MW5_Mod_Manager
                     //Clear the list view
                     this.modsListView.Items.Clear();
                     //For each item check if they are a hit if so add them.
-                    foreach (ListViewItem item in this.ListViewData)
+                    foreach (ListViewItem item in this.ModListData)
                     {
                         if (MatchItemToText(filtertext, item))
                         {
@@ -901,7 +902,7 @@ namespace MW5_Mod_Manager
             if (!checkBoxFilter.Checked)
             {
                 this.modsListView.Items.Clear();
-                foreach (ModListViewItem item in this.ListViewData)
+                foreach (ModListViewItem item in this.ModListData)
                 {
                     modsListView.Items.Add(item);
                 }
@@ -919,7 +920,7 @@ namespace MW5_Mod_Manager
                     markedForRemoval.Remove(item);
                     item.SubItems[displayHeader.Index].ForeColor = Color.Black;
                     item.Selected = false;
-                    logic.ColorizeListViewItems(ListViewData);
+                    logic.ColorizeListViewItems(ModListData);
                 }
                 else
                 {
@@ -1125,14 +1126,14 @@ namespace MW5_Mod_Manager
 
             UpdateLoadOrdersInList();
 
-            logic.UpdateNewModOverrideData(ListViewData, ListViewData[e.Item.Index]);
+            logic.UpdateNewModOverrideData(ModListData, ModListData[e.Item.Index]);
             HandleOverrding(e.Item.SubItems[folderHeader.Index].Text);
         }
 
         //Check for mod overrding data
         private void checkBox2_CheckedChanged(object sender, EventArgs e)
         {
-            this.logic.GetOverridingData(ListViewData);
+            this.logic.GetOverridingData(ModListData);
         }
 
         //On tap click?
@@ -1234,36 +1235,20 @@ namespace MW5_Mod_Manager
         private void importLoadOrderToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             ImportWindow testDialog = new ImportWindow();
-            string txtResult = "";
 
             // Show testDialog as a modal dialog and determine if DialogResult = OK.
-            testDialog.ShowDialog(this);
-            txtResult = testDialog.textBox1.Text;
+            if (testDialog.ShowDialog(this) != DialogResult.OK)
+            {
+                return;
+            }
+            Dictionary<string, bool> newData = testDialog.ResultData;
             testDialog.Dispose();
-
-            if (Utils.StringNullEmptyOrWhiteSpace(txtResult) ||
-                txtResult == "Paste load order clipboard here, any mods that you do not have but are in the pasted load order will be ignored.")
-                return;
-
-            Dictionary<string, bool> temp;
-            try
-            {
-                temp = JsonConvert.DeserializeObject<Dictionary<string, bool>>(txtResult);//logic.UnScramble(txtResult));
-            }
-            catch (Exception Ex)
-            {
-                string message = "There was an error in decoding the load order string.";
-                string caption = "Load Order Decoding Error";
-                MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, caption, buttons);
-                return;
-            }
 
             //this.ClearAll();
             this.modsListView.Items.Clear();
-            this.ListViewData.Clear();
+            this.ModListData.Clear();
             this.logic.ModDetails = new Dictionary<string, ModObject>();
-            this.logic.ModList = temp;
+            this.logic.ModList = newData;
             this.logic.Mods.Clear();
             this.LoadAndFill(true);
             this.filterBox_TextChanged(null, null);
@@ -1336,12 +1321,12 @@ namespace MW5_Mod_Manager
         private void enableAllModsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.MovingItem = true;
-            foreach (ModListViewItem item in this.ListViewData)
+            foreach (ModListViewItem item in this.ModListData)
             {
                 item.Checked = true;
             }
             this.MovingItem = false;
-            this.logic.GetOverridingData(this.ListViewData);
+            this.logic.GetOverridingData(this.ModListData);
         }
 
         private void disableAllModsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1352,7 +1337,7 @@ namespace MW5_Mod_Manager
                 item.Checked = false;
             }
             this.MovingItem = false;
-            this.logic.GetOverridingData(ListViewData);
+            this.logic.GetOverridingData(ModListData);
         }
 
         private void modsListView_MouseClick(object sender, MouseEventArgs e)
@@ -1525,12 +1510,12 @@ namespace MW5_Mod_Manager
             {
                 modsListView.SuspendLayout();
                 items.RemoveAt(itemIndex);
-                ListViewData.RemoveAt(itemIndex);
+                ModListData.RemoveAt(itemIndex);
 
                 items.Insert(targetIndex, draggedItem);
-                ListViewData.Insert(targetIndex, draggedItem);
+                ModListData.Insert(targetIndex, draggedItem);
 
-                this.logic.GetOverridingData(this.ListViewData);
+                this.logic.GetOverridingData(this.ModListData);
                 UpdateLoadOrdersInList();
                 listView1_SelectedIndexChanged(null, null);
                 modsListView.ResumeLayout();
@@ -1613,7 +1598,7 @@ namespace MW5_Mod_Manager
         {
             int curLoadOrder = GetModCount(true);
 
-            foreach (ListViewItem curModListItem in ListViewData)
+            foreach (ListViewItem curModListItem in ModListData)
             {
                 string modKey = curModListItem.Tag.ToString();
                 // mod enabled state check
@@ -1633,7 +1618,7 @@ namespace MW5_Mod_Manager
         {
             RecomputeLoadOrders();
 
-            foreach (ListViewItem modListItem in ListViewData)
+            foreach (ListViewItem modListItem in ModListData)
             {
                 modListItem.SubItems[currentLoadOrderHeader.Index].Text =
                     this.logic.ModDetails[modListItem.Tag.ToString()].defaultLoadOrder.ToString();
