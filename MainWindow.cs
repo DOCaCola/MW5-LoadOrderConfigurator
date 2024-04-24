@@ -883,9 +883,6 @@ namespace MW5_Mod_Manager
         {
             if
                 (
-                    item.SubItems[displayHeader.Index].Text.ToLower().StartsWith(filtertext) ||
-                    item.SubItems[folderHeader.Index].Text.ToLower().StartsWith(filtertext) ||
-                    item.SubItems[authorHeader.Index].Text.ToLower().StartsWith(filtertext) ||
                     item.SubItems[displayHeader.Index].Text.ToLower().Contains(filtertext) ||
                     item.SubItems[folderHeader.Index].Text.ToLower().Contains(filtertext) ||
                     item.SubItems[authorHeader.Index].Text.ToLower().Contains(filtertext)
@@ -929,12 +926,6 @@ namespace MW5_Mod_Manager
                     item.Selected = false;
                 }
             }
-        }
-
-        //Unused
-        private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
         }
 
         //Selected index of mods overriding the currently selected mod has changed.
@@ -1437,6 +1428,9 @@ namespace MW5_Mod_Manager
 
         private void modsListView_ItemDrag(object sender, ItemDragEventArgs e)
         {
+            if (filtered)
+                return;
+
             MovingItem = true;
             DoDragDrop(e.Item, DragDropEffects.Move);
             MovingItem = false;
@@ -1596,22 +1590,20 @@ namespace MW5_Mod_Manager
 
         public void RecomputeLoadOrders()
         {
-            int curLoadOrder = GetModCount(true);
+            int curLoadOrder = GetModCount(false);
+
+            // Reorder modlist by recreating it...
+            Dictionary<string, bool> newModList = new Dictionary<string, bool>();
 
             foreach (ListViewItem curModListItem in ModListData)
             {
                 string modKey = curModListItem.Tag.ToString();
-                // mod enabled state check
-                if (this.logic.ModList[modKey])
-                {
-                    this.logic.ModDetails[modKey].defaultLoadOrder = curLoadOrder;
-                    --curLoadOrder;
-                }
-                else
-                {
-                    this.logic.ModDetails[modKey].defaultLoadOrder = this.logic.ModDetails[modKey].locOriginalLoadOrder;
-                }
+                newModList[modKey] = this.logic.ModList[modKey];
+                this.logic.ModDetails[modKey].defaultLoadOrder = curLoadOrder;
+                --curLoadOrder;
             }
+
+            this.logic.ModList = newModList;
         }
 
         public void UpdateLoadOrdersInList()

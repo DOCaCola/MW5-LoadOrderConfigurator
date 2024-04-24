@@ -60,8 +60,8 @@ namespace MW5_Mod_Manager
             textProgressBarBindingSource = new BindingSource(components);
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
-            exportLoadOrderToolStripMenuItem1 = new ToolStripMenuItem();
             importLoadOrderToolStripMenuItem1 = new ToolStripMenuItem();
+            exportLoadOrderToolStripMenuItem1 = new ToolStripMenuItem();
             toolStripSeparator7 = new ToolStripSeparator();
             exportmodsFolderToolStripMenuItem1 = new ToolStripMenuItem();
             shareModsViaTCPToolStripMenuItem = new ToolStripMenuItem();
@@ -333,30 +333,30 @@ namespace MW5_Mod_Manager
             fileToolStripMenuItem.Size = new Size(37, 20);
             fileToolStripMenuItem.Text = "&File";
             // 
-            // exportLoadOrderToolStripMenuItem1
-            // 
-            exportLoadOrderToolStripMenuItem1.Name = "exportLoadOrderToolStripMenuItem1";
-            exportLoadOrderToolStripMenuItem1.Size = new Size(180, 22);
-            exportLoadOrderToolStripMenuItem1.Text = "&Export load order...";
-            exportLoadOrderToolStripMenuItem1.Click += exportLoadOrderToolStripMenuItem1_Click;
-            // 
             // importLoadOrderToolStripMenuItem1
             // 
             importLoadOrderToolStripMenuItem1.Name = "importLoadOrderToolStripMenuItem1";
-            importLoadOrderToolStripMenuItem1.Size = new Size(180, 22);
+            importLoadOrderToolStripMenuItem1.Size = new Size(177, 22);
             importLoadOrderToolStripMenuItem1.Text = "&Import load order...";
             importLoadOrderToolStripMenuItem1.Click += importLoadOrderToolStripMenuItem1_Click;
+            // 
+            // exportLoadOrderToolStripMenuItem1
+            // 
+            exportLoadOrderToolStripMenuItem1.Name = "exportLoadOrderToolStripMenuItem1";
+            exportLoadOrderToolStripMenuItem1.Size = new Size(177, 22);
+            exportLoadOrderToolStripMenuItem1.Text = "&Export load order...";
+            exportLoadOrderToolStripMenuItem1.Click += exportLoadOrderToolStripMenuItem1_Click;
             // 
             // toolStripSeparator7
             // 
             toolStripSeparator7.Name = "toolStripSeparator7";
-            toolStripSeparator7.Size = new Size(177, 6);
+            toolStripSeparator7.Size = new Size(174, 6);
             toolStripSeparator7.Visible = false;
             // 
             // exportmodsFolderToolStripMenuItem1
             // 
             exportmodsFolderToolStripMenuItem1.Name = "exportmodsFolderToolStripMenuItem1";
-            exportmodsFolderToolStripMenuItem1.Size = new Size(180, 22);
+            exportmodsFolderToolStripMenuItem1.Size = new Size(177, 22);
             exportmodsFolderToolStripMenuItem1.Text = "Export &mods folder";
             exportmodsFolderToolStripMenuItem1.Visible = false;
             exportmodsFolderToolStripMenuItem1.Click += exportmodsFolderToolStripMenuItem1_Click;
@@ -364,7 +364,7 @@ namespace MW5_Mod_Manager
             // shareModsViaTCPToolStripMenuItem
             // 
             shareModsViaTCPToolStripMenuItem.Name = "shareModsViaTCPToolStripMenuItem";
-            shareModsViaTCPToolStripMenuItem.Size = new Size(180, 22);
+            shareModsViaTCPToolStripMenuItem.Size = new Size(177, 22);
             shareModsViaTCPToolStripMenuItem.Text = "Share mods via &TCP";
             shareModsViaTCPToolStripMenuItem.Visible = false;
             shareModsViaTCPToolStripMenuItem.Click += shareModsViaTCPToolStripMenuItem_Click;
@@ -372,24 +372,24 @@ namespace MW5_Mod_Manager
             // toolStripSeparator2
             // 
             toolStripSeparator2.Name = "toolStripSeparator2";
-            toolStripSeparator2.Size = new Size(177, 6);
+            toolStripSeparator2.Size = new Size(174, 6);
             // 
             // toolStripMenuItemSettings
             // 
             toolStripMenuItemSettings.Name = "toolStripMenuItemSettings";
-            toolStripMenuItemSettings.Size = new Size(180, 22);
+            toolStripMenuItemSettings.Size = new Size(177, 22);
             toolStripMenuItemSettings.Text = "&Settings";
             toolStripMenuItemSettings.Click += toolStripMenuItemSettings_Click;
             // 
             // toolStripSeparator1
             // 
             toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new Size(177, 6);
+            toolStripSeparator1.Size = new Size(174, 6);
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(180, 22);
+            exitToolStripMenuItem.Size = new Size(177, 22);
             exitToolStripMenuItem.Text = "E&xit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
@@ -404,25 +404,25 @@ namespace MW5_Mod_Manager
             // 
             toolStripMenuItemLoadPresets.Enabled = false;
             toolStripMenuItemLoadPresets.Name = "toolStripMenuItemLoadPresets";
-            toolStripMenuItemLoadPresets.Size = new Size(180, 22);
+            toolStripMenuItemLoadPresets.Size = new Size(151, 22);
             toolStripMenuItemLoadPresets.Text = "Load Preset:";
             // 
             // toolStripSeparator4
             // 
             toolStripSeparator4.Name = "toolStripSeparator4";
-            toolStripSeparator4.Size = new Size(177, 6);
+            toolStripSeparator4.Size = new Size(148, 6);
             // 
             // savePresetToolStripMenuItem
             // 
             savePresetToolStripMenuItem.Name = "savePresetToolStripMenuItem";
-            savePresetToolStripMenuItem.Size = new Size(180, 22);
+            savePresetToolStripMenuItem.Size = new Size(151, 22);
             savePresetToolStripMenuItem.Text = "&Save Preset...";
             savePresetToolStripMenuItem.Click += savePresetToolStripMenuItem_Click;
             // 
             // deletePresetToolStripMenuItem
             // 
             deletePresetToolStripMenuItem.Name = "deletePresetToolStripMenuItem";
-            deletePresetToolStripMenuItem.Size = new Size(180, 22);
+            deletePresetToolStripMenuItem.Size = new Size(151, 22);
             deletePresetToolStripMenuItem.Text = "&Delete Preset...";
             deletePresetToolStripMenuItem.Click += deletePresetToolStripMenuItem_Click;
             // 
@@ -530,10 +530,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(listBoxManifestOverridden);
             tabPage1.Controls.Add(listBoxOverriddenBy);
             tabPage1.Controls.Add(label5);
-            tabPage1.Location = new Point(4, 24);
+            tabPage1.Location = new Point(4, 22);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(338, 500);
+            tabPage1.Size = new Size(338, 502);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
@@ -561,6 +561,7 @@ namespace MW5_Mod_Manager
             // listBoxOverriding
             // 
             listBoxOverriding.FormattingEnabled = true;
+            listBoxOverriding.HorizontalScrollbar = true;
             listBoxOverriding.ItemHeight = 13;
             listBoxOverriding.Location = new Point(6, 70);
             listBoxOverriding.Name = "listBoxOverriding";
@@ -586,14 +587,13 @@ namespace MW5_Mod_Manager
             listBoxManifestOverridden.ItemHeight = 13;
             listBoxManifestOverridden.Location = new Point(6, 256);
             listBoxManifestOverridden.Name = "listBoxManifestOverridden";
-            listBoxManifestOverridden.SelectionMode = SelectionMode.None;
             listBoxManifestOverridden.Size = new Size(329, 225);
             listBoxManifestOverridden.TabIndex = 22;
-            listBoxManifestOverridden.SelectedIndexChanged += listBox2_SelectedIndexChanged;
             // 
             // listBoxOverriddenBy
             // 
             listBoxOverriddenBy.FormattingEnabled = true;
+            listBoxOverriddenBy.HorizontalScrollbar = true;
             listBoxOverriddenBy.ItemHeight = 13;
             listBoxOverriddenBy.Location = new Point(175, 70);
             listBoxOverriddenBy.Name = "listBoxOverriddenBy";

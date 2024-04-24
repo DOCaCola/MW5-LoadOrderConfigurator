@@ -50,6 +50,7 @@ namespace MW5_Mod_Manager
 
         public GamePlatformEnum GamePlatform = GamePlatformEnum.None;
         public string InstallPath = "";
+        public string GameVersion = "";
         public string[] BasePath = new string[2];
         public ProgramData ProgramData = new ProgramData();
 
@@ -85,8 +86,6 @@ namespace MW5_Mod_Manager
 
         public Dictionary<string, ModData> Mods = new Dictionary<string, ModData>();
 
-        public bool CreatedModlist = false;
-
         public bool InterruptSearch = false;
 
         public string rawJson;
@@ -107,6 +106,32 @@ namespace MW5_Mod_Manager
             CombineDirModList();
             //Load each mods mod.json and store in Dict.
             LoadModDetails();
+            DetermineBestAvailableGameVersion();
+        }
+
+        public void DetermineBestAvailableGameVersion()
+        {
+            string bestAvailableVersion = "0";
+
+            // We will trust the game version from modlist.json if it exists.
+            if ((this.parent != null && this.parent.ContainsKey("gameVersion")))
+            {
+                bestAvailableVersion = this.parent["gameVersion"].ToString();
+            }
+            else
+            {
+                // Otherwise we have to fall back to the highest available version in the loaded mods
+                foreach (ModObject mod in ModDetails.Values)
+                {
+                    int versionCompare = Utils.CompareVersionStrings(bestAvailableVersion, mod.gameVersion);
+                    if (versionCompare < 0)
+                    {
+                        bestAvailableVersion = mod.gameVersion;
+                    }
+                }
+            }
+
+            this.GameVersion = bestAvailableVersion;
         }
 
         /// <summary>
@@ -372,11 +397,9 @@ namespace MW5_Mod_Manager
             }
             catch (Exception e)
             {
-                string message = "ERROR loading modlist.json in : " + this.BasePath[0] + ". It will be created after locating possible mod directories.";
-                string caption = "ERROR Loading";
-                MessageBoxButtons buttons = MessageBoxButtons.OK;
-                DialogResult Result = MessageBox.Show(message, caption, buttons);
-                this.CreatedModlist = true;
+                MessageBox.Show(
+                    "The modlist.json file could not be found in "+ this.BasePath[0] +".\r\n\r\nIt is necessary to read this file in order to validate it with the correct version number the game expects." + "\r\n\r\nLOC will try to create the file with the correct version number when applying your profile, but there is high chance that this will fail.\r\nIt is recommended to start the game once in order to create this file before applying your mod profile.",
+                    "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             foreach (JProperty mod in this.parent.Value<JObject>("modStatus").Properties())
@@ -391,7 +414,7 @@ namespace MW5_Mod_Manager
 
         public void SaveToFiles()
         {
-            UpdateJObject();
+            UpdateModlistJObject();
             SaveModDetails();
             SaveModListJson();
         }
@@ -417,7 +440,7 @@ namespace MW5_Mod_Manager
 
                 ModList[modDir] = false;
             }
-            //Turns out there are sometimes "ghost" entries in the modlist.json for witch there are no directories left, lets remove those.
+            //Turns out there are sometimes "ghost" entries in the modlist.json for which there are no directories left, lets remove those.
             List<string> toRemove = new List<string>();
             foreach (KeyValuePair<string, bool> entry in this.ModList)
             {
@@ -428,11 +451,6 @@ namespace MW5_Mod_Manager
             foreach (string key in toRemove)
             {
                 this.ModList.Remove(key);
-            }
-            if (this.CreatedModlist)
-            {
-                UpdateJObject();
-                SaveModListJson();
             }
         }
 
@@ -566,11 +584,12 @@ namespace MW5_Mod_Manager
             }
         }
 
-        public void UpdateJObject()
+        public void UpdateModlistJObject()
         {
             if (this.parent == null)
             {
                 this.parent = new JObject();
+                this.parent["gameVersion"] = GameVersion;
                 this.parent.Add("modStatus", JObject.Parse(@"{}"));
             }
             this.parent.Value<JObject>("modStatus").RemoveAll();
@@ -578,7 +597,7 @@ namespace MW5_Mod_Manager
             {
                 string[] temp = entry.Key.Split('\\');
                 string modFolderName = temp[temp.Length - 1];
-                AddModToJObject(modFolderName, entry.Value);
+                AddModToModlistJObject(modFolderName, entry.Value);
             }
         }
 
@@ -612,7 +631,7 @@ namespace MW5_Mod_Manager
 
         }
 
-        public void AddModToJObject(string ModName, bool status)
+        public void AddModToModlistJObject(string ModName, bool status)
         {
             //ugly but I'm lazy today
             if (status)
