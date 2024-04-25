@@ -72,6 +72,9 @@ namespace MW5_Mod_Manager
         public static Color OverridingColor = Color.FromArgb(80, 37, 192);
         public static Color OverriddenOveridingColor = Color.FromArgb(170,73,97);
 
+        public static Color HighPriorityColor = Color.FromArgb(252, 54, 63);
+        public static Color LowPriorityColor = Color.FromArgb(89, 192, 88);
+
         public static string SettingsFileName = @"Settings.json";
         public static string PresetsFileName = @"Presets.json";
 
@@ -1201,6 +1204,9 @@ namespace MW5_Mod_Manager
 
                 item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = newItemColor;
             }
+
+            MainWindow.MainForm.ColorListViewNumbers(MainWindow.MainForm.modsListView, MainWindow.MainForm.currentLoadOrderHeader.Index, LowPriorityColor, HighPriorityColor);
+            MainWindow.MainForm.ColorListViewNumbers(MainWindow.MainForm.modsListView, MainWindow.MainForm.originalLoadOrderHeader.Index, LowPriorityColor, HighPriorityColor);
         }
 
         //Monitor the size of a given zip file

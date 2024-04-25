@@ -85,6 +85,9 @@ namespace MW5_Mod_Manager
 
             this.Text += @" " + GetVersion();
 
+            /*rotatingLabelLowPriority.ForeColor = MainLogic.LowPriorityColor;
+            rotatingLabelHighPriority.ForeColor = MainLogic.HighPriorityColor;*/
+
             panelColorOverridden.BackColor = MainLogic.OverriddenColor;
             panelColorOverriding.BackColor = MainLogic.OverridingColor;
             panelColorOverridingOverridden.BackColor = MainLogic.OverriddenOveridingColor;
@@ -442,7 +445,7 @@ namespace MW5_Mod_Manager
             toolStripMenuItemOpenModFolderSteam.Visible = isSteam;
         }
 
-        //Load mod data and fill in the list box..
+        //Load mod data and fill in the list box...
         public void LoadAndFill(bool FromClipboard)
         {
             if (!Directory.Exists(logic.InstallPath))
@@ -482,8 +485,8 @@ namespace MW5_Mod_Manager
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, caption, buttons);
             }
-            UpdateLoadOrdersInList();
             this.LoadingAndFilling = false;
+            UpdateLoadOrdersInList();
             logic.GetOverridingData(ModListData);
             UpdateModCountDisplay();
         }
@@ -1701,6 +1704,8 @@ namespace MW5_Mod_Manager
                 modListItem.SubItems[currentLoadOrderHeader.Index].Text =
                     this.logic.ModDetails[modListItem.Tag.ToString()].defaultLoadOrder.ToString();
             }
+
+            MainWindow.MainForm.ColorListViewNumbers(MainWindow.MainForm.modsListView, MainWindow.MainForm.currentLoadOrderHeader.Index, MainLogic.LowPriorityColor, MainLogic.HighPriorityColor);
         }
 
         private void listBoxOverriding_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -1790,6 +1795,48 @@ namespace MW5_Mod_Manager
         private void movedownToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MoveItemDown(SelectedItemIndex(), false);
+        }
+
+        public void ColorListViewNumbers(ListView listView, int subItemIndex, Color fromColor, Color toColor)
+        {
+            List<int> numbers = new List<int>();
+
+            // Extract numbers from ListView and find unique ones
+            foreach (ModListViewItem item in listView.Items)
+            {
+                // Skip disabled mods
+                if (!logic.ModList[item.Tag.ToString()])
+                    continue;
+
+                int number;
+                if (int.TryParse(item.SubItems[subItemIndex].Text, out number))
+                {
+                    if (!numbers.Contains(number))
+                    {
+                        numbers.Add(number);
+                    }
+                }
+            }
+
+            // Sort the unique numbers
+            numbers.Sort();
+
+            // Color the ListView items based on sorted unique numbers
+            for (int i = 0; i < listView.Items.Count; i++)
+            {
+                // Skip disabled mods
+                if (!logic.ModList[listView.Items[i].Tag.ToString()])
+                    continue;
+
+                int number;
+                if (int.TryParse(listView.Items[i].SubItems[subItemIndex].Text, out number))
+                {
+                    int index = numbers.IndexOf(number);
+                    double ratio = (double)index / (numbers.Count - 1);
+                    Color color = Utils.InterpolateColor(fromColor, toColor, ratio);
+                    listView.Items[i].SubItems[subItemIndex].ForeColor = color;
+                }
+            }
         }
     }
 }

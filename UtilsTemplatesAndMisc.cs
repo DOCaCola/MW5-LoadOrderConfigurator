@@ -89,7 +89,15 @@ namespace MW5_Mod_Manager
             return (Math.Sign(byteCount) * num).ToString() + " " + suf[place];
         }
 
-                /// <summary>
+        public static Color InterpolateColor(Color fromColor, Color toColor, double ratio)
+        {
+            int r = (int)(fromColor.R + (toColor.R - fromColor.R) * ratio);
+            int g = (int)(fromColor.G + (toColor.G - fromColor.G) * ratio);
+            int b = (int)(fromColor.B + (toColor.B - fromColor.B) * ratio);
+            return Color.FromArgb(r, g, b);
+        }
+
+        /// <summary>
         /// Compare two version strings, e.g.  "3.2.1.0.b40" and "3.10.1.a".
         /// V1 and V2 can have different number of components.
         /// Components must be delimited by dot.

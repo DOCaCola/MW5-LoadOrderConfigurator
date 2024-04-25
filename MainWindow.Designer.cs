@@ -122,8 +122,8 @@ namespace MW5_Mod_Manager
             tabControl1 = new TabControl();
             buttonClearHighlight = new Button();
             toolTip1 = new ToolTip(components);
-            rotatingLabel2 = new RotatingLabel();
-            rotatingLabel1 = new RotatingLabel();
+            rotatingLabelHighPriority = new RotatingLabel();
+            rotatingLabelLowPriority = new RotatingLabel();
             panelColorLegend = new Panel();
             label8 = new Label();
             label4 = new Label();
@@ -608,7 +608,7 @@ namespace MW5_Mod_Manager
             tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(293, 500);
+            tabPage1.Size = new Size(297, 500);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
@@ -693,7 +693,7 @@ namespace MW5_Mod_Manager
             tabPageModInfo.Location = new Point(4, 22);
             tabPageModInfo.Name = "tabPageModInfo";
             tabPageModInfo.Padding = new Padding(3);
-            tabPageModInfo.Size = new Size(298, 502);
+            tabPageModInfo.Size = new Size(297, 502);
             tabPageModInfo.TabIndex = 3;
             tabPageModInfo.Text = "Overview";
             tabPageModInfo.UseVisualStyleBackColor = true;
@@ -867,7 +867,7 @@ namespace MW5_Mod_Manager
             tabControl1.Margin = new Padding(0);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(306, 528);
+            tabControl1.Size = new Size(305, 528);
             tabControl1.TabIndex = 11;
             // 
             // buttonClearHighlight
@@ -881,28 +881,28 @@ namespace MW5_Mod_Manager
             buttonClearHighlight.UseVisualStyleBackColor = true;
             buttonClearHighlight.Click += buttonClearHighlight_Click;
             // 
-            // rotatingLabel2
+            // rotatingLabelHighPriority
             // 
-            rotatingLabel2.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            rotatingLabel2.Location = new Point(5, 46);
-            rotatingLabel2.Name = "rotatingLabel2";
-            rotatingLabel2.NewText = "Highest priority »";
-            rotatingLabel2.RotateAngle = -90;
-            rotatingLabel2.Size = new Size(19, 118);
-            rotatingLabel2.TabIndex = 38;
-            toolTip1.SetToolTip(rotatingLabel2, "Mods are loaded later and override mods that were loaded earlier.");
+            rotatingLabelHighPriority.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            rotatingLabelHighPriority.Location = new Point(5, 46);
+            rotatingLabelHighPriority.Name = "rotatingLabelHighPriority";
+            rotatingLabelHighPriority.NewText = "Highest priority »";
+            rotatingLabelHighPriority.RotateAngle = -90;
+            rotatingLabelHighPriority.Size = new Size(19, 118);
+            rotatingLabelHighPriority.TabIndex = 38;
+            toolTip1.SetToolTip(rotatingLabelHighPriority, "Mods are loaded later and override mods that were loaded earlier.");
             // 
-            // rotatingLabel1
+            // rotatingLabelLowPriority
             // 
-            rotatingLabel1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            rotatingLabel1.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            rotatingLabel1.Location = new Point(5, 385);
-            rotatingLabel1.Name = "rotatingLabel1";
-            rotatingLabel1.NewText = "« Lowest priority";
-            rotatingLabel1.RotateAngle = -90;
-            rotatingLabel1.Size = new Size(19, 113);
-            rotatingLabel1.TabIndex = 39;
-            toolTip1.SetToolTip(rotatingLabel1, "Mods are loaded earlier and may get overriden by mods loading after them.");
+            rotatingLabelLowPriority.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            rotatingLabelLowPriority.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            rotatingLabelLowPriority.Location = new Point(5, 385);
+            rotatingLabelLowPriority.Name = "rotatingLabelLowPriority";
+            rotatingLabelLowPriority.NewText = "« Lowest priority";
+            rotatingLabelLowPriority.RotateAngle = -90;
+            rotatingLabelLowPriority.Size = new Size(19, 113);
+            rotatingLabelLowPriority.TabIndex = 39;
+            toolTip1.SetToolTip(rotatingLabelLowPriority, "Mods are loaded earlier and may get overriden by mods loading after them.");
             // 
             // panelColorLegend
             // 
@@ -978,9 +978,9 @@ namespace MW5_Mod_Manager
             // splitContainer1.Panel1
             // 
             splitContainer1.Panel1.Controls.Add(label3);
-            splitContainer1.Panel1.Controls.Add(rotatingLabel1);
+            splitContainer1.Panel1.Controls.Add(rotatingLabelLowPriority);
             splitContainer1.Panel1.Controls.Add(modsListView);
-            splitContainer1.Panel1.Controls.Add(rotatingLabel2);
+            splitContainer1.Panel1.Controls.Add(rotatingLabelHighPriority);
             splitContainer1.Panel1.Controls.Add(filterBox);
             splitContainer1.Panel1.Controls.Add(panelColorLegend);
             splitContainer1.Panel1.Controls.Add(checkBoxFilter);
@@ -1002,7 +1002,7 @@ namespace MW5_Mod_Manager
             panelTabControl.Location = new Point(0, 0);
             panelTabControl.Margin = new Padding(0);
             panelTabControl.Name = "panelTabControl";
-            panelTabControl.Size = new Size(309, 528);
+            panelTabControl.Size = new Size(308, 528);
             panelTabControl.TabIndex = 0;
             // 
             // MainWindow
@@ -1097,7 +1097,7 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem toolStripMenuItemSettings;
         private ToolStripSeparator toolStripSeparator3;
         private ToolStripMenuItem toolStripMenuItemOpenModFolderSteam;
-        private ColumnHeader originalLoadOrderHeader;
+        public ColumnHeader originalLoadOrderHeader;
         private TabPage tabPage1;
         private Label label6;
         private Label labelModNameOverrides;
@@ -1130,7 +1130,7 @@ namespace MW5_Mod_Manager
         private Label labelNexusmods;
         private LinkLabel linkLabelNexusmods;
         private Button buttonClearHighlight;
-        private ColumnHeader currentLoadOrderHeader;
+        public ColumnHeader currentLoadOrderHeader;
         private ToolTip toolTip1;
         private ToolStripStatusLabel toolStripStatusLabel1;
         private ToolStripStatusLabel toolStripStatusLabelModCountTotal;
@@ -1148,8 +1148,8 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem moveupToolStripMenuItem;
         private ToolStripMenuItem movedownToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator6;
-        private RotatingLabel rotatingLabel2;
-        private RotatingLabel rotatingLabel1;
+        private RotatingLabel rotatingLabelHighPriority;
+        private RotatingLabel rotatingLabelLowPriority;
         private SplitContainer splitContainer1;
         private ColumnHeader fileSizeHeader;
         private Panel panelTabControl;
