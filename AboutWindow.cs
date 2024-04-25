@@ -33,5 +33,10 @@ namespace MW5_Mod_Manager
             };
             System.Diagnostics.Process.Start(psi);
         }
+
+        private void AboutWindow_Load(object sender, EventArgs e)
+        {
+            labelVersion.Text = @"Version: " + MainWindow.MainForm.GetVersion();
+        }
     }
 }

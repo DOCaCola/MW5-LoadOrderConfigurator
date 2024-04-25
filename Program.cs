@@ -69,7 +69,7 @@ namespace MW5_Mod_Manager
         public Dictionary<string, string> Presets = new Dictionary<string, string>();
 
         public static Color OverriddenColor = Color.FromArgb(194, 145, 0);
-        public static Color OverridingColor = Color.FromArgb(145, 0, 194);
+        public static Color OverridingColor = Color.FromArgb(80, 37, 192);
         public static Color OverriddenOveridingColor = Color.FromArgb(170,73,97);
 
         public static string SettingsFileName = @"Settings.json";

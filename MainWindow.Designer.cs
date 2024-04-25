@@ -479,8 +479,8 @@ namespace MW5_Mod_Manager
             // 
             helpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aboutToolStripMenuItem });
             helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            helpToolStripMenuItem.Size = new Size(44, 20);
-            helpToolStripMenuItem.Text = "&Help";
+            helpToolStripMenuItem.Size = new Size(40, 20);
+            helpToolStripMenuItem.Text = "&Info";
             // 
             // aboutToolStripMenuItem
             // 
@@ -560,10 +560,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(listBoxManifestOverridden);
             tabPage1.Controls.Add(listBoxOverriddenBy);
             tabPage1.Controls.Add(label5);
-            tabPage1.Location = new Point(4, 22);
+            tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(338, 502);
+            tabPage1.Size = new Size(338, 500);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
@@ -848,7 +848,7 @@ namespace MW5_Mod_Manager
             // label8
             // 
             label8.AutoSize = true;
-            label8.Location = new Point(222, 3);
+            label8.Location = new Point(193, 2);
             label8.Margin = new Padding(0);
             label8.Name = "label8";
             label8.Size = new Size(135, 13);
@@ -858,7 +858,7 @@ namespace MW5_Mod_Manager
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(117, 3);
+            label4.Location = new Point(105, 2);
             label4.Margin = new Padding(0);
             label4.Name = "label4";
             label4.Size = new Size(65, 13);
@@ -868,7 +868,7 @@ namespace MW5_Mod_Manager
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(17, 3);
+            label2.Location = new Point(18, 2);
             label2.Margin = new Padding(0);
             label2.Name = "label2";
             label2.Size = new Size(62, 13);
@@ -877,26 +877,23 @@ namespace MW5_Mod_Manager
             // 
             // panelColorOverridingOverridden
             // 
-            panelColorOverridingOverridden.BorderStyle = BorderStyle.Fixed3D;
-            panelColorOverridingOverridden.Location = new Point(206, 3);
+            panelColorOverridingOverridden.Location = new Point(178, 3);
             panelColorOverridingOverridden.Name = "panelColorOverridingOverridden";
-            panelColorOverridingOverridden.Size = new Size(16, 16);
+            panelColorOverridingOverridden.Size = new Size(12, 12);
             panelColorOverridingOverridden.TabIndex = 2;
             // 
             // panelColorOverriding
             // 
-            panelColorOverriding.BorderStyle = BorderStyle.Fixed3D;
             panelColorOverriding.Location = new Point(3, 3);
             panelColorOverriding.Name = "panelColorOverriding";
-            panelColorOverriding.Size = new Size(16, 16);
+            panelColorOverriding.Size = new Size(12, 12);
             panelColorOverriding.TabIndex = 1;
             // 
             // panelColorOverridden
             // 
-            panelColorOverridden.BorderStyle = BorderStyle.Fixed3D;
-            panelColorOverridden.Location = new Point(101, 3);
+            panelColorOverridden.Location = new Point(90, 3);
             panelColorOverridden.Name = "panelColorOverridden";
-            panelColorOverridden.Size = new Size(16, 16);
+            panelColorOverridden.Size = new Size(12, 12);
             panelColorOverridden.TabIndex = 0;
             // 
             // MainWindow
@@ -926,7 +923,7 @@ namespace MW5_Mod_Manager
             Name = "MainWindow";
             Text = "MechWarrior 5 Load Order Configurator";
             FormClosing += MainWindow_FormClosing;
-            Load += Form1_Load;
+            Load += MainWindow_Load;
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).EndInit();
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();

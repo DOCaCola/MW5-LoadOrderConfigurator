@@ -8,6 +8,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Media;
+using System.Reflection;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -62,8 +63,19 @@ namespace MW5_Mod_Manager
             //this.fileShare.Listener.RunWorkerAsync();
         }
 
-        //called upon loading the form
-        private void Form1_Load(object sender, EventArgs e)
+
+        public string GetVersion()
+        {
+            FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()!.Location);
+            string[] versionSplit = versionInfo.ProductVersion.Split('.');
+            if (versionSplit.Length < 2)
+            {
+                return versionInfo.ProductVersion;
+            }
+            return versionSplit[0] + @"." + versionSplit[1];
+        }
+
+        private void MainWindow_Load(object sender, EventArgs e)
         {
             this.Icon = Properties.Resources.MainIcon;
             this.logic = new MainLogic();
@@ -73,6 +85,8 @@ namespace MW5_Mod_Manager
             }
             this.LoadPresets();
             this.SetVersionAndPlatform();
+
+            this.Text += @" " + GetVersion();
 
             SetupRotatingLabel();
 

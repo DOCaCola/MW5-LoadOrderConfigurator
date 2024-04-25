@@ -35,13 +35,14 @@
             buttonClose = new System.Windows.Forms.Button();
             linkLabel1 = new System.Windows.Forms.LinkLabel();
             label3 = new System.Windows.Forms.Label();
+            labelVersion = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new System.Drawing.Point(25, 182);
+            label1.Location = new System.Drawing.Point(19, 201);
             label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             label1.Name = "label1";
             label1.Size = new System.Drawing.Size(144, 15);
@@ -51,7 +52,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new System.Drawing.Point(25, 200);
+            label2.Location = new System.Drawing.Point(19, 219);
             label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             label2.Name = "label2";
             label2.Size = new System.Drawing.Size(168, 15);
@@ -61,7 +62,7 @@
             // pictureBox1
             // 
             pictureBox1.Image = (System.Drawing.Image)resources.GetObject("pictureBox1.Image");
-            pictureBox1.Location = new System.Drawing.Point(25, 14);
+            pictureBox1.Location = new System.Drawing.Point(19, 12);
             pictureBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new System.Drawing.Size(284, 139);
@@ -71,7 +72,7 @@
             // 
             // buttonClose
             // 
-            buttonClose.Location = new System.Drawing.Point(25, 260);
+            buttonClose.Location = new System.Drawing.Point(19, 279);
             buttonClose.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             buttonClose.Name = "buttonClose";
             buttonClose.Size = new System.Drawing.Size(88, 26);
@@ -83,7 +84,7 @@
             // linkLabel1
             // 
             linkLabel1.AutoSize = true;
-            linkLabel1.Location = new System.Drawing.Point(25, 228);
+            linkLabel1.Location = new System.Drawing.Point(19, 247);
             linkLabel1.Name = "linkLabel1";
             linkLabel1.Size = new System.Drawing.Size(284, 15);
             linkLabel1.TabIndex = 5;
@@ -95,18 +96,27 @@
             // 
             label3.AutoSize = true;
             label3.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            label3.Location = new System.Drawing.Point(25, 156);
+            label3.Location = new System.Drawing.Point(19, 154);
             label3.Name = "label3";
             label3.Size = new System.Drawing.Size(230, 15);
             label3.TabIndex = 6;
             label3.Text = "MechWarrior 5 Load Order Configurator";
+            // 
+            // labelVersion
+            // 
+            labelVersion.Location = new System.Drawing.Point(19, 173);
+            labelVersion.Name = "labelVersion";
+            labelVersion.Size = new System.Drawing.Size(122, 18);
+            labelVersion.TabIndex = 7;
+            labelVersion.Text = "labelVersion";
             // 
             // AboutWindow
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             CancelButton = buttonClose;
-            ClientSize = new System.Drawing.Size(331, 306);
+            ClientSize = new System.Drawing.Size(323, 318);
+            Controls.Add(labelVersion);
             Controls.Add(label3);
             Controls.Add(linkLabel1);
             Controls.Add(buttonClose);
@@ -121,6 +131,7 @@
             ShowIcon = false;
             ShowInTaskbar = false;
             Text = "About";
+            Load += AboutWindow_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
             PerformLayout();
@@ -134,5 +145,6 @@
         private System.Windows.Forms.Button buttonClose;
         private System.Windows.Forms.LinkLabel linkLabel1;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label labelVersion;
     }
 }
