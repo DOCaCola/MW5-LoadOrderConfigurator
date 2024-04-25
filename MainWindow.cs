@@ -32,7 +32,7 @@ namespace MW5_Mod_Manager
         private bool MovingItem = false;
         internal bool JustPacking = true;
 
-        static Color HighlightColor = Color.FromArgb(200, 245, 255);
+        static Color HighlightColor = Color.FromArgb(200, 253, 213);
 
         public bool LoadingAndFilling { get; private set; }
 
@@ -526,8 +526,8 @@ namespace MW5_Mod_Manager
             newItem.SubItems[versionHeader.Index].Text = logic.ModDetails[entry.Key].version + " (" + logic.ModDetails[entry.Key].buildNumber.ToString() + ")";
             newItem.SubItems[currentLoadOrderHeader.Index].Text = logic.ModDetails[entry.Key].defaultLoadOrder.ToString();
             newItem.SubItems[originalLoadOrderHeader.Index].Text = logic.Mods[entry.Key].OriginalLoadOrder.ToString();
+            newItem.SubItems[fileSizeHeader.Index].Text = Utils.BytesToHumanReadableString(logic.Mods[entry.Key].ModFileSize);
 
-            newItem.EnsureVisible();
             newItem.Tag = entry.Key;
             ModListData.Add(newItem);
         }

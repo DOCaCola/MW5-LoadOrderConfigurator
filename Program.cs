@@ -68,14 +68,14 @@ namespace MW5_Mod_Manager
         public Dictionary<string, OverridingData> OverrridingData = new Dictionary<string, OverridingData>();
         public Dictionary<string, string> Presets = new Dictionary<string, string>();
 
-        public static Color OverriddenColor = Color.FromArgb(194, 145, 0);
+        public static Color OverriddenColor = Color.FromArgb(131, 101, 0);
         public static Color OverridingColor = Color.FromArgb(80, 37, 192);
         public static Color OverriddenOveridingColor = Color.FromArgb(170,73,97);
 
         public static string SettingsFileName = @"Settings.json";
         public static string PresetsFileName = @"Presets.json";
 
-        public struct ModData
+        public class ModData
         {
             public float OriginalLoadOrder = Single.NaN;
 
@@ -88,6 +88,8 @@ namespace MW5_Mod_Manager
 
             public ModOrigin Origin = ModOrigin.Unknown;
             public string NexusModsId = "";
+            // Mod's pak file size
+            public long ModFileSize = 0;
 
             public ModData()
             {
@@ -570,6 +572,9 @@ namespace MW5_Mod_Manager
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
 
+                if (Mods.ContainsKey(modDir))
+                    Mods.Remove(modDir);
+
                 if (ModList.ContainsKey(modDir))
                     ModList.Remove(modDir);
 
@@ -590,6 +595,9 @@ namespace MW5_Mod_Manager
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
 
+                if (Mods.ContainsKey(modDir))
+                    Mods.Remove(modDir);
+
                 if (ModList.ContainsKey(modDir))
                     ModList.Remove(modDir);
 
@@ -599,14 +607,18 @@ namespace MW5_Mod_Manager
                 return;
             }
 
+            long totalPakSize = 0;
             bool hasZeroBytePak = false;
             foreach (string filePath in Directory.GetFiles(pakDir, "*.pak"))
             {
-                if (new FileInfo(filePath).Length == 0)
+                long fileSize = new FileInfo(filePath).Length;
+
+                if (fileSize == 0)
                 {
                     hasZeroBytePak = true;
                     break;
                 }
+                totalPakSize += fileSize;
             }
 
             if (hasZeroBytePak)
@@ -618,6 +630,9 @@ namespace MW5_Mod_Manager
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
 
+                if (Mods.ContainsKey(modDir))
+                    Mods.Remove(modDir);
+
                 if (ModList.ContainsKey(modDir))
                     ModList.Remove(modDir);
 
@@ -626,6 +641,8 @@ namespace MW5_Mod_Manager
 
                 return;
             }
+
+            Mods[modDir].ModFileSize = totalPakSize;
         }
 
         private void LoadAllModDetails()

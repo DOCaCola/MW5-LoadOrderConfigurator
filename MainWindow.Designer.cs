@@ -49,6 +49,7 @@ namespace MW5_Mod_Manager
             versionHeader = new ColumnHeader();
             currentLoadOrderHeader = new ColumnHeader();
             originalLoadOrderHeader = new ColumnHeader();
+            fileSizeHeader = new ColumnHeader();
             imageListIcons = new ImageList(components);
             buttonStartGame = new Button();
             label3 = new Label();
@@ -208,7 +209,7 @@ namespace MW5_Mod_Manager
             modsListView.AllowDrop = true;
             modsListView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             modsListView.CheckBoxes = true;
-            modsListView.Columns.AddRange(new ColumnHeader[] { enabledHeader, displayHeader, folderHeader, authorHeader, versionHeader, currentLoadOrderHeader, originalLoadOrderHeader });
+            modsListView.Columns.AddRange(new ColumnHeader[] { enabledHeader, displayHeader, folderHeader, authorHeader, versionHeader, currentLoadOrderHeader, originalLoadOrderHeader, fileSizeHeader });
             modsListView.FullRowSelect = true;
             modsListView.GridLines = true;
             modsListView.LabelWrap = false;
@@ -216,7 +217,7 @@ namespace MW5_Mod_Manager
             modsListView.MultiSelect = false;
             modsListView.Name = "modsListView";
             modsListView.RightToLeft = RightToLeft.No;
-            modsListView.Size = new Size(692, 468);
+            modsListView.Size = new Size(734, 468);
             modsListView.SmallImageList = imageListIcons;
             modsListView.TabIndex = 10;
             modsListView.UseCompatibleStateImageBehavior = false;
@@ -269,6 +270,10 @@ namespace MW5_Mod_Manager
             // 
             originalLoadOrderHeader.Text = "Default Load Order";
             originalLoadOrderHeader.Width = 40;
+            // 
+            // fileSizeHeader
+            // 
+            fileSizeHeader.Text = "Size";
             // 
             // imageListIcons
             // 
@@ -342,7 +347,7 @@ namespace MW5_Mod_Manager
             menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, presetsToolStripMenuItem, modsToolStripMenuItem, helpToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(1144, 24);
+            menuStrip1.Size = new Size(1167, 24);
             menuStrip1.TabIndex = 35;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -506,14 +511,14 @@ namespace MW5_Mod_Manager
             statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1, toolStripStatusLabelModsActive, toolStripStatusLabelModCountTotal, toolStripPlatformLabel, toolStripStatusLabelMwVersion });
             statusStrip1.Location = new Point(0, 555);
             statusStrip1.Name = "statusStrip1";
-            statusStrip1.Size = new Size(1144, 24);
+            statusStrip1.Size = new Size(1167, 24);
             statusStrip1.TabIndex = 36;
             statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            toolStripStatusLabel1.Size = new Size(863, 19);
+            toolStripStatusLabel1.Size = new Size(886, 19);
             toolStripStatusLabel1.Spring = true;
             // 
             // toolStripStatusLabelModsActive
@@ -598,10 +603,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(listBoxManifestOverridden);
             tabPage1.Controls.Add(listBoxOverriddenBy);
             tabPage1.Controls.Add(label5);
-            tabPage1.Location = new Point(4, 24);
+            tabPage1.Location = new Point(4, 22);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(313, 500);
+            tabPage1.Size = new Size(287, 502);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
@@ -654,7 +659,7 @@ namespace MW5_Mod_Manager
             listBoxManifestOverridden.ItemHeight = 13;
             listBoxManifestOverridden.Location = new Point(9, 178);
             listBoxManifestOverridden.Name = "listBoxManifestOverridden";
-            listBoxManifestOverridden.Size = new Size(299, 316);
+            listBoxManifestOverridden.Size = new Size(275, 316);
             listBoxManifestOverridden.TabIndex = 22;
             // 
             // listBoxOverriddenBy
@@ -665,7 +670,7 @@ namespace MW5_Mod_Manager
             listBoxOverriddenBy.ItemHeight = 13;
             listBoxOverriddenBy.Location = new Point(153, 52);
             listBoxOverriddenBy.Name = "listBoxOverriddenBy";
-            listBoxOverriddenBy.Size = new Size(155, 95);
+            listBoxOverriddenBy.Size = new Size(131, 95);
             listBoxOverriddenBy.TabIndex = 23;
             listBoxOverriddenBy.SelectedIndexChanged += listBox3_SelectedIndexChanged;
             listBoxOverriddenBy.MouseDoubleClick += listBoxOverriddenBy_MouseDoubleClick;
@@ -686,7 +691,7 @@ namespace MW5_Mod_Manager
             tabPageModInfo.Location = new Point(4, 22);
             tabPageModInfo.Name = "tabPageModInfo";
             tabPageModInfo.Padding = new Padding(3);
-            tabPageModInfo.Size = new Size(313, 502);
+            tabPageModInfo.Size = new Size(287, 502);
             tabPageModInfo.TabIndex = 3;
             tabPageModInfo.Text = "Overview";
             tabPageModInfo.UseVisualStyleBackColor = true;
@@ -696,7 +701,7 @@ namespace MW5_Mod_Manager
             pictureBoxModImage.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             pictureBoxModImage.Location = new Point(5, 6);
             pictureBoxModImage.Name = "pictureBoxModImage";
-            pictureBoxModImage.Size = new Size(306, 139);
+            pictureBoxModImage.Size = new Size(287, 139);
             pictureBoxModImage.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxModImage.TabIndex = 2;
             pictureBoxModImage.TabStop = false;
@@ -719,7 +724,7 @@ namespace MW5_Mod_Manager
             panelModInfo.Controls.Add(labelModName);
             panelModInfo.Location = new Point(0, 150);
             panelModInfo.Name = "panelModInfo";
-            panelModInfo.Size = new Size(326, 373);
+            panelModInfo.Size = new Size(307, 373);
             panelModInfo.TabIndex = 1;
             panelModInfo.Visible = false;
             // 
@@ -776,7 +781,7 @@ namespace MW5_Mod_Manager
             richTextBoxModDescription.Location = new Point(15, 184);
             richTextBoxModDescription.Name = "richTextBoxModDescription";
             richTextBoxModDescription.ReadOnly = true;
-            richTextBoxModDescription.Size = new Size(285, 157);
+            richTextBoxModDescription.Size = new Size(266, 157);
             richTextBoxModDescription.TabIndex = 9;
             richTextBoxModDescription.Text = "";
             richTextBoxModDescription.LinkClicked += richTextBoxModDescription_LinkClicked;
@@ -857,7 +862,7 @@ namespace MW5_Mod_Manager
             tabControl1.Location = new Point(3, 0);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(321, 528);
+            tabControl1.Size = new Size(295, 528);
             tabControl1.TabIndex = 11;
             // 
             // buttonClearHighlight
@@ -980,8 +985,8 @@ namespace MW5_Mod_Manager
             // 
             splitContainer1.Panel2.Controls.Add(tabControl1);
             splitContainer1.Panel2MinSize = 250;
-            splitContainer1.Size = new Size(1058, 528);
-            splitContainer1.SplitterDistance = 725;
+            splitContainer1.Size = new Size(1081, 528);
+            splitContainer1.SplitterDistance = 767;
             splitContainer1.SplitterWidth = 5;
             splitContainer1.TabIndex = 40;
             // 
@@ -989,7 +994,7 @@ namespace MW5_Mod_Manager
             // 
             AutoScaleDimensions = new SizeF(6F, 13F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1144, 579);
+            ClientSize = new Size(1167, 579);
             Controls.Add(buttonStartGame);
             Controls.Add(statusStrip1);
             Controls.Add(buttonRemove);
@@ -1130,6 +1135,7 @@ namespace MW5_Mod_Manager
         private RotatingLabel rotatingLabel2;
         private RotatingLabel rotatingLabel1;
         private SplitContainer splitContainer1;
+        private ColumnHeader fileSizeHeader;
     }
 }
 

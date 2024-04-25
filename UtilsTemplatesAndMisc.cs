@@ -78,6 +78,17 @@ namespace MW5_Mod_Manager
             return size;
         }
 
+        public static String BytesToHumanReadableString(long byteCount)
+        {
+            string[] suf = { "bytes", "KB", "MB", "GB", "TB", "PB", "EB" }; //Longs run out around EB
+            if (byteCount == 0)
+                return "0" + suf[0];
+            long bytes = Math.Abs(byteCount);
+            int place = Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
+            double num = Math.Round(bytes / Math.Pow(1024, place), 1);
+            return (Math.Sign(byteCount) * num).ToString() + " " + suf[place];
+        }
+
                 /// <summary>
         /// Compare two version strings, e.g.  "3.2.1.0.b40" and "3.10.1.a".
         /// V1 and V2 can have different number of components.
