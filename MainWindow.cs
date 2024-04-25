@@ -32,6 +32,8 @@ namespace MW5_Mod_Manager
         private bool MovingItem = false;
         internal bool JustPacking = true;
 
+        static Color HighlightColor = Color.FromArgb(200, 245, 255);
+
         public bool LoadingAndFilling { get; private set; }
 
         public MainWindow()
@@ -88,22 +90,11 @@ namespace MW5_Mod_Manager
 
             this.Text += @" " + GetVersion();
 
-            SetupRotatingLabel();
-
             panelColorOverridden.BackColor = MainLogic.OverriddenColor;
             panelColorOverriding.BackColor = MainLogic.OverridingColor;
             panelColorOverridingOverridden.BackColor = MainLogic.OverriddenOveridingColor;
         }
-
-        private void SetupRotatingLabel()
-        {
-            this.rotatingLabel1.Text = "";                  // which can be changed by NewText property
-            this.rotatingLabel1.AutoSize = false;           // adjust according to your text
-            this.rotatingLabel1.NewText = "<- Low Priority/Loaded First --- High Priority/Loaded Last ->";     // whatever you want to display
-            this.rotatingLabel1.ForeColor = Color.Black;    // color to display
-            this.rotatingLabel1.RotateAngle = -90;          // angle to rotate
-        }
-
+        
         //handling key presses for hotkeys.
         private async void form1_KeyUp(object sender, KeyEventArgs e)
         {
@@ -853,13 +844,7 @@ namespace MW5_Mod_Manager
                 //Console.WriteLine("No filter text");
                 if (this.filtered) //we are returning from filtering
                 {
-                    foreach (ListViewItem x in this.ModListData)
-                    {
-                        x.SubItems[displayHeader.Index].BackColor = Color.White;
-                        x.SubItems[folderHeader.Index].BackColor = Color.White;
-                        x.SubItems[authorHeader.Index].BackColor = Color.White;
-                        x.SubItems[versionHeader.Index].BackColor = Color.White;
-                    }
+                    UnhighlightAllMods();
                     UpdateListView();
                 }
                 else //We are not returning from a filter
@@ -883,18 +868,18 @@ namespace MW5_Mod_Manager
                         //Check if there is a hit.
                         if (MatchItemToText(filtertext, item))
                         {
-                            item.SubItems[displayHeader.Index].BackColor = Color.Yellow;
-                            item.SubItems[folderHeader.Index].BackColor = Color.Yellow;
-                            item.SubItems[authorHeader.Index].BackColor = Color.Yellow;
-                            item.SubItems[versionHeader.Index].BackColor = Color.Yellow;
+                            foreach (ListViewItem.ListViewSubItem subItem in item.SubItems)
+                            {
+                                subItem.BackColor = HighlightColor;
+                            }
                         }
                         //if not set to white.
                         else
                         {
-                            item.SubItems[displayHeader.Index].BackColor = Color.White;
-                            item.SubItems[folderHeader.Index].BackColor = Color.White;
-                            item.SubItems[authorHeader.Index].BackColor = Color.White;
-                            item.SubItems[versionHeader.Index].BackColor = Color.White;
+                            foreach (ListViewItem.ListViewSubItem subItem in item.SubItems)
+                            {
+                                subItem.BackColor = Color.White;
+                            }
                         }
                     }
                 }
@@ -903,18 +888,7 @@ namespace MW5_Mod_Manager
                 {
                     //Clear the list view
                     this.modsListView.Items.Clear();
-                    //For each item check if they are a hit if so add them.
-                    foreach (ListViewItem item in this.ModListData)
-                    {
-                        if (MatchItemToText(filtertext, item))
-                        {
-                            item.SubItems[displayHeader.Index].BackColor = Color.White;
-                            item.SubItems[folderHeader.Index].BackColor = Color.White;
-                            item.SubItems[authorHeader.Index].BackColor = Color.White;
-                            item.SubItems[versionHeader.Index].BackColor = Color.White;
-                            MainForm.modsListView.Items.Add(item);
-                        }
-                    }
+                    UnhighlightAllMods();
                 }
                 //While filtering disable the up/down buttons (tough this should no longer be needed).
                 MainForm.buttonMoveUp.Enabled = false;
@@ -976,6 +950,8 @@ namespace MW5_Mod_Manager
         //Selected index of mods overriding the currently selected mod has changed.
         private void listBox3_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (!filtered)
+                UnhighlightAllMods();
             if (listBoxOverriddenBy.SelectedIndex == -1)
                 return;
 
@@ -988,6 +964,8 @@ namespace MW5_Mod_Manager
                 return;
 
             ModListBoxItem selectedMod = (ModListBoxItem)listBoxOverriddenBy.SelectedItem;
+
+            HighlightModInList(selectedMod.ModKey);
 
             string superMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
 
@@ -1008,6 +986,8 @@ namespace MW5_Mod_Manager
         //Selected index of mods that are being overriden by the currently selected mod had changed.
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (!filtered)
+                UnhighlightAllMods();
             if (listBoxOverriding.SelectedIndex == -1)
                 return;
 
@@ -1018,7 +998,11 @@ namespace MW5_Mod_Manager
 
             if (listBoxOverriding.SelectedItem == null)
                 return;
+
             ModListBoxItem selectedMod = (ModListBoxItem)listBoxOverriding.SelectedItem;
+
+            if (!filtered)
+                HighlightModInList(selectedMod.ModKey);
 
             string superMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
 
@@ -1046,6 +1030,9 @@ namespace MW5_Mod_Manager
         //Selected item in the list view has cahnged
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (!filtered)
+                UnhighlightAllMods();
+            
             if (modsListView.SelectedItems.Count == 0)
             {
                 ClearModSidePanel();
@@ -1636,13 +1623,40 @@ namespace MW5_Mod_Manager
 
         public void SelectModInList(string modKey)
         {
-            foreach (ListViewItem modListItem in modsListView.Items)
+            foreach (ListViewItem modListItem in ModListData)
             {
                 if (modListItem.Tag.ToString() == modKey)
                 {
                     modListItem.Selected = true;
                     modsListView.EnsureVisible(modListItem.Index);
                     break;
+                }
+            }
+        }
+
+        public void HighlightModInList(string modKey)
+        {
+            foreach (ListViewItem modListItem in ModListData)
+            {
+                if (modListItem.Tag.ToString() == modKey)
+                {
+                    foreach (ListViewItem.ListViewSubItem subItem in modListItem.SubItems)
+                    {
+                        subItem.BackColor = HighlightColor;
+                    }
+                    break;
+                }
+            }
+        }
+
+        public void UnhighlightAllMods()
+        {
+            foreach (ListViewItem modListItem in ModListData)
+            {
+                foreach (ListViewItem.ListViewSubItem subItem in modListItem.SubItems)
+                {
+                    if (subItem.BackColor != Color.White)
+                        subItem.BackColor = Color.White;
                 }
             }
         }

@@ -86,7 +86,6 @@ namespace MW5_Mod_Manager
             toolStripStatusLabelModsActive = new ToolStripStatusLabel();
             toolStripStatusLabelModCountTotal = new ToolStripStatusLabel();
             toolStripStatusLabelMwVersion = new ToolStripStatusLabel();
-            rotatingLabel1 = new RotatingLabel();
             contextMenuStripMod = new ContextMenuStrip(components);
             moveupToolStripMenuItem = new ToolStripMenuItem();
             movedownToolStripMenuItem = new ToolStripMenuItem();
@@ -122,6 +121,8 @@ namespace MW5_Mod_Manager
             tabControl1 = new TabControl();
             buttonClearHighlight = new Button();
             toolTip1 = new ToolTip(components);
+            rotatingLabel2 = new RotatingLabel();
+            rotatingLabel1 = new RotatingLabel();
             panelColorLegend = new Panel();
             label8 = new Label();
             label4 = new Label();
@@ -532,18 +533,6 @@ namespace MW5_Mod_Manager
             toolStripStatusLabelMwVersion.Size = new Size(49, 19);
             toolStripStatusLabelMwVersion.Text = "version";
             // 
-            // rotatingLabel1
-            // 
-            rotatingLabel1.AutoSize = true;
-            rotatingLabel1.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            rotatingLabel1.Location = new Point(100, 118);
-            rotatingLabel1.Name = "rotatingLabel1";
-            rotatingLabel1.NewText = "";
-            rotatingLabel1.RotateAngle = 0;
-            rotatingLabel1.Size = new Size(18, 19);
-            rotatingLabel1.TabIndex = 12;
-            rotatingLabel1.Text = "X";
-            // 
             // contextMenuStripMod
             // 
             contextMenuStripMod.Items.AddRange(new ToolStripItem[] { moveupToolStripMenuItem, movedownToolStripMenuItem, toolStripSeparator6, contextMenuItemMoveToTop, contextMenuItemMoveToBottom, toolStripSeparator5, openFolderToolStripMenuItem });
@@ -875,6 +864,29 @@ namespace MW5_Mod_Manager
             buttonClearHighlight.UseVisualStyleBackColor = true;
             buttonClearHighlight.Click += buttonClearHighlight_Click;
             // 
+            // rotatingLabel2
+            // 
+            rotatingLabel2.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            rotatingLabel2.Location = new Point(99, 73);
+            rotatingLabel2.Name = "rotatingLabel2";
+            rotatingLabel2.NewText = "Highest priority »";
+            rotatingLabel2.RotateAngle = -90;
+            rotatingLabel2.Size = new Size(19, 118);
+            rotatingLabel2.TabIndex = 38;
+            toolTip1.SetToolTip(rotatingLabel2, "Mods are loaded later and override mods that were loaded earlier.");
+            // 
+            // rotatingLabel1
+            // 
+            rotatingLabel1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            rotatingLabel1.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            rotatingLabel1.Location = new Point(99, 412);
+            rotatingLabel1.Name = "rotatingLabel1";
+            rotatingLabel1.NewText = "« Lowest priority";
+            rotatingLabel1.RotateAngle = -90;
+            rotatingLabel1.Size = new Size(19, 113);
+            rotatingLabel1.TabIndex = 39;
+            toolTip1.SetToolTip(rotatingLabel1, "Mods are loaded earlier and may get overriden by mods loading after them.");
+            // 
             // panelColorLegend
             // 
             panelColorLegend.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
@@ -945,11 +957,12 @@ namespace MW5_Mod_Manager
             AutoScaleDimensions = new SizeF(6F, 13F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1184, 579);
+            Controls.Add(rotatingLabel1);
+            Controls.Add(rotatingLabel2);
             Controls.Add(panelColorLegend);
             Controls.Add(buttonClearHighlight);
             Controls.Add(buttonStartGame);
             Controls.Add(statusStrip1);
-            Controls.Add(rotatingLabel1);
             Controls.Add(tabControl1);
             Controls.Add(buttonRemove);
             Controls.Add(checkBoxFilter);
@@ -1002,7 +1015,6 @@ namespace MW5_Mod_Manager
         public System.Windows.Forms.ColumnHeader enabledHeader;
         public System.Windows.Forms.ColumnHeader versionHeader;
         public System.Windows.Forms.ToolStripLabel toolStripVendorLabeltoolStripLabel1;
-        private RotatingLabel rotatingLabel1;
         private System.Windows.Forms.Button buttonStartGame;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox filterBox;
@@ -1085,6 +1097,8 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem moveupToolStripMenuItem;
         private ToolStripMenuItem movedownToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator6;
+        private RotatingLabel rotatingLabel2;
+        private RotatingLabel rotatingLabel1;
     }
 }
 
