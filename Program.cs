@@ -1146,6 +1146,7 @@ namespace MW5_Mod_Manager
         //Color the list view items based on data
         public void ColorizeListViewItems(List<ModListViewItem> items)
         {
+            MainWindow.MainForm.modsListView.BeginUpdate();
             foreach (ModListViewItem item in items)
             {
                 string modName = item.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
@@ -1169,7 +1170,7 @@ namespace MW5_Mod_Manager
 
                 foreach (ListViewItem.ListViewSubItem curItem in item.SubItems)
                 {
-                    curItem.ForeColor = modEnabled ? Color.Black : Color.Gray;
+                    curItem.ForeColor = modEnabled ? SystemColors.WindowText : Color.Gray;
                 }
 
                 if (!modEnabled)
@@ -1179,12 +1180,12 @@ namespace MW5_Mod_Manager
 
                 if (!this.OverrridingData.ContainsKey(modName))
                 {
-                    item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = Color.Black;
+                    item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = SystemColors.WindowText;
 
                     continue;
                 }
                 OverridingData A = OverrridingData[modName];
-                Color newItemColor = Color.Black;
+                Color newItemColor = SystemColors.WindowText;
                 if (A.isOverridden)
                 {
                     newItemColor = OverriddenColor;
@@ -1197,16 +1198,13 @@ namespace MW5_Mod_Manager
                 {
                     newItemColor = OverriddenOveridingColor;
                 }
-                if (!A.isOverriding && !A.isOverridden)
-                {
-                    newItemColor = Color.Black;
-                }
 
                 item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = newItemColor;
             }
 
-            MainWindow.MainForm.ColorListViewNumbers(MainWindow.MainForm.modsListView, MainWindow.MainForm.currentLoadOrderHeader.Index, LowPriorityColor, HighPriorityColor);
-            MainWindow.MainForm.ColorListViewNumbers(MainWindow.MainForm.modsListView, MainWindow.MainForm.originalLoadOrderHeader.Index, LowPriorityColor, HighPriorityColor);
+            MainWindow.MainForm.ColorListViewNumbers(MainWindow.MainForm.ModListData, MainWindow.MainForm.currentLoadOrderHeader.Index, LowPriorityColor, HighPriorityColor);
+            MainWindow.MainForm.ColorListViewNumbers(MainWindow.MainForm.ModListData, MainWindow.MainForm.originalLoadOrderHeader.Index, LowPriorityColor, HighPriorityColor);
+            MainWindow.MainForm.modsListView.EndUpdate();
         }
 
         //Monitor the size of a given zip file

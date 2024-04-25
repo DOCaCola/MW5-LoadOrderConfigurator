@@ -203,8 +203,8 @@ namespace MW5_Mod_Manager
             // 
             toolStripPlatformLabel.BorderSides = ToolStripStatusLabelBorderSides.Left;
             toolStripPlatformLabel.Name = "toolStripPlatformLabel";
-            toolStripPlatformLabel.Size = new Size(57, 19);
-            toolStripPlatformLabel.Text = "platform";
+            toolStripPlatformLabel.Size = new Size(16, 19);
+            toolStripPlatformLabel.Text = "-";
             // 
             // modsListView
             // 
@@ -520,30 +520,30 @@ namespace MW5_Mod_Manager
             // toolStripStatusLabel1
             // 
             toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            toolStripStatusLabel1.Size = new Size(886, 19);
+            toolStripStatusLabel1.Size = new Size(1058, 19);
             toolStripStatusLabel1.Spring = true;
             // 
             // toolStripStatusLabelModsActive
             // 
             toolStripStatusLabelModsActive.BorderSides = ToolStripStatusLabelBorderSides.Left;
             toolStripStatusLabelModsActive.Name = "toolStripStatusLabelModsActive";
-            toolStripStatusLabelModsActive.Size = new Size(69, 19);
-            toolStripStatusLabelModsActive.Text = "modActive";
+            toolStripStatusLabelModsActive.Size = new Size(16, 19);
+            toolStripStatusLabelModsActive.Text = "-";
             // 
             // toolStripStatusLabelModCountTotal
             // 
             toolStripStatusLabelModCountTotal.BorderSides = ToolStripStatusLabelBorderSides.Left;
             toolStripStatusLabelModCountTotal.Name = "toolStripStatusLabelModCountTotal";
-            toolStripStatusLabelModCountTotal.Size = new Size(61, 19);
-            toolStripStatusLabelModCountTotal.Text = "modTotal";
+            toolStripStatusLabelModCountTotal.Size = new Size(16, 19);
+            toolStripStatusLabelModCountTotal.Text = "-";
             // 
             // toolStripStatusLabelMwVersion
             // 
             toolStripStatusLabelMwVersion.BorderSides = ToolStripStatusLabelBorderSides.Left;
             toolStripStatusLabelMwVersion.Margin = new Padding(0, 3, 30, 2);
             toolStripStatusLabelMwVersion.Name = "toolStripStatusLabelMwVersion";
-            toolStripStatusLabelMwVersion.Size = new Size(49, 19);
-            toolStripStatusLabelMwVersion.Text = "version";
+            toolStripStatusLabelMwVersion.Size = new Size(16, 19);
+            toolStripStatusLabelMwVersion.Text = "-";
             // 
             // contextMenuStripMod
             // 
@@ -608,7 +608,7 @@ namespace MW5_Mod_Manager
             tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(297, 500);
+            tabPage1.Size = new Size(295, 500);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
@@ -693,7 +693,7 @@ namespace MW5_Mod_Manager
             tabPageModInfo.Location = new Point(4, 22);
             tabPageModInfo.Name = "tabPageModInfo";
             tabPageModInfo.Padding = new Padding(3);
-            tabPageModInfo.Size = new Size(297, 502);
+            tabPageModInfo.Size = new Size(295, 502);
             tabPageModInfo.TabIndex = 3;
             tabPageModInfo.Text = "Overview";
             tabPageModInfo.UseVisualStyleBackColor = true;
@@ -867,7 +867,7 @@ namespace MW5_Mod_Manager
             tabControl1.Margin = new Padding(0);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(305, 528);
+            tabControl1.Size = new Size(303, 528);
             tabControl1.TabIndex = 11;
             // 
             // buttonClearHighlight
@@ -1002,7 +1002,7 @@ namespace MW5_Mod_Manager
             panelTabControl.Location = new Point(0, 0);
             panelTabControl.Margin = new Padding(0);
             panelTabControl.Name = "panelTabControl";
-            panelTabControl.Size = new Size(308, 528);
+            panelTabControl.Size = new Size(306, 528);
             panelTabControl.TabIndex = 0;
             // 
             // MainWindow
