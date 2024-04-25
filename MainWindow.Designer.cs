@@ -132,6 +132,7 @@ namespace MW5_Mod_Manager
             panelColorOverriding = new Panel();
             panelColorOverridden = new Panel();
             splitContainer1 = new SplitContainer();
+            panelTabControl = new Panel();
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -148,6 +149,7 @@ namespace MW5_Mod_Manager
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
             splitContainer1.SuspendLayout();
+            panelTabControl.SuspendLayout();
             SuspendLayout();
             // 
             // buttonMoveUp
@@ -603,10 +605,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(listBoxManifestOverridden);
             tabPage1.Controls.Add(listBoxOverriddenBy);
             tabPage1.Controls.Add(label5);
-            tabPage1.Location = new Point(4, 22);
+            tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(287, 502);
+            tabPage1.Size = new Size(293, 500);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
@@ -659,7 +661,7 @@ namespace MW5_Mod_Manager
             listBoxManifestOverridden.ItemHeight = 13;
             listBoxManifestOverridden.Location = new Point(9, 178);
             listBoxManifestOverridden.Name = "listBoxManifestOverridden";
-            listBoxManifestOverridden.Size = new Size(275, 316);
+            listBoxManifestOverridden.Size = new Size(283, 277);
             listBoxManifestOverridden.TabIndex = 22;
             // 
             // listBoxOverriddenBy
@@ -670,7 +672,7 @@ namespace MW5_Mod_Manager
             listBoxOverriddenBy.ItemHeight = 13;
             listBoxOverriddenBy.Location = new Point(153, 52);
             listBoxOverriddenBy.Name = "listBoxOverriddenBy";
-            listBoxOverriddenBy.Size = new Size(131, 95);
+            listBoxOverriddenBy.Size = new Size(139, 95);
             listBoxOverriddenBy.TabIndex = 23;
             listBoxOverriddenBy.SelectedIndexChanged += listBox3_SelectedIndexChanged;
             listBoxOverriddenBy.MouseDoubleClick += listBoxOverriddenBy_MouseDoubleClick;
@@ -691,7 +693,7 @@ namespace MW5_Mod_Manager
             tabPageModInfo.Location = new Point(4, 22);
             tabPageModInfo.Name = "tabPageModInfo";
             tabPageModInfo.Padding = new Padding(3);
-            tabPageModInfo.Size = new Size(287, 502);
+            tabPageModInfo.Size = new Size(298, 502);
             tabPageModInfo.TabIndex = 3;
             tabPageModInfo.Text = "Overview";
             tabPageModInfo.UseVisualStyleBackColor = true;
@@ -699,9 +701,10 @@ namespace MW5_Mod_Manager
             // pictureBoxModImage
             // 
             pictureBoxModImage.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            pictureBoxModImage.Location = new Point(5, 6);
+            pictureBoxModImage.Location = new Point(3, 6);
+            pictureBoxModImage.Margin = new Padding(0);
             pictureBoxModImage.Name = "pictureBoxModImage";
-            pictureBoxModImage.Size = new Size(287, 139);
+            pictureBoxModImage.Size = new Size(293, 144);
             pictureBoxModImage.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxModImage.TabIndex = 2;
             pictureBoxModImage.TabStop = false;
@@ -723,15 +726,16 @@ namespace MW5_Mod_Manager
             panelModInfo.Controls.Add(labelModAuthor);
             panelModInfo.Controls.Add(labelModName);
             panelModInfo.Location = new Point(0, 150);
+            panelModInfo.Margin = new Padding(0);
             panelModInfo.Name = "panelModInfo";
-            panelModInfo.Size = new Size(307, 373);
+            panelModInfo.Size = new Size(301, 352);
             panelModInfo.TabIndex = 1;
             panelModInfo.Visible = false;
             // 
             // pictureBoxNexusmodsIcon
             // 
             pictureBoxNexusmodsIcon.Image = (Image)resources.GetObject("pictureBoxNexusmodsIcon.Image");
-            pictureBoxNexusmodsIcon.Location = new Point(15, 125);
+            pictureBoxNexusmodsIcon.Location = new Point(8, 123);
             pictureBoxNexusmodsIcon.Name = "pictureBoxNexusmodsIcon";
             pictureBoxNexusmodsIcon.Size = new Size(16, 16);
             pictureBoxNexusmodsIcon.TabIndex = 14;
@@ -740,7 +744,7 @@ namespace MW5_Mod_Manager
             // labelNexusmods
             // 
             labelNexusmods.AutoSize = true;
-            labelNexusmods.Location = new Point(33, 127);
+            labelNexusmods.Location = new Point(26, 125);
             labelNexusmods.Name = "labelNexusmods";
             labelNexusmods.Size = new Size(83, 13);
             labelNexusmods.TabIndex = 13;
@@ -749,7 +753,7 @@ namespace MW5_Mod_Manager
             // linkLabelNexusmods
             // 
             linkLabelNexusmods.AutoSize = true;
-            linkLabelNexusmods.Location = new Point(118, 128);
+            linkLabelNexusmods.Location = new Point(111, 126);
             linkLabelNexusmods.Name = "linkLabelNexusmods";
             linkLabelNexusmods.Size = new Size(112, 13);
             linkLabelNexusmods.TabIndex = 12;
@@ -760,7 +764,7 @@ namespace MW5_Mod_Manager
             // pictureBoxSteamIcon
             // 
             pictureBoxSteamIcon.Image = (Image)resources.GetObject("pictureBoxSteamIcon.Image");
-            pictureBoxSteamIcon.Location = new Point(15, 103);
+            pictureBoxSteamIcon.Location = new Point(8, 101);
             pictureBoxSteamIcon.Name = "pictureBoxSteamIcon";
             pictureBoxSteamIcon.Size = new Size(16, 16);
             pictureBoxSteamIcon.TabIndex = 11;
@@ -769,7 +773,7 @@ namespace MW5_Mod_Manager
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(12, 165);
+            label1.Location = new Point(5, 163);
             label1.Name = "label1";
             label1.Size = new Size(69, 13);
             label1.TabIndex = 10;
@@ -778,10 +782,10 @@ namespace MW5_Mod_Manager
             // richTextBoxModDescription
             // 
             richTextBoxModDescription.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            richTextBoxModDescription.Location = new Point(15, 184);
+            richTextBoxModDescription.Location = new Point(8, 182);
             richTextBoxModDescription.Name = "richTextBoxModDescription";
             richTextBoxModDescription.ReadOnly = true;
-            richTextBoxModDescription.Size = new Size(266, 157);
+            richTextBoxModDescription.Size = new Size(286, 157);
             richTextBoxModDescription.TabIndex = 9;
             richTextBoxModDescription.Text = "";
             richTextBoxModDescription.LinkClicked += richTextBoxModDescription_LinkClicked;
@@ -789,7 +793,7 @@ namespace MW5_Mod_Manager
             // labelSteamId
             // 
             labelSteamId.AutoSize = true;
-            labelSteamId.Location = new Point(33, 105);
+            labelSteamId.Location = new Point(26, 103);
             labelSteamId.Name = "labelSteamId";
             labelSteamId.Size = new Size(55, 13);
             labelSteamId.TabIndex = 8;
@@ -798,7 +802,7 @@ namespace MW5_Mod_Manager
             // linkLabelSteamId
             // 
             linkLabelSteamId.AutoSize = true;
-            linkLabelSteamId.Location = new Point(118, 105);
+            linkLabelSteamId.Location = new Point(111, 103);
             linkLabelSteamId.Name = "linkLabelSteamId";
             linkLabelSteamId.Size = new Size(94, 13);
             linkLabelSteamId.TabIndex = 7;
@@ -809,7 +813,7 @@ namespace MW5_Mod_Manager
             // linkLabelModAuthorUrl
             // 
             linkLabelModAuthorUrl.AutoSize = true;
-            linkLabelModAuthorUrl.Location = new Point(12, 48);
+            linkLabelModAuthorUrl.Location = new Point(5, 46);
             linkLabelModAuthorUrl.Name = "linkLabelModAuthorUrl";
             linkLabelModAuthorUrl.Size = new Size(59, 13);
             linkLabelModAuthorUrl.TabIndex = 6;
@@ -820,7 +824,7 @@ namespace MW5_Mod_Manager
             // labelModBuildNumber
             // 
             labelModBuildNumber.AutoSize = true;
-            labelModBuildNumber.Location = new Point(154, 75);
+            labelModBuildNumber.Location = new Point(147, 73);
             labelModBuildNumber.Name = "labelModBuildNumber";
             labelModBuildNumber.Size = new Size(123, 13);
             labelModBuildNumber.TabIndex = 4;
@@ -829,7 +833,7 @@ namespace MW5_Mod_Manager
             // labelModVersion
             // 
             labelModVersion.AutoSize = true;
-            labelModVersion.Location = new Point(12, 75);
+            labelModVersion.Location = new Point(5, 73);
             labelModVersion.Name = "labelModVersion";
             labelModVersion.Size = new Size(94, 13);
             labelModVersion.TabIndex = 3;
@@ -838,7 +842,7 @@ namespace MW5_Mod_Manager
             // labelModAuthor
             // 
             labelModAuthor.AutoSize = true;
-            labelModAuthor.Location = new Point(12, 30);
+            labelModAuthor.Location = new Point(5, 28);
             labelModAuthor.Name = "labelModAuthor";
             labelModAuthor.Size = new Size(92, 13);
             labelModAuthor.TabIndex = 2;
@@ -848,7 +852,7 @@ namespace MW5_Mod_Manager
             // 
             labelModName.AutoSize = true;
             labelModName.Font = new Font("Segoe UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            labelModName.Location = new Point(12, 10);
+            labelModName.Location = new Point(5, 8);
             labelModName.Name = "labelModName";
             labelModName.Size = new Size(88, 13);
             labelModName.TabIndex = 1;
@@ -859,10 +863,11 @@ namespace MW5_Mod_Manager
             tabControl1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tabControl1.Controls.Add(tabPageModInfo);
             tabControl1.Controls.Add(tabPage1);
-            tabControl1.Location = new Point(3, 0);
+            tabControl1.Location = new Point(0, 0);
+            tabControl1.Margin = new Padding(0);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(295, 528);
+            tabControl1.Size = new Size(306, 528);
             tabControl1.TabIndex = 11;
             // 
             // buttonClearHighlight
@@ -983,12 +988,22 @@ namespace MW5_Mod_Manager
             // 
             // splitContainer1.Panel2
             // 
-            splitContainer1.Panel2.Controls.Add(tabControl1);
+            splitContainer1.Panel2.Controls.Add(panelTabControl);
             splitContainer1.Panel2MinSize = 250;
             splitContainer1.Size = new Size(1081, 528);
             splitContainer1.SplitterDistance = 767;
             splitContainer1.SplitterWidth = 5;
             splitContainer1.TabIndex = 40;
+            // 
+            // panelTabControl
+            // 
+            panelTabControl.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            panelTabControl.Controls.Add(tabControl1);
+            panelTabControl.Location = new Point(0, 0);
+            panelTabControl.Margin = new Padding(0);
+            panelTabControl.Name = "panelTabControl";
+            panelTabControl.Size = new Size(309, 528);
+            panelTabControl.TabIndex = 0;
             // 
             // MainWindow
             // 
@@ -1033,6 +1048,7 @@ namespace MW5_Mod_Manager
             splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
             splitContainer1.ResumeLayout(false);
+            panelTabControl.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -1136,6 +1152,7 @@ namespace MW5_Mod_Manager
         private RotatingLabel rotatingLabel1;
         private SplitContainer splitContainer1;
         private ColumnHeader fileSizeHeader;
+        private Panel panelTabControl;
     }
 }
 

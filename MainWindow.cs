@@ -68,13 +68,8 @@ namespace MW5_Mod_Manager
 
         public string GetVersion()
         {
-            FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()!.Location);
-            string[] versionSplit = versionInfo.ProductVersion.Split('.');
-            if (versionSplit.Length < 2)
-            {
-                return versionInfo.ProductVersion;
-            }
-            return versionSplit[0] + @"." + versionSplit[1];
+            Version versionInfo = typeof(MainWindow).GetTypeInfo().Assembly.GetName().Version;
+            return versionInfo.Major.ToString() + @"." + versionInfo.Minor.ToString();
         }
 
         private void MainWindow_Load(object sender, EventArgs e)

@@ -29,7 +29,7 @@
     <PublishSingleFile>true</PublishSingleFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Resources\LOM.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\LOC.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>0E17512FB5168ECD2DBB6DACE678EDA552023CAE</ManifestCertificateThumbprint>
