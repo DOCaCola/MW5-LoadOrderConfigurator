@@ -88,6 +88,12 @@ namespace MW5_Mod_Manager
             toolStripStatusLabelMwVersion = new ToolStripStatusLabel();
             rotatingLabel1 = new RotatingLabel();
             contextMenuStripMod = new ContextMenuStrip(components);
+            moveupToolStripMenuItem = new ToolStripMenuItem();
+            movedownToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator6 = new ToolStripSeparator();
+            contextMenuItemMoveToTop = new ToolStripMenuItem();
+            contextMenuItemMoveToBottom = new ToolStripMenuItem();
+            toolStripSeparator5 = new ToolStripSeparator();
             openFolderToolStripMenuItem = new ToolStripMenuItem();
             tabPage1 = new TabPage();
             label6 = new Label();
@@ -540,14 +546,52 @@ namespace MW5_Mod_Manager
             // 
             // contextMenuStripMod
             // 
-            contextMenuStripMod.Items.AddRange(new ToolStripItem[] { openFolderToolStripMenuItem });
+            contextMenuStripMod.Items.AddRange(new ToolStripItem[] { moveupToolStripMenuItem, movedownToolStripMenuItem, toolStripSeparator6, contextMenuItemMoveToTop, contextMenuItemMoveToBottom, toolStripSeparator5, openFolderToolStripMenuItem });
             contextMenuStripMod.Name = "contextMenuStripMod";
-            contextMenuStripMod.Size = new Size(140, 26);
+            contextMenuStripMod.Size = new Size(162, 126);
+            // 
+            // moveupToolStripMenuItem
+            // 
+            moveupToolStripMenuItem.Name = "moveupToolStripMenuItem";
+            moveupToolStripMenuItem.Size = new Size(161, 22);
+            moveupToolStripMenuItem.Text = "Move &up";
+            moveupToolStripMenuItem.Click += moveupToolStripMenuItem_Click;
+            // 
+            // movedownToolStripMenuItem
+            // 
+            movedownToolStripMenuItem.Name = "movedownToolStripMenuItem";
+            movedownToolStripMenuItem.Size = new Size(161, 22);
+            movedownToolStripMenuItem.Text = "Move &down";
+            movedownToolStripMenuItem.Click += movedownToolStripMenuItem_Click;
+            // 
+            // toolStripSeparator6
+            // 
+            toolStripSeparator6.Name = "toolStripSeparator6";
+            toolStripSeparator6.Size = new Size(158, 6);
+            // 
+            // contextMenuItemMoveToTop
+            // 
+            contextMenuItemMoveToTop.Name = "contextMenuItemMoveToTop";
+            contextMenuItemMoveToTop.Size = new Size(161, 22);
+            contextMenuItemMoveToTop.Text = "Move to &top";
+            contextMenuItemMoveToTop.Click += contextMenuItemMoveToTop_Click;
+            // 
+            // contextMenuItemMoveToBottom
+            // 
+            contextMenuItemMoveToBottom.Name = "contextMenuItemMoveToBottom";
+            contextMenuItemMoveToBottom.Size = new Size(161, 22);
+            contextMenuItemMoveToBottom.Text = "Move to &bottom";
+            contextMenuItemMoveToBottom.Click += contextMenuItemMoveToBottom_Click;
+            // 
+            // toolStripSeparator5
+            // 
+            toolStripSeparator5.Name = "toolStripSeparator5";
+            toolStripSeparator5.Size = new Size(158, 6);
             // 
             // openFolderToolStripMenuItem
             // 
             openFolderToolStripMenuItem.Name = "openFolderToolStripMenuItem";
-            openFolderToolStripMenuItem.Size = new Size(139, 22);
+            openFolderToolStripMenuItem.Size = new Size(161, 22);
             openFolderToolStripMenuItem.Text = "Open &Folder";
             openFolderToolStripMenuItem.Click += openFolderToolStripMenuItem_Click;
             // 
@@ -560,10 +604,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(listBoxManifestOverridden);
             tabPage1.Controls.Add(listBoxOverriddenBy);
             tabPage1.Controls.Add(label5);
-            tabPage1.Location = new Point(4, 24);
+            tabPage1.Location = new Point(4, 22);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(338, 500);
+            tabPage1.Size = new Size(338, 502);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
@@ -1035,6 +1079,12 @@ namespace MW5_Mod_Manager
         private Panel panelColorOverridingOverridden;
         private Panel panelColorOverriding;
         private Panel panelColorOverridden;
+        private ToolStripMenuItem contextMenuItemMoveToTop;
+        private ToolStripMenuItem contextMenuItemMoveToBottom;
+        private ToolStripSeparator toolStripSeparator5;
+        private ToolStripMenuItem moveupToolStripMenuItem;
+        private ToolStripMenuItem movedownToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator6;
     }
 }
 

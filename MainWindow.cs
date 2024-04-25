@@ -236,13 +236,11 @@ namespace MW5_Mod_Manager
             }
         }
 
-        //Up button
-        //Get item info, remove item, insert above, set new item as selected.
-        private void button1_Click(object sender, EventArgs e)
+        private void MoveItemUp(int itemIndex, bool moveToTop)
         {
             ListView.ListViewItemCollection items = modsListView.Items;
             this.MovingItem = true;
-            int i = SelectedItemIndex();
+            int i = itemIndex;
             if (i < 1)
             {
                 this.MovingItem = false;
@@ -254,7 +252,7 @@ namespace MW5_Mod_Manager
 
             SetModSettingsTainted(true);
 
-            if (Control.ModifierKeys == Keys.Shift)
+            if (moveToTop)
             {
                 //Move to top
                 items.Insert(0, listItem);
@@ -269,6 +267,7 @@ namespace MW5_Mod_Manager
 
             }
             listItem.Selected = true;
+            modsListView.EnsureVisible(listItem.Index);
 
             this.logic.GetOverridingData(this.ModListData);
             UpdateLoadOrdersInList();
@@ -276,13 +275,11 @@ namespace MW5_Mod_Manager
             this.MovingItem = false;
         }
 
-        //Down button
-        //Get item info, remove item, insert below, set new item as selected.
-        private void button2_Click(object sender, EventArgs e)
+        private void MoveItemDown(int itemIndex, bool moveToTop)
         {
             ListView.ListViewItemCollection items = modsListView.Items;
             this.MovingItem = true;
-            int i = SelectedItemIndex();
+            int i = itemIndex;
             if (i > ModListData.Count - 2 || i < 0)
             {
                 this.MovingItem = false;
@@ -295,7 +292,7 @@ namespace MW5_Mod_Manager
 
             SetModSettingsTainted(true);
 
-            if (Control.ModifierKeys == Keys.Shift)
+            if (moveToTop)
             {
                 //Move to bottom
                 items.Insert(ModListData.Count, listItem);
@@ -308,6 +305,7 @@ namespace MW5_Mod_Manager
                 ModListData.Insert(i + 1, listItem);
             }
             listItem.Selected = true;
+            modsListView.EnsureVisible(listItem.Index);
 
             //Move to below when refactor is complete
             //UpdateListView();
@@ -316,6 +314,20 @@ namespace MW5_Mod_Manager
             UpdateLoadOrdersInList();
             listView1_SelectedIndexChanged(null, null);
             this.MovingItem = false;
+        }
+
+        //Up button
+        //Get item info, remove item, insert above, set new item as selected.
+        private void button1_Click(object sender, EventArgs e)
+        {
+            MoveItemUp(SelectedItemIndex(), Control.ModifierKeys == Keys.Shift);
+        }
+
+        //Down button
+        //Get item info, remove item, insert below, set new item as selected.
+        private void button2_Click(object sender, EventArgs e)
+        {
+            MoveItemDown(SelectedItemIndex(), Control.ModifierKeys == Keys.Shift);
         }
 
         private void buttonApply_Click(object sender, EventArgs e)
@@ -725,7 +737,8 @@ namespace MW5_Mod_Manager
             {
                 DialogResult result =
                     MessageBox.Show(
-                        @"You have unapplied changes to your mod list.\r\n\r\nDo you want to apply your changes before starting?",
+                        @"You have unapplied changes to your mod list."+System.Environment.NewLine+System.Environment.NewLine
+                        +"Do you want to apply your changes before starting?",
                         @"Unapplied changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
 
                 if (result == DialogResult.Yes)
@@ -1628,6 +1641,7 @@ namespace MW5_Mod_Manager
                 if (modListItem.Tag.ToString() == modKey)
                 {
                     modListItem.Selected = true;
+                    modsListView.EnsureVisible(modListItem.Index);
                     break;
                 }
             }
@@ -1735,8 +1749,9 @@ namespace MW5_Mod_Manager
 
             DialogResult result =
                 MessageBox.Show(
-                    "You have unapplied changes to your mod list.\r\n\r\nDo you want to apply your changes before quitting?",
-                    "Unapplied changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+                    @"You have unapplied changes to your mod list."+System.Environment.NewLine+System.Environment.NewLine
+                    +@"Do you want to apply your changes before quitting?",
+                    @"Unapplied changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
 
             if (result == DialogResult.Yes)
             {
@@ -1746,6 +1761,26 @@ namespace MW5_Mod_Manager
             {
                 e.Cancel = true;
             }
+        }
+
+        private void contextMenuItemMoveToTop_Click(object sender, EventArgs e)
+        {
+            MoveItemUp(SelectedItemIndex(), true);
+        }
+
+        private void contextMenuItemMoveToBottom_Click(object sender, EventArgs e)
+        {
+            MoveItemDown(SelectedItemIndex(), true);
+        }
+
+        private void moveupToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MoveItemUp(SelectedItemIndex(), false);
+        }
+
+        private void movedownToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MoveItemDown(SelectedItemIndex(), false);
         }
     }
 }

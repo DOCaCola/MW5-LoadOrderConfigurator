@@ -245,10 +245,11 @@ namespace MW5_Mod_Manager
             {
                 return;
             }
-            string message = "ERROR Steam Mods folder does not exist in : " + this.BasePath[1] + "\r\nDo you want to create it?";
-            string caption = "ERROR Loading";
+            string message = @"Steam Mods folder does not exist in : " + this.BasePath[1] + System.Environment.NewLine + System.Environment.NewLine 
+                             + @"Do you want to create it?";
+            string caption = @"Steam Mods folder does not exist";
             MessageBoxButtons buttons = MessageBoxButtons.YesNo;
-            DialogResult Result = MessageBox.Show(message, caption, buttons);
+            DialogResult Result = MessageBox.Show(message, caption, buttons, MessageBoxIcon.Question);
             if (Result == DialogResult.Yes)
             {
                 Directory.CreateDirectory(BasePath[1]);
@@ -265,10 +266,11 @@ namespace MW5_Mod_Manager
             {
                 return;
             }
-            string message = "ERROR Mods folder does not exits in : " + this.BasePath[0] + "\r\nDo you want to create it?";
-            string caption = "ERROR Loading";
+            string message = @"Mods folder does not exist in : " + this.BasePath[0] + System.Environment.NewLine 
+                             + @"Do you want to create it?";
+            string caption = @"Mods folder does not exist";
             MessageBoxButtons buttons = MessageBoxButtons.YesNo;
-            DialogResult Result = MessageBox.Show(message, caption, buttons);
+            DialogResult Result = MessageBox.Show(message, caption, buttons, MessageBoxIcon.Question);
             if (Result == DialogResult.Yes)
             {
                 Directory.CreateDirectory(BasePath[0]);
@@ -418,8 +420,11 @@ namespace MW5_Mod_Manager
             catch (Exception e)
             {
                 MessageBox.Show(
-                    "The modlist.json file could not be found in "+ this.BasePath[0] +".\r\n\r\nIt is necessary to read this file in order to validate it with the correct version number the game expects." + "\r\n\r\nLOC will try to create the file with the correct version number when applying your profile, but there is high chance that this will fail.\r\nIt is recommended to start the game once in order to create this file before applying your mod profile.",
-                    "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    @"The modlist.json file could not be found in "+ this.BasePath[0] +@"."+System.Environment.NewLine+System.Environment.NewLine
+                    +@"It is necessary to read this file in order to validate it with the correct version number the game expects." + System.Environment.NewLine + System.Environment.NewLine
+                    +@"LOC will try to create the file with the correct version number when applying your profile, but there is high chance that this will fail."+System.Environment.NewLine
+                    +@"It is recommended to start the game once in order to create this file before applying your mod profile.",
+                    @"Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             foreach (JProperty mod in this.parent.Value<JObject>("modStatus").Properties())
