@@ -52,7 +52,7 @@ namespace MW5_Mod_Manager
         public string InstallPath = "";
         public string GameVersion = "";
         public string[] BasePath = new string[2];
-        public ProgramData ProgramData = new ProgramData();
+        public ProgramData ProgramSettings = new ProgramData();
 
         // User made changes not written to files
         public bool ModSettingsTainted = false;
@@ -71,6 +71,9 @@ namespace MW5_Mod_Manager
         public static Color OverriddenColor = Color.FromArgb(194, 145, 0);
         public static Color OverridingColor = Color.FromArgb(145, 0, 194);
         public static Color OverriddenOveridingColor = Color.FromArgb(170,73,97);
+
+        public static string SettingsFileName = @"Settings.json";
+        public static string PresetsFileName = @"Presets.json";
 
         public struct ModData
         {
@@ -96,6 +99,15 @@ namespace MW5_Mod_Manager
         public bool InterruptSearch = false;
 
         public string rawJson;
+
+
+        public bool GameIsConfigured()
+        {
+            if (Utils.StringNullEmptyOrWhiteSpace(InstallPath))
+                return false;
+
+            return true;
+        }
 
         /// <summary>
         /// Starts suquence to load all mods from folders, loads modlist, combines modlist with found folders structure
@@ -263,12 +275,17 @@ namespace MW5_Mod_Manager
             }
         }
 
-        //Try and load data from previous sessions
-        public bool TryLoadProgramData()
+        public string GetSettingsDirectory()
         {
-            //Load install dir from previous session:
-            string appDataDir = System.Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-            string settingsDir = Path.Combine(appDataDir, @"MW5LoadOrderConfigurator");
+            string appDataDir = System.Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            return Path.Combine(appDataDir, @"MW5LoadOrderConfigurator");
+        }
+
+        //Try and load data from previous sessions
+        public bool TryLoadProgramSettings()
+        {
+            //Load settings from previous session:
+            string settingsDir = GetSettingsDirectory();
             if (!File.Exists(settingsDir))
             {
                 Directory.CreateDirectory(settingsDir);
@@ -276,25 +293,20 @@ namespace MW5_Mod_Manager
 
             try
             {
-                string json = File.ReadAllText(settingsDir + @"\ProgramData.json");
-                this.ProgramData = JsonConvert.DeserializeObject<ProgramData>(json);
+                string json = File.ReadAllText(settingsDir + @"\" + SettingsFileName);
+                this.ProgramSettings = JsonConvert.DeserializeObject<ProgramData>(json);
 
-                Console.WriteLine("Finshed loading ProgramData.json:"
-                    + " Platform: " + this.ProgramData.platform
-                    + " Version: " + this.ProgramData.version
-                    + " Installdir: " + this.ProgramData.ModPaths);
-
-                if (!Utils.StringNullEmptyOrWhiteSpace(this.ProgramData.ModPaths[0]))
+                if (!Utils.StringNullEmptyOrWhiteSpace(this.ProgramSettings.ModPaths[0]))
                 {
-                    BasePath[0] = ProgramData.ModPaths[0];
+                    BasePath[0] = ProgramSettings.ModPaths[0];
                 }
-                if (!Utils.StringNullEmptyOrWhiteSpace(ProgramData.ModPaths[1]))
+                if (!Utils.StringNullEmptyOrWhiteSpace(ProgramSettings.ModPaths[1]))
                 {
-                    BasePath[1] = ProgramData.ModPaths[1];
+                    BasePath[1] = ProgramSettings.ModPaths[1];
                 }
-                if (!Utils.StringNullEmptyOrWhiteSpace(ProgramData.platform))
+                if (!Utils.StringNullEmptyOrWhiteSpace(ProgramSettings.platform))
                 {
-                    if (!Enum.TryParse(ProgramData.platform, out GamePlatformEnum platform))
+                    if (!Enum.TryParse(ProgramSettings.platform, out GamePlatformEnum platform))
                     {
                         platform = GamePlatformEnum.None;
                     }
@@ -302,18 +314,18 @@ namespace MW5_Mod_Manager
                     GamePlatform = platform;
                 }
 
-                if (!Utils.StringNullEmptyOrWhiteSpace(ProgramData.InstallPath))
+                if (!Utils.StringNullEmptyOrWhiteSpace(ProgramSettings.InstallPath))
                 {
-                    InstallPath = ProgramData.InstallPath;
+                    InstallPath = ProgramSettings.InstallPath;
                 }
-                if (ProgramData.version > 0)
+                if (ProgramSettings.version > 0)
                 {
-                    Version = ProgramData.version;
+                    Version = ProgramSettings.version;
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine("ERROR: Something went wrong while loading ProgramData.json");
+                Console.WriteLine(@"ERROR: Something went wrong while loading " + SettingsFileName);
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);
             }
@@ -380,19 +392,19 @@ namespace MW5_Mod_Manager
 
         public void SaveSettings()
         {
-            string settingsDir = System.Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + @"\MW5LoadOrderConfigurator";
+            string settingsDir = GetSettingsDirectory();
 
-            ProgramData.InstallPath = this.InstallPath;
-            this.ProgramData.ModPaths = this.BasePath;
-            this.ProgramData.platform = this.GamePlatform.ToString();
+            ProgramSettings.InstallPath = this.InstallPath;
+            this.ProgramSettings.ModPaths = this.BasePath;
+            this.ProgramSettings.platform = this.GamePlatform.ToString();
             JsonSerializer serializer = new JsonSerializer
             {
                 Formatting = Formatting.Indented
             };
-            using (StreamWriter sw = new StreamWriter(settingsDir + @"\ProgramData.json"))
+            using (StreamWriter sw = new StreamWriter(settingsDir + @"\" + SettingsFileName))
             using (JsonWriter writer = new JsonTextWriter(sw))
             {
-                serializer.Serialize(writer, this.ProgramData);
+                serializer.Serialize(writer, this.ProgramSettings);
             }
         }
 
@@ -735,7 +747,7 @@ namespace MW5_Mod_Manager
         //Save presets from memory to file for use in next session.
         internal void SavePresets()
         {
-            string JsonFile = System.Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + @"\MW5LoadOrderConfigurator\presets.json";
+            string JsonFile = GetSettingsDirectory() + Path.DirectorySeparatorChar + PresetsFileName;
             string JsonString = JsonConvert.SerializeObject(this.Presets, Formatting.Indented);
 
             if (File.Exists(JsonFile))
@@ -751,7 +763,7 @@ namespace MW5_Mod_Manager
         //Load prests from file
         public void LoadPresets()
         {
-            string JsonFile = System.Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + @"\MW5LoadOrderConfigurator\presets.json";
+            string JsonFile = GetSettingsDirectory() + Path.DirectorySeparatorChar + PresetsFileName;
             //parse to dict of strings.
 
             if (!File.Exists(JsonFile))
@@ -770,7 +782,7 @@ namespace MW5_Mod_Manager
                 string message = "There was an error in decoding the presets file!";
                 string caption = "Presets File Decoding Error";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, caption, buttons);
+                MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
                 return;
             }
             this.Presets = temp;

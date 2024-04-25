@@ -179,7 +179,7 @@ namespace MW5_Mod_Manager
             buttonReload.Name = "buttonReload";
             buttonReload.Size = new Size(70, 38);
             buttonReload.TabIndex = 4;
-            buttonReload.Text = "Reload";
+            buttonReload.Text = "&Reload";
             toolTip1.SetToolTip(buttonReload, "Reload configuration from game files. Reverts current changes.");
             buttonReload.UseVisualStyleBackColor = true;
             buttonReload.Click += button6_Click;
@@ -276,7 +276,7 @@ namespace MW5_Mod_Manager
             buttonStartGame.Name = "buttonStartGame";
             buttonStartGame.Size = new Size(70, 90);
             buttonStartGame.TabIndex = 9;
-            buttonStartGame.Text = "Start MW5";
+            buttonStartGame.Text = "&Start MW5";
             buttonStartGame.UseVisualStyleBackColor = true;
             buttonStartGame.Click += buttonStartGame_Click;
             // 
@@ -560,10 +560,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(listBoxManifestOverridden);
             tabPage1.Controls.Add(listBoxOverriddenBy);
             tabPage1.Controls.Add(label5);
-            tabPage1.Location = new Point(4, 24);
+            tabPage1.Location = new Point(4, 22);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(338, 500);
+            tabPage1.Size = new Size(338, 502);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
@@ -925,6 +925,7 @@ namespace MW5_Mod_Manager
             MinimumSize = new Size(900, 550);
             Name = "MainWindow";
             Text = "MechWarrior 5 Load Order Configurator";
+            FormClosing += MainWindow_FormClosing;
             Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).EndInit();
             menuStrip1.ResumeLayout(false);

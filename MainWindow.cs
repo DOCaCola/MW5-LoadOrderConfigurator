@@ -67,7 +67,7 @@ namespace MW5_Mod_Manager
         {
             this.Icon = Properties.Resources.MainIcon;
             this.logic = new MainLogic();
-            if (logic.TryLoadProgramData())
+            if (logic.TryLoadProgramSettings())
             {
                 LoadAndFill(false);
             }
@@ -311,6 +311,9 @@ namespace MW5_Mod_Manager
 
         public void ApplyModSettings()
         {
+            if (!logic.GameIsConfigured())
+                return;
+
             #region mod removal
 
             //Stuff for removing mods:
@@ -374,7 +377,7 @@ namespace MW5_Mod_Manager
             listBoxOverriddenBy.Items.Clear();
             pictureBoxModImage.Visible = false;
             labelModNameOverrides.Text = "";
-            panelModInfo.Visible = false;
+            ClearModSidePanel();
             this.ModListData.Clear();
             this.modsListView.Items.Clear();
             logic.ClearAll();
@@ -595,7 +598,7 @@ namespace MW5_Mod_Manager
         public void RefreshAll()
         {
             ClearAll();
-            if (logic.TryLoadProgramData())
+            if (logic.TryLoadProgramSettings())
             {
                 LoadAndFill(false);
                 filterBox_TextChanged(null, null);
@@ -621,6 +624,9 @@ namespace MW5_Mod_Manager
         //Sets up the load order from a preset.
         private void LoadPreset(string name)
         {
+            if (!logic.GameIsConfigured())
+                return;
+
             string JsonString = logic.Presets[name];
             Dictionary<string, bool> temp;
             try
@@ -698,12 +704,15 @@ namespace MW5_Mod_Manager
         //Launch game button
         private void buttonStartGame_Click(object sender, EventArgs e)
         {
+            if (!logic.GameIsConfigured())
+                return;
+
             if (logic.ModSettingsTainted)
             {
                 DialogResult result =
                     MessageBox.Show(
-                        "You have unapplied changes to your mod list.\r\nDo you want to apply your changes before starting?",
-                        "Unapplied changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+                        @"You have unapplied changes to your mod list.\r\n\r\nDo you want to apply your changes before starting?",
+                        @"Unapplied changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
 
                 if (result == DialogResult.Yes)
                 {
@@ -997,12 +1006,22 @@ namespace MW5_Mod_Manager
             }
         }
 
+        public void ClearModSidePanel()
+        {
+            labelModNameOverrides.Text = "";
+            pictureBoxModImage.Visible = false;
+            panelModInfo.Visible = false;
+            listBoxManifestOverridden.Items.Clear();
+            listBoxOverriddenBy.Items.Clear();
+            listBoxOverriding.Items.Clear();
+        }
+
         //Selected item in the list view has cahnged
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (modsListView.SelectedItems.Count == 0)
             {
-                panelModInfo.Visible = false;
+                ClearModSidePanel();
                 return;
             }
 
@@ -1013,7 +1032,7 @@ namespace MW5_Mod_Manager
                 Utils.StringNullEmptyOrWhiteSpace(SelectedModDisplayName)
                )
             {
-                panelModInfo.Visible = false;
+                ClearModSidePanel();
                 return;
             }
 
@@ -1072,6 +1091,10 @@ namespace MW5_Mod_Manager
             {
                 pictureBoxModImage.Visible = true;
                 pictureBoxModImage.Image = Image.FromStream(new MemoryStream(File.ReadAllBytes(imagePath)));
+            }
+            else
+            {
+                pictureBoxModImage.Visible = false;
             }
         }
 
@@ -1239,6 +1262,9 @@ namespace MW5_Mod_Manager
             Dictionary<string, bool> newData = testDialog.ResultData;
             testDialog.Dispose();
 
+            if (!logic.GameIsConfigured())
+                return;
+
             //this.ClearAll();
             this.modsListView.Items.Clear();
             this.ModListData.Clear();
@@ -1322,12 +1348,12 @@ namespace MW5_Mod_Manager
                 item.Checked = true;
             }
             this.MovingItem = false;
-            
+
             foreach (var key in this.logic.ModList.Keys)
             {
                 this.logic.ModList[key] = true;
             }
-            
+
             this.logic.GetOverridingData(this.ModListData);
             UpdateModCountDisplay();
             SetModSettingsTainted(true);
@@ -1341,7 +1367,7 @@ namespace MW5_Mod_Manager
                 item.Checked = false;
             }
             this.MovingItem = false;
-            
+
             foreach (var key in this.logic.ModList.Keys)
             {
                 this.logic.ModList[key] = false;
@@ -1678,13 +1704,33 @@ namespace MW5_Mod_Manager
             if (modSettingsTainted)
             {
                 buttonApply.ForeColor = Color.OrangeRed;
-                buttonApply.Font = new Font(MainForm.modsListView.Font, MainForm.modsListView.Font.Style | FontStyle.Bold);  
+                buttonApply.Font = new Font(MainForm.modsListView.Font, MainForm.modsListView.Font.Style | FontStyle.Bold);
 
             }
             else
             {
                 buttonApply.ForeColor = SystemColors.ControlText;
-                buttonApply.Font = new Font(MainForm.modsListView.Font, MainForm.modsListView.Font.Style); 
+                buttonApply.Font = new Font(MainForm.modsListView.Font, MainForm.modsListView.Font.Style);
+            }
+        }
+
+        private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (!logic.ModSettingsTainted)
+                return;
+
+            DialogResult result =
+                MessageBox.Show(
+                    "You have unapplied changes to your mod list.\r\n\r\nDo you want to apply your changes before quitting?",
+                    "Unapplied changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+
+            if (result == DialogResult.Yes)
+            {
+                ApplyModSettings();
+            }
+            else if (result == DialogResult.Cancel)
+            {
+                e.Cancel = true;
             }
         }
     }
