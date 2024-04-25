@@ -429,7 +429,7 @@ namespace MW5_Mod_Manager
     public class OverridingData
     {
         public string mod { set; get; }
-        public bool isOverriden { set; get; }
+        public bool isOverridden { set; get; }
         public bool isOverriding { set; get; }
         public Dictionary<string, List<string>> overrides { set; get; }
         public Dictionary<string, List<string>> overriddenBy { set; get; }

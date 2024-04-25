@@ -116,6 +116,13 @@ namespace MW5_Mod_Manager
             tabControl1 = new TabControl();
             buttonClearHighlight = new Button();
             toolTip1 = new ToolTip(components);
+            panelColorLegend = new Panel();
+            label8 = new Label();
+            label4 = new Label();
+            label2 = new Label();
+            panelColorOverridingOverridden = new Panel();
+            panelColorOverriding = new Panel();
+            panelColorOverridden = new Panel();
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -127,6 +134,7 @@ namespace MW5_Mod_Manager
             ((System.ComponentModel.ISupportInitialize)pictureBoxNexusmodsIcon).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxSteamIcon).BeginInit();
             tabControl1.SuspendLayout();
+            panelColorLegend.SuspendLayout();
             SuspendLayout();
             // 
             // buttonMoveUp
@@ -195,7 +203,7 @@ namespace MW5_Mod_Manager
             modsListView.MultiSelect = false;
             modsListView.Name = "modsListView";
             modsListView.RightToLeft = RightToLeft.No;
-            modsListView.Size = new Size(708, 493);
+            modsListView.Size = new Size(708, 468);
             modsListView.SmallImageList = imageListIcons;
             modsListView.TabIndex = 10;
             modsListView.UseCompatibleStateImageBehavior = false;
@@ -550,10 +558,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(listBoxManifestOverridden);
             tabPage1.Controls.Add(listBoxOverriddenBy);
             tabPage1.Controls.Add(label5);
-            tabPage1.Location = new Point(4, 22);
+            tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(338, 502);
+            tabPage1.Size = new Size(338, 500);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
@@ -820,11 +828,80 @@ namespace MW5_Mod_Manager
             buttonClearHighlight.UseVisualStyleBackColor = true;
             buttonClearHighlight.Click += buttonClearHighlight_Click;
             // 
+            // panelColorLegend
+            // 
+            panelColorLegend.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            panelColorLegend.Controls.Add(label8);
+            panelColorLegend.Controls.Add(label4);
+            panelColorLegend.Controls.Add(label2);
+            panelColorLegend.Controls.Add(panelColorOverridingOverridden);
+            panelColorLegend.Controls.Add(panelColorOverriding);
+            panelColorLegend.Controls.Add(panelColorOverridden);
+            panelColorLegend.Location = new Point(124, 532);
+            panelColorLegend.Name = "panelColorLegend";
+            panelColorLegend.Size = new Size(368, 21);
+            panelColorLegend.TabIndex = 37;
+            // 
+            // label8
+            // 
+            label8.AutoSize = true;
+            label8.Location = new Point(222, 3);
+            label8.Margin = new Padding(0);
+            label8.Name = "label8";
+            label8.Size = new Size(135, 13);
+            label8.TabIndex = 5;
+            label8.Text = "Overriding && Overridden";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(117, 3);
+            label4.Margin = new Padding(0);
+            label4.Name = "label4";
+            label4.Size = new Size(65, 13);
+            label4.TabIndex = 4;
+            label4.Text = "Overridden";
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(17, 3);
+            label2.Margin = new Padding(0);
+            label2.Name = "label2";
+            label2.Size = new Size(62, 13);
+            label2.TabIndex = 3;
+            label2.Text = "Overriding";
+            // 
+            // panelColorOverridingOverridden
+            // 
+            panelColorOverridingOverridden.BorderStyle = BorderStyle.Fixed3D;
+            panelColorOverridingOverridden.Location = new Point(206, 3);
+            panelColorOverridingOverridden.Name = "panelColorOverridingOverridden";
+            panelColorOverridingOverridden.Size = new Size(16, 16);
+            panelColorOverridingOverridden.TabIndex = 2;
+            // 
+            // panelColorOverriding
+            // 
+            panelColorOverriding.BorderStyle = BorderStyle.Fixed3D;
+            panelColorOverriding.Location = new Point(3, 3);
+            panelColorOverriding.Name = "panelColorOverriding";
+            panelColorOverriding.Size = new Size(16, 16);
+            panelColorOverriding.TabIndex = 1;
+            // 
+            // panelColorOverridden
+            // 
+            panelColorOverridden.BorderStyle = BorderStyle.Fixed3D;
+            panelColorOverridden.Location = new Point(101, 3);
+            panelColorOverridden.Name = "panelColorOverridden";
+            panelColorOverridden.Size = new Size(16, 16);
+            panelColorOverridden.TabIndex = 0;
+            // 
             // MainWindow
             // 
             AutoScaleDimensions = new SizeF(6F, 13F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1184, 579);
+            Controls.Add(panelColorLegend);
             Controls.Add(buttonClearHighlight);
             Controls.Add(buttonStart);
             Controls.Add(statusStrip1);
@@ -861,6 +938,8 @@ namespace MW5_Mod_Manager
             ((System.ComponentModel.ISupportInitialize)pictureBoxNexusmodsIcon).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxSteamIcon).EndInit();
             tabControl1.ResumeLayout(false);
+            panelColorLegend.ResumeLayout(false);
+            panelColorLegend.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -948,6 +1027,13 @@ namespace MW5_Mod_Manager
         private ToolStripStatusLabel toolStripStatusLabel1;
         private ToolStripStatusLabel toolStripStatusLabelModCountTotal;
         private ToolStripStatusLabel toolStripStatusLabelModsActive;
+        private Panel panelColorLegend;
+        private Label label8;
+        private Label label4;
+        private Label label2;
+        private Panel panelColorOverridingOverridden;
+        private Panel panelColorOverriding;
+        private Panel panelColorOverridden;
     }
 }
 

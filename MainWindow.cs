@@ -75,6 +75,10 @@ namespace MW5_Mod_Manager
             this.SetVersionAndPlatform();
 
             SetupRotatingLabel();
+
+            panelColorOverridden.BackColor = MainLogic.OverriddenColor;
+            panelColorOverriding.BackColor = MainLogic.OverridingColor;
+            panelColorOverridingOverridden.BackColor = MainLogic.OverriddenOveridingColor;
         }
 
         private void SetupRotatingLabel()
@@ -960,7 +964,7 @@ namespace MW5_Mod_Manager
             }
         }
 
-        //Selected indox of mods that are beeing overriden by the currently selected mod had changed.
+        //Selected index of mods that are being overriden by the currently selected mod had changed.
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (listBoxOverriding.SelectedIndex == -1)

@@ -65,6 +65,10 @@ namespace MW5_Mod_Manager
         public Dictionary<string, OverridingData> OverrridingData = new Dictionary<string, OverridingData>();
         public Dictionary<string, string> Presets = new Dictionary<string, string>();
 
+        public static Color OverriddenColor = Color.FromArgb(194, 145, 0);
+        public static Color OverridingColor = Color.FromArgb(145, 0, 194);
+        public static Color OverriddenOveridingColor = Color.FromArgb(170,73,97);
+
         public struct ModData
         {
             public float OriginalLoadOrder = Single.NaN;
@@ -708,7 +712,7 @@ namespace MW5_Mod_Manager
                 if (this.OverrridingData[modA].overrides.Count == 0)
                     this.OverrridingData[modA].isOverriding = false;
                 if (this.OverrridingData[modA].overriddenBy.Count == 0)
-                    this.OverrridingData[modA].isOverriden = false;
+                    this.OverrridingData[modA].isOverridden = false;
             }
             if (this.OverrridingData.ContainsKey(modA))
             {
@@ -719,7 +723,7 @@ namespace MW5_Mod_Manager
                 if (this.OverrridingData[modB].overrides.Count == 0)
                     this.OverrridingData[modB].isOverriding = false;
                 if (this.OverrridingData[modB].overriddenBy.Count == 0)
-                    this.OverrridingData[modB].isOverriden = false;
+                    this.OverrridingData[modB].isOverridden = false;
             }
             //Console.WriteLine("ResetOverrdingBetweenMods modA: " + modA + " " + this.OverrridingData[modA].isOverriding + " " + this.OverrridingData[modA].isOverriden);
             //Console.WriteLine("ResetOverrdingBetweenMods modB: " + modB + " " + this.OverrridingData[modB].isOverriding + " " + this.OverrridingData[modB].isOverriden);
@@ -794,7 +798,7 @@ namespace MW5_Mod_Manager
                         OverrridingData[key].isOverriding = false;
 
                     if (OverrridingData[key].overriddenBy.Count == 0)
-                        OverrridingData[key].isOverriden = false;
+                        OverrridingData[key].isOverridden = false;
                 }
             }
             else
@@ -916,7 +920,7 @@ namespace MW5_Mod_Manager
                 }
                 if (!(B.mod == modA))
                 {
-                    B.isOverriden = true;
+                    B.isOverridden = true;
                     B.overriddenBy[modA] = intersect;
                 }
             }
@@ -924,7 +928,7 @@ namespace MW5_Mod_Manager
             {
                 if (!(A.mod == modB))
                 {
-                    A.isOverriden = true;
+                    A.isOverridden = true;
                     A.overriddenBy[modB] = intersect;
                 }
                 if (!(B.mod == modA))
@@ -1077,35 +1081,32 @@ namespace MW5_Mod_Manager
                     continue;
                 }
 
-                ////Console.WriteLine("Coloring mod: " + mod);
                 if (!this.OverrridingData.ContainsKey(modName))
                 {
                     item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = Color.Black;
-                    ////Console.WriteLine("Black");
 
                     continue;
                 }
                 OverridingData A = OverrridingData[modName];
-                if (A.isOverriden)
+                Color newItemColor = Color.Black;
+                if (A.isOverridden)
                 {
-                    ////Console.WriteLine("OrangeRed");
-                    item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = Color.OrangeRed;
+                    newItemColor = OverriddenColor;
                 }
                 if (A.isOverriding)
                 {
-                    ////Console.WriteLine("Green");
-                    item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = Color.Green;
+                    newItemColor = OverridingColor;
                 }
-                if (A.isOverriding && A.isOverriden)
+                if (A.isOverriding && A.isOverridden)
                 {
-                    ////Console.WriteLine("Orange");
-                    item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = Color.Orange;
+                    newItemColor = OverriddenOveridingColor;
                 }
-                if (!A.isOverriding && !A.isOverriden)
+                if (!A.isOverriding && !A.isOverridden)
                 {
-                    ////Console.WriteLine("Black");
-                    item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = Color.Black;
+                    newItemColor = Color.Black;
                 }
+
+                item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = newItemColor;
             }
         }
 
