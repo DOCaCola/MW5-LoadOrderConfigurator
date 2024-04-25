@@ -54,6 +54,9 @@ namespace MW5_Mod_Manager
         public string[] BasePath = new string[2];
         public ProgramData ProgramData = new ProgramData();
 
+        // User made changes not written to files
+        public bool ModSettingsTainted = false;
+
         public JObject parent;
         public List<string> Directories = new List<string>();
         public Dictionary<string, string> DirectoryToPathDict = new Dictionary<string, string>();

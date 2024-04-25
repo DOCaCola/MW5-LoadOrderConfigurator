@@ -238,6 +238,8 @@ namespace MW5_Mod_Manager
             items.RemoveAt(i);
             ModListData.RemoveAt(i);
 
+            SetModSettingsTainted(true);
+
             if (Control.ModifierKeys == Keys.Shift)
             {
                 //Move to top
@@ -277,6 +279,8 @@ namespace MW5_Mod_Manager
             items.RemoveAt(i);
             ModListData.RemoveAt(i);
 
+            SetModSettingsTainted(true);
+
             if (Control.ModifierKeys == Keys.Shift)
             {
                 //Move to bottom
@@ -300,8 +304,12 @@ namespace MW5_Mod_Manager
             this.MovingItem = false;
         }
 
-        //Apply button
-        private void button3_Click(object sender, EventArgs e)
+        private void buttonApply_Click(object sender, EventArgs e)
+        {
+            ApplyModSettings();
+        }
+
+        public void ApplyModSettings()
         {
             #region mod removal
 
@@ -353,7 +361,10 @@ namespace MW5_Mod_Manager
             //Save the ModDetails to json file.
             this.logic.SaveToFiles();
             #endregion
+
+            SetModSettingsTainted(false);
         }
+
 
         //For clearing the entire applications data
         public void ClearAll()
@@ -384,14 +395,14 @@ namespace MW5_Mod_Manager
                 case MainLogic.GamePlatformEnum.Epic:
                     {
                         this.toolStripPlatformLabel.Text = "Platform: Epic Store";
-                        this.buttonStart.Enabled = true;
+                        this.buttonStartGame.Enabled = true;
                         buttonRemove.Enabled = true;
                         break;
                     }
                 case MainLogic.GamePlatformEnum.WindowsStore:
                     {
                         this.toolStripPlatformLabel.Text = "Platform: Windows Store";
-                        this.buttonStart.Enabled = false;
+                        this.buttonStartGame.Enabled = false;
                         buttonRemove.Enabled = true;
                     }
                     break;
@@ -399,7 +410,7 @@ namespace MW5_Mod_Manager
                     {
                         this.toolStripPlatformLabel.Text = "Platform: Steam";
                         buttonRemove.Enabled = false;
-                        this.buttonStart.Enabled = true;
+                        this.buttonStartGame.Enabled = true;
 
                         isSteam = true;
                     }
@@ -407,7 +418,7 @@ namespace MW5_Mod_Manager
                 case MainLogic.GamePlatformEnum.Gog:
                     {
                         this.toolStripPlatformLabel.Text = "Platform: GOG";
-                        this.buttonStart.Enabled = true;
+                        this.buttonStartGame.Enabled = true;
                         buttonRemove.Enabled = true;
                     }
                     break;
@@ -590,6 +601,8 @@ namespace MW5_Mod_Manager
                 filterBox_TextChanged(null, null);
                 logic.GetOverridingData(ModListData);
             }
+
+            SetModSettingsTainted(false);
         }
 
         //Saves current load order to preset.
@@ -631,6 +644,7 @@ namespace MW5_Mod_Manager
             this.logic.Mods.Clear();
             this.LoadAndFill(true);
             this.filterBox_TextChanged(null, null);
+            SetModSettingsTainted(true);
         }
 
         //Load all presets from file and fill the listbox.
@@ -666,26 +680,6 @@ namespace MW5_Mod_Manager
             }
         }
 
-        #region Vendor Selection Tool Strip buttons
-
-        //Tool strip for selecting steam as a vendor
-        private void steamToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        //Tool strip for selecting gog as a vendor
-        private void gogToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        //Tool strip for selecting windows store as a vendor
-        private void windowsStoreToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private static string GetBasePathFromAppDataRoaming(string AppDataRoaming)
         {
             //Split by folder depth
@@ -701,16 +695,26 @@ namespace MW5_Mod_Manager
             return string.Join("\\", splitBasePath) + @"\Local\MW5Mercs\Saved\Mods";
         }
 
-        //Tool strip for selecting epic store as a vendor
-        private void epicStoreToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-        #endregion
-
         //Launch game button
-        private void button4_Click(object sender, EventArgs e)
+        private void buttonStartGame_Click(object sender, EventArgs e)
         {
+            if (logic.ModSettingsTainted)
+            {
+                DialogResult result =
+                    MessageBox.Show(
+                        "You have unapplied changes to your mod list.\r\nDo you want to apply your changes before starting?",
+                        "Unapplied changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+
+                if (result == DialogResult.Yes)
+                {
+                    ApplyModSettings();
+                }
+                else if (result == DialogResult.Cancel)
+                {
+                    return;
+                }
+            }
+
             switch (logic.GamePlatform)
             {
                 case MainLogic.GamePlatformEnum.Epic:
@@ -880,6 +884,7 @@ namespace MW5_Mod_Manager
                 MainForm.buttonMoveUp.Enabled = false;
                 MainForm.buttonMoveDown.Enabled = false;
             }
+            buttonClearHighlight.Enabled = filterBox.Text.Length > 0;
         }
 
         //Check if given listviewitem can be matched to a string.
@@ -1242,12 +1247,13 @@ namespace MW5_Mod_Manager
             this.logic.Mods.Clear();
             this.LoadAndFill(true);
             this.filterBox_TextChanged(null, null);
+            SetModSettingsTainted(true);
         }
 
         private void exportmodsFolderToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             //apply current settings to file
-            this.button3_Click(null, null);
+            this.buttonApply_Click(null, null);
 
             //start packing worker
             backgroundWorker1.RunWorkerAsync();
@@ -1324,6 +1330,7 @@ namespace MW5_Mod_Manager
             
             this.logic.GetOverridingData(this.ModListData);
             UpdateModCountDisplay();
+            SetModSettingsTainted(true);
         }
 
         private void disableAllModsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1342,6 +1349,7 @@ namespace MW5_Mod_Manager
 
             this.logic.GetOverridingData(ModListData);
             UpdateModCountDisplay();
+            SetModSettingsTainted(true);
         }
 
         private void modsListView_MouseClick(object sender, MouseEventArgs e)
@@ -1526,6 +1534,8 @@ namespace MW5_Mod_Manager
                 UpdateLoadOrdersInList();
                 listView1_SelectedIndexChanged(null, null);
                 modsListView.ResumeLayout();
+
+                SetModSettingsTainted(true);
             }
 
             modsListView.InsertionMark.Index = -1;
@@ -1660,6 +1670,22 @@ namespace MW5_Mod_Manager
         {
             toolStripStatusLabelModCountTotal.Text = @"Total: " + GetModCount(false);
             toolStripStatusLabelModsActive.Text = @"Active: " + GetModCount(true);
+        }
+
+        public void SetModSettingsTainted(bool modSettingsTainted)
+        {
+            logic.ModSettingsTainted = modSettingsTainted;
+            if (modSettingsTainted)
+            {
+                buttonApply.ForeColor = Color.OrangeRed;
+                buttonApply.Font = new Font(MainForm.modsListView.Font, MainForm.modsListView.Font.Style | FontStyle.Bold);  
+
+            }
+            else
+            {
+                buttonApply.ForeColor = SystemColors.ControlText;
+                buttonApply.Font = new Font(MainForm.modsListView.Font, MainForm.modsListView.Font.Style); 
+            }
         }
     }
 }

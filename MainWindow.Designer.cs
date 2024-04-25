@@ -50,7 +50,7 @@ namespace MW5_Mod_Manager
             currentLoadOrderHeader = new ColumnHeader();
             originalLoadOrderHeader = new ColumnHeader();
             imageListIcons = new ImageList(components);
-            buttonStart = new Button();
+            buttonStartGame = new Button();
             label3 = new Label();
             filterBox = new TextBox();
             checkBoxFilter = new CheckBox();
@@ -159,14 +159,15 @@ namespace MW5_Mod_Manager
             // 
             // buttonApply
             // 
-            buttonApply.Location = new Point(13, 279);
+            buttonApply.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            buttonApply.Location = new Point(13, 399);
             buttonApply.Name = "buttonApply";
-            buttonApply.Size = new Size(70, 38);
+            buttonApply.Size = new Size(70, 45);
             buttonApply.TabIndex = 7;
             buttonApply.Text = "&Apply";
             toolTip1.SetToolTip(buttonApply, "Save settings to game files.");
             buttonApply.UseVisualStyleBackColor = true;
-            buttonApply.Click += button3_Click;
+            buttonApply.Click += buttonApply_Click;
             // 
             // backgroundWorker1
             // 
@@ -266,18 +267,18 @@ namespace MW5_Mod_Manager
             imageListIcons.Images.SetKeyName(1, "Steam");
             imageListIcons.Images.SetKeyName(2, "Nexusmods");
             // 
-            // buttonStart
+            // buttonStartGame
             // 
-            buttonStart.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            buttonStart.Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            buttonStart.Location = new Point(13, 451);
-            buttonStart.Margin = new Padding(0);
-            buttonStart.Name = "buttonStart";
-            buttonStart.Size = new Size(70, 90);
-            buttonStart.TabIndex = 9;
-            buttonStart.Text = "Start MW5";
-            buttonStart.UseVisualStyleBackColor = true;
-            buttonStart.Click += button4_Click;
+            buttonStartGame.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            buttonStartGame.Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            buttonStartGame.Location = new Point(13, 451);
+            buttonStartGame.Margin = new Padding(0);
+            buttonStartGame.Name = "buttonStartGame";
+            buttonStartGame.Size = new Size(70, 90);
+            buttonStartGame.TabIndex = 9;
+            buttonStartGame.Text = "Start MW5";
+            buttonStartGame.UseVisualStyleBackColor = true;
+            buttonStartGame.Click += buttonStartGame_Click;
             // 
             // label3
             // 
@@ -315,6 +316,7 @@ namespace MW5_Mod_Manager
             buttonRemove.TabIndex = 8;
             buttonRemove.Text = "Mark for Removal";
             buttonRemove.UseVisualStyleBackColor = true;
+            buttonRemove.Visible = false;
             buttonRemove.Click += button5_Click;
             // 
             // backgroundWorker2
@@ -820,6 +822,7 @@ namespace MW5_Mod_Manager
             // 
             // buttonClearHighlight
             // 
+            buttonClearHighlight.Enabled = false;
             buttonClearHighlight.Location = new Point(600, 27);
             buttonClearHighlight.Name = "buttonClearHighlight";
             buttonClearHighlight.Size = new Size(21, 24);
@@ -903,7 +906,7 @@ namespace MW5_Mod_Manager
             ClientSize = new Size(1184, 579);
             Controls.Add(panelColorLegend);
             Controls.Add(buttonClearHighlight);
-            Controls.Add(buttonStart);
+            Controls.Add(buttonStartGame);
             Controls.Add(statusStrip1);
             Controls.Add(rotatingLabel1);
             Controls.Add(tabControl1);
@@ -958,7 +961,7 @@ namespace MW5_Mod_Manager
         public System.Windows.Forms.ColumnHeader versionHeader;
         public System.Windows.Forms.ToolStripLabel toolStripVendorLabeltoolStripLabel1;
         private RotatingLabel rotatingLabel1;
-        private System.Windows.Forms.Button buttonStart;
+        private System.Windows.Forms.Button buttonStartGame;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox filterBox;
         private System.Windows.Forms.CheckBox checkBoxFilter;
