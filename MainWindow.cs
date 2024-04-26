@@ -631,7 +631,7 @@ namespace MW5_Mod_Manager
             if (logic.TryLoadProgramSettings())
             {
                 LoadAndFill(false);
-                filterBox_TextChanged(null, null);
+                checkBoxFilter_TextChanged(null, null);
                 logic.GetOverridingData(ModListData);
             }
 
@@ -682,7 +682,7 @@ namespace MW5_Mod_Manager
             this.logic.ModList = temp;
             this.logic.Mods.Clear();
             this.LoadAndFill(true);
-            this.filterBox_TextChanged(null, null);
+            this.checkBoxFilter_TextChanged(null, null);
             SetModSettingsTainted(true);
             modsListView.EndUpdate();
         }
@@ -863,7 +863,7 @@ namespace MW5_Mod_Manager
         }
 
         //Crude filter because to lazy to add a proper list as backup for the items.
-        private void filterBox_TextChanged(object sender, EventArgs e)
+        private void checkBoxFilter_TextChanged(object sender, EventArgs e)
         {
             string filtertext = MainForm.filterBox.Text.ToLower();
             if (Utils.StringNullEmptyOrWhiteSpace(filtertext))
@@ -968,13 +968,13 @@ namespace MW5_Mod_Manager
         }
 
         //Filter or Highlight checkbox on tick action
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        private void checkBoxFilter_CheckedChanged(object sender, EventArgs e)
         {
             if (!checkBoxFilter.Checked)
             {
                 UpdateListView();
             }
-            this.filterBox_TextChanged(null, null);
+            this.checkBoxFilter_TextChanged(null, null);
         }
 
         //Mark currently selected mod for removal upon apply
@@ -1001,8 +1001,14 @@ namespace MW5_Mod_Manager
         //Selected index of mods overriding the currently selected mod has changed.
         private void listBox3_SelectedIndexChanged(object sender, EventArgs e)
         {
+            bool startedListUpdate = false;
             if (FilterMode == eFilterMode.None)
+            {
+                startedListUpdate = true;
+                modsListView.BeginUpdate();
                 UnhighlightAllMods();
+            }
+
             if (listBoxOverriddenBy.SelectedIndex == -1)
                 return;
 
@@ -1015,8 +1021,16 @@ namespace MW5_Mod_Manager
                 return;
 
             ModListBoxItem selectedMod = (ModListBoxItem)listBoxOverriddenBy.SelectedItem;
+            
+            if (FilterMode == eFilterMode.None)
+            {
+                HighlightModInList(selectedMod.ModKey);
+            }
 
-            HighlightModInList(selectedMod.ModKey);
+            if (startedListUpdate)
+            {
+                modsListView.EndUpdate();
+            }
 
             string superMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
 
@@ -1037,8 +1051,14 @@ namespace MW5_Mod_Manager
         //Selected index of mods that are being overriden by the currently selected mod had changed.
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            bool startedUpdate = false;
             if (FilterMode == eFilterMode.None)
+            {
+                startedUpdate = true;
+                modsListView.BeginUpdate();
                 UnhighlightAllMods();
+            }
+
             if (listBoxOverriding.SelectedIndex == -1)
                 return;
 
@@ -1053,7 +1073,14 @@ namespace MW5_Mod_Manager
             ModListBoxItem selectedMod = (ModListBoxItem)listBoxOverriding.SelectedItem;
 
             if (FilterMode == eFilterMode.None)
+            {
                 HighlightModInList(selectedMod.ModKey);
+            }
+
+            if (startedUpdate)
+            {
+                modsListView.EndUpdate();
+            }
 
             string superMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
 
@@ -1339,7 +1366,7 @@ namespace MW5_Mod_Manager
             this.logic.ModList = newData;
             this.logic.Mods.Clear();
             this.LoadAndFill(true);
-            this.filterBox_TextChanged(null, null);
+            this.checkBoxFilter_TextChanged(null, null);
             SetModSettingsTainted(true);
             modsListView.EndUpdate();
         }
@@ -1877,7 +1904,7 @@ namespace MW5_Mod_Manager
         {
             List<int> numbers = new List<int>();
 
-            // Extract numbers from ListView and find unique ones
+            // Extract numbers from ListView column and find unique ones
             foreach (ModListViewItem item in listViewItems)
             {
                 // Skip disabled mods
@@ -1894,7 +1921,9 @@ namespace MW5_Mod_Manager
                 }
             }
 
-            // Sort the unique numbers
+            if (numbers.Count == 0)
+                return;
+
             numbers.Sort();
 
             // Color the ListView items based on sorted unique numbers
@@ -1908,10 +1937,18 @@ namespace MW5_Mod_Manager
                 int number;
                 if (int.TryParse(listViewItems[i].SubItems[subItemIndex].Text, out number))
                 {
-                    int index = numbers.IndexOf(number);
-                    double ratio = (double)index / (numbers.Count - 1);
-                    Color color = Utils.InterpolateColor(fromColor, toColor, ratio);
-                    listViewItems[i].SubItems[subItemIndex].ForeColor = color;
+                    Color newColor;
+                    if (numbers.Count == 1)
+                    {
+                        newColor = fromColor;
+                    }
+                    else
+                    {
+                        int index = numbers.IndexOf(number);
+                        double ratio = (double)index / (numbers.Count - 1);
+                        newColor = Utils.InterpolateColor(fromColor, toColor, ratio); 
+                    }
+                    listViewItems[i].SubItems[subItemIndex].ForeColor = newColor;
                 }
             }
             modsListView.EndUpdate();

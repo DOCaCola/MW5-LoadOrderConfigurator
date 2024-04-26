@@ -314,7 +314,7 @@ namespace MW5_Mod_Manager
             filterBox.Name = "filterBox";
             filterBox.Size = new Size(301, 22);
             filterBox.TabIndex = 1;
-            filterBox.TextChanged += filterBox_TextChanged;
+            filterBox.TextChanged += checkBoxFilter_TextChanged;
             // 
             // checkBoxFilter
             // 
@@ -325,7 +325,7 @@ namespace MW5_Mod_Manager
             checkBoxFilter.TabIndex = 3;
             checkBoxFilter.Text = "Filter";
             checkBoxFilter.UseVisualStyleBackColor = true;
-            checkBoxFilter.CheckedChanged += checkBox1_CheckedChanged;
+            checkBoxFilter.CheckedChanged += checkBoxFilter_CheckedChanged;
             // 
             // buttonRemove
             // 
@@ -605,10 +605,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(listBoxManifestOverridden);
             tabPage1.Controls.Add(listBoxOverriddenBy);
             tabPage1.Controls.Add(label5);
-            tabPage1.Location = new Point(4, 24);
+            tabPage1.Location = new Point(4, 22);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(295, 500);
+            tabPage1.Size = new Size(292, 502);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
@@ -693,7 +693,7 @@ namespace MW5_Mod_Manager
             tabPageModInfo.Location = new Point(4, 22);
             tabPageModInfo.Name = "tabPageModInfo";
             tabPageModInfo.Padding = new Padding(3);
-            tabPageModInfo.Size = new Size(295, 502);
+            tabPageModInfo.Size = new Size(292, 502);
             tabPageModInfo.TabIndex = 3;
             tabPageModInfo.Text = "Overview";
             tabPageModInfo.UseVisualStyleBackColor = true;
@@ -867,7 +867,7 @@ namespace MW5_Mod_Manager
             tabControl1.Margin = new Padding(0);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(303, 528);
+            tabControl1.Size = new Size(300, 528);
             tabControl1.TabIndex = 11;
             // 
             // buttonClearHighlight
@@ -1002,7 +1002,7 @@ namespace MW5_Mod_Manager
             panelTabControl.Location = new Point(0, 0);
             panelTabControl.Margin = new Padding(0);
             panelTabControl.Name = "panelTabControl";
-            panelTabControl.Size = new Size(306, 528);
+            panelTabControl.Size = new Size(303, 528);
             panelTabControl.TabIndex = 0;
             // 
             // MainWindow
