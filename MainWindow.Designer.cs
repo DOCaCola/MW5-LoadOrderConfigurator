@@ -34,12 +34,8 @@ namespace MW5_Mod_Manager
         {
             components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
-            buttonMoveUp = new Button();
-            buttonMoveDown = new Button();
-            buttonApply = new Button();
             backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             openFileDialog1 = new OpenFileDialog();
-            buttonReload = new Button();
             toolStripPlatformLabel = new ToolStripStatusLabel();
             modsListView = new ListView();
             enabledHeader = new ColumnHeader();
@@ -51,11 +47,6 @@ namespace MW5_Mod_Manager
             originalLoadOrderHeader = new ColumnHeader();
             fileSizeHeader = new ColumnHeader();
             imageListIcons = new ImageList(components);
-            buttonStartGame = new Button();
-            label3 = new Label();
-            filterBox = new TextBox();
-            checkBoxFilter = new CheckBox();
-            buttonRemove = new Button();
             backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
             textProgressBarBindingSource = new BindingSource(components);
             menuStrip1 = new MenuStrip();
@@ -82,6 +73,7 @@ namespace MW5_Mod_Manager
             toolStripSeparator8 = new ToolStripSeparator();
             openModsFolderToolStripMenuItem = new ToolStripMenuItem();
             toolStripMenuItemOpenModFolderSteam = new ToolStripMenuItem();
+            openUserModsFolderToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
             statusStrip1 = new StatusStrip();
@@ -122,7 +114,6 @@ namespace MW5_Mod_Manager
             labelModAuthor = new Label();
             labelModName = new Label();
             tabControl1 = new TabControl();
-            buttonClearHighlight = new Button();
             toolTip1 = new ToolTip(components);
             rotatingLabelHighPriority = new RotatingLabel();
             rotatingLabelLowPriority = new RotatingLabel();
@@ -134,8 +125,17 @@ namespace MW5_Mod_Manager
             panelColorOverriding = new Panel();
             panelColorOverridden = new Panel();
             splitContainer1 = new SplitContainer();
-            panelTabControl = new Panel();
-            openUserModsFolderToolStripMenuItem = new ToolStripMenuItem();
+            toolStrip1 = new ToolStrip();
+            toolStripButtonApply = new ToolStripButton();
+            toolStripButtonStartGame = new ToolStripButton();
+            toolStripSeparator10 = new ToolStripSeparator();
+            toolStripButtonReload = new ToolStripButton();
+            toolStripSeparator9 = new ToolStripSeparator();
+            toolStripLabel1 = new ToolStripLabel();
+            toolStripTextFilterBox = new ToolStripTextBox();
+            toolStripButtonClearFilter = new ToolStripButton();
+            toolStripButtonFilterToggle = new ToolStripButton();
+            toolStripSeparator11 = new ToolStripSeparator();
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -152,55 +152,12 @@ namespace MW5_Mod_Manager
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
             splitContainer1.SuspendLayout();
-            panelTabControl.SuspendLayout();
+            toolStrip1.SuspendLayout();
             SuspendLayout();
-            // 
-            // buttonMoveUp
-            // 
-            buttonMoveUp.Location = new Point(13, 122);
-            buttonMoveUp.Name = "buttonMoveUp";
-            buttonMoveUp.Size = new Size(70, 38);
-            buttonMoveUp.TabIndex = 5;
-            buttonMoveUp.Text = "&UP";
-            buttonMoveUp.UseVisualStyleBackColor = true;
-            buttonMoveUp.Click += button1_Click;
-            // 
-            // buttonMoveDown
-            // 
-            buttonMoveDown.Location = new Point(13, 166);
-            buttonMoveDown.Name = "buttonMoveDown";
-            buttonMoveDown.Size = new Size(70, 38);
-            buttonMoveDown.TabIndex = 6;
-            buttonMoveDown.Text = "&DOWN";
-            buttonMoveDown.UseVisualStyleBackColor = true;
-            buttonMoveDown.Click += button2_Click;
-            // 
-            // buttonApply
-            // 
-            buttonApply.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            buttonApply.Location = new Point(13, 399);
-            buttonApply.Name = "buttonApply";
-            buttonApply.Size = new Size(70, 45);
-            buttonApply.TabIndex = 7;
-            buttonApply.Text = "&Apply";
-            toolTip1.SetToolTip(buttonApply, "Save settings to game files.");
-            buttonApply.UseVisualStyleBackColor = true;
-            buttonApply.Click += buttonApply_Click;
             // 
             // backgroundWorker1
             // 
             backgroundWorker1.DoWork += backgroundWorker1_DoWork;
-            // 
-            // buttonReload
-            // 
-            buttonReload.Location = new Point(13, 46);
-            buttonReload.Name = "buttonReload";
-            buttonReload.Size = new Size(70, 38);
-            buttonReload.TabIndex = 4;
-            buttonReload.Text = "&Reload";
-            toolTip1.SetToolTip(buttonReload, "Reload configuration from game files. Reverts current changes.");
-            buttonReload.UseVisualStyleBackColor = true;
-            buttonReload.Click += button6_Click;
             // 
             // toolStripPlatformLabel
             // 
@@ -218,11 +175,11 @@ namespace MW5_Mod_Manager
             modsListView.FullRowSelect = true;
             modsListView.GridLines = true;
             modsListView.LabelWrap = false;
-            modsListView.Location = new Point(30, 34);
+            modsListView.Location = new Point(30, 3);
             modsListView.MultiSelect = false;
             modsListView.Name = "modsListView";
             modsListView.RightToLeft = RightToLeft.No;
-            modsListView.Size = new Size(734, 468);
+            modsListView.Size = new Size(795, 454);
             modsListView.SmallImageList = imageListIcons;
             modsListView.TabIndex = 10;
             modsListView.UseCompatibleStateImageBehavior = false;
@@ -288,58 +245,6 @@ namespace MW5_Mod_Manager
             imageListIcons.Images.SetKeyName(0, "Folder");
             imageListIcons.Images.SetKeyName(1, "Steam");
             imageListIcons.Images.SetKeyName(2, "Nexusmods");
-            // 
-            // buttonStartGame
-            // 
-            buttonStartGame.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            buttonStartGame.Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            buttonStartGame.Location = new Point(13, 451);
-            buttonStartGame.Margin = new Padding(0);
-            buttonStartGame.Name = "buttonStartGame";
-            buttonStartGame.Size = new Size(70, 90);
-            buttonStartGame.TabIndex = 9;
-            buttonStartGame.Text = "&Start MW5";
-            buttonStartGame.UseVisualStyleBackColor = true;
-            buttonStartGame.Click += buttonStartGame_Click;
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Location = new Point(30, 9);
-            label3.Name = "label3";
-            label3.Size = new Size(44, 13);
-            label3.TabIndex = 16;
-            label3.Text = "Search:";
-            // 
-            // filterBox
-            // 
-            filterBox.Location = new Point(77, 4);
-            filterBox.Name = "filterBox";
-            filterBox.Size = new Size(301, 22);
-            filterBox.TabIndex = 1;
-            filterBox.TextChanged += checkBoxFilter_TextChanged;
-            // 
-            // checkBoxFilter
-            // 
-            checkBoxFilter.AutoSize = true;
-            checkBoxFilter.Location = new Point(411, 8);
-            checkBoxFilter.Name = "checkBoxFilter";
-            checkBoxFilter.Size = new Size(52, 17);
-            checkBoxFilter.TabIndex = 3;
-            checkBoxFilter.Text = "Filter";
-            checkBoxFilter.UseVisualStyleBackColor = true;
-            checkBoxFilter.CheckedChanged += checkBoxFilter_CheckedChanged;
-            // 
-            // buttonRemove
-            // 
-            buttonRemove.Location = new Point(13, 327);
-            buttonRemove.Name = "buttonRemove";
-            buttonRemove.Size = new Size(70, 38);
-            buttonRemove.TabIndex = 8;
-            buttonRemove.Text = "Mark for Removal";
-            buttonRemove.UseVisualStyleBackColor = true;
-            buttonRemove.Visible = false;
-            buttonRemove.Click += button5_Click;
             // 
             // backgroundWorker2
             // 
@@ -509,6 +414,13 @@ namespace MW5_Mod_Manager
             toolStripMenuItemOpenModFolderSteam.Visible = false;
             toolStripMenuItemOpenModFolderSteam.Click += toolStripMenuItemOpenModFolderSteam_Click;
             // 
+            // openUserModsFolderToolStripMenuItem
+            // 
+            openUserModsFolderToolStripMenuItem.Name = "openUserModsFolderToolStripMenuItem";
+            openUserModsFolderToolStripMenuItem.Size = new Size(208, 22);
+            openUserModsFolderToolStripMenuItem.Text = "Open &User Mods folder";
+            openUserModsFolderToolStripMenuItem.Click += openUserModsFolderToolStripMenuItem_Click;
+            // 
             // helpToolStripMenuItem
             // 
             helpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aboutToolStripMenuItem });
@@ -623,7 +535,7 @@ namespace MW5_Mod_Manager
             tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(290, 500);
+            tabPage1.Size = new Size(326, 455);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
@@ -656,7 +568,7 @@ namespace MW5_Mod_Manager
             listBoxOverriding.Name = "listBoxOverriding";
             listBoxOverriding.Size = new Size(138, 95);
             listBoxOverriding.TabIndex = 21;
-            listBoxOverriding.SelectedIndexChanged += listBox1_SelectedIndexChanged;
+            listBoxOverriding.SelectedIndexChanged += listBoxOverriding_SelectedIndexChanged;
             listBoxOverriding.MouseDoubleClick += listBoxOverriding_MouseDoubleClick;
             // 
             // label7
@@ -676,7 +588,7 @@ namespace MW5_Mod_Manager
             listBoxManifestOverridden.ItemHeight = 13;
             listBoxManifestOverridden.Location = new Point(9, 178);
             listBoxManifestOverridden.Name = "listBoxManifestOverridden";
-            listBoxManifestOverridden.Size = new Size(283, 277);
+            listBoxManifestOverridden.Size = new Size(286, 277);
             listBoxManifestOverridden.TabIndex = 22;
             // 
             // listBoxOverriddenBy
@@ -687,7 +599,7 @@ namespace MW5_Mod_Manager
             listBoxOverriddenBy.ItemHeight = 13;
             listBoxOverriddenBy.Location = new Point(153, 52);
             listBoxOverriddenBy.Name = "listBoxOverriddenBy";
-            listBoxOverriddenBy.Size = new Size(139, 95);
+            listBoxOverriddenBy.Size = new Size(142, 95);
             listBoxOverriddenBy.TabIndex = 23;
             listBoxOverriddenBy.SelectedIndexChanged += listBox3_SelectedIndexChanged;
             listBoxOverriddenBy.MouseDoubleClick += listBoxOverriddenBy_MouseDoubleClick;
@@ -708,7 +620,7 @@ namespace MW5_Mod_Manager
             tabPageModInfo.Location = new Point(4, 22);
             tabPageModInfo.Name = "tabPageModInfo";
             tabPageModInfo.Padding = new Padding(3);
-            tabPageModInfo.Size = new Size(290, 502);
+            tabPageModInfo.Size = new Size(326, 457);
             tabPageModInfo.TabIndex = 3;
             tabPageModInfo.Text = "Overview";
             tabPageModInfo.UseVisualStyleBackColor = true;
@@ -719,7 +631,7 @@ namespace MW5_Mod_Manager
             pictureBoxModImage.Location = new Point(3, 6);
             pictureBoxModImage.Margin = new Padding(0);
             pictureBoxModImage.Name = "pictureBoxModImage";
-            pictureBoxModImage.Size = new Size(293, 144);
+            pictureBoxModImage.Size = new Size(318, 99);
             pictureBoxModImage.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxModImage.TabIndex = 2;
             pictureBoxModImage.TabStop = false;
@@ -740,10 +652,10 @@ namespace MW5_Mod_Manager
             panelModInfo.Controls.Add(labelModVersion);
             panelModInfo.Controls.Add(labelModAuthor);
             panelModInfo.Controls.Add(labelModName);
-            panelModInfo.Location = new Point(0, 150);
+            panelModInfo.Location = new Point(0, 105);
             panelModInfo.Margin = new Padding(0);
             panelModInfo.Name = "panelModInfo";
-            panelModInfo.Size = new Size(301, 352);
+            panelModInfo.Size = new Size(343, 352);
             panelModInfo.TabIndex = 1;
             panelModInfo.Visible = false;
             // 
@@ -800,7 +712,7 @@ namespace MW5_Mod_Manager
             richTextBoxModDescription.Location = new Point(8, 182);
             richTextBoxModDescription.Name = "richTextBoxModDescription";
             richTextBoxModDescription.ReadOnly = true;
-            richTextBoxModDescription.Size = new Size(286, 157);
+            richTextBoxModDescription.Size = new Size(313, 157);
             richTextBoxModDescription.TabIndex = 9;
             richTextBoxModDescription.Text = "";
             richTextBoxModDescription.LinkClicked += richTextBoxModDescription_LinkClicked;
@@ -875,31 +787,19 @@ namespace MW5_Mod_Manager
             // 
             // tabControl1
             // 
-            tabControl1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tabControl1.Controls.Add(tabPageModInfo);
             tabControl1.Controls.Add(tabPage1);
+            tabControl1.Dock = DockStyle.Fill;
             tabControl1.Location = new Point(0, 0);
-            tabControl1.Margin = new Padding(0);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(298, 528);
+            tabControl1.Size = new Size(334, 483);
             tabControl1.TabIndex = 11;
-            // 
-            // buttonClearHighlight
-            // 
-            buttonClearHighlight.Enabled = false;
-            buttonClearHighlight.Location = new Point(384, 3);
-            buttonClearHighlight.Name = "buttonClearHighlight";
-            buttonClearHighlight.Size = new Size(21, 24);
-            buttonClearHighlight.TabIndex = 2;
-            buttonClearHighlight.Text = "X";
-            buttonClearHighlight.UseVisualStyleBackColor = true;
-            buttonClearHighlight.Click += buttonClearHighlight_Click;
             // 
             // rotatingLabelHighPriority
             // 
             rotatingLabelHighPriority.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            rotatingLabelHighPriority.Location = new Point(5, 46);
+            rotatingLabelHighPriority.Location = new Point(5, 22);
             rotatingLabelHighPriority.Name = "rotatingLabelHighPriority";
             rotatingLabelHighPriority.NewText = "Highest priority »";
             rotatingLabelHighPriority.RotateAngle = -90;
@@ -911,7 +811,7 @@ namespace MW5_Mod_Manager
             // 
             rotatingLabelLowPriority.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             rotatingLabelLowPriority.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            rotatingLabelLowPriority.Location = new Point(5, 385);
+            rotatingLabelLowPriority.Location = new Point(5, 340);
             rotatingLabelLowPriority.Name = "rotatingLabelLowPriority";
             rotatingLabelLowPriority.NewText = "« Lowest priority";
             rotatingLabelLowPriority.RotateAngle = -90;
@@ -928,7 +828,7 @@ namespace MW5_Mod_Manager
             panelColorLegend.Controls.Add(panelColorOverridingOverridden);
             panelColorLegend.Controls.Add(panelColorOverriding);
             panelColorLegend.Controls.Add(panelColorOverridden);
-            panelColorLegend.Location = new Point(30, 505);
+            panelColorLegend.Location = new Point(30, 460);
             panelColorLegend.Name = "panelColorLegend";
             panelColorLegend.Size = new Size(368, 21);
             panelColorLegend.TabIndex = 37;
@@ -986,61 +886,138 @@ namespace MW5_Mod_Manager
             // 
             // splitContainer1
             // 
-            splitContainer1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            splitContainer1.Location = new Point(86, 26);
+            splitContainer1.Dock = DockStyle.Fill;
+            splitContainer1.Location = new Point(0, 72);
             splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
             // 
-            splitContainer1.Panel1.Controls.Add(label3);
             splitContainer1.Panel1.Controls.Add(rotatingLabelLowPriority);
             splitContainer1.Panel1.Controls.Add(modsListView);
             splitContainer1.Panel1.Controls.Add(rotatingLabelHighPriority);
-            splitContainer1.Panel1.Controls.Add(filterBox);
             splitContainer1.Panel1.Controls.Add(panelColorLegend);
-            splitContainer1.Panel1.Controls.Add(checkBoxFilter);
-            splitContainer1.Panel1.Controls.Add(buttonClearHighlight);
             // 
             // splitContainer1.Panel2
             // 
-            splitContainer1.Panel2.Controls.Add(panelTabControl);
+            splitContainer1.Panel2.Controls.Add(tabControl1);
             splitContainer1.Panel2MinSize = 250;
-            splitContainer1.Size = new Size(1081, 528);
-            splitContainer1.SplitterDistance = 767;
+            splitContainer1.Size = new Size(1167, 483);
+            splitContainer1.SplitterDistance = 828;
             splitContainer1.SplitterWidth = 5;
             splitContainer1.TabIndex = 40;
             // 
-            // panelTabControl
+            // toolStrip1
             // 
-            panelTabControl.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            panelTabControl.Controls.Add(tabControl1);
-            panelTabControl.Location = new Point(0, 0);
-            panelTabControl.Margin = new Padding(0);
-            panelTabControl.Name = "panelTabControl";
-            panelTabControl.Size = new Size(301, 528);
-            panelTabControl.TabIndex = 0;
+            toolStrip1.AutoSize = false;
+            toolStrip1.Font = new Font("Segoe UI", 9F);
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButtonApply, toolStripButtonStartGame, toolStripSeparator10, toolStripButtonReload, toolStripSeparator9, toolStripLabel1, toolStripTextFilterBox, toolStripButtonClearFilter, toolStripButtonFilterToggle, toolStripSeparator11 });
+            toolStrip1.Location = new Point(0, 24);
+            toolStrip1.Name = "toolStrip1";
+            toolStrip1.Size = new Size(1167, 48);
+            toolStrip1.TabIndex = 41;
+            toolStrip1.Text = "toolStrip1";
             // 
-            // openUserModsFolderToolStripMenuItem
+            // toolStripButtonApply
             // 
-            openUserModsFolderToolStripMenuItem.Name = "openUserModsFolderToolStripMenuItem";
-            openUserModsFolderToolStripMenuItem.Size = new Size(208, 22);
-            openUserModsFolderToolStripMenuItem.Text = "Open &User Mods folder";
-            openUserModsFolderToolStripMenuItem.Click += openUserModsFolderToolStripMenuItem_Click;
+            toolStripButtonApply.AutoSize = false;
+            toolStripButtonApply.Image = (Image)resources.GetObject("toolStripButtonApply.Image");
+            toolStripButtonApply.ImageTransparentColor = Color.Magenta;
+            toolStripButtonApply.Name = "toolStripButtonApply";
+            toolStripButtonApply.Size = new Size(70, 45);
+            toolStripButtonApply.Text = "Apply";
+            toolStripButtonApply.TextAlign = ContentAlignment.BottomCenter;
+            toolStripButtonApply.TextImageRelation = TextImageRelation.ImageAboveText;
+            toolStripButtonApply.ToolTipText = "Apply load order to MechWarrior";
+            toolStripButtonApply.Click += toolStripButtonApply_Click;
+            // 
+            // toolStripButtonStartGame
+            // 
+            toolStripButtonStartGame.AutoSize = false;
+            toolStripButtonStartGame.Image = (Image)resources.GetObject("toolStripButtonStartGame.Image");
+            toolStripButtonStartGame.ImageTransparentColor = Color.Magenta;
+            toolStripButtonStartGame.Name = "toolStripButtonStartGame";
+            toolStripButtonStartGame.Size = new Size(70, 45);
+            toolStripButtonStartGame.Text = "Start MW5";
+            toolStripButtonStartGame.TextAlign = ContentAlignment.BottomCenter;
+            toolStripButtonStartGame.TextImageRelation = TextImageRelation.ImageAboveText;
+            toolStripButtonStartGame.ToolTipText = "Start MechWarrior";
+            toolStripButtonStartGame.Click += toolStripButtonStart_Click;
+            // 
+            // toolStripSeparator10
+            // 
+            toolStripSeparator10.Name = "toolStripSeparator10";
+            toolStripSeparator10.Size = new Size(6, 48);
+            // 
+            // toolStripButtonReload
+            // 
+            toolStripButtonReload.AutoSize = false;
+            toolStripButtonReload.Image = (Image)resources.GetObject("toolStripButtonReload.Image");
+            toolStripButtonReload.ImageTransparentColor = Color.Magenta;
+            toolStripButtonReload.Name = "toolStripButtonReload";
+            toolStripButtonReload.Size = new Size(70, 45);
+            toolStripButtonReload.Text = "Reload";
+            toolStripButtonReload.TextAlign = ContentAlignment.BottomCenter;
+            toolStripButtonReload.TextImageRelation = TextImageRelation.ImageAboveText;
+            toolStripButtonReload.ToolTipText = "Reload settings from files, reverting unapplied changes";
+            toolStripButtonReload.Click += toolStripButtonReload_Click;
+            // 
+            // toolStripSeparator9
+            // 
+            toolStripSeparator9.Name = "toolStripSeparator9";
+            toolStripSeparator9.Size = new Size(6, 48);
+            // 
+            // toolStripLabel1
+            // 
+            toolStripLabel1.Name = "toolStripLabel1";
+            toolStripLabel1.Size = new Size(36, 45);
+            toolStripLabel1.Text = "Filter:";
+            // 
+            // toolStripTextFilterBox
+            // 
+            toolStripTextFilterBox.Name = "toolStripTextFilterBox";
+            toolStripTextFilterBox.Size = new Size(130, 48);
+            toolStripTextFilterBox.TextChanged += toolStripTextFilterBox_TextChanged;
+            // 
+            // toolStripButtonClearFilter
+            // 
+            toolStripButtonClearFilter.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            toolStripButtonClearFilter.Enabled = false;
+            toolStripButtonClearFilter.Image = (Image)resources.GetObject("toolStripButtonClearFilter.Image");
+            toolStripButtonClearFilter.ImageTransparentColor = Color.Magenta;
+            toolStripButtonClearFilter.Name = "toolStripButtonClearFilter";
+            toolStripButtonClearFilter.Size = new Size(23, 45);
+            toolStripButtonClearFilter.Text = "Clear";
+            toolStripButtonClearFilter.TextImageRelation = TextImageRelation.ImageAboveText;
+            toolStripButtonClearFilter.ToolTipText = "Clear filter";
+            toolStripButtonClearFilter.Click += toolStripButtonClearFilter_Click;
+            // 
+            // toolStripButtonFilterToggle
+            // 
+            toolStripButtonFilterToggle.CheckOnClick = true;
+            toolStripButtonFilterToggle.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            toolStripButtonFilterToggle.Image = (Image)resources.GetObject("toolStripButtonFilterToggle.Image");
+            toolStripButtonFilterToggle.ImageTransparentColor = Color.Magenta;
+            toolStripButtonFilterToggle.Name = "toolStripButtonFilterToggle";
+            toolStripButtonFilterToggle.Size = new Size(23, 45);
+            toolStripButtonFilterToggle.Text = "Filter";
+            toolStripButtonFilterToggle.TextImageRelation = TextImageRelation.ImageAboveText;
+            toolStripButtonFilterToggle.ToolTipText = "Toggle filter mode";
+            toolStripButtonFilterToggle.CheckedChanged += toolStripButtonFilterToggle_CheckedChanged;
+            // 
+            // toolStripSeparator11
+            // 
+            toolStripSeparator11.Name = "toolStripSeparator11";
+            toolStripSeparator11.Size = new Size(6, 48);
             // 
             // MainWindow
             // 
             AutoScaleDimensions = new SizeF(6F, 13F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1167, 579);
-            Controls.Add(buttonStartGame);
-            Controls.Add(statusStrip1);
-            Controls.Add(buttonRemove);
-            Controls.Add(menuStrip1);
-            Controls.Add(buttonReload);
-            Controls.Add(buttonApply);
-            Controls.Add(buttonMoveDown);
-            Controls.Add(buttonMoveUp);
             Controls.Add(splitContainer1);
+            Controls.Add(toolStrip1);
+            Controls.Add(menuStrip1);
+            Controls.Add(statusStrip1);
             Font = new Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
             MainMenuStrip = menuStrip1;
             MinimumSize = new Size(900, 550);
@@ -1066,21 +1043,18 @@ namespace MW5_Mod_Manager
             panelColorLegend.ResumeLayout(false);
             panelColorLegend.PerformLayout();
             splitContainer1.Panel1.ResumeLayout(false);
-            splitContainer1.Panel1.PerformLayout();
             splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
             splitContainer1.ResumeLayout(false);
-            panelTabControl.ResumeLayout(false);
+            toolStrip1.ResumeLayout(false);
+            toolStrip1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
+
         #endregion
-        private System.Windows.Forms.Button buttonMoveUp;
-        private System.Windows.Forms.Button buttonMoveDown;
-        private System.Windows.Forms.Button buttonApply;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
-        private System.Windows.Forms.Button buttonReload;
         public System.Windows.Forms.ListView modsListView;
         public System.Windows.Forms.ColumnHeader displayHeader;
         public System.Windows.Forms.ColumnHeader folderHeader;
@@ -1088,11 +1062,6 @@ namespace MW5_Mod_Manager
         public System.Windows.Forms.ColumnHeader enabledHeader;
         public System.Windows.Forms.ColumnHeader versionHeader;
         public System.Windows.Forms.ToolStripLabel toolStripVendorLabeltoolStripLabel1;
-        private System.Windows.Forms.Button buttonStartGame;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox filterBox;
-        private System.Windows.Forms.CheckBox checkBoxFilter;
-        private System.Windows.Forms.Button buttonRemove;
         public System.ComponentModel.BackgroundWorker backgroundWorker2;
         private BindingSource textProgressBarBindingSource;
         private MenuStrip menuStrip1;
@@ -1151,7 +1120,6 @@ namespace MW5_Mod_Manager
         private PictureBox pictureBoxNexusmodsIcon;
         private Label labelNexusmods;
         private LinkLabel linkLabelNexusmods;
-        private Button buttonClearHighlight;
         public ColumnHeader currentLoadOrderHeader;
         private ToolTip toolTip1;
         private ToolStripStatusLabel toolStripStatusLabel1;
@@ -1174,10 +1142,20 @@ namespace MW5_Mod_Manager
         private RotatingLabel rotatingLabelLowPriority;
         private SplitContainer splitContainer1;
         private ColumnHeader fileSizeHeader;
-        private Panel panelTabControl;
         private ToolStripMenuItem toolStripMenuItemSortDefaultLoadOrder;
         private ToolStripSeparator toolStripSeparator8;
         private ToolStripMenuItem openUserModsFolderToolStripMenuItem;
+        private ToolStrip toolStrip1;
+        private ToolStripButton toolStripButtonReload;
+        private ToolStripButton toolStripButtonApply;
+        private ToolStripButton toolStripButtonStartGame;
+        private ToolStripTextBox toolStripTextFilterBox;
+        private ToolStripLabel toolStripLabel1;
+        private ToolStripButton toolStripButtonFilterToggle;
+        private ToolStripSeparator toolStripSeparator9;
+        private ToolStripSeparator toolStripSeparator11;
+        private ToolStripButton toolStripButtonClearFilter;
+        private ToolStripSeparator toolStripSeparator10;
     }
 }
 

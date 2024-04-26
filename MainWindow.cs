@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -105,23 +106,10 @@ namespace MW5_Mod_Manager
         //handling key presses for hotkeys.
         private async void form1_KeyUp(object sender, KeyEventArgs e)
         {
-            //Console.WriteLine("KEY Released: " + e.KeyCode);
-            if (e.KeyCode == Keys.ShiftKey)
-            {
-                await Task.Delay(50);
-                this.buttonMoveUp.Text = "&UP";
-                this.buttonMoveDown.Text = "&DOWN";
-            }
         }
 
         private void form1_KeyDown(object sender, KeyEventArgs e)
         {
-            //Console.WriteLine("KEY Pressed: " + e.KeyCode);
-            if (e.Shift)
-            {
-                this.buttonMoveUp.Text = "MOVE TO TOP";
-                this.buttonMoveDown.Text = "MOVE TO BOTTOM";
-            }
         }
 
         //When we hover over the manager with a file or folder
@@ -133,6 +121,8 @@ namespace MW5_Mod_Manager
         //When we drop a file or folder on the manager
         void Form1_DragDrop(object sender, DragEventArgs e)
         {
+            return;
+
             //We only support single file drops!
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
             if (files.Length != 1)
@@ -315,19 +305,19 @@ namespace MW5_Mod_Manager
         //Get item info, remove item, insert above, set new item as selected.
         private void button1_Click(object sender, EventArgs e)
         {
-            MoveItemUp(SelectedItemIndex(), Control.ModifierKeys == Keys.Shift);
+
         }
 
         //Down button
         //Get item info, remove item, insert below, set new item as selected.
         private void button2_Click(object sender, EventArgs e)
         {
-            MoveItemDown(SelectedItemIndex(), Control.ModifierKeys == Keys.Shift);
+
         }
 
         private void buttonApply_Click(object sender, EventArgs e)
         {
-            ApplyModSettings();
+
         }
 
         public void ApplyModSettings()
@@ -409,29 +399,25 @@ namespace MW5_Mod_Manager
                 case MainLogic.eGamePlatform.Epic:
                     {
                         this.toolStripPlatformLabel.Text = @"Platform: Epic Store";
-                        this.buttonStartGame.Enabled = true;
-                        buttonRemove.Enabled = true;
+                        this.toolStripButtonStartGame.Enabled = true;
                         break;
                     }
                 case MainLogic.eGamePlatform.WindowsStore:
                     {
                         this.toolStripPlatformLabel.Text = @"Platform: Windows Store";
-                        this.buttonStartGame.Enabled = false;
-                        buttonRemove.Enabled = true;
+                        this.toolStripButtonStartGame.Enabled = false;
                     }
                     break;
                 case MainLogic.eGamePlatform.Steam:
                     {
                         this.toolStripPlatformLabel.Text = @"Platform: Steam";
-                        buttonRemove.Enabled = false;
-                        this.buttonStartGame.Enabled = true;
+                        this.toolStripButtonStartGame.Enabled = true;
                     }
                     break;
                 case MainLogic.eGamePlatform.Gog:
                     {
                         this.toolStripPlatformLabel.Text = @"Platform: GOG";
-                        this.buttonStartGame.Enabled = true;
-                        buttonRemove.Enabled = true;
+                        this.toolStripButtonStartGame.Enabled = true;
                     }
                     break;
             }
@@ -562,7 +548,7 @@ namespace MW5_Mod_Manager
         //Refresh listedcheckbox
         private void button6_Click(object sender, EventArgs e)
         {
-            RefreshAll();
+
         }
 
         public void RefreshAll()
@@ -572,7 +558,7 @@ namespace MW5_Mod_Manager
             if (logic.TryLoadProgramSettings())
             {
                 LoadAndFill(false);
-                checkBoxFilter_TextChanged(null, null);
+                FilterTextChanged();
                 logic.GetOverridingData(ModListData);
             }
 
@@ -623,7 +609,7 @@ namespace MW5_Mod_Manager
             this.logic.ModList = temp;
             this.logic.Mods.Clear();
             this.LoadAndFill(true);
-            this.checkBoxFilter_TextChanged(null, null);
+            FilterTextChanged();
             SetModSettingsTainted(true);
             modsListView.EndUpdate();
         }
@@ -661,8 +647,7 @@ namespace MW5_Mod_Manager
             }
         }
 
-        //Launch game button
-        private void buttonStartGame_Click(object sender, EventArgs e)
+        private void LaunchGame()
         {
             if (!logic.GameIsConfigured())
                 return;
@@ -700,6 +685,12 @@ namespace MW5_Mod_Manager
                     LaunchWindowsGame();
                     break;
             }
+        }
+
+        //Launch game button
+        private void buttonStartGame_Click(object sender, EventArgs e)
+        {
+
 
         }
 
@@ -780,17 +771,15 @@ namespace MW5_Mod_Manager
 
         private void SetMoveControlsEnabled(bool enabled)
         {
-            MainForm.buttonMoveUp.Enabled = enabled;
-            MainForm.buttonMoveDown.Enabled = enabled;
             moveupToolStripMenuItem.Enabled = enabled;
             movedownToolStripMenuItem.Enabled = enabled;
             contextMenuItemMoveToTop.Enabled = enabled;
             contextMenuItemMoveToBottom.Enabled = enabled;
         }
 
-        private void checkBoxFilter_TextChanged(object sender, EventArgs e)
+        private void FilterTextChanged()
         {
-            string filtertext = MainForm.filterBox.Text.ToLower();
+            string filtertext = MainForm.toolStripTextFilterBox.Text.ToLower();
             if (Utils.StringNullEmptyOrWhiteSpace(filtertext))
             {
                 if (this.FilterMode != eFilterMode.None)
@@ -806,7 +795,7 @@ namespace MW5_Mod_Manager
             }
             else
             {
-                if (!MainForm.checkBoxFilter.Checked)
+                if (!MainForm.toolStripButtonFilterToggle.Checked)
                 {
                     FilterMode = eFilterMode.ItemHighlight;
                     bool anyUpdated = false;
@@ -874,7 +863,7 @@ namespace MW5_Mod_Manager
                 //While filtering disable the up/down buttons (tough this should no longer be needed).
                 SetMoveControlsEnabled(false);
             }
-            buttonClearHighlight.Enabled = filterBox.Text.Length > 0;
+            toolStripButtonClearFilter.Enabled = toolStripTextFilterBox.Text.Length > 0;
         }
 
         //Check if given listviewitem can be matched to a string.
@@ -892,18 +881,8 @@ namespace MW5_Mod_Manager
             return false;
         }
 
-        //Filter or Highlight checkbox on tick action
-        private void checkBoxFilter_CheckedChanged(object sender, EventArgs e)
-        {
-            if (!checkBoxFilter.Checked)
-            {
-                ReloadListViewFromData();
-            }
-            this.checkBoxFilter_TextChanged(null, null);
-        }
-
         //Mark currently selected mod for removal upon apply
-        private void button5_Click(object sender, EventArgs e)
+        private void MarkForRemoval()
         {
             foreach (ListViewItem item in modsListView.SelectedItems)
             {
@@ -927,98 +906,115 @@ namespace MW5_Mod_Manager
         private void listBox3_SelectedIndexChanged(object sender, EventArgs e)
         {
             bool startedListUpdate = false;
-            if (FilterMode == eFilterMode.None)
+            try
             {
-                startedListUpdate = true;
-                modsListView.BeginUpdate();
-                UnhighlightAllMods();
+                if (FilterMode == eFilterMode.None)
+                {
+                    startedListUpdate = true;
+                    modsListView.BeginUpdate();
+                    UnhighlightAllMods();
+                }
+
+                if (listBoxOverriddenBy.SelectedIndex == -1)
+                    return;
+
+                listBoxManifestOverridden.Items.Clear();
+                listBoxOverriding.SelectedIndex = -1;
+                if (listBoxOverriddenBy.Items.Count == 0 || modsListView.Items.Count == 0)
+                    return;
+
+                if (listBoxOverriddenBy.SelectedItem == null)
+                    return;
+
+                ModListBoxItem selectedMod = (ModListBoxItem)listBoxOverriddenBy.SelectedItem;
+
+                if (FilterMode == eFilterMode.None)
+                {
+                    HighlightModInList(selectedMod.ModKey);
+                }
+
+                if (startedListUpdate)
+                {
+                    modsListView.EndUpdate();
+                }
+
+                string superMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
+
+                if (!logic.OverrridingData.ContainsKey(superMod))
+                    return;
+
+                OverridingData modData = logic.OverrridingData[superMod];
+
+                if (!modData.overriddenBy.ContainsKey(selectedMod.ModDirName))
+                    return;
+
+                foreach (string entry in modData.overriddenBy[selectedMod.ModDirName])
+                {
+                    listBoxManifestOverridden.Items.Add(entry);
+                }
             }
-
-            if (listBoxOverriddenBy.SelectedIndex == -1)
-                return;
-
-            listBoxManifestOverridden.Items.Clear();
-            listBoxOverriding.SelectedIndex = -1;
-            if (listBoxOverriddenBy.Items.Count == 0 || modsListView.Items.Count == 0)
-                return;
-
-            if (listBoxOverriddenBy.SelectedItem == null)
-                return;
-
-            ModListBoxItem selectedMod = (ModListBoxItem)listBoxOverriddenBy.SelectedItem;
-
-            if (FilterMode == eFilterMode.None)
+            finally
             {
-                HighlightModInList(selectedMod.ModKey);
-            }
-
-            if (startedListUpdate)
-            {
-                modsListView.EndUpdate();
-            }
-
-            string superMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
-
-            if (!logic.OverrridingData.ContainsKey(superMod))
-                return;
-
-            OverridingData modData = logic.OverrridingData[superMod];
-
-            if (!modData.overriddenBy.ContainsKey(selectedMod.ModDirName))
-                return;
-
-            foreach (string entry in modData.overriddenBy[selectedMod.ModDirName])
-            {
-                listBoxManifestOverridden.Items.Add(entry);
+                if (startedListUpdate)
+                {
+                    modsListView.EndUpdate();
+                }
             }
         }
 
         //Selected index of mods that are being overriden by the currently selected mod had changed.
-        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        private void listBoxOverriding_SelectedIndexChanged(object sender, EventArgs e)
         {
-            bool startedUpdate = false;
-            if (FilterMode == eFilterMode.None)
+            bool startedListUpdate = false;
+            try
             {
-                startedUpdate = true;
-                modsListView.BeginUpdate();
-                UnhighlightAllMods();
+                if (FilterMode == eFilterMode.None)
+                {
+                    startedListUpdate = true;
+                    modsListView.BeginUpdate();
+                    UnhighlightAllMods();
+                }
+
+                if (listBoxOverriding.SelectedIndex == -1)
+                    return;
+
+                listBoxManifestOverridden.Items.Clear();
+                listBoxOverriddenBy.SelectedIndex = -1;
+                if (listBoxOverriding.Items.Count == 0 || modsListView.Items.Count == 0)
+                    return;
+
+                if (listBoxOverriding.SelectedItem == null)
+                    return;
+
+                ModListBoxItem selectedMod = (ModListBoxItem)listBoxOverriding.SelectedItem;
+
+                if (FilterMode == eFilterMode.None)
+                {
+                    HighlightModInList(selectedMod.ModKey);
+                }
+
+                string superMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
+
+                if (!logic.OverrridingData.ContainsKey(superMod))
+                    return;
+
+                OverridingData modData = logic.OverrridingData[superMod];
+
+                foreach (string entry in modData.overrides[selectedMod.ModDirName])
+                {
+                    listBoxManifestOverridden.Items.Add(entry);
+                }
             }
-
-            if (listBoxOverriding.SelectedIndex == -1)
-                return;
-
-            listBoxManifestOverridden.Items.Clear();
-            listBoxOverriddenBy.SelectedIndex = -1;
-            if (listBoxOverriding.Items.Count == 0 || modsListView.Items.Count == 0)
-                return;
-
-            if (listBoxOverriding.SelectedItem == null)
-                return;
-
-            ModListBoxItem selectedMod = (ModListBoxItem)listBoxOverriding.SelectedItem;
-
-            if (FilterMode == eFilterMode.None)
+            finally
             {
-                HighlightModInList(selectedMod.ModKey);
-            }
-
-            if (startedUpdate)
-            {
-                modsListView.EndUpdate();
-            }
-
-            string superMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
-
-            if (!logic.OverrridingData.ContainsKey(superMod))
-                return;
-
-            OverridingData modData = logic.OverrridingData[superMod];
-
-            foreach (string entry in modData.overrides[selectedMod.ModDirName])
-            {
-                listBoxManifestOverridden.Items.Add(entry);
+                if (startedListUpdate)
+                {
+                    modsListView.EndUpdate();
+                }
             }
         }
+
+
 
         public void ClearModSidePanel()
         {
@@ -1289,7 +1285,7 @@ namespace MW5_Mod_Manager
             this.logic.ModList = newData;
             this.logic.Mods.Clear();
             this.LoadAndFill(true);
-            this.checkBoxFilter_TextChanged(null, null);
+            FilterTextChanged();
             SetModSettingsTainted(true);
             modsListView.EndUpdate();
         }
@@ -1772,8 +1768,7 @@ namespace MW5_Mod_Manager
 
         private void buttonClearHighlight_Click(object sender, EventArgs e)
         {
-            filterBox.Text = "";
-            filterBox.Focus();
+
         }
 
         public void UpdateModCountDisplay()
@@ -1787,14 +1782,14 @@ namespace MW5_Mod_Manager
             logic.ModSettingsTainted = modSettingsTainted;
             if (modSettingsTainted)
             {
-                buttonApply.ForeColor = Color.OrangeRed;
-                buttonApply.Font = new Font(MainForm.modsListView.Font, MainForm.modsListView.Font.Style | FontStyle.Bold);
+                toolStripButtonApply.ForeColor = Color.OrangeRed;
+                toolStripButtonApply.Font = new Font(MainForm.toolStrip1.Font, MainForm.toolStrip1.Font.Style | FontStyle.Bold);
 
             }
             else
             {
-                buttonApply.ForeColor = SystemColors.ControlText;
-                buttonApply.Font = new Font(MainForm.modsListView.Font, MainForm.modsListView.Font.Style);
+                toolStripButtonApply.ForeColor = SystemColors.ControlText;
+                toolStripButtonApply.Font = new Font(MainForm.toolStrip1.Font, MainForm.toolStrip1.Font.Style);
             }
         }
 
@@ -1916,7 +1911,7 @@ namespace MW5_Mod_Manager
 
             ReloadListViewFromData();
             RecomputeLoadOrdersAndUpdateList();
-            checkBoxFilter_TextChanged(null, null);
+            FilterTextChanged();
 
             modsListView.EndUpdate();
         }
@@ -1959,6 +1954,51 @@ namespace MW5_Mod_Manager
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, caption, buttons);
             }
+        }
+
+        private void toolStripButtonReload_Click(object sender, EventArgs e)
+        {
+            RefreshAll();
+        }
+
+        private void toolStripButtonUp_Click(object sender, EventArgs e)
+        {
+            MoveItemUp(SelectedItemIndex(), Control.ModifierKeys == Keys.Shift);
+        }
+
+        private void toolStripButtonDown_Click(object sender, EventArgs e)
+        {
+            MoveItemDown(SelectedItemIndex(), Control.ModifierKeys == Keys.Shift);
+        }
+
+        private void toolStripButtonApply_Click(object sender, EventArgs e)
+        {
+            ApplyModSettings();
+        }
+
+        private void toolStripButtonStart_Click(object sender, EventArgs e)
+        {
+            LaunchGame();
+        }
+
+        private void toolStripTextFilterBox_TextChanged(object sender, EventArgs e)
+        {
+            FilterTextChanged();
+        }
+
+        private void toolStripButtonClearFilter_Click(object sender, EventArgs e)
+        {
+            toolStripTextFilterBox.Text = "";
+            toolStripTextFilterBox.Focus();
+        }
+
+        private void toolStripButtonFilterToggle_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!toolStripButtonFilterToggle.Checked)
+            {
+                ReloadListViewFromData();
+            }
+            FilterTextChanged();
         }
     }
 }
