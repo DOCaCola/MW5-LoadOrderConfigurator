@@ -1910,8 +1910,10 @@ namespace MW5_Mod_Manager
             });
 
             ReloadListViewFromData();
+            this.logic.GetOverridingData(this.ModListData);
             RecomputeLoadOrdersAndUpdateList();
             FilterTextChanged();
+            modListView_SelectedIndexChanged(null, null);
 
             modsListView.EndUpdate();
         }

@@ -90,13 +90,14 @@ namespace MW5_Mod_Manager
             toolStripSeparator5 = new ToolStripSeparator();
             openFolderToolStripMenuItem = new ToolStripMenuItem();
             tabPage1 = new TabPage();
-            label6 = new Label();
-            labelModNameOverrides = new Label();
+            splitContainer2 = new SplitContainer();
             listBoxOverriding = new ListBox();
-            label7 = new Label();
-            listBoxManifestOverridden = new ListBox();
+            label6 = new Label();
             listBoxOverriddenBy = new ListBox();
             label5 = new Label();
+            labelModNameOverrides = new Label();
+            label7 = new Label();
+            listBoxManifestOverridden = new ListBox();
             tabPageModInfo = new TabPage();
             pictureBoxModImage = new PictureBox();
             panelModInfo = new Panel();
@@ -124,7 +125,7 @@ namespace MW5_Mod_Manager
             panelColorOverridingOverridden = new Panel();
             panelColorOverriding = new Panel();
             panelColorOverridden = new Panel();
-            splitContainer1 = new SplitContainer();
+            splitContainerMain = new SplitContainer();
             toolStrip1 = new ToolStrip();
             toolStripButtonApply = new ToolStripButton();
             toolStripButtonStartGame = new ToolStripButton();
@@ -141,6 +142,10 @@ namespace MW5_Mod_Manager
             statusStrip1.SuspendLayout();
             contextMenuStripMod.SuspendLayout();
             tabPage1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)splitContainer2).BeginInit();
+            splitContainer2.Panel1.SuspendLayout();
+            splitContainer2.Panel2.SuspendLayout();
+            splitContainer2.SuspendLayout();
             tabPageModInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxModImage).BeginInit();
             panelModInfo.SuspendLayout();
@@ -148,10 +153,10 @@ namespace MW5_Mod_Manager
             ((System.ComponentModel.ISupportInitialize)pictureBoxSteamIcon).BeginInit();
             tabControl1.SuspendLayout();
             panelColorLegend.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
-            splitContainer1.Panel1.SuspendLayout();
-            splitContainer1.Panel2.SuspendLayout();
-            splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)splitContainerMain).BeginInit();
+            splitContainerMain.Panel1.SuspendLayout();
+            splitContainerMain.Panel2.SuspendLayout();
+            splitContainerMain.SuspendLayout();
             toolStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -525,56 +530,95 @@ namespace MW5_Mod_Manager
             // 
             // tabPage1
             // 
-            tabPage1.Controls.Add(label6);
+            tabPage1.Controls.Add(splitContainer2);
             tabPage1.Controls.Add(labelModNameOverrides);
-            tabPage1.Controls.Add(listBoxOverriding);
             tabPage1.Controls.Add(label7);
             tabPage1.Controls.Add(listBoxManifestOverridden);
-            tabPage1.Controls.Add(listBoxOverriddenBy);
-            tabPage1.Controls.Add(label5);
-            tabPage1.Location = new Point(4, 24);
+            tabPage1.Location = new Point(4, 22);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(326, 455);
+            tabPage1.Size = new Size(326, 457);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
             // 
+            // splitContainer2
+            // 
+            splitContainer2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            splitContainer2.Location = new Point(9, 36);
+            splitContainer2.Name = "splitContainer2";
+            // 
+            // splitContainer2.Panel1
+            // 
+            splitContainer2.Panel1.Controls.Add(listBoxOverriding);
+            splitContainer2.Panel1.Controls.Add(label6);
+            // 
+            // splitContainer2.Panel2
+            // 
+            splitContainer2.Panel2.Controls.Add(listBoxOverriddenBy);
+            splitContainer2.Panel2.Controls.Add(label5);
+            splitContainer2.Size = new Size(309, 100);
+            splitContainer2.SplitterDistance = 152;
+            splitContainer2.TabIndex = 27;
+            // 
+            // listBoxOverriding
+            // 
+            listBoxOverriding.Dock = DockStyle.Bottom;
+            listBoxOverriding.FormattingEnabled = true;
+            listBoxOverriding.HorizontalScrollbar = true;
+            listBoxOverriding.ItemHeight = 13;
+            listBoxOverriding.Location = new Point(0, 18);
+            listBoxOverriding.Name = "listBoxOverriding";
+            listBoxOverriding.Size = new Size(152, 82);
+            listBoxOverriding.TabIndex = 21;
+            listBoxOverriding.SelectedIndexChanged += listBoxOverriding_SelectedIndexChanged;
+            listBoxOverriding.MouseDoubleClick += listBoxOverriding_MouseDoubleClick;
+            // 
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(9, 36);
+            label6.Location = new Point(0, 2);
             label6.Name = "label6";
             label6.Size = new Size(62, 13);
             label6.TabIndex = 25;
             label6.Text = "Overriding";
             // 
+            // listBoxOverriddenBy
+            // 
+            listBoxOverriddenBy.Dock = DockStyle.Bottom;
+            listBoxOverriddenBy.FormattingEnabled = true;
+            listBoxOverriddenBy.HorizontalScrollbar = true;
+            listBoxOverriddenBy.ItemHeight = 13;
+            listBoxOverriddenBy.Location = new Point(0, 18);
+            listBoxOverriddenBy.Name = "listBoxOverriddenBy";
+            listBoxOverriddenBy.Size = new Size(153, 82);
+            listBoxOverriddenBy.TabIndex = 23;
+            listBoxOverriddenBy.SelectedIndexChanged += listBox3_SelectedIndexChanged;
+            listBoxOverriddenBy.MouseDoubleClick += listBoxOverriddenBy_MouseDoubleClick;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new Point(0, 2);
+            label5.Name = "label5";
+            label5.Size = new Size(79, 13);
+            label5.TabIndex = 24;
+            label5.Text = "Overridden By";
+            // 
             // labelModNameOverrides
             // 
             labelModNameOverrides.AutoSize = true;
             labelModNameOverrides.Font = new Font("Segoe UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            labelModNameOverrides.Location = new Point(6, 11);
+            labelModNameOverrides.Location = new Point(9, 12);
             labelModNameOverrides.Name = "labelModNameOverrides";
             labelModNameOverrides.Size = new Size(19, 13);
             labelModNameOverrides.TabIndex = 20;
             labelModNameOverrides.Text = "---";
             // 
-            // listBoxOverriding
-            // 
-            listBoxOverriding.FormattingEnabled = true;
-            listBoxOverriding.HorizontalScrollbar = true;
-            listBoxOverriding.ItemHeight = 13;
-            listBoxOverriding.Location = new Point(9, 52);
-            listBoxOverriding.Name = "listBoxOverriding";
-            listBoxOverriding.Size = new Size(138, 95);
-            listBoxOverriding.TabIndex = 21;
-            listBoxOverriding.SelectedIndexChanged += listBoxOverriding_SelectedIndexChanged;
-            listBoxOverriding.MouseDoubleClick += listBoxOverriding_MouseDoubleClick;
-            // 
             // label7
             // 
             label7.AutoSize = true;
-            label7.Location = new Point(9, 160);
+            label7.Location = new Point(9, 148);
             label7.Name = "label7";
             label7.Size = new Size(90, 13);
             label7.TabIndex = 26;
@@ -586,32 +630,10 @@ namespace MW5_Mod_Manager
             listBoxManifestOverridden.FormattingEnabled = true;
             listBoxManifestOverridden.HorizontalScrollbar = true;
             listBoxManifestOverridden.ItemHeight = 13;
-            listBoxManifestOverridden.Location = new Point(9, 178);
+            listBoxManifestOverridden.Location = new Point(9, 165);
             listBoxManifestOverridden.Name = "listBoxManifestOverridden";
-            listBoxManifestOverridden.Size = new Size(286, 277);
+            listBoxManifestOverridden.Size = new Size(309, 277);
             listBoxManifestOverridden.TabIndex = 22;
-            // 
-            // listBoxOverriddenBy
-            // 
-            listBoxOverriddenBy.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            listBoxOverriddenBy.FormattingEnabled = true;
-            listBoxOverriddenBy.HorizontalScrollbar = true;
-            listBoxOverriddenBy.ItemHeight = 13;
-            listBoxOverriddenBy.Location = new Point(153, 52);
-            listBoxOverriddenBy.Name = "listBoxOverriddenBy";
-            listBoxOverriddenBy.Size = new Size(142, 95);
-            listBoxOverriddenBy.TabIndex = 23;
-            listBoxOverriddenBy.SelectedIndexChanged += listBox3_SelectedIndexChanged;
-            listBoxOverriddenBy.MouseDoubleClick += listBoxOverriddenBy_MouseDoubleClick;
-            // 
-            // label5
-            // 
-            label5.AutoSize = true;
-            label5.Location = new Point(153, 36);
-            label5.Name = "label5";
-            label5.Size = new Size(79, 13);
-            label5.TabIndex = 24;
-            label5.Text = "Overridden By";
             // 
             // tabPageModInfo
             // 
@@ -884,27 +906,28 @@ namespace MW5_Mod_Manager
             panelColorOverridden.Size = new Size(12, 12);
             panelColorOverridden.TabIndex = 0;
             // 
-            // splitContainer1
+            // splitContainerMain
             // 
-            splitContainer1.Dock = DockStyle.Fill;
-            splitContainer1.Location = new Point(0, 72);
-            splitContainer1.Name = "splitContainer1";
+            splitContainerMain.Dock = DockStyle.Fill;
+            splitContainerMain.IsSplitterFixed = true;
+            splitContainerMain.Location = new Point(0, 72);
+            splitContainerMain.Name = "splitContainerMain";
             // 
-            // splitContainer1.Panel1
+            // splitContainerMain.Panel1
             // 
-            splitContainer1.Panel1.Controls.Add(rotatingLabelLowPriority);
-            splitContainer1.Panel1.Controls.Add(modsListView);
-            splitContainer1.Panel1.Controls.Add(rotatingLabelHighPriority);
-            splitContainer1.Panel1.Controls.Add(panelColorLegend);
+            splitContainerMain.Panel1.Controls.Add(rotatingLabelLowPriority);
+            splitContainerMain.Panel1.Controls.Add(modsListView);
+            splitContainerMain.Panel1.Controls.Add(rotatingLabelHighPriority);
+            splitContainerMain.Panel1.Controls.Add(panelColorLegend);
             // 
-            // splitContainer1.Panel2
+            // splitContainerMain.Panel2
             // 
-            splitContainer1.Panel2.Controls.Add(tabControl1);
-            splitContainer1.Panel2MinSize = 250;
-            splitContainer1.Size = new Size(1167, 483);
-            splitContainer1.SplitterDistance = 828;
-            splitContainer1.SplitterWidth = 5;
-            splitContainer1.TabIndex = 40;
+            splitContainerMain.Panel2.Controls.Add(tabControl1);
+            splitContainerMain.Panel2MinSize = 250;
+            splitContainerMain.Size = new Size(1167, 483);
+            splitContainerMain.SplitterDistance = 828;
+            splitContainerMain.SplitterWidth = 5;
+            splitContainerMain.TabIndex = 40;
             // 
             // toolStrip1
             // 
@@ -1014,7 +1037,7 @@ namespace MW5_Mod_Manager
             AutoScaleDimensions = new SizeF(6F, 13F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1167, 579);
-            Controls.Add(splitContainer1);
+            Controls.Add(splitContainerMain);
             Controls.Add(toolStrip1);
             Controls.Add(menuStrip1);
             Controls.Add(statusStrip1);
@@ -1033,6 +1056,12 @@ namespace MW5_Mod_Manager
             contextMenuStripMod.ResumeLayout(false);
             tabPage1.ResumeLayout(false);
             tabPage1.PerformLayout();
+            splitContainer2.Panel1.ResumeLayout(false);
+            splitContainer2.Panel1.PerformLayout();
+            splitContainer2.Panel2.ResumeLayout(false);
+            splitContainer2.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)splitContainer2).EndInit();
+            splitContainer2.ResumeLayout(false);
             tabPageModInfo.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBoxModImage).EndInit();
             panelModInfo.ResumeLayout(false);
@@ -1042,10 +1071,10 @@ namespace MW5_Mod_Manager
             tabControl1.ResumeLayout(false);
             panelColorLegend.ResumeLayout(false);
             panelColorLegend.PerformLayout();
-            splitContainer1.Panel1.ResumeLayout(false);
-            splitContainer1.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
-            splitContainer1.ResumeLayout(false);
+            splitContainerMain.Panel1.ResumeLayout(false);
+            splitContainerMain.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)splitContainerMain).EndInit();
+            splitContainerMain.ResumeLayout(false);
             toolStrip1.ResumeLayout(false);
             toolStrip1.PerformLayout();
             ResumeLayout(false);
@@ -1140,7 +1169,7 @@ namespace MW5_Mod_Manager
         private ToolStripSeparator toolStripSeparator6;
         private RotatingLabel rotatingLabelHighPriority;
         private RotatingLabel rotatingLabelLowPriority;
-        private SplitContainer splitContainer1;
+        private SplitContainer splitContainerMain;
         private ColumnHeader fileSizeHeader;
         private ToolStripMenuItem toolStripMenuItemSortDefaultLoadOrder;
         private ToolStripSeparator toolStripSeparator8;
@@ -1156,6 +1185,7 @@ namespace MW5_Mod_Manager
         private ToolStripSeparator toolStripSeparator11;
         private ToolStripButton toolStripButtonClearFilter;
         private ToolStripSeparator toolStripSeparator10;
+        private SplitContainer splitContainer2;
     }
 }
 

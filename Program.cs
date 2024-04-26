@@ -272,32 +272,39 @@ namespace MW5_Mod_Manager
         /// </summary>
         private void CheckModDirPresent()
         {
-            List<string> MissingModDirs = new List<string>();
-            foreach (string key in this.ModList.Keys)
+            Dictionary<string, bool> MissingModDirs = new();
+            foreach (var item in this.ModList)
             {
-                if (Utils.StringNullEmptyOrWhiteSpace(key))
+                if (Utils.StringNullEmptyOrWhiteSpace(item.Key))
                 {
-                    ModList.Remove(key);
+                    ModList.Remove(item.Key);
                     continue;
                 }
-                //If the folder that this mod needs is not present warn user and remove.
-                if (!DirectoryToPathDict.ContainsKey(key))
-                {
-                    MissingModDirs.Add(key);
+
+                // Collect listed mods that are unavailable locally
+                if (!DirectoryToPathDict.ContainsKey(item.Key))
+                { 
+                    MissingModDirs.Add(item.Key, item.Value);
                 }
             }
-            foreach (string key in MissingModDirs)
+            foreach (var missingModDir in MissingModDirs)
             {
-                this.ModList.Remove(key);
+                this.ModList.Remove(missingModDir.Key);
+
+                // We will silently ignore missing mods that are not enabled
+                if (!missingModDir.Value)
+                {
+                    MissingModDirs.Remove(missingModDir.Key);
+                }
             }
             if (MissingModDirs.Count > 0)
             {
-                string message = "ERROR Mods folder not found for the following mods:\n"
-                    + string.Join("\n", MissingModDirs)
-                    + "\nThese mods will skipped.";
-                string caption = "ERROR Finding Mod Directories";
+                string message = "The mod list includes the following enabled mods which are unavailable locally:\r\n\r\n"
+                    + string.Join("\r\n", MissingModDirs.Keys)
+                    + "\r\n\r\nThese mods will be ignored.";
+                string caption = "Warning";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, caption, buttons);
+                MessageBox.Show(message, caption, buttons, MessageBoxIcon.Warning);
             }
         }
 
