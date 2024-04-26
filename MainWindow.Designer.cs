@@ -78,6 +78,8 @@ namespace MW5_Mod_Manager
             enableAllModsToolStripMenuItem = new ToolStripMenuItem();
             disableAllModsToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator3 = new ToolStripSeparator();
+            toolStripMenuItemSortDefaultLoadOrder = new ToolStripMenuItem();
+            toolStripSeparator8 = new ToolStripSeparator();
             openModsFolderToolStripMenuItem = new ToolStripMenuItem();
             toolStripMenuItemOpenModFolderSteam = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
@@ -133,8 +135,7 @@ namespace MW5_Mod_Manager
             panelColorOverridden = new Panel();
             splitContainer1 = new SplitContainer();
             panelTabControl = new Panel();
-            toolStripMenuItemSortDefaultLoadOrder = new ToolStripMenuItem();
-            toolStripSeparator8 = new ToolStripSeparator();
+            openUserModsFolderToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -457,7 +458,7 @@ namespace MW5_Mod_Manager
             // 
             // modsToolStripMenuItem
             // 
-            modsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { enableAllModsToolStripMenuItem, disableAllModsToolStripMenuItem, toolStripSeparator3, toolStripMenuItemSortDefaultLoadOrder, toolStripSeparator8, openModsFolderToolStripMenuItem, toolStripMenuItemOpenModFolderSteam });
+            modsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { enableAllModsToolStripMenuItem, disableAllModsToolStripMenuItem, toolStripSeparator3, toolStripMenuItemSortDefaultLoadOrder, toolStripSeparator8, openModsFolderToolStripMenuItem, toolStripMenuItemOpenModFolderSteam, openUserModsFolderToolStripMenuItem });
             modsToolStripMenuItem.Name = "modsToolStripMenuItem";
             modsToolStripMenuItem.Size = new Size(49, 20);
             modsToolStripMenuItem.Text = "&Mods";
@@ -480,6 +481,18 @@ namespace MW5_Mod_Manager
             // 
             toolStripSeparator3.Name = "toolStripSeparator3";
             toolStripSeparator3.Size = new Size(205, 6);
+            // 
+            // toolStripMenuItemSortDefaultLoadOrder
+            // 
+            toolStripMenuItemSortDefaultLoadOrder.Name = "toolStripMenuItemSortDefaultLoadOrder";
+            toolStripMenuItemSortDefaultLoadOrder.Size = new Size(208, 22);
+            toolStripMenuItemSortDefaultLoadOrder.Text = "&Sort by default load order";
+            toolStripMenuItemSortDefaultLoadOrder.Click += toolStripMenuItemSortDefaultLoadOrder_Click;
+            // 
+            // toolStripSeparator8
+            // 
+            toolStripSeparator8.Name = "toolStripSeparator8";
+            toolStripSeparator8.Size = new Size(205, 6);
             // 
             // openModsFolderToolStripMenuItem
             // 
@@ -610,7 +623,7 @@ namespace MW5_Mod_Manager
             tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(291, 500);
+            tabPage1.Size = new Size(290, 500);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
@@ -695,7 +708,7 @@ namespace MW5_Mod_Manager
             tabPageModInfo.Location = new Point(4, 22);
             tabPageModInfo.Name = "tabPageModInfo";
             tabPageModInfo.Padding = new Padding(3);
-            tabPageModInfo.Size = new Size(291, 502);
+            tabPageModInfo.Size = new Size(290, 502);
             tabPageModInfo.TabIndex = 3;
             tabPageModInfo.Text = "Overview";
             tabPageModInfo.UseVisualStyleBackColor = true;
@@ -869,7 +882,7 @@ namespace MW5_Mod_Manager
             tabControl1.Margin = new Padding(0);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(299, 528);
+            tabControl1.Size = new Size(298, 528);
             tabControl1.TabIndex = 11;
             // 
             // buttonClearHighlight
@@ -1004,20 +1017,15 @@ namespace MW5_Mod_Manager
             panelTabControl.Location = new Point(0, 0);
             panelTabControl.Margin = new Padding(0);
             panelTabControl.Name = "panelTabControl";
-            panelTabControl.Size = new Size(302, 528);
+            panelTabControl.Size = new Size(301, 528);
             panelTabControl.TabIndex = 0;
             // 
-            // toolStripMenuItemSortDefaultLoadOrder
+            // openUserModsFolderToolStripMenuItem
             // 
-            toolStripMenuItemSortDefaultLoadOrder.Name = "toolStripMenuItemSortDefaultLoadOrder";
-            toolStripMenuItemSortDefaultLoadOrder.Size = new Size(208, 22);
-            toolStripMenuItemSortDefaultLoadOrder.Text = "&Sort by default load order";
-            toolStripMenuItemSortDefaultLoadOrder.Click += toolStripMenuItemSortDefaultLoadOrder_Click;
-            // 
-            // toolStripSeparator8
-            // 
-            toolStripSeparator8.Name = "toolStripSeparator8";
-            toolStripSeparator8.Size = new Size(205, 6);
+            openUserModsFolderToolStripMenuItem.Name = "openUserModsFolderToolStripMenuItem";
+            openUserModsFolderToolStripMenuItem.Size = new Size(208, 22);
+            openUserModsFolderToolStripMenuItem.Text = "Open &User Mods folder";
+            openUserModsFolderToolStripMenuItem.Click += openUserModsFolderToolStripMenuItem_Click;
             // 
             // MainWindow
             // 
@@ -1110,7 +1118,7 @@ namespace MW5_Mod_Manager
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripMenuItem toolStripMenuItemSettings;
         private ToolStripSeparator toolStripSeparator3;
-        private ToolStripMenuItem toolStripMenuItemOpenModFolderSteam;
+        public ToolStripMenuItem toolStripMenuItemOpenModFolderSteam;
         public ColumnHeader originalLoadOrderHeader;
         private TabPage tabPage1;
         private Label label6;
@@ -1169,6 +1177,7 @@ namespace MW5_Mod_Manager
         private Panel panelTabControl;
         private ToolStripMenuItem toolStripMenuItemSortDefaultLoadOrder;
         private ToolStripSeparator toolStripSeparator8;
+        private ToolStripMenuItem openUserModsFolderToolStripMenuItem;
     }
 }
 

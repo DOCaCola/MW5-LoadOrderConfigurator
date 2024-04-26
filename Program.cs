@@ -40,7 +40,7 @@ namespace MW5_Mod_Manager
     {
         public float Version = 0f;
 
-        public enum GamePlatformEnum
+        public enum eGamePlatform
         {
             None,
             Epic,
@@ -49,7 +49,7 @@ namespace MW5_Mod_Manager
             WindowsStore
         }
 
-        public GamePlatformEnum GamePlatform = GamePlatformEnum.None;
+        public eGamePlatform GamePlatform = eGamePlatform.None;
         public string InstallPath = "";
         public string GameVersion = "";
 
@@ -135,10 +135,10 @@ namespace MW5_Mod_Manager
             ParseDirectories();
             //parse modlist.json
             ModListParser();
-            //Combine so we have all mods in the ModList Dict for easy later use and writing to JObject
-            CombineDirModList();
             //Load each mods mod.json and store in Dict.
             LoadAllModDetails();
+            //Combine so we have all mods in the ModList Dict for easy later use and writing to JObject
+            CombineDirModList();
             DetermineBestAvailableGameVersion();
         }
 
@@ -182,10 +182,10 @@ namespace MW5_Mod_Manager
             //We are coming from an string of just modfolder names and no directory paths in the modlist object
             //so we need to convert using the DirectoryToPathDict
             AddPathsToModList();
-            //Combine so we have all mods in the ModList Dict for easy later use and writing to JObject
-            CombineDirModList();
             //Load each mods mod.json and store in Dict.
             LoadAllModDetails();
+            //Combine so we have all mods in the ModList Dict for easy later use and writing to JObject
+            CombineDirModList();
         }
 
         /// <summary>
@@ -282,9 +282,9 @@ namespace MW5_Mod_Manager
 
                 if (!Utils.StringNullEmptyOrWhiteSpace(ProgramSettings.platform))
                 {
-                    if (!Enum.TryParse(ProgramSettings.platform, out GamePlatformEnum platform))
+                    if (!Enum.TryParse(ProgramSettings.platform, out eGamePlatform platform))
                     {
-                        platform = GamePlatformEnum.None;
+                        platform = eGamePlatform.None;
                     }
 
                     GamePlatform = platform;
@@ -320,40 +320,45 @@ namespace MW5_Mod_Manager
             return AppDataRoaming + @"\MW5Mercs\Saved\Mods";
         }
 
+        // Sets the game install path, deduces mod directory locations
         public void SetGameInstallPath(string path)
         {
             this.InstallPath = path;
+
             this.ModsPaths[MainLogic.eModPathType.Main] = path + @"\MW5Mercs\Mods";
 
             switch (this.GamePlatform)
             {
-                case MainLogic.GamePlatformEnum.Steam:
+                case MainLogic.eGamePlatform.Steam:
                     SetSteamWorkshopPath();
                     break;
-                case MainLogic.GamePlatformEnum.WindowsStore:
+                case MainLogic.eGamePlatform.WindowsStore:
                     this.ModsPaths[MainLogic.eModPathType.AppData] = GetLocalAppDataModPath();
                     break;
             }
         }
 
+        public static string FindSteamAppsParentDirectory(string path)
+        {
+            string currentDirectory = Path.GetDirectoryName(path);
+
+            while (currentDirectory != null)
+            {
+                if (Path.GetFileName(currentDirectory).Equals("steamapps", StringComparison.OrdinalIgnoreCase))
+                {
+                    return currentDirectory;
+                }
+                currentDirectory = Path.GetDirectoryName(currentDirectory);
+            }
+
+            return null;
+        }
+
         public void SetSteamWorkshopPath()
         {
-            //Split by folder depth
-            List<string> splitBasePath = this.ModsPaths[eModPathType.Main].Split('\\').ToList<string>();
-
-            //Find the steamapps folder
-            int steamAppsIndex = splitBasePath.FindIndex(x => x.Equals("steamapps", StringComparison.OrdinalIgnoreCase));
-
-            //Remove all past the steamapps folder
-            splitBasePath.RemoveRange(steamAppsIndex + 1, splitBasePath.Count - steamAppsIndex - 1);
-
-            //Put string back together
-            string steamPath = string.Join("\\", splitBasePath);
-
-            //Point to workshop folder.
-            steamPath += @"\workshop\content\784080";
-
-            this.ModsPaths[MainLogic.eModPathType.Steam] = steamPath;
+            string steamAppsParentDirectory = FindSteamAppsParentDirectory(this.InstallPath);
+            string workshopPath = Path.Combine(steamAppsParentDirectory, "workshop", "content", "784080");
+            this.ModsPaths[MainLogic.eModPathType.Steam] = workshopPath;
         }
 
         //Delete a mod dir from system.
@@ -473,6 +478,23 @@ namespace MW5_Mod_Manager
         //Check if the mod dir is already present in data loaded from modlist.json, if not add it.
         private void CombineDirModList()
         {
+            // First sort the directory by the default MW5 load orders
+            Directories.Sort((x, y) =>
+            {
+                // Compare Original load order
+                int priorityComparison = Mods[y].OriginalLoadOrder.CompareTo(Mods[x].OriginalLoadOrder);
+
+                // If Priority is equal, compare Folder name
+                if (priorityComparison == 0)
+                {
+                    return PathToDirectoryDict[y].CompareTo(PathToDirectoryDict[x]);
+                }
+                else
+                {
+                    return priorityComparison;
+                }
+            });
+
             foreach (string modDir in this.Directories)
             {
                 if (this.ModList.ContainsKey(modDir))
@@ -522,7 +544,7 @@ namespace MW5_Mod_Manager
                     modData.OriginalLoadOrder = modDetails.defaultLoadOrder;
                 }
 
-                if (MainWindow.MainForm.logic.GamePlatform == GamePlatformEnum.Steam)
+                if (MainWindow.MainForm.logic.GamePlatform == eGamePlatform.Steam)
                 {
                     if (modDir.StartsWith(MainWindow.MainForm.logic.ModsPaths[eModPathType.Steam]))
                     {

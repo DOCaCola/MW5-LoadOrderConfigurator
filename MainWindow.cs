@@ -406,28 +406,28 @@ namespace MW5_Mod_Manager
 
             switch (this.logic.GamePlatform)
             {
-                case MainLogic.GamePlatformEnum.Epic:
+                case MainLogic.eGamePlatform.Epic:
                     {
                         this.toolStripPlatformLabel.Text = @"Platform: Epic Store";
                         this.buttonStartGame.Enabled = true;
                         buttonRemove.Enabled = true;
                         break;
                     }
-                case MainLogic.GamePlatformEnum.WindowsStore:
+                case MainLogic.eGamePlatform.WindowsStore:
                     {
                         this.toolStripPlatformLabel.Text = @"Platform: Windows Store";
                         this.buttonStartGame.Enabled = false;
                         buttonRemove.Enabled = true;
                     }
                     break;
-                case MainLogic.GamePlatformEnum.Steam:
+                case MainLogic.eGamePlatform.Steam:
                     {
                         this.toolStripPlatformLabel.Text = @"Platform: Steam";
                         buttonRemove.Enabled = false;
                         this.buttonStartGame.Enabled = true;
                     }
                     break;
-                case MainLogic.GamePlatformEnum.Gog:
+                case MainLogic.eGamePlatform.Gog:
                     {
                         this.toolStripPlatformLabel.Text = @"Platform: GOG";
                         this.buttonStartGame.Enabled = true;
@@ -436,8 +436,8 @@ namespace MW5_Mod_Manager
                     break;
             }
 
-            toolStripMenuItemOpenModFolderSteam.Visible = this.logic.GamePlatform == GamePlatformEnum.Steam;
-            openUserModsFolderToolStripMenuItem.Visible = this.logic.GamePlatform == GamePlatformEnum.WindowsStore;
+            toolStripMenuItemOpenModFolderSteam.Visible = this.logic.GamePlatform == eGamePlatform.Steam;
+            openUserModsFolderToolStripMenuItem.Visible = this.logic.GamePlatform == eGamePlatform.WindowsStore;
         }
 
         //Load mod data and fill in the list box...
@@ -687,16 +687,16 @@ namespace MW5_Mod_Manager
 
             switch (logic.GamePlatform)
             {
-                case MainLogic.GamePlatformEnum.Epic:
+                case MainLogic.eGamePlatform.Epic:
                     LaunchEpicGame();
                     break;
-                case MainLogic.GamePlatformEnum.Steam:
+                case MainLogic.eGamePlatform.Steam:
                     LaunchSteamGame();
                     break;
-                case MainLogic.GamePlatformEnum.Gog:
+                case MainLogic.eGamePlatform.Gog:
                     LaunchGogGame();
                     break;
-                case MainLogic.GamePlatformEnum.WindowsStore:
+                case MainLogic.eGamePlatform.WindowsStore:
                     LaunchWindowsGame();
                     break;
             }

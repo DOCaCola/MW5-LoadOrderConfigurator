@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,26 +27,22 @@ namespace MW5_Mod_Manager
 
             switch (MainWindow.MainForm.logic.GamePlatform)
             {
-                case MainLogic.GamePlatformEnum.Epic:
+                case MainLogic.eGamePlatform.Epic:
                     comboBoxPlatform.SelectedIndex = 1;
                     break;
-                case MainLogic.GamePlatformEnum.Gog:
+                case MainLogic.eGamePlatform.Gog:
                     comboBoxPlatform.SelectedIndex = 2;
                     break;
-                case MainLogic.GamePlatformEnum.Steam:
+                case MainLogic.eGamePlatform.Steam:
                     comboBoxPlatform.SelectedIndex = 3;
                     break;
-                case MainLogic.GamePlatformEnum.WindowsStore:
+                case MainLogic.eGamePlatform.WindowsStore:
                     comboBoxPlatform.SelectedIndex = 4;
                     break;
                 default:
                     comboBoxPlatform.SelectedIndex = 0;
                     break;
             }
-
-
-
-
         }
 
         private void buttonBrowse_Click(object sender, EventArgs e)
@@ -73,19 +70,19 @@ namespace MW5_Mod_Manager
             switch (comboBoxPlatform.SelectedIndex)
             {
                 case 1:
-                    MainWindow.MainForm.logic.GamePlatform = MainLogic.GamePlatformEnum.Epic;
+                    MainWindow.MainForm.logic.GamePlatform = MainLogic.eGamePlatform.Epic;
                     break;
                 case 2:
-                    MainWindow.MainForm.logic.GamePlatform = MainLogic.GamePlatformEnum.Gog;
+                    MainWindow.MainForm.logic.GamePlatform = MainLogic.eGamePlatform.Gog;
                     break;
                 case 3:
-                    MainWindow.MainForm.logic.GamePlatform = MainLogic.GamePlatformEnum.Steam;
+                    MainWindow.MainForm.logic.GamePlatform = MainLogic.eGamePlatform.Steam;
                     break;
                 case 4:
-                    MainWindow.MainForm.logic.GamePlatform = MainLogic.GamePlatformEnum.WindowsStore;
+                    MainWindow.MainForm.logic.GamePlatform = MainLogic.eGamePlatform.WindowsStore;
                     break;
                 default:
-                    MainWindow.MainForm.logic.GamePlatform = MainLogic.GamePlatformEnum.None;
+                    MainWindow.MainForm.logic.GamePlatform = MainLogic.eGamePlatform.None;
                     break;
             }
 
@@ -93,8 +90,24 @@ namespace MW5_Mod_Manager
 
             if (!string.IsNullOrEmpty(path))
             {
+                if (!File.Exists(path + "\\mechwarrior.exe"))
+                {
+                    MessageBox.Show(@"The 'MechWarrior.exe' file could not be found in the selected directory.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (MainWindow.MainForm.logic.GamePlatform == MainLogic.eGamePlatform.Steam)
+                {
+                    if (MainLogic.FindSteamAppsParentDirectory(path) == null)
+                    {
+                        MessageBox.Show(@"The selected directory doesn't appear to be a valid Steam game installation.",
+                            "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+
                 MainWindow.MainForm.ClearAll();
-                MainWindow.MainForm.SetInstallDirectory(path);
+                MainWindow.MainForm.logic.SetGameInstallPath(path);
                 MainWindow.MainForm.logic.SaveSettings();
                 MainWindow.MainForm.RefreshAll();
             }
