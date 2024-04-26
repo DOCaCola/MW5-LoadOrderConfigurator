@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static MW5_Mod_Manager.MainLogic;
 using static System.ComponentModel.Design.ObjectSelectorEditor;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
@@ -184,12 +185,12 @@ namespace MW5_Mod_Manager
                         return;
                     }
                     //Extract mod to mods dir
-                    ZipFile.ExtractToDirectory(file, logic.BasePath[0]);
+                    ZipFile.ExtractToDirectory(file, logic.ModsPaths[MainLogic.eModPathType.Main]);
                     button6_Click(null, null);
                 }
             }
 
-            //Return succes
+            //Return success
             bool HandleDirectory()
             {
                 if (!IsDirectory)
@@ -208,7 +209,7 @@ namespace MW5_Mod_Manager
                 string modName;
                 string[] splitString = file.Split('\\');
                 modName = splitString[splitString.Length - 1];
-                Utils.DirectoryCopy(file, logic.BasePath[0] + "\\" + modName, true);
+                Utils.DirectoryCopy(file, logic.ModsPaths[MainLogic.eModPathType.Main] + "\\" + modName, true);
                 return true;
             }
 
@@ -229,7 +230,7 @@ namespace MW5_Mod_Manager
 
             bool ModsFolderNotSet()
             {
-                return Utils.StringNullEmptyOrWhiteSpace(logic.BasePath[0]);
+                return Utils.StringNullEmptyOrWhiteSpace(logic.ModsPaths[MainLogic.eModPathType.Main]);
             }
         }
 
@@ -398,8 +399,6 @@ namespace MW5_Mod_Manager
         //For processing internals and updating ui after setting a vendor
         private void SetVersionAndPlatform()
         {
-            bool isSteam = false;
-
             if (this.logic.Version > 0f)
             {
                 toolStripStatusLabelMwVersion.Text = @"~RJ v." + this.logic.Version.ToString();
@@ -409,37 +408,36 @@ namespace MW5_Mod_Manager
             {
                 case MainLogic.GamePlatformEnum.Epic:
                     {
-                        this.toolStripPlatformLabel.Text = "Platform: Epic Store";
+                        this.toolStripPlatformLabel.Text = @"Platform: Epic Store";
                         this.buttonStartGame.Enabled = true;
                         buttonRemove.Enabled = true;
                         break;
                     }
                 case MainLogic.GamePlatformEnum.WindowsStore:
                     {
-                        this.toolStripPlatformLabel.Text = "Platform: Windows Store";
+                        this.toolStripPlatformLabel.Text = @"Platform: Windows Store";
                         this.buttonStartGame.Enabled = false;
                         buttonRemove.Enabled = true;
                     }
                     break;
                 case MainLogic.GamePlatformEnum.Steam:
                     {
-                        this.toolStripPlatformLabel.Text = "Platform: Steam";
+                        this.toolStripPlatformLabel.Text = @"Platform: Steam";
                         buttonRemove.Enabled = false;
                         this.buttonStartGame.Enabled = true;
-
-                        isSteam = true;
                     }
                     break;
                 case MainLogic.GamePlatformEnum.Gog:
                     {
-                        this.toolStripPlatformLabel.Text = "Platform: GOG";
+                        this.toolStripPlatformLabel.Text = @"Platform: GOG";
                         this.buttonStartGame.Enabled = true;
                         buttonRemove.Enabled = true;
                     }
                     break;
             }
 
-            toolStripMenuItemOpenModFolderSteam.Visible = isSteam;
+            toolStripMenuItemOpenModFolderSteam.Visible = this.logic.GamePlatform == GamePlatformEnum.Steam;
+            openUserModsFolderToolStripMenuItem.Visible = this.logic.GamePlatform == GamePlatformEnum.WindowsStore;
         }
 
         //Load mod data and fill in the list box...
@@ -458,6 +456,7 @@ namespace MW5_Mod_Manager
                 else
                     logic.LoadFromFiles();
 
+                modsListView.BeginUpdate();
                 foreach (KeyValuePair<string, bool> entry in logic.ModList)
                 {
                     if (entry.Equals(new KeyValuePair<string, bool>(null, false)))
@@ -469,6 +468,7 @@ namespace MW5_Mod_Manager
                     AddEntryToListViewAndData(entry);
                 }
                 ReloadListViewFromData();
+                modsListView.EndUpdate();
                 logic.SaveSettings();
             }
             catch (Exception e)
@@ -557,54 +557,6 @@ namespace MW5_Mod_Manager
                 return -1;
             }
             return index;
-        }
-
-        public void SetInstallDirectory(string path)
-        {
-            logic.InstallPath = path;
-            logic.BasePath[0] = path + @"\MW5Mercs\Mods";
-
-            bool isSteam = false;
-
-            switch (this.logic.GamePlatform)
-            {
-                case MainLogic.GamePlatformEnum.Steam:
-                    SetSteamWorkshopPath();
-                    isSteam = true;
-                    break;
-                //case "GAMEPASS":
-                //    SetGamepassPath();
-                //    break;
-
-                case MainLogic.GamePlatformEnum.WindowsStore:
-                    string AppDataRoaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-
-                    this.logic.BasePath[0] = GetBasePathFromAppDataRoaming(AppDataRoaming);
-                    this.logic.CheckModDirectories();
-                    break;
-            }
-
-            MainForm.toolStripMenuItemOpenModFolderSteam.Visible = isSteam;
-
-            LoadAndFill(false);
-        }
-
-        public void SetSteamWorkshopPath()
-        {
-            //Split by folder depth
-            List<string> splitBasePath = this.logic.BasePath[0].Split('\\').ToList<string>();
-
-            //Find the steamapps folder
-            int steamAppsIndex = splitBasePath.FindIndex(x => x.Equals("steamapps", StringComparison.OrdinalIgnoreCase));
-
-            //Remove all past the steamapps folder
-            splitBasePath.RemoveRange(steamAppsIndex + 1, splitBasePath.Count - steamAppsIndex - 1);
-
-            //Put string back together
-            this.logic.BasePath[1] = string.Join("\\", splitBasePath);
-
-            //Point to workshop folder.
-            this.logic.BasePath[1] += @"\workshop\content\784080";
         }
 
         //Refresh listedcheckbox
@@ -709,21 +661,6 @@ namespace MW5_Mod_Manager
             }
         }
 
-        private static string GetBasePathFromAppDataRoaming(string AppDataRoaming)
-        {
-            //Split by folder depth
-            List<string> splitBasePath = AppDataRoaming.Split('\\').ToList<string>();
-
-            //Find the steamapps folder
-            int AppDataIndex = splitBasePath.IndexOf("AppData");
-
-            //Remove all past the steamapps folder
-            splitBasePath.RemoveRange(AppDataIndex + 1, splitBasePath.Count - AppDataIndex - 1);
-
-            //Put string back together
-            return string.Join("\\", splitBasePath) + @"\Local\MW5Mercs\Saved\Mods";
-        }
-
         //Launch game button
         private void buttonStartGame_Click(object sender, EventArgs e)
         {
@@ -778,7 +715,7 @@ namespace MW5_Mod_Manager
 
         private void LaunchGogGame()
         {
-            string Gamepath = this.logic.BasePath[0];
+            string Gamepath = this.logic.ModsPaths[eModPathType.Main];
             Gamepath = Gamepath.Remove(Gamepath.Length - 13, 13);
             Gamepath += "MechWarrior.exe";
             try
@@ -1275,7 +1212,7 @@ namespace MW5_Mod_Manager
                 //Returing from dialog:
                 SystemSounds.Asterisk.Play();
                 //Get parent dir
-                string parent = Directory.GetParent(this.logic.BasePath[0]).ToString();
+                string parent = Directory.GetParent(this.logic.ModsPaths[eModPathType.Main]).ToString();
                 string m = "Done packing mods, output in: \n" + parent + "\\Mods.zip";
                 string c = "Done";
                 MessageBoxButtons b = MessageBoxButtons.OK;
@@ -1384,7 +1321,7 @@ namespace MW5_Mod_Manager
 
         private void openModsFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (Utils.StringNullEmptyOrWhiteSpace(this.logic.BasePath[0]))
+            if (Utils.StringNullEmptyOrWhiteSpace(this.logic.ModsPaths[eModPathType.Main]))
             {
                 return;
             }
@@ -1392,7 +1329,7 @@ namespace MW5_Mod_Manager
             {
                 var psi = new System.Diagnostics.ProcessStartInfo()
                 {
-                    FileName = this.logic.BasePath[0],
+                    FileName = this.logic.ModsPaths[eModPathType.Main],
                     UseShellExecute = true
                 };
                 System.Diagnostics.Process.Start(psi);
@@ -1540,7 +1477,7 @@ namespace MW5_Mod_Manager
 
         private void toolStripMenuItemOpenModFolderSteam_Click(object sender, EventArgs e)
         {
-            if (Utils.StringNullEmptyOrWhiteSpace(this.logic.BasePath[1]))
+            if (Utils.StringNullEmptyOrWhiteSpace(this.logic.ModsPaths[eModPathType.Steam]))
             {
                 return;
             }
@@ -1548,7 +1485,7 @@ namespace MW5_Mod_Manager
             {
                 var psi = new System.Diagnostics.ProcessStartInfo()
                 {
-                    FileName = this.logic.BasePath[1],
+                    FileName = this.logic.ModsPaths[eModPathType.Steam],
                     UseShellExecute = true
                 };
                 System.Diagnostics.Process.Start(psi);
@@ -1770,6 +1707,10 @@ namespace MW5_Mod_Manager
 
         public void RecomputeLoadOrders(bool restoreLoadOrdersOfDisabled = false)
         {
+            // If the list is sorted according to MW5's default load order,
+            // we can reset everyting to the default load order
+            bool isDefaultSorted = IsSortedByDefaultLoadOrder();
+
             int curLoadOrder = GetModCount(restoreLoadOrdersOfDisabled);
 
             // Reorder modlist by recreating it...
@@ -1780,7 +1721,7 @@ namespace MW5_Mod_Manager
                 string modKey = curModListItem.Tag.ToString();
                 bool modEnabled = this.logic.ModList[modKey];
                 newModList[modKey] = modEnabled;
-                if (!restoreLoadOrdersOfDisabled || modEnabled)
+                if (!isDefaultSorted && (!restoreLoadOrdersOfDisabled || modEnabled))
                 {
                     this.logic.ModDetails[modKey].defaultLoadOrder = curLoadOrder;
                     --curLoadOrder;
@@ -1961,7 +1902,7 @@ namespace MW5_Mod_Manager
             {
                 // Compare Original load order
                 int priorityComparison = int.Parse(y.SubItems[originalLoadOrderHeader.Index].Text).CompareTo(int.Parse(x.SubItems[originalLoadOrderHeader.Index].Text));
-            
+
                 // If Priority is equal, compare Folder name
                 if (priorityComparison == 0)
                 {
@@ -1978,6 +1919,46 @@ namespace MW5_Mod_Manager
             checkBoxFilter_TextChanged(null, null);
 
             modsListView.EndUpdate();
+        }
+
+        public bool IsSortedByDefaultLoadOrder()
+        {
+            for (int i = 1; i < ModListData.Count; i++)
+            {
+                if (int.Parse(ModListData[i].SubItems[originalLoadOrderHeader.Index].Text) > int.Parse(ModListData[i - 1].SubItems[originalLoadOrderHeader.Index].Text) ||
+                    (int.Parse(ModListData[i].SubItems[originalLoadOrderHeader.Index].Text) == int.Parse(ModListData[i - 1].SubItems[originalLoadOrderHeader.Index].Text) &&
+                     string.Compare(ModListData[i].SubItems[folderHeader.Index].Text, ModListData[i - 1].SubItems[folderHeader.Index].Text) > 0))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private void openUserModsFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (Utils.StringNullEmptyOrWhiteSpace(this.logic.ModsPaths[eModPathType.AppData]))
+            {
+                return;
+            }
+            try
+            {
+                var psi = new System.Diagnostics.ProcessStartInfo()
+                {
+                    FileName = this.logic.ModsPaths[eModPathType.AppData],
+                    UseShellExecute = true
+                };
+                System.Diagnostics.Process.Start(psi);
+            }
+            catch (Win32Exception win32Exception)
+            {
+                Console.WriteLine(win32Exception.Message);
+                Console.WriteLine(win32Exception.StackTrace);
+                string message = "While trying to open the mods folder, windows has encountered an error. Your folder does not exist, is not valid or was not set.";
+                string caption = "Error Opening Mods Folder";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, caption, buttons);
+            }
         }
     }
 }
