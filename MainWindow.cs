@@ -1096,7 +1096,7 @@ namespace MW5_Mod_Manager
 
             HandleOverriding(SelectedMod);
 
-            string imagePath = modPath + "\\Resources\\Icon128.png";
+            string imagePath = Path.Combine(modPath, "Resources", "Icon128.png");
             /*
             if (pictureBoxModImage.Image != null)
             {
@@ -1285,7 +1285,7 @@ namespace MW5_Mod_Manager
             //this.ClearAll();
             this.modsListView.Items.Clear();
             this.ModListData.Clear();
-            this.logic.ModDetails = new Dictionary<string, ModObject>();
+            this.logic.ModDetails.Clear();
             this.logic.ModList = newData;
             this.logic.Mods.Clear();
             this.LoadAndFill(true);
