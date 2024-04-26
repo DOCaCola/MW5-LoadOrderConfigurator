@@ -267,8 +267,8 @@ namespace MW5_Mod_Manager
             modsListView.EnsureVisible(listItem.Index);
 
             this.logic.GetOverridingData(this.ModListData);
-            UpdateLoadOrdersInList();
-            listView1_SelectedIndexChanged(null, null);
+            RecomputeLoadOrdersAndUpdateList();
+            modListView_SelectedIndexChanged(null, null);
             this.MovingItem = false;
         }
 
@@ -308,8 +308,8 @@ namespace MW5_Mod_Manager
             //UpdateListView();
 
             this.logic.GetOverridingData(ModListData);
-            UpdateLoadOrdersInList();
-            listView1_SelectedIndexChanged(null, null);
+            RecomputeLoadOrdersAndUpdateList();
+            modListView_SelectedIndexChanged(null, null);
             this.MovingItem = false;
         }
 
@@ -375,18 +375,10 @@ namespace MW5_Mod_Manager
             }
             #endregion
 
-            #region Activation and Load order
-            //Stuff for applying mods activation and load order:
-
-            //Reset filter:
-            /*this.filterBox.Text = "";
-            this.filterBox_TextChanged(null, null);
-            */
-            RecomputeLoadOrders();
-
+			RecomputeLoadOrders();
+			
             //Save the ModDetails to json file.
             this.logic.SaveToFiles();
-            #endregion
 
             SetModSettingsTainted(false);
         }
@@ -495,7 +487,7 @@ namespace MW5_Mod_Manager
                 MessageBox.Show(message, caption, buttons);
             }
             this.LoadingAndFilling = prevLoadingAndFilling;
-            UpdateLoadOrdersInList();
+            RecomputeLoadOrdersAndUpdateList();
             logic.GetOverridingData(ModListData);
             UpdateModCountDisplay();
         }
@@ -1105,8 +1097,7 @@ namespace MW5_Mod_Manager
             listBoxOverriding.Items.Clear();
         }
 
-        //Selected item in the list view has cahnged
-        private void listView1_SelectedIndexChanged(object sender, EventArgs e)
+        private void modListView_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (FilterMode == eFilterMode.None)
                 UnhighlightAllMods();
@@ -1227,8 +1218,7 @@ namespace MW5_Mod_Manager
             }
         }
 
-        //Fires when an item is checked or unchecked.
-        private void listView1_ItemChecked(object sender, ItemCheckedEventArgs e)
+        private void modListView_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
             //While we are removing/inserting items this will fire and we dont want that to happen when we move an item.
             if (MovingItem || this.LoadingAndFilling)
@@ -1239,7 +1229,7 @@ namespace MW5_Mod_Manager
             // set mod enabled state
             this.logic.ModList[e.Item.Tag.ToString()] = e.Item.Checked;
 
-            UpdateLoadOrdersInList();
+            RecomputeLoadOrdersAndUpdateList();
 
             logic.UpdateNewModOverrideData(ModListData, ModListData[e.Item.Index]);
             HandleOverriding(e.Item.SubItems[folderHeader.Index].Text);
@@ -1453,6 +1443,7 @@ namespace MW5_Mod_Manager
 
             this.logic.GetOverridingData(this.ModListData);
             UpdateModCountDisplay();
+            RecomputeLoadOrdersAndUpdateList();
             SetModSettingsTainted(true);
 
             modsListView.EndUpdate();
@@ -1476,6 +1467,7 @@ namespace MW5_Mod_Manager
 
             this.logic.GetOverridingData(ModListData);
             UpdateModCountDisplay();
+            RecomputeLoadOrdersAndUpdateList();
             SetModSettingsTainted(true);
 
             modsListView.EndUpdate();
@@ -1660,8 +1652,8 @@ namespace MW5_Mod_Manager
                 ModListData.Insert(targetIndex, draggedItem);
 
                 this.logic.GetOverridingData(this.ModListData);
-                UpdateLoadOrdersInList();
-                listView1_SelectedIndexChanged(null, null);
+                RecomputeLoadOrdersAndUpdateList();
+                modListView_SelectedIndexChanged(null, null);
                 modsListView.ResumeLayout();
 
                 SetModSettingsTainted(true);
@@ -1780,9 +1772,9 @@ namespace MW5_Mod_Manager
             return count;
         }
 
-        public void RecomputeLoadOrders()
+        public void RecomputeLoadOrders(bool restoreLoadOrdersOfDisabled = false)
         {
-            int curLoadOrder = GetModCount(false);
+            int curLoadOrder = GetModCount(restoreLoadOrdersOfDisabled);
 
             // Reorder modlist by recreating it...
             Dictionary<string, bool> newModList = new Dictionary<string, bool>();
@@ -1790,25 +1782,35 @@ namespace MW5_Mod_Manager
             foreach (ListViewItem curModListItem in ModListData)
             {
                 string modKey = curModListItem.Tag.ToString();
-                newModList[modKey] = this.logic.ModList[modKey];
-                this.logic.ModDetails[modKey].defaultLoadOrder = curLoadOrder;
-                --curLoadOrder;
+                bool modEnabled = this.logic.ModList[modKey];
+                newModList[modKey] = modEnabled;
+                if (!restoreLoadOrdersOfDisabled || modEnabled)
+                {
+                    this.logic.ModDetails[modKey].defaultLoadOrder = curLoadOrder;
+                    --curLoadOrder;
+                }
+                else
+                {
+                    this.logic.ModDetails[modKey].defaultLoadOrder = this.logic.ModDetails[modKey].locOriginalLoadOrder;
+                }
             }
 
             this.logic.ModList = newModList;
         }
 
-        public void UpdateLoadOrdersInList()
+        public void RecomputeLoadOrdersAndUpdateList()
         {
             RecomputeLoadOrders();
 
-            foreach (ListViewItem modListItem in ModListData)
+            modsListView.BeginUpdate();
+            foreach (ModListViewItem modListItem in ModListData)
             {
                 modListItem.SubItems[currentLoadOrderHeader.Index].Text =
-                    this.logic.ModDetails[modListItem.Tag.ToString()].defaultLoadOrder.ToString();
+                        this.logic.ModDetails[modListItem.Tag.ToString()].defaultLoadOrder.ToString();
             }
 
             MainWindow.MainForm.ColorListViewNumbers(ModListData, MainWindow.MainForm.currentLoadOrderHeader.Index, MainLogic.LowPriorityColor, MainLogic.HighPriorityColor);
+            modsListView.EndUpdate();
         }
 
         private void listBoxOverriding_MouseDoubleClick(object sender, MouseEventArgs e)

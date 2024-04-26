@@ -73,7 +73,7 @@ namespace MW5_Mod_Manager
         public static Color OverriddenOveridingColor = Color.FromArgb(170,73,97);
 
         public static Color HighPriorityColor = Color.FromArgb(252, 54, 63);
-        public static Color LowPriorityColor = Color.FromArgb(89, 192, 88);
+        public static Color LowPriorityColor = Color.FromArgb(17, 137, 21);
 
         public static string SettingsFileName = @"Settings.json";
         public static string PresetsFileName = @"Presets.json";
@@ -432,12 +432,17 @@ namespace MW5_Mod_Manager
                     @"Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            foreach (JProperty mod in this.parent.Value<JObject>("modStatus").Properties())
+
+            JObject modStatus = this.parent.Value<JObject>("modStatus");
+            if (modStatus != null)
             {
-                bool enabled = (bool)this.parent["modStatus"][mod.Name]["bEnabled"];
-                if (this.DirectoryToPathDict.TryGetValue(mod.Name, out string modDir))
+                foreach (JProperty mod in modStatus.Properties())
                 {
-                    this.ModList.Add(modDir, enabled);
+                    bool enabled = (bool)this.parent["modStatus"][mod.Name]["bEnabled"];
+                    if (this.DirectoryToPathDict.TryGetValue(mod.Name, out string modDir))
+                    {
+                        this.ModList.Add(modDir, enabled);
+                    }
                 }
             }
         }
@@ -691,9 +696,18 @@ namespace MW5_Mod_Manager
             {
                 this.parent = new JObject();
                 this.parent["gameVersion"] = GameVersion;
-                this.parent.Add("modStatus", JObject.Parse(@"{}"));
             }
-            this.parent.Value<JObject>("modStatus").RemoveAll();
+
+            JObject modStatusObject = this.parent.Value<JObject>("modStatus");
+            if (modStatusObject != null)
+            {
+                modStatusObject.RemoveAll();
+            }
+            else
+            {
+                this.parent.Add("modStatus", new JObject());
+            }
+            
             foreach (KeyValuePair<string, bool> entry in this.ModList)
             {
                 string[] temp = entry.Key.Split('\\');
@@ -734,15 +748,11 @@ namespace MW5_Mod_Manager
 
         public void AddModToModlistJObject(string ModName, bool status)
         {
-            //ugly but I'm lazy today
-            if (status)
-            {
-                (this.parent["modStatus"] as JObject).Add(ModName, JObject.Parse(@"{""bEnabled"": true}"));
-            }
-            else
-            {
-                (this.parent["modStatus"] as JObject).Add(ModName, JObject.Parse(@"{""bEnabled"": false}"));
-            }
+            JObject modStatus = this.parent["modStatus"] as JObject;
+            JObject newStatus = new JObject(
+                new JProperty("bEnabled", status)
+            );
+            modStatus.Add(ModName, newStatus);
         }
 
         public void SetModInJObject(string ModName, bool status)

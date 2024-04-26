@@ -224,9 +224,9 @@ namespace MW5_Mod_Manager
             modsListView.TabIndex = 10;
             modsListView.UseCompatibleStateImageBehavior = false;
             modsListView.View = View.Details;
-            modsListView.ItemChecked += listView1_ItemChecked;
+            modsListView.ItemChecked += modListView_ItemChecked;
             modsListView.ItemDrag += modsListView_ItemDrag;
-            modsListView.SelectedIndexChanged += listView1_SelectedIndexChanged;
+            modsListView.SelectedIndexChanged += modListView_SelectedIndexChanged;
             modsListView.DragDrop += modsListView_DragDrop;
             modsListView.DragEnter += modsListView_DragEnter;
             modsListView.DragOver += modsListView_DragOver;
