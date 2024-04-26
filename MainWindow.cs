@@ -100,7 +100,7 @@ namespace MW5_Mod_Manager
             panelColorOverriding.BackColor = MainLogic.OverridingColor;
             panelColorOverridingOverridden.BackColor = MainLogic.OverriddenOveridingColor;
         }
-        
+
         //handling key presses for hotkeys.
         private async void form1_KeyUp(object sender, KeyEventArgs e)
         {
@@ -304,9 +304,6 @@ namespace MW5_Mod_Manager
             listItem.Selected = true;
             modsListView.EnsureVisible(listItem.Index);
 
-            //Move to below when refactor is complete
-            //UpdateListView();
-
             this.logic.GetOverridingData(ModListData);
             RecomputeLoadOrdersAndUpdateList();
             modListView_SelectedIndexChanged(null, null);
@@ -375,8 +372,8 @@ namespace MW5_Mod_Manager
             }
             #endregion
 
-			RecomputeLoadOrders();
-			
+            RecomputeLoadOrders();
+
             //Save the ModDetails to json file.
             this.logic.SaveToFiles();
 
@@ -471,7 +468,7 @@ namespace MW5_Mod_Manager
                     currentEntry = entry;
                     AddEntryToListViewAndData(entry);
                 }
-                UpdateListView();
+                ReloadListViewFromData();
                 logic.SaveSettings();
             }
             catch (Exception e)
@@ -532,7 +529,7 @@ namespace MW5_Mod_Manager
         }
 
         //Fill list view from internal list of data.
-        private void UpdateListView()
+        private void ReloadListViewFromData()
         {
             modsListView.BeginUpdate();
             modsListView.Items.Clear();
@@ -737,8 +734,8 @@ namespace MW5_Mod_Manager
             {
                 DialogResult result =
                     MessageBox.Show(
-                        @"You have unapplied changes to your mod list."+System.Environment.NewLine+System.Environment.NewLine
-                        +"Do you want to apply your changes before starting?",
+                        @"You have unapplied changes to your mod list." + System.Environment.NewLine + System.Environment.NewLine
+                        + "Do you want to apply your changes before starting?",
                         @"Unapplied changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
 
                 if (result == DialogResult.Yes)
@@ -854,18 +851,17 @@ namespace MW5_Mod_Manager
             contextMenuItemMoveToBottom.Enabled = enabled;
         }
 
-        //Crude filter because to lazy to add a proper list as backup for the items.
         private void checkBoxFilter_TextChanged(object sender, EventArgs e)
         {
             string filtertext = MainForm.filterBox.Text.ToLower();
             if (Utils.StringNullEmptyOrWhiteSpace(filtertext))
             {
-                if (this.FilterMode != eFilterMode.None) 
+                if (this.FilterMode != eFilterMode.None)
                 {
                     // end filtering
                     modsListView.BeginUpdate();
                     UnhighlightAllMods();
-                    UpdateListView();
+                    ReloadListViewFromData();
                     modsListView.EndUpdate();
                     SetMoveControlsEnabled(true);
                     this.FilterMode = eFilterMode.None;
@@ -909,7 +905,7 @@ namespace MW5_Mod_Manager
 
                                     subItem.BackColor = SystemColors.Window;
                                 }
-                                
+
                             }
                         }
                     }
@@ -926,7 +922,7 @@ namespace MW5_Mod_Manager
                     UnhighlightAllMods();
                     foreach (ListViewItem item in this.ModListData)
                     {
-                        
+
                         bool prevLoadingAndFilling = LoadingAndFilling;
                         LoadingAndFilling = true;
                         if (MatchItemToText(filtertext, item))
@@ -964,7 +960,7 @@ namespace MW5_Mod_Manager
         {
             if (!checkBoxFilter.Checked)
             {
-                UpdateListView();
+                ReloadListViewFromData();
             }
             this.checkBoxFilter_TextChanged(null, null);
         }
@@ -1013,7 +1009,7 @@ namespace MW5_Mod_Manager
                 return;
 
             ModListBoxItem selectedMod = (ModListBoxItem)listBoxOverriddenBy.SelectedItem;
-            
+
             if (FilterMode == eFilterMode.None)
             {
                 HighlightModInList(selectedMod.ModKey);
@@ -1428,7 +1424,7 @@ namespace MW5_Mod_Manager
         private void enableAllModsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             modsListView.BeginUpdate();
-            
+
             this.MovingItem = true;
             foreach (ModListViewItem item in this.ModListData)
             {
@@ -1452,7 +1448,7 @@ namespace MW5_Mod_Manager
         private void disableAllModsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             modsListView.BeginUpdate();
-            
+
             this.MovingItem = true;
             foreach (ListViewItem item in this.modsListView.Items)
             {
@@ -1746,7 +1742,7 @@ namespace MW5_Mod_Manager
                         }
                         subItem.BackColor = SystemColors.Window;
                     }
-                        
+
                 }
             }
 
@@ -1868,8 +1864,8 @@ namespace MW5_Mod_Manager
 
             DialogResult result =
                 MessageBox.Show(
-                    @"You have unapplied changes to your mod list."+System.Environment.NewLine+System.Environment.NewLine
-                    +@"Do you want to apply your changes before quitting?",
+                    @"You have unapplied changes to your mod list." + System.Environment.NewLine + System.Environment.NewLine
+                    + @"Do you want to apply your changes before quitting?",
                     @"Unapplied changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
 
             if (result == DialogResult.Yes)
@@ -1948,11 +1944,39 @@ namespace MW5_Mod_Manager
                     {
                         int index = numbers.IndexOf(number);
                         double ratio = (double)index / (numbers.Count - 1);
-                        newColor = Utils.InterpolateColor(fromColor, toColor, ratio); 
+                        newColor = Utils.InterpolateColor(fromColor, toColor, ratio);
                     }
                     listViewItems[i].SubItems[subItemIndex].ForeColor = newColor;
                 }
             }
+            modsListView.EndUpdate();
+        }
+
+        private void toolStripMenuItemSortDefaultLoadOrder_Click(object sender, EventArgs e)
+        {
+            // This sorting follows the way MW5 orders its list
+
+            modsListView.BeginUpdate();
+            ModListData.Sort((x, y) =>
+            {
+                // Compare Original load order
+                int priorityComparison = int.Parse(y.SubItems[originalLoadOrderHeader.Index].Text).CompareTo(int.Parse(x.SubItems[originalLoadOrderHeader.Index].Text));
+            
+                // If Priority is equal, compare Folder name
+                if (priorityComparison == 0)
+                {
+                    return y.SubItems[folderHeader.Index].Text.CompareTo(x.SubItems[folderHeader.Index].Text);
+                }
+                else
+                {
+                    return priorityComparison;
+                }
+            });
+
+            ReloadListViewFromData();
+            RecomputeLoadOrdersAndUpdateList();
+            checkBoxFilter_TextChanged(null, null);
+
             modsListView.EndUpdate();
         }
     }
