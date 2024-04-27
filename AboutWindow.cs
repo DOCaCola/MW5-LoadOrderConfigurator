@@ -28,7 +28,7 @@ namespace MW5_Mod_Manager
         {
             var psi = new System.Diagnostics.ProcessStartInfo()
             {
-                FileName = "https://github.com/DOCaCola/MW5-Mod-Manager",
+                FileName = "https://github.com/DOCaCola/MW5-LoadOrderConfigurator",
                 UseShellExecute = true
             };
             System.Diagnostics.Process.Start(psi);

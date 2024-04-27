@@ -70,14 +70,14 @@
             comboBoxPlatform.Location = new System.Drawing.Point(76, 22);
             comboBoxPlatform.Name = "comboBoxPlatform";
             comboBoxPlatform.Size = new System.Drawing.Size(121, 23);
-            comboBoxPlatform.TabIndex = 6;
+            comboBoxPlatform.TabIndex = 1;
             // 
             // buttonBrowse
             // 
             buttonBrowse.Location = new System.Drawing.Point(543, 51);
             buttonBrowse.Name = "buttonBrowse";
             buttonBrowse.Size = new System.Drawing.Size(75, 23);
-            buttonBrowse.TabIndex = 5;
+            buttonBrowse.TabIndex = 3;
             buttonBrowse.Text = "&Browse";
             buttonBrowse.UseVisualStyleBackColor = true;
             buttonBrowse.Click += buttonBrowse_Click;
@@ -96,7 +96,7 @@
             textBoxMw5Path.Location = new System.Drawing.Point(76, 51);
             textBoxMw5Path.Name = "textBoxMw5Path";
             textBoxMw5Path.Size = new System.Drawing.Size(461, 23);
-            textBoxMw5Path.TabIndex = 3;
+            textBoxMw5Path.TabIndex = 2;
             // 
             // buttonSave
             // 

@@ -1,22 +1,16 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Media;
 using System.Reflection;
 using System.Runtime.Versioning;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using static MW5_Mod_Manager.MainLogic;
-using static System.ComponentModel.Design.ObjectSelectorEditor;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 using ListView = System.Windows.Forms.ListView;
 
 namespace MW5_Mod_Manager
@@ -53,22 +47,18 @@ namespace MW5_Mod_Manager
             //this.fileShare = new TCPFileShare(logic, this);
             this.markedForRemoval = new List<ListViewItem>();
 
-            this.AllowDrop = true;
+            /*this.AllowDrop = true;
             this.DragEnter += new DragEventHandler(Form1_DragEnter);
-            this.DragDrop += new DragEventHandler(Form1_DragDrop);
+            this.DragDrop += new DragEventHandler(Form1_DragDrop);*/
 
             this.BringToFront();
             this.Focus();
-            this.KeyPreview = true;
 
-            this.KeyDown += new KeyEventHandler(form1_KeyDown);
-            this.KeyUp += new KeyEventHandler(form1_KeyUp);
-
-            backgroundWorker1.RunWorkerCompleted += backgroundWorker1_RunWorkerCompleted;
+            /*backgroundWorker1.RunWorkerCompleted += backgroundWorker1_RunWorkerCompleted;
             backgroundWorker1.WorkerReportsProgress = true;
             backgroundWorker1.WorkerSupportsCancellation = true;
             backgroundWorker2.WorkerReportsProgress = true;
-            backgroundWorker2.WorkerSupportsCancellation = true;
+            backgroundWorker2.WorkerSupportsCancellation = true;*/
 
             //start the TCP listner for TCP mod sharing
             //Disabled for now.
@@ -103,15 +93,6 @@ namespace MW5_Mod_Manager
             panelColorOverridingOverridden.BackColor = MainLogic.OverriddenOveridingColor;
         }
 
-        //handling key presses for hotkeys.
-        private async void form1_KeyUp(object sender, KeyEventArgs e)
-        {
-        }
-
-        private void form1_KeyDown(object sender, KeyEventArgs e)
-        {
-        }
-
         //When we hover over the manager with a file or folder
         void Form1_DragEnter(object sender, DragEventArgs e)
         {
@@ -121,8 +102,6 @@ namespace MW5_Mod_Manager
         //When we drop a file or folder on the manager
         void Form1_DragDrop(object sender, DragEventArgs e)
         {
-            return;
-
             //We only support single file drops!
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
             if (files.Length != 1)
@@ -1356,6 +1335,9 @@ namespace MW5_Mod_Manager
 
         private void enableAllModsToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (!logic.GameIsConfigured())
+                return;
+
             modsListView.BeginUpdate();
 
             this.MovingItem = true;
@@ -1380,6 +1362,9 @@ namespace MW5_Mod_Manager
 
         private void disableAllModsToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (!logic.GameIsConfigured())
+                return;
+
             modsListView.BeginUpdate();
 
             this.MovingItem = true;
@@ -1463,12 +1448,17 @@ namespace MW5_Mod_Manager
             }
         }
 
-        private void toolStripMenuItemSettings_Click(object sender, EventArgs e)
+        private void ShowSettingsDialog()
         {
             SettingsWindow settingsDialog = new SettingsWindow();
 
             settingsDialog.ShowDialog(this);
             settingsDialog.Dispose();
+        }
+
+        private void toolStripMenuItemSettings_Click(object sender, EventArgs e)
+        {
+            ShowSettingsDialog();
         }
 
         private void toolStripMenuItemOpenModFolderSteam_Click(object sender, EventArgs e)
@@ -1604,6 +1594,13 @@ namespace MW5_Mod_Manager
 
         private void savePresetToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (ModListData.Count == 0)
+            {
+                MessageBox.Show(@"No configured mods. Nothing to save as preset.", @"No mods", MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
             PresetSaveWindow saveDialog = new PresetSaveWindow();
 
             saveDialog.ShowDialog(this);
@@ -1890,6 +1887,9 @@ namespace MW5_Mod_Manager
 
         private void toolStripMenuItemSortDefaultLoadOrder_Click(object sender, EventArgs e)
         {
+            if (!logic.GameIsConfigured())
+                return;
+
             // This sorting follows the way MW5 orders its list
 
             modsListView.BeginUpdate();
@@ -1914,6 +1914,7 @@ namespace MW5_Mod_Manager
             RecomputeLoadOrdersAndUpdateList();
             FilterTextChanged();
             modListView_SelectedIndexChanged(null, null);
+            SetModSettingsTainted(true);
 
             modsListView.EndUpdate();
         }
@@ -2001,6 +2002,14 @@ namespace MW5_Mod_Manager
                 ReloadListViewFromData();
             }
             FilterTextChanged();
+        }
+
+        private void MainWindow_Shown(object sender, EventArgs e)
+        {
+            if (!logic.GameIsConfigured())
+            {
+                ShowSettingsDialog();
+            }
         }
     }
 }

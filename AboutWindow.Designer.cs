@@ -65,7 +65,7 @@
             pictureBox1.Location = new System.Drawing.Point(19, 12);
             pictureBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new System.Drawing.Size(284, 139);
+            pictureBox1.Size = new System.Drawing.Size(248, 139);
             pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             pictureBox1.TabIndex = 3;
             pictureBox1.TabStop = false;
@@ -86,10 +86,10 @@
             linkLabel1.AutoSize = true;
             linkLabel1.Location = new System.Drawing.Point(19, 247);
             linkLabel1.Name = "linkLabel1";
-            linkLabel1.Size = new System.Drawing.Size(284, 15);
+            linkLabel1.Size = new System.Drawing.Size(43, 15);
             linkLabel1.TabIndex = 5;
             linkLabel1.TabStop = true;
-            linkLabel1.Text = "https://github.com/DOCaCola/MW5-Mod-Manager";
+            linkLabel1.Text = "Github";
             linkLabel1.LinkClicked += linkLabel1_LinkClicked;
             // 
             // label3
@@ -115,7 +115,7 @@
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             CancelButton = buttonClose;
-            ClientSize = new System.Drawing.Size(323, 318);
+            ClientSize = new System.Drawing.Size(287, 318);
             Controls.Add(labelVersion);
             Controls.Add(label3);
             Controls.Add(linkLabel1);

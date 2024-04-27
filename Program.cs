@@ -597,6 +597,26 @@ namespace MW5_Mod_Manager
             }
         }
 
+        public static bool IsSteamWorkshopID(string input)
+        {
+            if (String.IsNullOrEmpty(input))
+                return false;
+
+            // Check if all characters in the string are digits
+            foreach (char c in input)
+            {
+                if (!char.IsDigit(c))
+                    return false;
+            }
+
+            // Do a sanity check on workshop id
+            // The oldest (known) mechwarrior workshop mod has id 2494637209
+             if (input.Length < 10)
+                 return false;
+
+            return true;
+        }
+
         private void LoadModDetails(string modPath)
         {
             try
@@ -625,11 +645,27 @@ namespace MW5_Mod_Manager
                     modData.OriginalLoadOrder = modDetails.defaultLoadOrder;
                 }
 
-                if (MainWindow.MainForm.logic.GamePlatform == eGamePlatform.Steam)
+                // Determine mod origin
+                string modDir = this.PathToDirectoryDict[modPath];
+
+                // Check if this might be a mod from the steam workshop
+                if (IsSteamWorkshopID(modDir))
                 {
-                    if (modPath.StartsWith(MainWindow.MainForm.logic.ModsPaths[eModPathType.Steam]))
+                    // If the mod directory name matches the store id, we can be pretty certain
+                    // there are mods however, that don't have this info correctly filled
+                    if (modDir == modDetails.steamPublishedFileId.ToString())
                     {
                         modData.Origin = ModData.ModOrigin.Steam;
+                    }
+
+                    // if this looks like a steam id and the mod is stored in the steam mods directory
+                    // it's certain that this is a steam mod
+                    if (modData.Origin == ModData.ModOrigin.Unknown)
+                    {
+                        if (modPath.StartsWith(MainWindow.MainForm.logic.ModsPaths[eModPathType.Steam]))
+                        {
+                            modData.Origin = ModData.ModOrigin.Steam;
+                        }
                     }
                 }
 
