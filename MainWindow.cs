@@ -383,8 +383,8 @@ namespace MW5_Mod_Manager
                     }
                 case MainLogic.eGamePlatform.WindowsStore:
                     {
-                        this.toolStripPlatformLabel.Text = @"Platform: Windows Store";
-                        this.toolStripButtonStartGame.Enabled = false;
+                        this.toolStripPlatformLabel.Text = @"Platform: Microsoft Store/Xbox Game Pass";
+                        this.toolStripButtonStartGame.Enabled = true;
                     }
                     break;
                 case MainLogic.eGamePlatform.Steam:
@@ -399,6 +399,12 @@ namespace MW5_Mod_Manager
                         this.toolStripButtonStartGame.Enabled = true;
                     }
                     break;
+                default:
+                    {
+                        this.toolStripPlatformLabel.Text = @"Platform: None";
+                        this.toolStripButtonStartGame.Enabled = false;
+                    }
+                    break;
             }
 
             toolStripMenuItemOpenModFolderSteam.Visible = this.logic.GamePlatform == eGamePlatform.Steam;
@@ -408,12 +414,12 @@ namespace MW5_Mod_Manager
         //Load mod data and fill in the list box...
         public void LoadAndFill(bool FromClipboard)
         {
-            if (!Directory.Exists(logic.InstallPath))
+            if (!logic.GameIsConfigured())
                 return;
 
             bool prevLoadingAndFilling = LoadingAndFilling;
             this.LoadingAndFilling = true;
-            KeyValuePair<string, bool> currentEntry = new KeyValuePair<string, bool>();
+            KeyValuePair<string, bool> currentEntry = default;
             try
             {
                 if (FromClipboard)
@@ -443,10 +449,10 @@ namespace MW5_Mod_Manager
                     currentEntry = new KeyValuePair<string, bool>("NULL", false);
                 }
                 Console.WriteLine(e.StackTrace);
-                string message = "While loading " + currentEntry.Key.ToString() + "something went wrong.\n" + e.StackTrace;
+                string message = "There was an error trying to load mod " + currentEntry.Key.ToString() + ".\r\n\r\n" + e.StackTrace;
                 string caption = "Error Loading";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, caption, buttons);
+                MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
             }
             this.LoadingAndFilling = prevLoadingAndFilling;
             RecomputeLoadOrdersAndUpdateList();
@@ -584,6 +590,7 @@ namespace MW5_Mod_Manager
             this.modsListView.Items.Clear();
             this.ModListData.Clear();
             this.logic.ModDetails = new Dictionary<string, ModObject>();
+            this.logic.ModDirectories.Clear();
             this.logic.ModList.Clear();
             this.logic.ModList = temp;
             this.logic.Mods.Clear();
@@ -661,7 +668,7 @@ namespace MW5_Mod_Manager
                     LaunchGogGame();
                     break;
                 case MainLogic.eGamePlatform.WindowsStore:
-                    LaunchWindowsGame();
+                    LaunchMicrosoftStoreGame();
                     break;
             }
         }
@@ -674,13 +681,26 @@ namespace MW5_Mod_Manager
         }
 
         #region Launch Game
-        private static void LaunchWindowsGame()
+        private static void LaunchMicrosoftStoreGame()
         {
-            //Dunno how this works at all.. 
-            string message = "This feature is not available in this version.";
-            string caption = "Feature not available.";
-            MessageBoxButtons buttons = MessageBoxButtons.OK;
-            MessageBox.Show(message, caption, buttons);
+            try
+            {
+                var psi = new ProcessStartInfo()
+                {
+                    FileName = @"shell:appsFolder\PiranhaGamesInc.MechWarrior5Mercenaries_skpx0jhaqqap2!9PB86W3JK8Z5",
+                    UseShellExecute = true
+                };
+                Process.Start(psi);
+            }
+            catch (Exception Ex)
+            {
+                Console.WriteLine(Ex.Message);
+                Console.WriteLine(Ex.StackTrace);
+                string message = "There was an error while trying to launch MechWarrior 5.";
+                string caption = "Error Launching";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
+            }
         }
 
         private void LaunchGogGame()
@@ -699,7 +719,7 @@ namespace MW5_Mod_Manager
                 string message = "There was an error while trying to launch MechWarrior 5.";
                 string caption = "Error Launching";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, caption, buttons);
+                MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
             }
         }
 
@@ -707,21 +727,21 @@ namespace MW5_Mod_Manager
         {
             try
             {
-                var psi = new System.Diagnostics.ProcessStartInfo()
+                var psi = new ProcessStartInfo()
                 {
                     FileName = @"com.epicgames.launcher://apps/Hoopoe?action=launch&silent=false",
                     UseShellExecute = true
                 };
-                System.Diagnostics.Process.Start(psi);
+                Process.Start(psi);
             }
             catch (Exception Ex)
             {
                 Console.WriteLine(Ex.Message);
                 Console.WriteLine(Ex.StackTrace);
-                string message = "There was an error while trying to make EPIC Games Launcher launch Mechwarrior 5.";
+                string message = "There was an error while trying to make Epic Games Launcher launch Mechwarrior 5.";
                 string caption = "Error Launching";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, caption, buttons);
+                MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
             }
         }
 
@@ -729,12 +749,12 @@ namespace MW5_Mod_Manager
         {
             try
             {
-                var psi = new System.Diagnostics.ProcessStartInfo()
+                var psi = new ProcessStartInfo()
                 {
                     FileName = @"steam://rungameid/784080",
                     UseShellExecute = true
                 };
-                System.Diagnostics.Process.Start(psi);
+                Process.Start(psi);
             }
             catch (Exception Ex)
             {
@@ -1262,6 +1282,7 @@ namespace MW5_Mod_Manager
             this.ModListData.Clear();
             this.logic.ModDetails.Clear();
             this.logic.ModList = newData;
+            this.logic.ModDirectories.Clear();
             this.logic.Mods.Clear();
             this.LoadAndFill(true);
             FilterTextChanged();

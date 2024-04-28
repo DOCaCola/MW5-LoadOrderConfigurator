@@ -11,6 +11,7 @@ using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
+using static MW5_Mod_Manager.MainLogic;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using Application = System.Windows.Forms.Application;
 
@@ -68,12 +69,15 @@ namespace MW5_Mod_Manager
         public bool ModSettingsTainted = false;
 
         public JObject parent;
-        public List<string> Directories = new();
+        // Directories found in all mod paths
+        public List<string> FoundDirectories = new();
         public Dictionary<string, string> DirectoryToPathDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, string> PathToDirectoryDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         // Mod data as loaded from the mods' mod.json file
         public Dictionary<string, ModObject> ModDetails = new Dictionary<string, ModObject>(StringComparer.OrdinalIgnoreCase);
+        // Valid mod directories
+        public List<string> ModDirectories = new();
         public Dictionary<string, bool> ModList = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, OverridingData> OverrridingData = new Dictionary<string, OverridingData>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, string> Presets = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -473,28 +477,28 @@ namespace MW5_Mod_Manager
         //parse all directories in the basepath mods folder or steam workshop mods folder.
         private void ParseDirectories()
         {
-            this.Directories.Clear();
+            this.FoundDirectories.Clear();
 
             if (!Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.Main]))
             {
-                this.Directories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.Main]));
+                this.FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.Main]));
             }
 
             if (!Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.Steam]))
             {
-                this.Directories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.Steam]));
+                this.FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.Steam]));
             }
 
             if (!Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.AppData]))
             {
-                this.Directories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.AppData]));
+                this.FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.AppData]));
             }
             AddDirectoryPathsToDict();
         }
 
         private void AddDirectoryPathsToDict()
         {
-            foreach (string curDirectory in Directories)
+            foreach (string curDirectory in FoundDirectories)
             {
                 string directoryName = Path.GetFileName(curDirectory);
                 this.DirectoryToPathDict[directoryName] = curDirectory;
@@ -530,7 +534,8 @@ namespace MW5_Mod_Manager
             catch (Exception e)
             {
                 MessageBox.Show(
-                    @"The modlist.json file could not be found in "+ modlistPath +@"."+System.Environment.NewLine+System.Environment.NewLine
+                    @"The modlist.json file could not be found in"+ System.Environment.NewLine 
+                    + modlistPath +@"."+System.Environment.NewLine+System.Environment.NewLine
                     +@"It is necessary to read this file in order to validate it with the correct version number the game expects." + System.Environment.NewLine + System.Environment.NewLine
                     +@"LOC will try to create the file with the correct version number when applying your profile, but there is high chance that this will fail."+System.Environment.NewLine
                     +@"It is recommended to start the game once in order to create this file before applying your mod profile.",
@@ -562,6 +567,7 @@ namespace MW5_Mod_Manager
         //TODO Fix
         public void ClearAll()
         {
+            this.ModDirectories.Clear();
             this.Mods.Clear();
             this.ModDetails.Clear();
             this.ModList.Clear();
@@ -578,8 +584,11 @@ namespace MW5_Mod_Manager
         private void CombineDirModList()
         {
             // First sort the directory by the default MW5 load orders
-            Directories.Sort((x, y) =>
+            ModDirectories.Sort((x, y) =>
             {
+                if (!Mods.ContainsKey(x) || !Mods.ContainsKey(y))
+                    return 0;
+
                 // Compare Original load order
                 int priorityComparison = Mods[y].OriginalLoadOrder.CompareTo(Mods[x].OriginalLoadOrder);
 
@@ -594,7 +603,7 @@ namespace MW5_Mod_Manager
                 }
             });
 
-            foreach (string modDir in this.Directories)
+            foreach (string modDir in this.ModDirectories)
             {
                 if (this.ModList.ContainsKey(modDir))
                     continue;
@@ -605,7 +614,7 @@ namespace MW5_Mod_Manager
             List<string> toRemove = new List<string>();
             foreach (KeyValuePair<string, bool> entry in this.ModList)
             {
-                if (this.Directories.Contains<string>(entry.Key))
+                if (this.ModDirectories.Contains<string>(entry.Key))
                     continue;
                 toRemove.Add(entry.Key);
             }
@@ -637,165 +646,153 @@ namespace MW5_Mod_Manager
 
         private void LoadModDetails(string modPath)
         {
+            bool loadModSuccess = false;
             try
             {
-                string modJsonFilePath = Path.Combine(modPath, @"mod.json");
-                string modJson = File.ReadAllText(modJsonFilePath);
-                JObject modDetailsJ = JObject.Parse(modJson);
-
-                ModObject modDetails = modDetailsJ.ToObject<ModObject>();
-
-                this.ModDetails.Add(modPath, modDetails);
-
                 ModData modData = new ModData();
+                ModObject modDetails = null;
+                try
+                {
+                    string modJsonFilePath = Path.Combine(modPath, @"mod.json");
+                    string modJson = File.ReadAllText(modJsonFilePath);
+                    JObject modDetailsJ = JObject.Parse(modJson);
 
-                if (modDetailsJ.ContainsKey("locOriginalLoadOrder"))
-                {
-                    modData.OriginalLoadOrder = modDetails.locOriginalLoadOrder;
-                }
-                else if (modDetailsJ.ContainsKey("lotsOriginalLoadOrder"))
-                {
-                    // Might have been set by the MW5-LOTS mod order manager
-                    modData.OriginalLoadOrder = modDetailsJ["lotsOriginalLoadOrder"].Value<float>();
-                }
-                else
-                {
-                    modData.OriginalLoadOrder = modDetails.defaultLoadOrder;
-                }
+                    modDetails = modDetailsJ.ToObject<ModObject>();
 
-                // Determine mod origin
-                string modDir = this.PathToDirectoryDict[modPath];
-
-                // Check if this might be a mod from the steam workshop
-                if (IsSteamWorkshopID(modDir))
-                {
-                    // If the mod directory name matches the store id, we can be pretty certain
-                    // there are mods however, that don't have this info correctly filled
-                    if (modDir == modDetails.steamPublishedFileId.ToString())
+                    if (modDetailsJ.ContainsKey("locOriginalLoadOrder"))
                     {
-                        modData.Origin = ModData.ModOrigin.Steam;
+                        modData.OriginalLoadOrder = modDetails.locOriginalLoadOrder;
+                    }
+                    else if (modDetailsJ.ContainsKey("lotsOriginalLoadOrder"))
+                    {
+                        // Might have been set by the MW5-LOTS mod order manager
+                        modData.OriginalLoadOrder = modDetailsJ["lotsOriginalLoadOrder"].Value<float>();
+                    }
+                    else
+                    {
+                        modData.OriginalLoadOrder = modDetails.defaultLoadOrder;
                     }
 
-                    // if this looks like a steam id and the mod is stored in the steam mods directory
-                    // it's certain that this is a steam mod
-                    if (modData.Origin == ModData.ModOrigin.Unknown)
+                    // Determine mod origin
+                    string modDir = this.PathToDirectoryDict[modPath];
+
+                    // Check if this might be a mod from the steam workshop
+                    if (IsSteamWorkshopID(modDir))
                     {
-                        if (modPath.StartsWith(MainWindow.MainForm.logic.ModsPaths[eModPathType.Steam]))
+                        // If the mod directory name matches the store id, we can be pretty certain
+                        // there are mods however, that don't have this info correctly filled
+                        if (modDir == modDetails.steamPublishedFileId.ToString())
                         {
                             modData.Origin = ModData.ModOrigin.Steam;
                         }
-                    }
-                }
 
-                if (modData.Origin == ModData.ModOrigin.Unknown)
-                {
-                    string modDirectoryName = PathToDirectoryDict[modPath];
-                    if (VortexDeploymentData.ContainsKey(modDirectoryName))
+                        // if this looks like a steam id and the mod is stored in the steam mods directory
+                        // it's certain that this is a steam mod
+                        if (modData.Origin == ModData.ModOrigin.Unknown)
+                        {
+                            if (modPath.StartsWith(MainWindow.MainForm.logic.ModsPaths[eModPathType.Steam]))
+                            {
+                                modData.Origin = ModData.ModOrigin.Steam;
+                            }
+                        }
+                    }
+
+                    if (modData.Origin == ModData.ModOrigin.Unknown)
                     {
-                        VortexDeploymentModData vortexModData = VortexDeploymentData[modDirectoryName];
+                        string modDirectoryName = PathToDirectoryDict[modPath];
+                        if (VortexDeploymentData.ContainsKey(modDirectoryName))
+                        {
+                            VortexDeploymentModData vortexModData = VortexDeploymentData[modDirectoryName];
 
-                        modData.Origin = ModData.ModOrigin.Nexusmods;
-                        modData.NexusModsId = vortexModData.nexusModsId;
+                            modData.Origin = ModData.ModOrigin.Nexusmods;
+                            modData.NexusModsId = vortexModData.nexusModsId;
+                        }
+
                     }
 
-                }
-
-                // Fallback
-                if (modData.Origin == ModData.ModOrigin.Unknown)
-                {
-                    if (File.Exists(modPath + @"\__folder_managed_by_vortex"))
+                    // Fallback
+                    if (modData.Origin == ModData.ModOrigin.Unknown)
                     {
-                        modData.Origin = ModData.ModOrigin.Nexusmods;
+                        if (File.Exists(modPath + @"\__folder_managed_by_vortex"))
+                        {
+                            modData.Origin = ModData.ModOrigin.Nexusmods;
+                        }
                     }
                 }
-                
+                catch (Exception e)
+                {
+                    string message = @"Error loading mod.json in : " + modPath + System.Environment.NewLine +
+                                     System.Environment.NewLine +
+                                     "The folder will be skipped. If this is not a mod folder you can ignore ths message.";
+                    string caption = "Error Loading mod.json";
+                    MessageBoxButtons buttons = MessageBoxButtons.OK;
+                    MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
+
+                    return;
+                }
+
+                // Sanity check for mod files
+                string pakDir = modPath + @"\Paks";
+                if (!Directory.Exists(pakDir) || Directory.GetFiles(pakDir, "*.pak").Length == 0)
+                {
+                    string message = @"The mod in the path" + System.Environment.NewLine +
+                                     modPath + System.Environment.NewLine + 
+                                     @"might be corrupted." + System.Environment.NewLine +
+                                     "The mod has a valid mod.json, but has no Pak game data files associated with it.";
+                    string caption = "Loading mod";
+                    MessageBoxButtons buttons = MessageBoxButtons.OK;
+                    MessageBox.Show(message, caption, buttons, MessageBoxIcon.Warning);
+                }
+
+                long totalPakSize = 0;
+                bool hasZeroBytePak = false;
+                if (Directory.Exists(pakDir))
+                {
+                    foreach (string filePath in Directory.GetFiles(pakDir, "*.pak"))
+                    {
+                        long fileSize = new FileInfo(filePath).Length;
+
+                        if (fileSize == 0)
+                        {
+                            hasZeroBytePak = true;
+                            break;
+                        }
+
+                        totalPakSize += fileSize;
+                    }
+                }
+
+                if (hasZeroBytePak)
+                {
+                    string message = @"The mod in the path" + System.Environment.NewLine +
+                                     modPath + System.Environment.NewLine + 
+                                     @"might be corrupted." + System.Environment.NewLine +
+                                     "The mod has one or more Pak game data files that are zero bytes in size.";
+                    string caption = "Error Loading mod";
+                    MessageBoxButtons buttons = MessageBoxButtons.OK;
+                    MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
+                }
+
+                modData.ModFileSize = totalPakSize;
                 this.Mods.Add(modPath, modData);
+                this.ModDetails.Add(modPath, modDetails);
+                this.ModDirectories.Add(modPath);
+                loadModSuccess = true;
             }
-            catch (Exception e)
+            finally
             {
-                string message = @"Error loading mod.json in : " + modPath + System.Environment.NewLine +
-                                 System.Environment.NewLine +
-                                 "The folder will be skipped. If this is not a mod folder you can ignore ths message.";
-                string caption = "Error Loading mod.json";
-                MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
-
-                if (Mods.ContainsKey(modPath))
-                    Mods.Remove(modPath);
-
-                if (ModList.ContainsKey(modPath))
-                    ModList.Remove(modPath);
-
-                if (ModDetails.ContainsKey(modPath))
-                    ModDetails.Remove(modPath);
-
-                return;
-            }
-
-            // Sanity check for mod files
-            string pakDir = modPath + @"\Paks";
-            if (!Directory.Exists(pakDir) || Directory.GetFiles(pakDir, "*.pak").Length == 0)
-            {
-                string message = @"Error loading mod in : " + modPath + System.Environment.NewLine +
-                                 System.Environment.NewLine +
-                                 "The mod has a valid mod.json, but has no Pak game data files associated with it.";
-                string caption = "Error Loading mod";
-                MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
-
-                if (Mods.ContainsKey(modPath))
-                    Mods.Remove(modPath);
-
-                if (ModList.ContainsKey(modPath))
-                    ModList.Remove(modPath);
-
-                if (ModDetails.ContainsKey(modPath))
-                    ModDetails.Remove(modPath);
-
-                return;
-            }
-
-            long totalPakSize = 0;
-            bool hasZeroBytePak = false;
-            foreach (string filePath in Directory.GetFiles(pakDir, "*.pak"))
-            {
-                long fileSize = new FileInfo(filePath).Length;
-
-                if (fileSize == 0)
+                if (!loadModSuccess)
                 {
-                    hasZeroBytePak = true;
-                    break;
+                    if (ModList.ContainsKey(modPath))
+                        ModList.Remove(modPath);
                 }
-                totalPakSize += fileSize;
             }
-
-            if (hasZeroBytePak)
-            {
-                string message = @"Error loading mod in : " + modPath + System.Environment.NewLine +
-                                 System.Environment.NewLine +
-                                 "The mod has one or more Pak game data files that are zero bytes in size.";
-                string caption = "Error Loading mod";
-                MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
-
-                if (Mods.ContainsKey(modPath))
-                    Mods.Remove(modPath);
-
-                if (ModList.ContainsKey(modPath))
-                    ModList.Remove(modPath);
-
-                if (ModDetails.ContainsKey(modPath))
-                    ModDetails.Remove(modPath);
-
-                return;
-            }
-
-            Mods[modPath].ModFileSize = totalPakSize;
+ 
         }
 
         private void LoadAllModDetails()
         {
-            foreach (string modDir in this.Directories)
+            foreach (string modDir in this.FoundDirectories)
             {
                 LoadModDetails(modDir);
             }
