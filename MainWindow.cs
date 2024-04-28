@@ -346,8 +346,8 @@ namespace MW5_Mod_Manager
         public void ClearAll()
         {
             listBoxOverriding.Items.Clear();
-            listBoxManifestOverridden.Items.Clear();
             listBoxOverriddenBy.Items.Clear();
+            richTextBoxManifestOverridden.Clear();
             pictureBoxModImage.Visible = false;
             labelModNameOverrides.Text = "";
             ClearModSidePanel();
@@ -885,6 +885,20 @@ namespace MW5_Mod_Manager
             }
         }
 
+        private void AppendContentPathToMainfestList(string contentPath)
+        {
+            if (!string.IsNullOrWhiteSpace(richTextBoxManifestOverridden.Text))
+            {
+                richTextBoxManifestOverridden.AppendText("\r\n");
+            }
+
+            richTextBoxManifestOverridden.SelectionFont = new Font(richTextBoxManifestOverridden.Font, FontStyle.Bold);
+            richTextBoxManifestOverridden.AppendText(Path.GetFileName(contentPath));
+
+            richTextBoxManifestOverridden.SelectionFont = richTextBoxManifestOverridden.Font;
+            richTextBoxManifestOverridden.AppendText(@" (" + Path.GetDirectoryName(contentPath) + @")");
+        }
+
         //Selected index of mods overriding the currently selected mod has changed.
         private void listBox3_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -901,7 +915,7 @@ namespace MW5_Mod_Manager
                 if (listBoxOverriddenBy.SelectedIndex == -1)
                     return;
 
-                listBoxManifestOverridden.Items.Clear();
+                richTextBoxManifestOverridden.Clear();
                 listBoxOverriding.SelectedIndex = -1;
                 if (listBoxOverriddenBy.Items.Count == 0 || modsListView.Items.Count == 0)
                     return;
@@ -933,7 +947,7 @@ namespace MW5_Mod_Manager
 
                 foreach (string entry in modData.overriddenBy[selectedMod.ModDirName])
                 {
-                    listBoxManifestOverridden.Items.Add(entry);
+                    AppendContentPathToMainfestList(entry);
                 }
             }
             finally
@@ -961,7 +975,7 @@ namespace MW5_Mod_Manager
                 if (listBoxOverriding.SelectedIndex == -1)
                     return;
 
-                listBoxManifestOverridden.Items.Clear();
+                richTextBoxManifestOverridden.Clear();
                 listBoxOverriddenBy.SelectedIndex = -1;
                 if (listBoxOverriding.Items.Count == 0 || modsListView.Items.Count == 0)
                     return;
@@ -985,7 +999,7 @@ namespace MW5_Mod_Manager
 
                 foreach (string entry in modData.overrides[selectedMod.ModDirName])
                 {
-                    listBoxManifestOverridden.Items.Add(entry);
+                    AppendContentPathToMainfestList(entry);
                 }
             }
             finally
@@ -1004,7 +1018,7 @@ namespace MW5_Mod_Manager
             labelModNameOverrides.Text = "";
             pictureBoxModImage.Visible = false;
             panelModInfo.Visible = false;
-            listBoxManifestOverridden.Items.Clear();
+            richTextBoxManifestOverridden.Clear();
             listBoxOverriddenBy.Items.Clear();
             listBoxOverriding.Items.Clear();
         }
@@ -1100,8 +1114,8 @@ namespace MW5_Mod_Manager
                 return;
 
             this.listBoxOverriding.Items.Clear();
-            this.listBoxManifestOverridden.Items.Clear();
             this.listBoxOverriddenBy.Items.Clear();
+            this.richTextBoxManifestOverridden.Clear();
 
             //If we select a mod that is not ticked its data is never gotten so will get an error if we don't do this.
             if (!logic.OverrridingData.ContainsKey(SelectedMod))

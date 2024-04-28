@@ -94,6 +94,7 @@ namespace MW5_Mod_Manager
             openFolderToolStripMenuItem = new ToolStripMenuItem();
             deleteToolStripMenuItem = new ToolStripMenuItem();
             tabPage1 = new TabPage();
+            richTextBoxManifestOverridden = new RichTextBox();
             splitContainer2 = new SplitContainer();
             listBoxOverriding = new ListBox();
             label6 = new Label();
@@ -101,7 +102,6 @@ namespace MW5_Mod_Manager
             label5 = new Label();
             labelModNameOverrides = new Label();
             label7 = new Label();
-            listBoxManifestOverridden = new ListBox();
             tabPageModInfo = new TabPage();
             pictureBoxModImage = new PictureBox();
             panelModInfo = new Panel();
@@ -559,21 +559,33 @@ namespace MW5_Mod_Manager
             // 
             // tabPage1
             // 
+            tabPage1.Controls.Add(richTextBoxManifestOverridden);
             tabPage1.Controls.Add(splitContainer2);
             tabPage1.Controls.Add(labelModNameOverrides);
             tabPage1.Controls.Add(label7);
-            tabPage1.Controls.Add(listBoxManifestOverridden);
-            tabPage1.Location = new Point(4, 24);
+            tabPage1.Location = new Point(4, 22);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(326, 455);
+            tabPage1.Size = new Size(326, 457);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
             // 
+            // richTextBoxManifestOverridden
+            // 
+            richTextBoxManifestOverridden.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            richTextBoxManifestOverridden.Location = new Point(9, 164);
+            richTextBoxManifestOverridden.Name = "richTextBoxManifestOverridden";
+            richTextBoxManifestOverridden.ReadOnly = true;
+            richTextBoxManifestOverridden.Size = new Size(309, 288);
+            richTextBoxManifestOverridden.TabIndex = 28;
+            richTextBoxManifestOverridden.Text = "";
+            richTextBoxManifestOverridden.WordWrap = false;
+            // 
             // splitContainer2
             // 
             splitContainer2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            splitContainer2.IsSplitterFixed = true;
             splitContainer2.Location = new Point(9, 36);
             splitContainer2.Name = "splitContainer2";
             // 
@@ -649,20 +661,9 @@ namespace MW5_Mod_Manager
             label7.AutoSize = true;
             label7.Location = new Point(9, 148);
             label7.Name = "label7";
-            label7.Size = new Size(90, 13);
+            label7.Size = new Size(74, 13);
             label7.TabIndex = 26;
-            label7.Text = "Manifest Entries";
-            // 
-            // listBoxManifestOverridden
-            // 
-            listBoxManifestOverridden.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            listBoxManifestOverridden.FormattingEnabled = true;
-            listBoxManifestOverridden.HorizontalScrollbar = true;
-            listBoxManifestOverridden.ItemHeight = 13;
-            listBoxManifestOverridden.Location = new Point(9, 165);
-            listBoxManifestOverridden.Name = "listBoxManifestOverridden";
-            listBoxManifestOverridden.Size = new Size(309, 277);
-            listBoxManifestOverridden.TabIndex = 22;
+            label7.Text = "Mod content";
             // 
             // tabPageModInfo
             // 
@@ -938,7 +939,6 @@ namespace MW5_Mod_Manager
             // splitContainerMain
             // 
             splitContainerMain.Dock = DockStyle.Fill;
-            splitContainerMain.IsSplitterFixed = true;
             splitContainerMain.Location = new Point(0, 72);
             splitContainerMain.Name = "splitContainerMain";
             // 
@@ -1156,7 +1156,6 @@ namespace MW5_Mod_Manager
         private Label labelModNameOverrides;
         private ListBox listBoxOverriding;
         private Label label7;
-        private ListBox listBoxManifestOverridden;
         private ListBox listBoxOverriddenBy;
         private Label label5;
         private TabPage tabPageModInfo;
@@ -1223,6 +1222,7 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem toolStripMenuItemImportArchive;
         private ToolStripMenuItem toolStripMenuItemImportFromFolder;
         private ToolStripSeparator toolStripSeparator12;
+        private RichTextBox richTextBoxManifestOverridden;
     }
 }
 
