@@ -80,6 +80,16 @@ namespace MW5_Mod_Manager
             return size;
         }
 
+        public static bool IsSubdirectory(string candidate, string parent)
+        {
+            // Normalize the paths to ensure consistency
+            candidate = Path.GetFullPath(candidate).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            parent = Path.GetFullPath(parent).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+            // Check if the candidate starts with the parent's path
+            return candidate.StartsWith(parent + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+        }
+
         public static String BytesToHumanReadableString(long byteCount)
         {
             string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" }; //Longs run out around EB

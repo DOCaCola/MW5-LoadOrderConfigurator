@@ -49,13 +49,15 @@ namespace MW5_Mod_Manager
         {
             using (var fbd = new FolderBrowserDialog())
             {
+                fbd.Description = "Select MechWarrior 5 install directory.";
+                fbd.UseDescriptionForTitle = true;
                 DialogResult result = fbd.ShowDialog();
 
                 if (result == DialogResult.OK && !Utils.StringNullEmptyOrWhiteSpace(fbd.SelectedPath))
                 {
                     if (!File.Exists(fbd.SelectedPath + "\\mechwarrior.exe"))
                     {
-                        MessageBox.Show(@"The 'MechWarrior.exe' file could not be found in the selected directory.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(@"The 'MechWarrior.exe' file could not be found in ." + fbd.SelectedPath, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
 

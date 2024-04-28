@@ -149,6 +149,17 @@ namespace MW5_Mod_Manager
             return Path.Combine(path, @"modlist.json");
         }
 
+        public string GetMainModPath()
+        {
+            switch (GamePlatform)
+            {
+                case eGamePlatform.WindowsStore:
+                    return ModsPaths[eModPathType.AppData];
+                default:
+                    return ModsPaths[eModPathType.Program];
+            }
+        }
+
         /// <summary>
         /// Starts suquence to load all mods from folders, loads modlist, combines modlist with found folders structure
         /// and loads details of each found mod.

@@ -51,6 +51,9 @@ namespace MW5_Mod_Manager
             textProgressBarBindingSource = new BindingSource(components);
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
+            toolStripMenuItemImportArchive = new ToolStripMenuItem();
+            toolStripMenuItemImportFromFolder = new ToolStripMenuItem();
+            toolStripSeparator12 = new ToolStripSeparator();
             importLoadOrderToolStripMenuItem1 = new ToolStripMenuItem();
             exportLoadOrderToolStripMenuItem1 = new ToolStripMenuItem();
             toolStripSeparator7 = new ToolStripSeparator();
@@ -89,6 +92,7 @@ namespace MW5_Mod_Manager
             contextMenuItemMoveToBottom = new ToolStripMenuItem();
             toolStripSeparator5 = new ToolStripSeparator();
             openFolderToolStripMenuItem = new ToolStripMenuItem();
+            deleteToolStripMenuItem = new ToolStripMenuItem();
             tabPage1 = new TabPage();
             splitContainer2 = new SplitContainer();
             listBoxOverriding = new ListBox();
@@ -173,7 +177,6 @@ namespace MW5_Mod_Manager
             // 
             // modsListView
             // 
-            modsListView.AllowDrop = true;
             modsListView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             modsListView.CheckBoxes = true;
             modsListView.Columns.AddRange(new ColumnHeader[] { enabledHeader, displayHeader, folderHeader, authorHeader, versionHeader, currentLoadOrderHeader, originalLoadOrderHeader, fileSizeHeader });
@@ -268,35 +271,54 @@ namespace MW5_Mod_Manager
             // 
             // fileToolStripMenuItem
             // 
-            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { importLoadOrderToolStripMenuItem1, exportLoadOrderToolStripMenuItem1, toolStripSeparator7, exportmodsFolderToolStripMenuItem1, shareModsViaTCPToolStripMenuItem, toolStripSeparator2, toolStripMenuItemSettings, toolStripSeparator1, exitToolStripMenuItem });
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { toolStripMenuItemImportArchive, toolStripMenuItemImportFromFolder, toolStripSeparator12, importLoadOrderToolStripMenuItem1, exportLoadOrderToolStripMenuItem1, toolStripSeparator7, exportmodsFolderToolStripMenuItem1, shareModsViaTCPToolStripMenuItem, toolStripSeparator2, toolStripMenuItemSettings, toolStripSeparator1, exitToolStripMenuItem });
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             fileToolStripMenuItem.Size = new Size(37, 20);
             fileToolStripMenuItem.Text = "&File";
             // 
+            // toolStripMenuItemImportArchive
+            // 
+            toolStripMenuItemImportArchive.Name = "toolStripMenuItemImportArchive";
+            toolStripMenuItemImportArchive.Size = new Size(189, 22);
+            toolStripMenuItemImportArchive.Text = "Import from &archive...";
+            toolStripMenuItemImportArchive.Click += toolStripMenuItemImportArchive_Click;
+            // 
+            // toolStripMenuItemImportFromFolder
+            // 
+            toolStripMenuItemImportFromFolder.Name = "toolStripMenuItemImportFromFolder";
+            toolStripMenuItemImportFromFolder.Size = new Size(189, 22);
+            toolStripMenuItemImportFromFolder.Text = "Import from &folder...";
+            toolStripMenuItemImportFromFolder.Click += toolStripMenuItemImportFromFolder_Click;
+            // 
+            // toolStripSeparator12
+            // 
+            toolStripSeparator12.Name = "toolStripSeparator12";
+            toolStripSeparator12.Size = new Size(186, 6);
+            // 
             // importLoadOrderToolStripMenuItem1
             // 
             importLoadOrderToolStripMenuItem1.Name = "importLoadOrderToolStripMenuItem1";
-            importLoadOrderToolStripMenuItem1.Size = new Size(177, 22);
+            importLoadOrderToolStripMenuItem1.Size = new Size(189, 22);
             importLoadOrderToolStripMenuItem1.Text = "&Import load order...";
             importLoadOrderToolStripMenuItem1.Click += importLoadOrderToolStripMenuItem1_Click;
             // 
             // exportLoadOrderToolStripMenuItem1
             // 
             exportLoadOrderToolStripMenuItem1.Name = "exportLoadOrderToolStripMenuItem1";
-            exportLoadOrderToolStripMenuItem1.Size = new Size(177, 22);
+            exportLoadOrderToolStripMenuItem1.Size = new Size(189, 22);
             exportLoadOrderToolStripMenuItem1.Text = "&Export load order...";
             exportLoadOrderToolStripMenuItem1.Click += exportLoadOrderToolStripMenuItem1_Click;
             // 
             // toolStripSeparator7
             // 
             toolStripSeparator7.Name = "toolStripSeparator7";
-            toolStripSeparator7.Size = new Size(174, 6);
+            toolStripSeparator7.Size = new Size(186, 6);
             toolStripSeparator7.Visible = false;
             // 
             // exportmodsFolderToolStripMenuItem1
             // 
             exportmodsFolderToolStripMenuItem1.Name = "exportmodsFolderToolStripMenuItem1";
-            exportmodsFolderToolStripMenuItem1.Size = new Size(177, 22);
+            exportmodsFolderToolStripMenuItem1.Size = new Size(189, 22);
             exportmodsFolderToolStripMenuItem1.Text = "Export &mods folder";
             exportmodsFolderToolStripMenuItem1.Visible = false;
             exportmodsFolderToolStripMenuItem1.Click += exportmodsFolderToolStripMenuItem1_Click;
@@ -304,7 +326,7 @@ namespace MW5_Mod_Manager
             // shareModsViaTCPToolStripMenuItem
             // 
             shareModsViaTCPToolStripMenuItem.Name = "shareModsViaTCPToolStripMenuItem";
-            shareModsViaTCPToolStripMenuItem.Size = new Size(177, 22);
+            shareModsViaTCPToolStripMenuItem.Size = new Size(189, 22);
             shareModsViaTCPToolStripMenuItem.Text = "Share mods via &TCP";
             shareModsViaTCPToolStripMenuItem.Visible = false;
             shareModsViaTCPToolStripMenuItem.Click += shareModsViaTCPToolStripMenuItem_Click;
@@ -312,24 +334,24 @@ namespace MW5_Mod_Manager
             // toolStripSeparator2
             // 
             toolStripSeparator2.Name = "toolStripSeparator2";
-            toolStripSeparator2.Size = new Size(174, 6);
+            toolStripSeparator2.Size = new Size(186, 6);
             // 
             // toolStripMenuItemSettings
             // 
             toolStripMenuItemSettings.Name = "toolStripMenuItemSettings";
-            toolStripMenuItemSettings.Size = new Size(177, 22);
+            toolStripMenuItemSettings.Size = new Size(189, 22);
             toolStripMenuItemSettings.Text = "&Settings";
             toolStripMenuItemSettings.Click += toolStripMenuItemSettings_Click;
             // 
             // toolStripSeparator1
             // 
             toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new Size(174, 6);
+            toolStripSeparator1.Size = new Size(186, 6);
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(177, 22);
+            exitToolStripMenuItem.Size = new Size(189, 22);
             exitToolStripMenuItem.Text = "E&xit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
@@ -479,9 +501,9 @@ namespace MW5_Mod_Manager
             // 
             // contextMenuStripMod
             // 
-            contextMenuStripMod.Items.AddRange(new ToolStripItem[] { moveupToolStripMenuItem, movedownToolStripMenuItem, toolStripSeparator6, contextMenuItemMoveToTop, contextMenuItemMoveToBottom, toolStripSeparator5, openFolderToolStripMenuItem });
+            contextMenuStripMod.Items.AddRange(new ToolStripItem[] { moveupToolStripMenuItem, movedownToolStripMenuItem, toolStripSeparator6, contextMenuItemMoveToTop, contextMenuItemMoveToBottom, toolStripSeparator5, openFolderToolStripMenuItem, deleteToolStripMenuItem });
             contextMenuStripMod.Name = "contextMenuStripMod";
-            contextMenuStripMod.Size = new Size(162, 126);
+            contextMenuStripMod.Size = new Size(162, 148);
             // 
             // moveupToolStripMenuItem
             // 
@@ -527,6 +549,13 @@ namespace MW5_Mod_Manager
             openFolderToolStripMenuItem.Size = new Size(161, 22);
             openFolderToolStripMenuItem.Text = "Open &Folder";
             openFolderToolStripMenuItem.Click += openFolderToolStripMenuItem_Click;
+            // 
+            // deleteToolStripMenuItem
+            // 
+            deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+            deleteToolStripMenuItem.Size = new Size(161, 22);
+            deleteToolStripMenuItem.Text = "D&elete";
+            deleteToolStripMenuItem.Click += deleteToolStripMenuItem_Click;
             // 
             // tabPage1
             // 
@@ -1034,6 +1063,7 @@ namespace MW5_Mod_Manager
             // 
             // MainWindow
             // 
+            AllowDrop = true;
             AutoScaleDimensions = new SizeF(6F, 13F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1167, 579);
@@ -1049,6 +1079,8 @@ namespace MW5_Mod_Manager
             FormClosing += MainWindow_FormClosing;
             Load += MainWindow_Load;
             Shown += MainWindow_Shown;
+            DragDrop += MainForm_DragDrop;
+            DragEnter += Form1_DragEnter;
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).EndInit();
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
@@ -1187,6 +1219,10 @@ namespace MW5_Mod_Manager
         private ToolStripButton toolStripButtonClearFilter;
         private ToolStripSeparator toolStripSeparator10;
         private SplitContainer splitContainer2;
+        private ToolStripMenuItem deleteToolStripMenuItem;
+        private ToolStripMenuItem toolStripMenuItemImportArchive;
+        private ToolStripMenuItem toolStripMenuItemImportFromFolder;
+        private ToolStripSeparator toolStripSeparator12;
     }
 }
 

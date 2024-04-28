@@ -11,6 +11,8 @@ using System.Reflection;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 using static MW5_Mod_Manager.MainLogic;
+using static System.Net.WebRequestMethods;
+using File = System.IO.File;
 using ListView = System.Windows.Forms.ListView;
 
 namespace MW5_Mod_Manager
@@ -96,111 +98,100 @@ namespace MW5_Mod_Manager
         //When we hover over the manager with a file or folder
         void Form1_DragEnter(object sender, DragEventArgs e)
         {
+            if (!logic.GameIsConfigured())
+                return;
+
             if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy;
         }
 
-        //When we drop a file or folder on the manager
-        void Form1_DragDrop(object sender, DragEventArgs e)
+        public bool CopyModFromFolder(string path)
         {
+            if (Utils.IsSubdirectory(path, logic.GetMainModPath()))
+            {
+                MessageBox.Show(@"The source folder is within in the mod directory. Operation aborted.", @"Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (!File.Exists(Path.Combine(path, "mod.json")))
+            {
+                MessageBox.Show(@"This doesn't seem to be a valid mod directory. Operation aborted.", @"Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            return FileOperation.CopyDirectory(path, logic.GetMainModPath(), this.Handle);
+        }
+
+        public bool ExtractModFromArchive(string filePath)
+        {
+            //we have a zip!
+            using (ZipArchive archive = ZipFile.OpenRead(filePath))
+            {
+                bool modFound = false;
+                foreach (ZipArchiveEntry entry in archive.Entries)
+                {
+                    //Console.WriteLine(entry.FullName);
+                    if (entry.Name.Contains("mod.json"))
+                    {
+                        //we have found a mod!
+                        //Console.WriteLine("MOD FOUND IN ZIP!: " + entry.FullName);
+                        modFound = true;
+                        break;
+                    }
+                }
+                if (!modFound)
+                {
+                    MessageBox.Show(@"This doesn't seem to be a valid mod archive. Operation aborted.", @"Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                //Extract mod to mods dir
+                ZipFile.ExtractToDirectory(filePath, logic.GetMainModPath());
+                return true;
+            }
+        }
+
+        //When we drop a file or folder on the manager
+        void MainForm_DragDrop(object sender, DragEventArgs e)
+        {
+            if (!logic.GameIsConfigured())
+                return;
+
             //We only support single file drops!
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
             if (files.Length != 1)
             {
                 return;
             }
-            string file = files[0];
-            Console.WriteLine(file);
+            string filePath = files[0];
+
             //Lets see what we got here
             // get the file attributes for file or directory
-            FileAttributes attr = File.GetAttributes(file);
-            bool IsDirectory = attr.ToString() == "Directory";
+            FileAttributes attr = File.GetAttributes(filePath);
+            bool isDirectory = ((attr & FileAttributes.Directory) == FileAttributes.Directory);
 
-            if (!HandleDirectory())
+            if (isDirectory)
             {
-                HandleFile();
+                CopyModFromFolder(filePath);
             }
-
-            //Refresh button
-            button6_Click(null, null);
-
-            void HandleFile()
+            else
             {
-                if (!file.Contains(".zip"))
+                if (!filePath.Contains(".zip"))
                 {
                     string message = "Only .zip files are supported. " +
-                        "Please extract first and drag the folder into the application.";
-                    string caption = "Unsuported File Type";
+                                     "Please extract the mod first and drag the folder into the application.";
+                    string caption = "Unsupported File Type";
                     MessageBoxButtons buttons = MessageBoxButtons.OK;
-                    MessageBox.Show(message, caption, buttons);
+                    MessageBox.Show(message, caption, buttons, MessageBoxIcon.Asterisk);
                     return;
                 }
-                //we have a zip!
-                using (ZipArchive archive = ZipFile.OpenRead(file))
-                {
-                    bool modFound = false;
-                    foreach (ZipArchiveEntry entry in archive.Entries)
-                    {
-                        //Console.WriteLine(entry.FullName);
-                        if (entry.Name.Contains("mod.json"))
-                        {
-                            //we have found a mod!
-                            //Console.WriteLine("MOD FOUND IN ZIP!: " + entry.FullName);
-                            modFound = true;
-                            break;
-                        }
-                    }
-                    if (!modFound)
-                    {
-                        return;
-                    }
-                    //Extract mod to mods dir
-                    ZipFile.ExtractToDirectory(file, logic.ModsPaths[MainLogic.eModPathType.Program]);
-                    button6_Click(null, null);
-                }
+
+                if (!ExtractModFromArchive(filePath))
+                    return;
             }
 
-            //Return success
-            bool HandleDirectory()
-            {
-                if (!IsDirectory)
-                {
-                    return false;
-                }
-                if (!ModInDirectory(file))
-                {
-                    return false;
-                }
-                if (ModsFolderNotSet())
-                {
-                    return false;
-                }
-
-                string modName;
-                string[] splitString = file.Split('\\');
-                modName = splitString[splitString.Length - 1];
-                Utils.DirectoryCopy(file, logic.ModsPaths[MainLogic.eModPathType.Program] + "\\" + modName, true);
-                return true;
-            }
-
-            bool ModInDirectory(string _file)
-            {
-                bool foundMod = false;
-                foreach (string f in Directory.GetFiles(_file))
-                {
-                    if (f.Contains("mod.json"))
-                    {
-                        foundMod = true;
-                        break;
-                    }
-                }
-
-                return foundMod;
-            }
-
-            bool ModsFolderNotSet()
-            {
-                return Utils.StringNullEmptyOrWhiteSpace(logic.ModsPaths[MainLogic.eModPathType.Program]);
-            }
+            RefreshAll();
         }
 
         private void MoveItemUp(int itemIndex, bool moveToTop)
@@ -407,6 +398,7 @@ namespace MW5_Mod_Manager
                     break;
             }
 
+            openModsFolderToolStripMenuItem.Visible = this.logic.GamePlatform != eGamePlatform.WindowsStore;
             toolStripMenuItemOpenModFolderSteam.Visible = this.logic.GamePlatform == eGamePlatform.Steam;
             openUserModsFolderToolStripMenuItem.Visible = this.logic.GamePlatform == eGamePlatform.WindowsStore;
         }
@@ -528,12 +520,6 @@ namespace MW5_Mod_Manager
                 return -1;
             }
             return index;
-        }
-
-        //Refresh listedcheckbox
-        private void button6_Click(object sender, EventArgs e)
-        {
-
         }
 
         public void RefreshAll()
@@ -1508,6 +1494,8 @@ namespace MW5_Mod_Manager
 
         private void modsListView_ItemDrag(object sender, ItemDragEventArgs e)
         {
+            modsListView.AllowDrop = true;
+
             if (FilterMode != eFilterMode.None)
                 return;
 
@@ -1555,6 +1543,7 @@ namespace MW5_Mod_Manager
 
         private void modsListView_DragDrop(object sender, DragEventArgs e)
         {
+            modsListView.AllowDrop = false;
             // Retrieve the index of the insertion mark;
             int targetIndex = modsListView.InsertionMark.Index;
 
@@ -2028,6 +2017,59 @@ namespace MW5_Mod_Manager
             if (!logic.GameIsConfigured())
             {
                 ShowSettingsDialog();
+            }
+        }
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string path = (string)modsListView.SelectedItems[0].Tag;
+            if (FileOperation.DeleteFile(path, this.Handle))
+            {
+                RefreshAll();
+            }
+        }
+
+        private void toolStripMenuItemImportFromFolder_Click(object sender, EventArgs e)
+        {
+            if (!logic.GameIsConfigured())
+                return;
+
+            using (var fbd = new FolderBrowserDialog())
+            {
+                fbd.Description = "Select a mod folder for import";
+                fbd.UseDescriptionForTitle = true;
+                DialogResult result = fbd.ShowDialog();
+
+                if (result == DialogResult.OK && !Utils.StringNullEmptyOrWhiteSpace(fbd.SelectedPath))
+                {
+                    if (!File.Exists(Path.Combine(fbd.SelectedPath, "mod.json")))
+                    {
+                        MessageBox.Show(@"No mod.json found." + System.Environment.NewLine + System.Environment.NewLine +
+                                        @"This doesn't appear to be a valid mod folder.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    CopyModFromFolder(fbd.SelectedPath);
+                    RefreshAll();
+                }
+            }
+        }
+
+        private void toolStripMenuItemImportArchive_Click(object sender, EventArgs e)
+        {
+            if (!logic.GameIsConfigured())
+                return;
+
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Zip Archives (*.zip)|*.zip|All files (*.*)|*.*";
+            openFileDialog.Title = "Select a mod archive for import";
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string selectedZipFile = openFileDialog.FileName;
+
+                ExtractModFromArchive(selectedZipFile);
+                RefreshAll();
             }
         }
     }
