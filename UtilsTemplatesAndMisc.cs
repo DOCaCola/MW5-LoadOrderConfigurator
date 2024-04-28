@@ -82,7 +82,7 @@ namespace MW5_Mod_Manager
 
         public static String BytesToHumanReadableString(long byteCount)
         {
-            string[] suf = { "bytes", "KB", "MB", "GB", "TB", "PB", "EB" }; //Longs run out around EB
+            string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" }; //Longs run out around EB
             if (byteCount == 0)
                 return "0" + suf[0];
             long bytes = Math.Abs(byteCount);

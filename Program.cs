@@ -56,9 +56,9 @@ namespace MW5_Mod_Manager
 
         public enum eModPathType
         {
-            Main,
+            Program,
             Steam,
-            // Apparently WindowsStore version can store mods in Local AppData
+            // The Microsoft Store version stores their mods in AppData
             AppData
         }
         public ArrayByEnum<string,eModPathType> ModsPaths = new();
@@ -127,7 +127,7 @@ namespace MW5_Mod_Manager
             if (GamePlatform == eGamePlatform.None)
                 return false;
 
-            if (Utils.StringNullEmptyOrWhiteSpace(InstallPath))
+            if (GamePlatform != eGamePlatform.WindowsStore && Utils.StringNullEmptyOrWhiteSpace(InstallPath))
                 return false;
 
             return true;
@@ -142,7 +142,7 @@ namespace MW5_Mod_Manager
                     path = ModsPaths[eModPathType.AppData];
                     break;
                 default:
-                    path = ModsPaths[eModPathType.Main];
+                    path = ModsPaths[eModPathType.Program];
                     break;
             }
 
@@ -155,7 +155,6 @@ namespace MW5_Mod_Manager
         /// </summary>
         public void LoadFromFiles()
         {
-            CheckMainModDirectoryExists();
             //find all mod directories and parse them into just folder names:
             ParseDirectories();
             //parse modlist.json
@@ -344,27 +343,6 @@ namespace MW5_Mod_Manager
             this.ModList = newModList;
         }
 
-        private void CheckMainModDirectoryExists()
-        {
-            if (Utils.StringNullEmptyOrWhiteSpace(this.ModsPaths[eModPathType.Main]))
-            {
-                return;
-            }
-            if (Directory.Exists(this.ModsPaths[eModPathType.Main]))
-            {
-                return;
-            }
-            string message = @"Mods folder does not exist in : " + this.ModsPaths[eModPathType.Main] + System.Environment.NewLine 
-                             + @"Do you want to create it?";
-            string caption = @"Mods folder does not exist";
-            MessageBoxButtons buttons = MessageBoxButtons.YesNo;
-            DialogResult Result = MessageBox.Show(message, caption, buttons, MessageBoxIcon.Question);
-            if (Result == DialogResult.Yes)
-            {
-                Directory.CreateDirectory(this.ModsPaths[eModPathType.Main]);
-            }
-        }
-
         public string GetSettingsDirectory()
         {
             string appDataDir = System.Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -395,12 +373,9 @@ namespace MW5_Mod_Manager
 
                     GamePlatform = platform;
                 }
-
-                if (!Utils.StringNullEmptyOrWhiteSpace(ProgramSettings.InstallPath) &&
-                    Directory.Exists(ProgramSettings.InstallPath))
-                {
-                    SetGameInstallPath(ProgramSettings.InstallPath);
-                }
+                
+                UpdateGamePaths();
+                
                 if (ProgramSettings.version > 0)
                 {
                     Version = ProgramSettings.version;
@@ -413,8 +388,12 @@ namespace MW5_Mod_Manager
                 Console.WriteLine(e.StackTrace);
             }
 
-            if (!Utils.StringNullEmptyOrWhiteSpace(this.ModsPaths[eModPathType.Main]))
+            if (this.GamePlatform == eGamePlatform.WindowsStore)
                 return true;
+
+            if (!Utils.StringNullEmptyOrWhiteSpace(this.InstallPath))
+                return true;
+
             return false;
         }
 
@@ -426,12 +405,17 @@ namespace MW5_Mod_Manager
             return Path.Combine(AppDataRoaming, "MW5Mercs", "Saved", "Mods");
         }
 
-        // Sets the game install path, deduces mod directory locations
-        public void SetGameInstallPath(string path)
+        // Deduces mod directory locations
+        public void UpdateGamePaths()
         {
-            this.InstallPath = path;
+            this.ModsPaths[MainLogic.eModPathType.Program] = null;
+            this.ModsPaths[MainLogic.eModPathType.Steam] = null;
+            this.ModsPaths[MainLogic.eModPathType.AppData] = null;
 
-            this.ModsPaths[MainLogic.eModPathType.Main] = Path.Combine(path, "MW5Mercs", "Mods");
+            if (this.GamePlatform != eGamePlatform.WindowsStore)
+            {
+                this.ModsPaths[MainLogic.eModPathType.Program] = Path.Combine(this.InstallPath, "MW5Mercs", "Mods");
+            }
 
             switch (this.GamePlatform)
             {
@@ -474,22 +458,26 @@ namespace MW5_Mod_Manager
             Directory.Delete(directory, true);
         }
 
-        //parse all directories in the basepath mods folder or steam workshop mods folder.
         private void ParseDirectories()
         {
             this.FoundDirectories.Clear();
 
-            if (!Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.Main]))
+            if (GamePlatform != eGamePlatform.WindowsStore
+                && !Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.Program])
+                && Directory.Exists(ModsPaths[eModPathType.Program]))
             {
-                this.FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.Main]));
+                this.FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.Program]));
             }
 
-            if (!Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.Steam]))
+            if (!Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.Steam])
+                && Directory.Exists(ModsPaths[eModPathType.Steam]))
             {
                 this.FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.Steam]));
             }
 
-            if (!Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.AppData]))
+            if (GamePlatform == eGamePlatform.WindowsStore
+                && !Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.AppData])
+                && Directory.Exists(ModsPaths[eModPathType.AppData]))
             {
                 this.FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.AppData]));
             }
@@ -573,7 +561,7 @@ namespace MW5_Mod_Manager
             this.ModList.Clear();
             this.DirectoryToPathDict.Clear();
             this.OverrridingData.Clear();
-            this.ModsPaths[eModPathType.Main] = null;
+            this.ModsPaths[eModPathType.Program] = null;
             this.ModsPaths[eModPathType.Steam] = null;
             this.ModsPaths[eModPathType.AppData] = null;
             this.VortexDeploymentData.Clear();
@@ -856,6 +844,16 @@ namespace MW5_Mod_Manager
         public void SaveModListJson()
         {
             string modlistJsonFilePath = GetModListJsonFilePath();
+            string modlistJsonFileDir = Path.GetDirectoryName(modlistJsonFilePath);
+
+            if (!Directory.Exists(modlistJsonFileDir))
+            {
+                string message = "The mod directory " + modlistJsonFileDir + " does not exist. Aborting.";
+                string caption = "Error saving mod list";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
+                return;
+            }
 
             if (File.Exists(modlistJsonFilePath))
             {
@@ -902,19 +900,19 @@ namespace MW5_Mod_Manager
         public void ThreadProc()
         {
             //Get parent dir
-            string parent = Directory.GetParent(this.ModsPaths[eModPathType.Main]).ToString();
+            string parent = Directory.GetParent(this.ModsPaths[eModPathType.Program]).ToString();
             //Check if Mods.zip allready exists delete it if so, we need to do this else the ZipFile lib will error.
             if (File.Exists(parent + "\\Mods.zip"))
             {
                 File.Delete(parent + "\\Mods.zip");
             }
-            ZipFile.CreateFromDirectory(this.ModsPaths[eModPathType.Main], parent + "\\Mods.zip", CompressionLevel.Fastest, false);
+            ZipFile.CreateFromDirectory(this.ModsPaths[eModPathType.Program], parent + "\\Mods.zip", CompressionLevel.Fastest, false);
         }
 
         public void PackModsToZip(BackgroundWorker worker, DoWorkEventArgs e)
         {
             //Console.WriteLine("Starting zip compression");
-            string parent = Directory.GetParent(this.ModsPaths[eModPathType.Main]).ToString();
+            string parent = Directory.GetParent(this.ModsPaths[eModPathType.Program]).ToString();
 
             Thread t = new Thread(new ThreadStart(ThreadProc));
             t.Start();
@@ -1201,7 +1199,7 @@ namespace MW5_Mod_Manager
                 string modA = itemA.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
                 int priorityA = items.Count - items.IndexOf(itemA);
 
-                //Check if we allready have this mod in the dict if not create an entry for it.
+                //Check if we already have this mod in the dict if not create an entry for it.
                 if (!this.OverrridingData.ContainsKey(modA))
                 {
                     this.OverrridingData[modA] = new OverridingData
@@ -1357,8 +1355,8 @@ namespace MW5_Mod_Manager
         //Monitor the size of a given zip file
         public void MonitorZipSize(BackgroundWorker worker, DoWorkEventArgs e)
         {
-            string zipFile = Directory.GetParent(this.ModsPaths[eModPathType.Main]).ToString() + "\\Mods.zip";
-            long folderSize = Utils.DirSize(new DirectoryInfo(ModsPaths[eModPathType.Main]));
+            string zipFile = Directory.GetParent(this.ModsPaths[eModPathType.Program]).ToString() + "\\Mods.zip";
+            long folderSize = Utils.DirSize(new DirectoryInfo(ModsPaths[eModPathType.Program]));
             //zip usually does about 60 percent but we dont wanna complete at like 85 or 90 lets overestimate
             long compressedFolderSize = (long)Math.Round(folderSize * 0.35);
             //Console.WriteLine("Starting file size monitor, FolderSize: " + compressedFolderSize.ToString());

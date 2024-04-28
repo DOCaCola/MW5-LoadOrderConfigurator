@@ -67,10 +67,11 @@
             comboBoxPlatform.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             comboBoxPlatform.FormattingEnabled = true;
             comboBoxPlatform.Items.AddRange(new object[] { "Epic Games Store", "GOG.com", "Steam", "Microsoft Store/Xbox Game Pass" });
-            comboBoxPlatform.Location = new System.Drawing.Point(76, 22);
+            comboBoxPlatform.Location = new System.Drawing.Point(110, 22);
             comboBoxPlatform.Name = "comboBoxPlatform";
             comboBoxPlatform.Size = new System.Drawing.Size(205, 23);
             comboBoxPlatform.TabIndex = 1;
+            comboBoxPlatform.SelectedIndexChanged += comboBoxPlatform_SelectedIndexChanged;
             // 
             // buttonBrowse
             // 
@@ -87,15 +88,15 @@
             label1.AutoSize = true;
             label1.Location = new System.Drawing.Point(5, 54);
             label1.Name = "label1";
-            label1.Size = new System.Drawing.Size(65, 15);
+            label1.Size = new System.Drawing.Size(99, 15);
             label1.TabIndex = 4;
-            label1.Text = "MW5 Path:";
+            label1.Text = "MW5 Install Path:";
             // 
             // textBoxMw5Path
             // 
-            textBoxMw5Path.Location = new System.Drawing.Point(76, 51);
+            textBoxMw5Path.Location = new System.Drawing.Point(110, 51);
             textBoxMw5Path.Name = "textBoxMw5Path";
-            textBoxMw5Path.Size = new System.Drawing.Size(461, 23);
+            textBoxMw5Path.Size = new System.Drawing.Size(427, 23);
             textBoxMw5Path.TabIndex = 2;
             // 
             // buttonSave

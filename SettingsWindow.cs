@@ -39,6 +39,9 @@ namespace MW5_Mod_Manager
                 case MainLogic.eGamePlatform.WindowsStore:
                     comboBoxPlatform.SelectedIndex = 3;
                     break;
+                case MainLogic.eGamePlatform.None:
+                    UpdateInstallPathBoxState();
+                    break;
             }
         }
 
@@ -85,31 +88,46 @@ namespace MW5_Mod_Manager
                     break;
                 default:
                     MainWindow.MainForm.logic.GamePlatform = MainLogic.eGamePlatform.None;
-                    break;
+                    return;
             }
 
             string path = textBoxMw5Path.Text;
 
-            if (!string.IsNullOrEmpty(path))
-            {
-                if (!File.Exists(path + "\\mechwarrior.exe"))
-                {
-                    MessageBox.Show(@"The 'MechWarrior.exe' file could not be found in the selected directory.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
+            bool settingsValid = false;
 
-                if (MainWindow.MainForm.logic.GamePlatform == MainLogic.eGamePlatform.Steam)
+            if (MainWindow.MainForm.logic.GamePlatform != MainLogic.eGamePlatform.WindowsStore)
+            {
+                if (!string.IsNullOrEmpty(path))
                 {
-                    if (MainLogic.FindSteamAppsParentDirectory(path) == null)
+                    if (!File.Exists(path + "\\mechwarrior.exe"))
                     {
-                        MessageBox.Show(@"The selected directory doesn't appear to be a valid Steam game installation.",
-                            "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(@"The 'MechWarrior.exe' file could not be found in the selected directory.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
-                }
 
+                    if (MainWindow.MainForm.logic.GamePlatform == MainLogic.eGamePlatform.Steam)
+                    {
+                        if (MainLogic.FindSteamAppsParentDirectory(path) == null)
+                        {
+                            MessageBox.Show(@"The selected directory doesn't appear to be a valid Steam game installation.",
+                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+                    }
+
+                    settingsValid = true;
+                }
+            }
+            else
+            {
+                settingsValid = true;
+            }
+
+            if (settingsValid)
+            {
                 MainWindow.MainForm.ClearAll();
-                MainWindow.MainForm.logic.SetGameInstallPath(path);
+                MainWindow.MainForm.logic.InstallPath = path;
+                MainWindow.MainForm.logic.UpdateGamePaths();
                 MainWindow.MainForm.logic.SaveSettings();
                 MainWindow.MainForm.RefreshAll();
             }
@@ -120,6 +138,18 @@ namespace MW5_Mod_Manager
         private void buttonCancel_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void UpdateInstallPathBoxState()
+        {
+            bool enableInstallPathControls = !(comboBoxPlatform.SelectedIndex == 3 || comboBoxPlatform.SelectedIndex == -1);
+            textBoxMw5Path.Enabled = enableInstallPathControls;
+            buttonBrowse.Enabled = enableInstallPathControls;
+        }
+
+        private void comboBoxPlatform_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            UpdateInstallPathBoxState();
         }
     }
 }

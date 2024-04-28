@@ -154,7 +154,7 @@ namespace MW5_Mod_Manager
                         return;
                     }
                     //Extract mod to mods dir
-                    ZipFile.ExtractToDirectory(file, logic.ModsPaths[MainLogic.eModPathType.Main]);
+                    ZipFile.ExtractToDirectory(file, logic.ModsPaths[MainLogic.eModPathType.Program]);
                     button6_Click(null, null);
                 }
             }
@@ -178,7 +178,7 @@ namespace MW5_Mod_Manager
                 string modName;
                 string[] splitString = file.Split('\\');
                 modName = splitString[splitString.Length - 1];
-                Utils.DirectoryCopy(file, logic.ModsPaths[MainLogic.eModPathType.Main] + "\\" + modName, true);
+                Utils.DirectoryCopy(file, logic.ModsPaths[MainLogic.eModPathType.Program] + "\\" + modName, true);
                 return true;
             }
 
@@ -199,7 +199,7 @@ namespace MW5_Mod_Manager
 
             bool ModsFolderNotSet()
             {
-                return Utils.StringNullEmptyOrWhiteSpace(logic.ModsPaths[MainLogic.eModPathType.Main]);
+                return Utils.StringNullEmptyOrWhiteSpace(logic.ModsPaths[MainLogic.eModPathType.Program]);
             }
         }
 
@@ -395,7 +395,7 @@ namespace MW5_Mod_Manager
                     break;
                 case MainLogic.eGamePlatform.Gog:
                     {
-                        this.toolStripPlatformLabel.Text = @"Platform: GOG";
+                        this.toolStripPlatformLabel.Text = @"Platform: GOG.com";
                         this.toolStripButtonStartGame.Enabled = true;
                     }
                     break;
@@ -705,12 +705,10 @@ namespace MW5_Mod_Manager
 
         private void LaunchGogGame()
         {
-            string Gamepath = this.logic.ModsPaths[eModPathType.Main];
-            Gamepath = Gamepath.Remove(Gamepath.Length - 13, 13);
-            Gamepath += "MechWarrior.exe";
+            string gamePath = Path.Combine(this.logic.InstallPath, "MechWarrior.exe");
             try
             {
-                Process.Start(Gamepath);
+                Process.Start(gamePath);
             }
             catch (Exception Ex)
             {
@@ -1207,7 +1205,7 @@ namespace MW5_Mod_Manager
                 //Returing from dialog:
                 SystemSounds.Asterisk.Play();
                 //Get parent dir
-                string parent = Directory.GetParent(this.logic.ModsPaths[eModPathType.Main]).ToString();
+                string parent = Directory.GetParent(this.logic.ModsPaths[eModPathType.Program]).ToString();
                 string m = "Done packing mods, output in: \n" + parent + "\\Mods.zip";
                 string c = "Done";
                 MessageBoxButtons b = MessageBoxButtons.OK;
@@ -1303,7 +1301,7 @@ namespace MW5_Mod_Manager
             backgroundWorker2.RunWorkerAsync();
 
             //Show Form 4 with informing user that we are packaging mods..
-            Console.WriteLine("Opening form:");
+            Console.WriteLine(@"Opening form:");
             this.WaitForm = new Form4(backgroundWorker1, backgroundWorker2);
             string message = "Packaging Mods.zip, this may take several minutes depending on the combinded size of your mods...";
             this.WaitForm.textBox1.Text = message;
@@ -1317,7 +1315,7 @@ namespace MW5_Mod_Manager
 
         private void openModsFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (Utils.StringNullEmptyOrWhiteSpace(this.logic.ModsPaths[eModPathType.Main]))
+            if (Utils.StringNullEmptyOrWhiteSpace(this.logic.ModsPaths[eModPathType.Program]))
             {
                 return;
             }
@@ -1325,7 +1323,7 @@ namespace MW5_Mod_Manager
             {
                 var psi = new System.Diagnostics.ProcessStartInfo()
                 {
-                    FileName = this.logic.ModsPaths[eModPathType.Main],
+                    FileName = this.logic.ModsPaths[eModPathType.Program],
                     UseShellExecute = true
                 };
                 System.Diagnostics.Process.Start(psi);
@@ -1334,10 +1332,10 @@ namespace MW5_Mod_Manager
             {
                 Console.WriteLine(win32Exception.Message);
                 Console.WriteLine(win32Exception.StackTrace);
-                string message = "While trying to open the mods folder, windows has encountered an error. Your folder does not exist, is not valid or was not set.";
+                string message = "There was an error trying to open the mod directory. The folder does not exist, is not valid or was not set.";
                 string caption = "Error Opening Mods Folder";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, caption, buttons);
+                MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
             }
         }
 
