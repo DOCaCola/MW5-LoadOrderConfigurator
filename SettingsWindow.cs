@@ -28,19 +28,16 @@ namespace MW5_Mod_Manager
             switch (MainWindow.MainForm.logic.GamePlatform)
             {
                 case MainLogic.eGamePlatform.Epic:
-                    comboBoxPlatform.SelectedIndex = 1;
+                    comboBoxPlatform.SelectedIndex = 0;
                     break;
                 case MainLogic.eGamePlatform.Gog:
-                    comboBoxPlatform.SelectedIndex = 2;
+                    comboBoxPlatform.SelectedIndex = 1;
                     break;
                 case MainLogic.eGamePlatform.Steam:
-                    comboBoxPlatform.SelectedIndex = 3;
+                    comboBoxPlatform.SelectedIndex = 2;
                     break;
                 case MainLogic.eGamePlatform.WindowsStore:
-                    comboBoxPlatform.SelectedIndex = 4;
-                    break;
-                default:
-                    comboBoxPlatform.SelectedIndex = 0;
+                    comboBoxPlatform.SelectedIndex = 3;
                     break;
             }
         }
@@ -66,19 +63,24 @@ namespace MW5_Mod_Manager
 
         private void buttonSave_Click(object sender, EventArgs e)
         {
+            if (comboBoxPlatform.SelectedIndex == -1)
+            {
+                MessageBox.Show(@"Please select your platform type.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
             switch (comboBoxPlatform.SelectedIndex)
             {
-                case 1:
+                case 0:
                     MainWindow.MainForm.logic.GamePlatform = MainLogic.eGamePlatform.Epic;
                     break;
-                case 2:
+                case 1:
                     MainWindow.MainForm.logic.GamePlatform = MainLogic.eGamePlatform.Gog;
                     break;
-                case 3:
+                case 2:
                     MainWindow.MainForm.logic.GamePlatform = MainLogic.eGamePlatform.Steam;
                     break;
-                case 4:
+                case 3:
                     MainWindow.MainForm.logic.GamePlatform = MainLogic.eGamePlatform.WindowsStore;
                     break;
                 default:

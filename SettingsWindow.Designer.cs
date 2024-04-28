@@ -66,10 +66,10 @@
             // 
             comboBoxPlatform.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             comboBoxPlatform.FormattingEnabled = true;
-            comboBoxPlatform.Items.AddRange(new object[] { "Other", "Epic Store", "GOG", "Steam", "Windows Store" });
+            comboBoxPlatform.Items.AddRange(new object[] { "Epic", "GOG", "Steam", "Microsoft Store/Xbox Game Pass" });
             comboBoxPlatform.Location = new System.Drawing.Point(76, 22);
             comboBoxPlatform.Name = "comboBoxPlatform";
-            comboBoxPlatform.Size = new System.Drawing.Size(121, 23);
+            comboBoxPlatform.Size = new System.Drawing.Size(205, 23);
             comboBoxPlatform.TabIndex = 1;
             // 
             // buttonBrowse

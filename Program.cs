@@ -115,17 +115,34 @@ namespace MW5_Mod_Manager
 
         public Dictionary<string, ModData> Mods = new Dictionary<string, ModData>();
 
-        public bool InterruptSearch = false;
-
         public string rawJson;
 
 
         public bool GameIsConfigured()
         {
+            if (GamePlatform == eGamePlatform.None)
+                return false;
+
             if (Utils.StringNullEmptyOrWhiteSpace(InstallPath))
                 return false;
 
             return true;
+        }
+
+        public string GetModListJsonFilePath()
+        {
+            string path;
+            switch (GamePlatform)
+            {
+                case eGamePlatform.WindowsStore:
+                    path = ModsPaths[eModPathType.AppData];
+                    break;
+                default:
+                    path = ModsPaths[eModPathType.Main];
+                    break;
+            }
+
+            return Path.Combine(path, @"modlist.json");
         }
 
         /// <summary>
@@ -504,15 +521,16 @@ namespace MW5_Mod_Manager
 
         public void ModListParser()
         {
+            string modlistPath = GetModListJsonFilePath();
             try
             {
-                this.rawJson = File.ReadAllText(Path.Combine(ModsPaths[eModPathType.Main], @"modlist.json"));
+                this.rawJson = File.ReadAllText(modlistPath);
                 this.parent = JObject.Parse(rawJson);
             }
             catch (Exception e)
             {
                 MessageBox.Show(
-                    @"The modlist.json file could not be found in "+ ModsPaths[eModPathType.Main] +@"."+System.Environment.NewLine+System.Environment.NewLine
+                    @"The modlist.json file could not be found in "+ modlistPath +@"."+System.Environment.NewLine+System.Environment.NewLine
                     +@"It is necessary to read this file in order to validate it with the correct version number the game expects." + System.Environment.NewLine + System.Environment.NewLine
                     +@"LOC will try to create the file with the correct version number when applying your profile, but there is high chance that this will fail."+System.Environment.NewLine
                     +@"It is recommended to start the game once in order to create this file before applying your mod profile.",
@@ -840,18 +858,18 @@ namespace MW5_Mod_Manager
 
         public void SaveModListJson()
         {
-            string modListJsonPath = ModsPaths[eModPathType.Main] + @"\modlist.json";
+            string modlistJsonFilePath = GetModListJsonFilePath();
 
-            if (File.Exists(modListJsonPath))
+            if (File.Exists(modlistJsonFilePath))
             {
-                string modListJsonExisting = File.ReadAllText(modListJsonPath);
+                string modListJsonExisting = File.ReadAllText(modlistJsonFilePath);
                 JObject modListNew = JObject.Parse(modListJsonExisting);
 
                 modListNew["modStatus"] = parent["modStatus"];
 
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Formatting = Formatting.Indented;
-                using (StreamWriter sw = new StreamWriter(modListJsonPath))
+                using (StreamWriter sw = new StreamWriter(modlistJsonFilePath))
                 using (JsonWriter writer = new JsonTextWriter(sw))
                 {
                     serializer.Serialize(writer, modListNew);
@@ -860,7 +878,7 @@ namespace MW5_Mod_Manager
             else
             {
                 string jsonString = this.parent.ToString();
-                StreamWriter sw = File.CreateText(modListJsonPath);
+                StreamWriter sw = File.CreateText(modlistJsonFilePath);
                 sw.WriteLine(jsonString);
                 sw.Flush();
                 sw.Close();
