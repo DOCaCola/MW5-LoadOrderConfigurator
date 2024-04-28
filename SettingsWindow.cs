@@ -120,6 +120,7 @@ namespace MW5_Mod_Manager
             }
             else
             {
+                path = "";
                 settingsValid = true;
             }
 

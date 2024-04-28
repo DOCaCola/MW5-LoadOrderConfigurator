@@ -373,7 +373,8 @@ namespace MW5_Mod_Manager
 
                     GamePlatform = platform;
                 }
-                
+
+                this.InstallPath = ProgramSettings.InstallPath;
                 UpdateGamePaths();
                 
                 if (ProgramSettings.version > 0)
