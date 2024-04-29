@@ -479,15 +479,6 @@ namespace MW5_Mod_Manager
         public Dictionary<string, List<string>> overriddenBy { set; get; }
     }
 
-    [SupportedOSPlatform("windows")]
-    public class ModListViewItem : ListViewItem
-    {
-        public ModListViewItem() : base()
-        {
-            //other stuff here
-        }
-    }
-
     public class ModListBoxItem
     {
         public string DisplayName { get; set; }

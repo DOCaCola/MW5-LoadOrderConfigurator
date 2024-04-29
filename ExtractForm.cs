@@ -290,7 +290,7 @@ namespace MW5_Mod_Manager
 
         }
 
-        private async void ExtractForm_FormClosing(object sender, FormClosingEventArgs e)
+        private void ExtractForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             AbortRunningExtraction();
             buttonAction.Enabled = false;

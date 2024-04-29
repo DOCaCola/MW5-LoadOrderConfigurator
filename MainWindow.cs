@@ -33,7 +33,7 @@ namespace MW5_Mod_Manager
         }
 
         eFilterMode FilterMode = eFilterMode.None;
-        public List<ModListViewItem> ModListData = new List<ModListViewItem>();
+        public List<ListViewItem> ModListData = new List<ListViewItem>();
         private List<ListViewItem> markedForRemoval;
         public Form4 WaitForm;
         private bool MovingItem = false;
@@ -190,7 +190,7 @@ namespace MW5_Mod_Manager
                 this.MovingItem = false;
                 return;
             }
-            ModListViewItem listItem = ModListData[i];
+            ListViewItem listItem = ModListData[i];
             items.RemoveAt(i);
             ModListData.RemoveAt(i);
 
@@ -230,7 +230,7 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-            ModListViewItem listItem = ModListData[i];
+            ListViewItem listItem = ModListData[i];
             items.RemoveAt(i);
             ModListData.RemoveAt(i);
 
@@ -299,7 +299,7 @@ namespace MW5_Mod_Manager
 
                 if (r == DialogResult.Yes)
                 {
-                    foreach (ModListViewItem item in markedForRemoval)
+                    foreach (ListViewItem item in markedForRemoval)
                     {
                         ModListData.Remove(item);
                         modsListView.Items.Remove(item);
@@ -441,7 +441,7 @@ namespace MW5_Mod_Manager
         private void AddEntryToListViewAndData(KeyValuePair<string, bool> entry)
         {
             string modName = entry.Key;
-            ModListViewItem newItem = new ModListViewItem
+            ListViewItem newItem = new ListViewItem
             {
                 UseItemStyleForSubItems = false,
                 Checked = entry.Value
@@ -768,7 +768,7 @@ namespace MW5_Mod_Manager
                 {
                     FilterMode = eFilterMode.ItemHighlight;
                     bool anyUpdated = false;
-                    foreach (ModListViewItem item in this.ModListData)
+                    foreach (ListViewItem item in this.ModListData)
                     {
                         if (MatchItemToText(filtertext, item))
                         {
@@ -1346,7 +1346,7 @@ namespace MW5_Mod_Manager
             modsListView.BeginUpdate();
 
             this.MovingItem = true;
-            foreach (ModListViewItem item in this.ModListData)
+            foreach (ListViewItem item in this.ModListData)
             {
                 item.Checked = true;
             }
@@ -1561,8 +1561,8 @@ namespace MW5_Mod_Manager
             }*/
 
             // Retrieve the dragged item.
-            ModListViewItem draggedItem =
-                (ModListViewItem)e.Data.GetData(typeof(ModListViewItem));
+            ListViewItem draggedItem =
+                (ListViewItem)e.Data.GetData(typeof(ListViewItem));
 
             int itemIndex = draggedItem.Index;
 
@@ -1575,15 +1575,17 @@ namespace MW5_Mod_Manager
             {
                 modsListView.BeginUpdate();
 
-                ModListViewItem newItem = (ModListViewItem)draggedItem.Clone();
+                ListViewItem newItem = (ListViewItem)draggedItem.Clone();
                 ModListData.Insert(targetIndex, newItem);
+                modsListView.Items.Insert(targetIndex, newItem);
                 newItem.Selected = true;
 
                 ModListData.Remove(draggedItem);
+                modsListView.Items.Remove(draggedItem);
                 this.logic.GetOverridingData(this.ModListData);
                 RecomputeLoadOrdersAndUpdateList();
+
                 modListView_SelectedIndexChanged(null, null);
-                ReloadListViewFromData();
                 modsListView.EndUpdate();
                 
                 SetModSettingsTainted(true);
@@ -1744,7 +1746,7 @@ namespace MW5_Mod_Manager
             RecomputeLoadOrders();
 
             modsListView.BeginUpdate();
-            foreach (ModListViewItem modListItem in ModListData)
+            foreach (ListViewItem modListItem in ModListData)
             {
                 modListItem.SubItems[currentLoadOrderHeader.Index].Text =
                         this.logic.ModDetails[modListItem.Tag.ToString()].defaultLoadOrder.ToString();
@@ -1842,12 +1844,12 @@ namespace MW5_Mod_Manager
             MoveItemDown(SelectedItemIndex(), false);
         }
 
-        public void ColorListViewNumbers(List<ModListViewItem> listViewItems, int subItemIndex, Color fromColor, Color toColor)
+        public void ColorListViewNumbers(List<ListViewItem> listViewItems, int subItemIndex, Color fromColor, Color toColor)
         {
             List<int> numbers = new List<int>();
 
             // Extract numbers from ListView column and find unique ones
-            foreach (ModListViewItem item in listViewItems)
+            foreach (ListViewItem item in listViewItems)
             {
                 // Skip disabled mods
                 if (!logic.ModList[item.Tag.ToString()])
@@ -1926,6 +1928,11 @@ namespace MW5_Mod_Manager
             FilterTextChanged();
             modListView_SelectedIndexChanged(null, null);
             SetModSettingsTainted(true);
+            int selectedItemIndex = SelectedItemIndex();
+            if (selectedItemIndex != -1)
+            {
+                modsListView.EnsureVisible(selectedItemIndex);
+            }
 
             modsListView.EndUpdate();
         }
