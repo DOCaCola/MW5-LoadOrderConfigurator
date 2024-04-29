@@ -677,7 +677,12 @@ namespace MW5_Mod_Manager
                     string modJson = File.ReadAllText(modJsonFilePath);
                     JObject modDetailsJ = JObject.Parse(modJson);
 
-                    modDetails = modDetailsJ.ToObject<ModObject>();
+                    var jsonSettings = new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore
+                    };
+
+                    modDetails = JsonConvert.DeserializeObject<ModObject>(modJson, jsonSettings);
 
                     bool foundLoadOrder = false;
 
@@ -773,7 +778,7 @@ namespace MW5_Mod_Manager
                 {
                     string message = @"Error loading mod.json in : " + modPath + System.Environment.NewLine +
                                      System.Environment.NewLine +
-                                     "The folder will be skipped. If this is not a mod folder you can ignore ths message.";
+                                     "The folder will be skipped.";
                     string caption = "Error Loading mod.json";
                     MessageBoxButtons buttons = MessageBoxButtons.OK;
                     MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);

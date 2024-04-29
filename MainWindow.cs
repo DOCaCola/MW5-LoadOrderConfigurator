@@ -10,6 +10,7 @@ using System.Media;
 using System.Reflection;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
+using SharpCompress.Archives;
 using static MW5_Mod_Manager.MainLogic;
 using static System.Net.WebRequestMethods;
 using File = System.IO.File;
@@ -125,31 +126,14 @@ namespace MW5_Mod_Manager
 
         public bool ExtractModFromArchive(string filePath)
         {
-            //we have a zip!
-            using (ZipArchive archive = ZipFile.OpenRead(filePath))
-            {
-                bool modFound = false;
-                foreach (ZipArchiveEntry entry in archive.Entries)
-                {
-                    //Console.WriteLine(entry.FullName);
-                    if (entry.Name.Contains("mod.json"))
-                    {
-                        //we have found a mod!
-                        //Console.WriteLine("MOD FOUND IN ZIP!: " + entry.FullName);
-                        modFound = true;
-                        break;
-                    }
-                }
-                if (!modFound)
-                {
-                    MessageBox.Show(@"This doesn't seem to be a valid mod archive. Operation aborted.", @"Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return false;
-                }
-                //Extract mod to mods dir
-                ZipFile.ExtractToDirectory(filePath, logic.GetMainModPath());
-                return true;
-            }
+            ExtractForm extractForm = new ExtractForm();
+            extractForm.ArchiveFilePath = filePath;
+            extractForm.OutputFolderPath = logic.GetMainModPath();
+
+            bool result = extractForm.ShowDialog(this) != DialogResult.Cancel;
+            extractForm.Dispose();
+
+            return result;
         }
 
         //When we drop a file or folder on the manager
@@ -177,11 +161,13 @@ namespace MW5_Mod_Manager
             }
             else
             {
-                if (!filePath.Contains(".zip"))
+                string fileExtension = Path.GetExtension(filePath).ToLower();
+
+                if (fileExtension != "zip" || fileExtension != "rar" || fileExtension != "7z")
                 {
-                    string message = "Only .zip files are supported. " +
-                                     "Please extract the mod first and drag the folder into the application.";
-                    string caption = "Unsupported File Type";
+                    string message = "Archive format not supported. Supported formats are: .zip, rar, .7z" +
+                                     "Please extract the mod first and drag the mod folder into the application.";
+                    string caption = "Unsupported Archive Type";
                     MessageBoxButtons buttons = MessageBoxButtons.OK;
                     MessageBox.Show(message, caption, buttons, MessageBoxIcon.Asterisk);
                     return;
@@ -2075,7 +2061,7 @@ namespace MW5_Mod_Manager
                 return;
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Zip Archives (*.zip)|*.zip|All files (*.*)|*.*";
+            openFileDialog.Filter = "Mod Archives|*.zip;*.7z;*.rar|All files (*.*)|*.*";
             openFileDialog.Title = "Select a mod archive for import";
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)

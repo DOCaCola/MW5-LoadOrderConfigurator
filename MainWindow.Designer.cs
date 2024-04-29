@@ -40,12 +40,12 @@ namespace MW5_Mod_Manager
             modsListView = new ListView();
             enabledHeader = new ColumnHeader();
             displayHeader = new ColumnHeader();
-            folderHeader = new ColumnHeader();
             authorHeader = new ColumnHeader();
             versionHeader = new ColumnHeader();
             currentLoadOrderHeader = new ColumnHeader();
             originalLoadOrderHeader = new ColumnHeader();
             fileSizeHeader = new ColumnHeader();
+            folderHeader = new ColumnHeader();
             imageListIcons = new ImageList(components);
             backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
             textProgressBarBindingSource = new BindingSource(components);
@@ -179,7 +179,7 @@ namespace MW5_Mod_Manager
             // 
             modsListView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             modsListView.CheckBoxes = true;
-            modsListView.Columns.AddRange(new ColumnHeader[] { enabledHeader, displayHeader, folderHeader, authorHeader, versionHeader, currentLoadOrderHeader, originalLoadOrderHeader, fileSizeHeader });
+            modsListView.Columns.AddRange(new ColumnHeader[] { enabledHeader, displayHeader, authorHeader, versionHeader, currentLoadOrderHeader, originalLoadOrderHeader, fileSizeHeader, folderHeader });
             modsListView.FullRowSelect = true;
             modsListView.GridLines = true;
             modsListView.LabelWrap = false;
@@ -213,12 +213,6 @@ namespace MW5_Mod_Manager
             displayHeader.Text = "Display Name";
             displayHeader.Width = 260;
             // 
-            // folderHeader
-            // 
-            folderHeader.Tag = "";
-            folderHeader.Text = "Mod Folder";
-            folderHeader.Width = 110;
-            // 
             // authorHeader
             // 
             authorHeader.Tag = "";
@@ -244,6 +238,12 @@ namespace MW5_Mod_Manager
             // fileSizeHeader
             // 
             fileSizeHeader.Text = "Size";
+            // 
+            // folderHeader
+            // 
+            folderHeader.Tag = "";
+            folderHeader.Text = "Mod Folder";
+            folderHeader.Width = 110;
             // 
             // imageListIcons
             // 
@@ -563,10 +563,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(splitContainer2);
             tabPage1.Controls.Add(labelModNameOverrides);
             tabPage1.Controls.Add(label7);
-            tabPage1.Location = new Point(4, 22);
+            tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(326, 457);
+            tabPage1.Size = new Size(326, 455);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
@@ -577,7 +577,7 @@ namespace MW5_Mod_Manager
             richTextBoxManifestOverridden.Location = new Point(9, 164);
             richTextBoxManifestOverridden.Name = "richTextBoxManifestOverridden";
             richTextBoxManifestOverridden.ReadOnly = true;
-            richTextBoxManifestOverridden.Size = new Size(309, 288);
+            richTextBoxManifestOverridden.Size = new Size(309, 294);
             richTextBoxManifestOverridden.TabIndex = 28;
             richTextBoxManifestOverridden.Text = "";
             richTextBoxManifestOverridden.WordWrap = false;
@@ -791,10 +791,10 @@ namespace MW5_Mod_Manager
             // 
             // linkLabelModAuthorUrl
             // 
-            linkLabelModAuthorUrl.AutoSize = true;
+            linkLabelModAuthorUrl.AutoEllipsis = true;
             linkLabelModAuthorUrl.Location = new Point(5, 46);
             linkLabelModAuthorUrl.Name = "linkLabelModAuthorUrl";
-            linkLabelModAuthorUrl.Size = new Size(59, 13);
+            linkLabelModAuthorUrl.Size = new Size(313, 13);
             linkLabelModAuthorUrl.TabIndex = 6;
             linkLabelModAuthorUrl.TabStop = true;
             linkLabelModAuthorUrl.Text = "linkLabel1";

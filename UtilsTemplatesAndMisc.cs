@@ -179,6 +179,20 @@ namespace MW5_Mod_Manager
             else
                 return rc < 0 ? -1 : 1;
         }
+
+        // Method to calculate the folder depth of a given path
+        public static int GetFolderDepth(string path)
+        {
+            int depth = 0;
+            foreach (char c in path)
+            {
+                if (c == Path.DirectorySeparatorChar || c == Path.AltDirectorySeparatorChar)
+                {
+                    depth++;
+                }
+            }
+            return depth;
+        }
     }
 
     #region extra designer items
