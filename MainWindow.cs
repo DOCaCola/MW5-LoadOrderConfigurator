@@ -1076,21 +1076,21 @@ namespace MW5_Mod_Manager
             HandleOverriding(SelectedMod);
 
             string imagePath = Path.Combine(modPath, "Resources", "Icon128.png");
-            /*
-            if (pictureBoxModImage.Image != null)
-            {
-                pictureBoxModImage.Image.Dispose();
-            }*/
 
+            bool imageLoadSuccess = false;
             if (File.Exists(imagePath))
             {
-                pictureBoxModImage.Visible = true;
-                pictureBoxModImage.Image = Image.FromStream(new MemoryStream(File.ReadAllBytes(imagePath)));
+                try
+                {
+                    pictureBoxModImage.Image = Image.FromStream(new MemoryStream(File.ReadAllBytes(imagePath)));
+                    imageLoadSuccess = true;
+                }
+                catch
+                {
+                    // Fail image load silently
+                }
             }
-            else
-            {
-                pictureBoxModImage.Visible = false;
-            }
+            pictureBoxModImage.Visible = imageLoadSuccess;
         }
 
         //Handles the showing of overriding data on select
