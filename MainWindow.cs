@@ -1525,7 +1525,7 @@ namespace MW5_Mod_Manager
                 // the right of the midpoint of the closest item and set
                 // the InsertionMark.AppearsAfterItem property accordingly.
                 Rectangle itemBounds = modsListView.GetItemRect(targetIndex);
-                if (targetPoint.X > itemBounds.Left + (itemBounds.Width / 2))
+                if (targetPoint.Y > itemBounds.Top + (itemBounds.Height / 2))
                 {
                     modsListView.InsertionMark.AppearsAfterItem = true;
                 }
@@ -1545,10 +1545,10 @@ namespace MW5_Mod_Manager
         {
             modsListView.AllowDrop = false;
             // Retrieve the index of the insertion mark;
-            int targetIndex = modsListView.InsertionMark.Index;
+            int insertIndex = modsListView.InsertionMark.Index;
 
             // If the insertion mark is not visible, exit the method.
-            if (targetIndex == -1)
+            if (insertIndex == -1)
             {
                 return;
             }
@@ -1564,28 +1564,31 @@ namespace MW5_Mod_Manager
             ModListViewItem draggedItem =
                 (ModListViewItem)e.Data.GetData(typeof(ModListViewItem));
 
-            ListView.ListViewItemCollection items = modsListView.Items;
             int itemIndex = draggedItem.Index;
 
-            targetIndex = itemIndex < targetIndex ? targetIndex - 1 : targetIndex;
+            int targetIndex =
+                modsListView.InsertionMark.AppearsAfterItem
+                    ? insertIndex + 1
+                    : insertIndex;
 
             if (itemIndex != targetIndex)
             {
-                modsListView.SuspendLayout();
-                items.RemoveAt(itemIndex);
-                ModListData.RemoveAt(itemIndex);
+                modsListView.BeginUpdate();
 
-                items.Insert(targetIndex, draggedItem);
-                ModListData.Insert(targetIndex, draggedItem);
+                ModListViewItem newItem = (ModListViewItem)draggedItem.Clone();
+                ModListData.Insert(targetIndex, newItem);
+                newItem.Selected = true;
 
+                ModListData.Remove(draggedItem);
                 this.logic.GetOverridingData(this.ModListData);
                 RecomputeLoadOrdersAndUpdateList();
                 modListView_SelectedIndexChanged(null, null);
-                modsListView.ResumeLayout();
-
+                ReloadListViewFromData();
+                modsListView.EndUpdate();
+                
                 SetModSettingsTainted(true);
             }
-
+            
             modsListView.InsertionMark.Index = -1;
         }
 

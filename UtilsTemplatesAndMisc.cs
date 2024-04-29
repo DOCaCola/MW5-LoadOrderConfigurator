@@ -482,7 +482,7 @@ namespace MW5_Mod_Manager
     [SupportedOSPlatform("windows")]
     public class ModListViewItem : ListViewItem
     {
-        public ModListViewItem() : base("", 0)
+        public ModListViewItem() : base()
         {
             //other stuff here
         }

@@ -1021,8 +1021,8 @@ namespace MW5_Mod_Manager
             // toolStripLabel1
             // 
             toolStripLabel1.Name = "toolStripLabel1";
-            toolStripLabel1.Size = new Size(36, 45);
-            toolStripLabel1.Text = "Filter:";
+            toolStripLabel1.Size = new Size(45, 45);
+            toolStripLabel1.Text = "Search:";
             // 
             // toolStripTextFilterBox
             // 
