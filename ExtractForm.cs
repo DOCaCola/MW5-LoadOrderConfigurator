@@ -149,11 +149,52 @@ namespace MW5_Mod_Manager
                         return;
                     }
 
+                    // We want to remove any pre-existing directories before continuing
+                    bool targetDirectoriesCleared = true;
+
                     this.Invoke(new Action(() =>
                     {
+                        // Check if any Mods directories do already exist
+                        foreach (string modDirName in validModDirectories)
+                        {
+                            string destinationPath = Path.GetFullPath(Path.Combine(OutputFolderPath, modDirName));
+                            if (Directory.Exists(destinationPath))
+                            {
+                                targetDirectoriesCleared = false;
+
+                                DialogResult dialogResult = MessageBox.Show("The target directory " + destinationPath
+                                    + " already exists. It has to be deleted before extraction can begin."
+                                    +"\r\n\r\nAre you sure you want to continue?",
+                                    "Mod Directory already exists",
+                                    MessageBoxButtons.YesNo,
+                                    MessageBoxIcon.Warning);
+
+                                if (dialogResult == DialogResult.Yes)
+                                {
+                                    if (FileOperation.DeleteFile(destinationPath, true, this.Handle))
+                                    {
+                                        targetDirectoriesCleared = true;
+                                    }
+                                }
+
+                            }
+                        }
+
+
                         progressBarExtract.Maximum = fileCount;
                         progressBarExtract.Step = 1;
                     }));
+
+                    if (!targetDirectoriesCleared)
+                    {
+                        this.Invoke(new Action(() =>
+                        {
+                            richTextBoxExtractLog.AppendText("\r\nAborted.\r\n");
+
+                            SetCanceled();
+                        }));
+                        return;
+                    }
 
                     int curFile = 1;
                     foreach (var entry in archive.Entries)
