@@ -79,9 +79,9 @@
             buttonBrowse.Name = "buttonBrowse";
             buttonBrowse.Size = new System.Drawing.Size(75, 23);
             buttonBrowse.TabIndex = 3;
-            buttonBrowse.Text = "&Browse";
+            buttonBrowse.Text = "Se&lect...";
             buttonBrowse.UseVisualStyleBackColor = true;
-            buttonBrowse.Click += buttonBrowse_Click;
+            buttonBrowse.Click += buttonSelect_Click;
             // 
             // label1
             // 
@@ -121,7 +121,7 @@
             buttonCancel.UseVisualStyleBackColor = true;
             buttonCancel.Click += buttonCancel_Click;
             // 
-            // SettingsWindow
+            // SettingsForm
             // 
             AcceptButton = buttonSave;
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -134,7 +134,7 @@
             FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             MinimizeBox = false;
-            Name = "SettingsWindow";
+            Name = "SettingsForm";
             ShowIcon = false;
             ShowInTaskbar = false;
             Text = "Settings";

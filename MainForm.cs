@@ -120,7 +120,7 @@ namespace MW5_Mod_Manager
                 return false;
             }
 
-            return FileOperation.CopyDirectory(path, logic.GetMainModPath(), this.Handle);
+            return FileOperationUtils.CopyDirectory(path, logic.GetMainModPath(), this.Handle);
         }
 
         public bool ExtractModFromArchive(string filePath)
@@ -1929,7 +1929,7 @@ namespace MW5_Mod_Manager
 
             if (dialogResult == DialogResult.Yes)
             {
-                if (FileOperation.DeleteFile(modKey, true, this.Handle))
+                if (FileOperationUtils.DeleteFile(modKey, true, this.Handle))
                 {
                     RefreshAll();
                 }
