@@ -13,9 +13,9 @@ using System.Windows.Forms;
 namespace MW5_Mod_Manager
 {
     [SupportedOSPlatform("windows")]
-    public partial class PresetSaveWindow : Form
+    public partial class PresetSaveForm : Form
     {
-        public PresetSaveWindow()
+        public PresetSaveForm()
         {
             InitializeComponent();
         }
@@ -66,7 +66,7 @@ namespace MW5_Mod_Manager
 
         private void PresetSaveWindow_Load(object sender, EventArgs e)
         {
-            ModsManager logic = MainWindow.MainForm.logic;
+            ModsManager logic = MainForm.Instance.logic;
             foreach (string key in logic.Presets.Keys)
             {
                 this.comboBoxPresets.Items.Add(key);
@@ -86,7 +86,7 @@ namespace MW5_Mod_Manager
             {
                 presetName = textBoxPresetName.Text;
                 
-                if (MainWindow.MainForm.logic.Presets.Keys.Contains(presetName))
+                if (MainForm.Instance.logic.Presets.Keys.Contains(presetName))
                 {
                     DialogResult result =
                         MessageBox.Show("A preset with the given name already exists. Overwrite preset?",
@@ -109,10 +109,10 @@ namespace MW5_Mod_Manager
                 presetName = comboBoxPresets.Text;
             }
 
-            MainWindow.MainForm.SavePreset(presetName);
+            MainForm.Instance.SavePreset(presetName);
             if (newPreset)
             {
-                MainWindow.MainForm.RebuildPresetsMenu();
+                MainForm.Instance.RebuildPresetsMenu();
             }
 
             Close();

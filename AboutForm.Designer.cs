@@ -1,6 +1,6 @@
 ﻿namespace MW5_Mod_Manager
 {
-    partial class AboutWindow
+    partial class AboutForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AboutWindow));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AboutForm));
             label1 = new System.Windows.Forms.Label();
             label2 = new System.Windows.Forms.Label();
             pictureBox1 = new System.Windows.Forms.PictureBox();

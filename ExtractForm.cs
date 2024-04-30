@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
@@ -16,6 +17,7 @@ using SharpCompress;
 using SharpCompress.Archives;
 using SharpCompress.Common;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using Label = System.Windows.Forms.Label;
 using ProgressBar = System.Windows.Forms.ProgressBar;
 
 namespace MW5_Mod_Manager
@@ -171,7 +173,7 @@ namespace MW5_Mod_Manager
 
                                 if (dialogResult == DialogResult.Yes)
                                 {
-                                    if (FileOperation.DeleteFile(destinationPath, true, this.Handle))
+                                    if (FileOperationUtils.DeleteFile(destinationPath, true, this.Handle))
                                     {
                                         targetDirectoriesCleared = true;
                                     }
@@ -255,9 +257,10 @@ namespace MW5_Mod_Manager
                                 progressBarExtract.PerformStep();
 
                                 double percentage = ((double)curFile / fileCount) * 100;
+                                int progressPercentage = (int)double.Round(percentage);
 
                                 // Update label with percentage
-                                labelTotalProgress.Text = $"{percentage:F2}%";
+                                labelTotalProgress.Text = $@"{progressPercentage}%";
                             }));
 
                             curFile++;

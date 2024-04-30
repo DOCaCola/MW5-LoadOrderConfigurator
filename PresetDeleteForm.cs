@@ -13,16 +13,16 @@ using static System.ComponentModel.Design.ObjectSelectorEditor;
 namespace MW5_Mod_Manager
 {
     [SupportedOSPlatform("windows")]
-    public partial class PresetDeleteWindow : Form
+    public partial class PresetDeleteForm : Form
     {
-        public PresetDeleteWindow()
+        public PresetDeleteForm()
         {
             InitializeComponent();
         }
 
         private void PresetDeleteWindow_Load(object sender, EventArgs e)
         {
-            ModsManager logic = MainWindow.MainForm.logic;
+            ModsManager logic = MainForm.Instance.logic;
             foreach (string key in logic.Presets.Keys)
             {
                 this.listBoxPresets.Items.Add(key);
@@ -36,18 +36,18 @@ namespace MW5_Mod_Manager
 
         private void buttonDelete_Click(object sender, EventArgs e)
         {
-            ModsManager logic = MainWindow.MainForm.logic;
+            ModsManager logic = MainForm.Instance.logic;
 
             foreach (var selectedItem in listBoxPresets.SelectedItems)
             {
                 string presetName = selectedItem.ToString();
                 logic.Presets.Remove(presetName);
 
-                foreach (ToolStripItem item in MainWindow.MainForm.presetsToolStripMenuItem.DropDownItems)
+                foreach (ToolStripItem item in MainForm.Instance.presetsToolStripMenuItem.DropDownItems)
                 {
                     if (item.Tag != null && item.Tag.ToString() == presetName)
                     {
-                        MainWindow.MainForm.presetsToolStripMenuItem.DropDownItems.Remove(item);
+                        MainForm.Instance.presetsToolStripMenuItem.DropDownItems.Remove(item);
                         break;
                     }
                 }

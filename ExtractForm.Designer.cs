@@ -59,9 +59,9 @@
             // buttonAction
             // 
             buttonAction.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            buttonAction.Location = new System.Drawing.Point(183, 262);
+            buttonAction.Location = new System.Drawing.Point(176, 261);
             buttonAction.Name = "buttonAction";
-            buttonAction.Size = new System.Drawing.Size(75, 23);
+            buttonAction.Size = new System.Drawing.Size(88, 26);
             buttonAction.TabIndex = 2;
             buttonAction.UseVisualStyleBackColor = true;
             buttonAction.Click += buttonAction_Click;
@@ -109,6 +109,7 @@
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            CancelButton = buttonAction;
             ClientSize = new System.Drawing.Size(445, 296);
             Controls.Add(labelCurrentFile);
             Controls.Add(labelTotalProgress);

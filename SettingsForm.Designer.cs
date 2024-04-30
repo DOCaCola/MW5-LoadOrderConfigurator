@@ -1,6 +1,6 @@
 ﻿namespace MW5_Mod_Manager
 {
-    partial class SettingsWindow
+    partial class SettingsForm
     {
         /// <summary>
         /// Required designer variable.
@@ -104,7 +104,7 @@
             buttonSave.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
             buttonSave.Location = new System.Drawing.Point(12, 114);
             buttonSave.Name = "buttonSave";
-            buttonSave.Size = new System.Drawing.Size(75, 23);
+            buttonSave.Size = new System.Drawing.Size(88, 26);
             buttonSave.TabIndex = 4;
             buttonSave.Text = "&Save";
             buttonSave.UseVisualStyleBackColor = true;
@@ -113,9 +113,9 @@
             // buttonCancel
             // 
             buttonCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-            buttonCancel.Location = new System.Drawing.Point(93, 114);
+            buttonCancel.Location = new System.Drawing.Point(106, 114);
             buttonCancel.Name = "buttonCancel";
-            buttonCancel.Size = new System.Drawing.Size(75, 23);
+            buttonCancel.Size = new System.Drawing.Size(88, 26);
             buttonCancel.TabIndex = 5;
             buttonCancel.Text = "&Cancel";
             buttonCancel.UseVisualStyleBackColor = true;

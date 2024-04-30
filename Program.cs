@@ -15,7 +15,7 @@ namespace MW5_Mod_Manager
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainWindow());
+            Application.Run(new MainForm());
         }
     }
 }

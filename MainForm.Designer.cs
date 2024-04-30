@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace MW5_Mod_Manager
 {
-    partial class MainWindow
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -33,8 +33,7 @@ namespace MW5_Mod_Manager
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
-            backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             openFileDialog1 = new OpenFileDialog();
             toolStripPlatformLabel = new ToolStripStatusLabel();
             modsListView = new ListView();
@@ -47,7 +46,6 @@ namespace MW5_Mod_Manager
             fileSizeHeader = new ColumnHeader();
             folderHeader = new ColumnHeader();
             imageListIcons = new ImageList(components);
-            backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
             textProgressBarBindingSource = new BindingSource(components);
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
@@ -57,7 +55,6 @@ namespace MW5_Mod_Manager
             importLoadOrderToolStripMenuItem1 = new ToolStripMenuItem();
             exportLoadOrderToolStripMenuItem1 = new ToolStripMenuItem();
             toolStripSeparator7 = new ToolStripSeparator();
-            exportmodsFolderToolStripMenuItem1 = new ToolStripMenuItem();
             shareModsViaTCPToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator2 = new ToolStripSeparator();
             toolStripMenuItemSettings = new ToolStripMenuItem();
@@ -165,10 +162,6 @@ namespace MW5_Mod_Manager
             toolStrip1.SuspendLayout();
             SuspendLayout();
             // 
-            // backgroundWorker1
-            // 
-            backgroundWorker1.DoWork += backgroundWorker1_DoWork;
-            // 
             // toolStripPlatformLabel
             // 
             toolStripPlatformLabel.BorderSides = ToolStripStatusLabelBorderSides.Left;
@@ -255,12 +248,6 @@ namespace MW5_Mod_Manager
             imageListIcons.Images.SetKeyName(1, "Steam");
             imageListIcons.Images.SetKeyName(2, "Nexusmods");
             // 
-            // backgroundWorker2
-            // 
-            backgroundWorker2.DoWork += backgroundWorker2_DoWork;
-            backgroundWorker2.ProgressChanged += backgroundWorker2_ProgressChanged;
-            backgroundWorker2.RunWorkerCompleted += backgroundWorker2_RunWorkerCompleted;
-            // 
             // menuStrip1
             // 
             menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, presetsToolStripMenuItem, modsToolStripMenuItem, helpToolStripMenuItem });
@@ -272,7 +259,7 @@ namespace MW5_Mod_Manager
             // 
             // fileToolStripMenuItem
             // 
-            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { toolStripMenuItemImportArchive, toolStripMenuItemImportFromFolder, toolStripSeparator12, importLoadOrderToolStripMenuItem1, exportLoadOrderToolStripMenuItem1, toolStripSeparator7, exportmodsFolderToolStripMenuItem1, shareModsViaTCPToolStripMenuItem, toolStripSeparator2, toolStripMenuItemSettings, toolStripSeparator1, exitToolStripMenuItem });
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { toolStripMenuItemImportArchive, toolStripMenuItemImportFromFolder, toolStripSeparator12, importLoadOrderToolStripMenuItem1, exportLoadOrderToolStripMenuItem1, toolStripSeparator7, shareModsViaTCPToolStripMenuItem, toolStripSeparator2, toolStripMenuItemSettings, toolStripSeparator1, exitToolStripMenuItem });
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             fileToolStripMenuItem.Size = new Size(37, 20);
             fileToolStripMenuItem.Text = "&File";
@@ -315,14 +302,6 @@ namespace MW5_Mod_Manager
             toolStripSeparator7.Name = "toolStripSeparator7";
             toolStripSeparator7.Size = new Size(186, 6);
             toolStripSeparator7.Visible = false;
-            // 
-            // exportmodsFolderToolStripMenuItem1
-            // 
-            exportmodsFolderToolStripMenuItem1.Name = "exportmodsFolderToolStripMenuItem1";
-            exportmodsFolderToolStripMenuItem1.Size = new Size(189, 22);
-            exportmodsFolderToolStripMenuItem1.Text = "Export &mods folder";
-            exportmodsFolderToolStripMenuItem1.Visible = false;
-            exportmodsFolderToolStripMenuItem1.Click += exportmodsFolderToolStripMenuItem1_Click;
             // 
             // shareModsViaTCPToolStripMenuItem
             // 
@@ -459,14 +438,14 @@ namespace MW5_Mod_Manager
             // toolStripMenuItemNexusmodsLink
             // 
             toolStripMenuItemNexusmodsLink.Name = "toolStripMenuItemNexusmodsLink";
-            toolStripMenuItemNexusmodsLink.Size = new Size(180, 22);
+            toolStripMenuItemNexusmodsLink.Size = new Size(179, 22);
             toolStripMenuItemNexusmodsLink.Text = "Visit on &Nexusmods";
             toolStripMenuItemNexusmodsLink.Click += toolStripMenuItemNexusmodsLink_Click;
             // 
             // aboutToolStripMenuItem
             // 
             aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            aboutToolStripMenuItem.Size = new Size(180, 22);
+            aboutToolStripMenuItem.Size = new Size(179, 22);
             aboutToolStripMenuItem.Text = "Ab&out";
             aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
             // 
@@ -585,7 +564,7 @@ namespace MW5_Mod_Manager
             richTextBoxManifestOverridden.Location = new Point(9, 164);
             richTextBoxManifestOverridden.Name = "richTextBoxManifestOverridden";
             richTextBoxManifestOverridden.ReadOnly = true;
-            richTextBoxManifestOverridden.Size = new Size(309, 294);
+            richTextBoxManifestOverridden.Size = new Size(309, 285);
             richTextBoxManifestOverridden.TabIndex = 28;
             richTextBoxManifestOverridden.Text = "";
             richTextBoxManifestOverridden.WordWrap = false;
@@ -1123,7 +1102,6 @@ namespace MW5_Mod_Manager
         }
 
         #endregion
-        private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         public System.Windows.Forms.ListView modsListView;
         public System.Windows.Forms.ColumnHeader displayHeader;
@@ -1132,7 +1110,6 @@ namespace MW5_Mod_Manager
         public System.Windows.Forms.ColumnHeader enabledHeader;
         public System.Windows.Forms.ColumnHeader versionHeader;
         public System.Windows.Forms.ToolStripLabel toolStripVendorLabeltoolStripLabel1;
-        public System.ComponentModel.BackgroundWorker backgroundWorker2;
         private BindingSource textProgressBarBindingSource;
         private MenuStrip menuStrip1;
         private ToolStripMenuItem fileToolStripMenuItem;
@@ -1140,7 +1117,6 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem exportLoadOrderToolStripMenuItem1;
         private ToolStripMenuItem importLoadOrderToolStripMenuItem1;
         private ToolStripSeparator toolStripSeparator7;
-        private ToolStripMenuItem exportmodsFolderToolStripMenuItem1;
         private ToolStripMenuItem shareModsViaTCPToolStripMenuItem;
         private ToolStripStatusLabel toolStripPlatformLabel;
         private ToolStripMenuItem modsToolStripMenuItem;

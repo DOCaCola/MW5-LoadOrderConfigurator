@@ -7,9 +7,9 @@ using Newtonsoft.Json;
 namespace MW5_Mod_Manager
 {
     [SupportedOSPlatform("windows")]
-    public partial class ExportWindow : Form
+    public partial class ExportForm : Form
     {
-        public ExportWindow()
+        public ExportForm()
         {
             InitializeComponent();
         }
@@ -29,7 +29,7 @@ namespace MW5_Mod_Manager
         {
             Dictionary<string, bool> FolderNameModList = new Dictionary<string, bool>();
 
-            ModsManager logic = MainWindow.MainForm.logic;
+            ModsManager logic = MainForm.Instance.logic;
 
             //Get the folder names from the paths in modlist
             foreach (string key in logic.ModList.Keys)
@@ -42,7 +42,7 @@ namespace MW5_Mod_Manager
             }
 
             string json = JsonConvert.SerializeObject(FolderNameModList, Formatting.Indented);
-            ExportWindow exportDialog = new ExportWindow();
+            ExportForm exportDialog = new ExportForm();
 
             textBox1.Text = json;
         }

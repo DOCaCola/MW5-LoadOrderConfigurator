@@ -263,7 +263,7 @@ namespace MW5_Mod_Manager
             }
 
             this.GameVersion = bestAvailableVersion;
-            MainWindow.MainForm.toolStripStatusLabelMwVersion.Text = @"Game Version: " + bestAvailableVersion;
+            MainForm.Instance.toolStripStatusLabelMwVersion.Text = @"Game Version: " + bestAvailableVersion;
         }
 
         /// <summary>
@@ -734,7 +734,7 @@ namespace MW5_Mod_Manager
                         // it's certain that this is a steam mod
                         if (modData.Origin == ModData.ModOrigin.Unknown)
                         {
-                            if (modPath.StartsWith(MainWindow.MainForm.logic.ModsPaths[eModPathType.Steam]))
+                            if (modPath.StartsWith(MainForm.Instance.logic.ModsPaths[eModPathType.Steam]))
                             {
                                 modData.Origin = ModData.ModOrigin.Steam;
                             }
@@ -997,8 +997,8 @@ namespace MW5_Mod_Manager
         //Reset the overriding data between two mods and check if after mods are still overriding/being overriden
         public void ResetOverrdingBetweenMods(ListViewItem listItemA, ListViewItem listItemB)
         {
-            string modA = listItemA.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
-            string modB = listItemB.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
+            string modA = listItemA.SubItems[MainForm.Instance.folderHeader.Index].Text;
+            string modB = listItemB.SubItems[MainForm.Instance.folderHeader.Index].Text;
 
             if (this.OverrridingData.ContainsKey(modA))
             {
@@ -1073,7 +1073,7 @@ namespace MW5_Mod_Manager
         //Used to update the override data when a new item is added or removed to/from the mod list instead of checking all items agains each other again.
         public void UpdateNewModOverrideData(List<ListViewItem> items, ListViewItem newListItem)
         {
-            string modA = newListItem.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
+            string modA = newListItem.SubItems[MainForm.Instance.folderHeader.Index].Text;
             ////Console.WriteLine("UpdateNewModOverrideData");
             ////Console.WriteLine("Mod checked or unchecked: " + modA);
 
@@ -1114,7 +1114,7 @@ namespace MW5_Mod_Manager
                 //check each mod for changes
                 foreach (ListViewItem item in items)
                 {
-                    string modB = item.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
+                    string modB = item.SubItems[MainForm.Instance.folderHeader.Index].Text;
 
                     //Again dont compare mods to themselves.
                     if (modA == modB)
@@ -1139,7 +1139,7 @@ namespace MW5_Mod_Manager
         //used to update the overriding data when a mod is moved ONE up or ONE down.
         public void UpdateModOverridingdata(List<ListViewItem> items, ListViewItem movedModItem, bool movedUp)
         {
-            string modA = movedModItem.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
+            string modA = movedModItem.SubItems[MainForm.Instance.folderHeader.Index].Text;
 
             //Console.WriteLine("UpdateModOverridingdata");
             //Console.WriteLine("--" + modA);
@@ -1151,7 +1151,7 @@ namespace MW5_Mod_Manager
                 indexToCheck = movedModItem.Index - 1;
 
             ListViewItem listItemB = items[indexToCheck];
-            string modB = listItemB.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
+            string modB = listItemB.SubItems[MainForm.Instance.folderHeader.Index].Text;
             //Console.WriteLine("++" + modB);
 
             if (!this.OverrridingData.ContainsKey(modA))
@@ -1186,8 +1186,8 @@ namespace MW5_Mod_Manager
         //See if items A and B are interacting in terms of manifest and return the intersect
         public void GetModOverridingData(ListViewItem listItemA, ListViewItem listItemB, int itemCount, OverridingData A, OverridingData B)
         {
-            string modA = listItemA.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
-            string modB = listItemB.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
+            string modA = listItemA.SubItems[MainForm.Instance.folderHeader.Index].Text;
+            string modB = listItemB.SubItems[MainForm.Instance.folderHeader.Index].Text;
 
             if (modA == modB)
                 return;
@@ -1252,7 +1252,7 @@ namespace MW5_Mod_Manager
                 if (!itemA.Checked)
                     continue;
 
-                string modA = itemA.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
+                string modA = itemA.SubItems[MainForm.Instance.folderHeader.Index].Text;
                 int priorityA = items.Count - items.IndexOf(itemA);
 
                 //Check if we already have this mod in the dict if not create an entry for it.
@@ -1270,7 +1270,7 @@ namespace MW5_Mod_Manager
                 //Console.WriteLine("Checking: " + modA + " : " + priorityA.ToString());
                 foreach (ListViewItem itemB in items)
                 {
-                    string modB = itemB.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
+                    string modB = itemB.SubItems[MainForm.Instance.folderHeader.Index].Text;
 
                     if (modA == modB)
                         continue;
@@ -1347,26 +1347,26 @@ namespace MW5_Mod_Manager
         //Color the list view items based on data
         public void ColorizeListViewItems(List<ListViewItem> items)
         {
-            MainWindow.MainForm.modsListView.BeginUpdate();
+            MainForm.Instance.modsListView.BeginUpdate();
             foreach (ListViewItem item in items)
             {
-                string modName = item.SubItems[MainWindow.MainForm.folderHeader.Index].Text;
+                string modName = item.SubItems[MainForm.Instance.folderHeader.Index].Text;
 
                 //marked for removal so don't color.
-                if (item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor == Color.Red)
+                if (item.SubItems[MainForm.Instance.displayHeader.Index].ForeColor == Color.Red)
                 {
                     continue;
                 }
 
-                bool modEnabled = MainWindow.MainForm.logic.ModList[item.Tag.ToString()];
+                bool modEnabled = MainForm.Instance.logic.ModList[item.Tag.ToString()];
 
                 if (modEnabled)
                 {
-                    item.SubItems[MainWindow.MainForm.displayHeader.Index].Font = new Font(MainWindow.MainForm.modsListView.Font, MainWindow.MainForm.modsListView.Font.Style | FontStyle.Bold);  
+                    item.SubItems[MainForm.Instance.displayHeader.Index].Font = new Font(MainForm.Instance.modsListView.Font, MainForm.Instance.modsListView.Font.Style | FontStyle.Bold);  
                 }
                 else
                 {
-                    item.SubItems[MainWindow.MainForm.displayHeader.Index].Font = new Font(MainWindow.MainForm.modsListView.Font, MainWindow.MainForm.modsListView.Font.Style);  
+                    item.SubItems[MainForm.Instance.displayHeader.Index].Font = new Font(MainForm.Instance.modsListView.Font, MainForm.Instance.modsListView.Font.Style);  
                 }
 
                 foreach (ListViewItem.ListViewSubItem curItem in item.SubItems)
@@ -1381,7 +1381,7 @@ namespace MW5_Mod_Manager
 
                 if (!this.OverrridingData.ContainsKey(modName))
                 {
-                    item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = SystemColors.WindowText;
+                    item.SubItems[MainForm.Instance.displayHeader.Index].ForeColor = SystemColors.WindowText;
 
                     continue;
                 }
@@ -1400,12 +1400,12 @@ namespace MW5_Mod_Manager
                     newItemColor = OverriddenOveridingColor;
                 }
 
-                item.SubItems[MainWindow.MainForm.displayHeader.Index].ForeColor = newItemColor;
+                item.SubItems[MainForm.Instance.displayHeader.Index].ForeColor = newItemColor;
             }
 
-            MainWindow.MainForm.ColorListViewNumbers(MainWindow.MainForm.ModListData, MainWindow.MainForm.currentLoadOrderHeader.Index, LowPriorityColor, HighPriorityColor);
-            MainWindow.MainForm.ColorListViewNumbers(MainWindow.MainForm.ModListData, MainWindow.MainForm.originalLoadOrderHeader.Index, LowPriorityColor, HighPriorityColor);
-            MainWindow.MainForm.modsListView.EndUpdate();
+            MainForm.Instance.ColorListViewNumbers(MainForm.Instance.ModListData, MainForm.Instance.currentLoadOrderHeader.Index, LowPriorityColor, HighPriorityColor);
+            MainForm.Instance.ColorListViewNumbers(MainForm.Instance.ModListData, MainForm.Instance.originalLoadOrderHeader.Index, LowPriorityColor, HighPriorityColor);
+            MainForm.Instance.modsListView.EndUpdate();
         }
 
         //Monitor the size of a given zip file

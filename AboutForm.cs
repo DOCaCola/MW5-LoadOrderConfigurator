@@ -12,9 +12,9 @@ using static System.Net.WebRequestMethods;
 namespace MW5_Mod_Manager
 {
     [SupportedOSPlatform("windows")]
-    public partial class AboutWindow : Form
+    public partial class AboutForm : Form
     {
-        public AboutWindow()
+        public AboutForm()
         {
             InitializeComponent();
         }
@@ -36,7 +36,7 @@ namespace MW5_Mod_Manager
 
         private void AboutWindow_Load(object sender, EventArgs e)
         {
-            labelVersion.Text = @"Version: " + MainWindow.MainForm.GetVersion();
+            labelVersion.Text = @"Version: " + MainForm.Instance.GetVersion();
         }
 
         private void linkLabelGithub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

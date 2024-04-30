@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MW5_Mod_Manager
 {
-    internal class FileOperation
+    internal class FileOperationUtils
     {
         private const int FO_COPY = 0x0002;
         private const int FO_DELETE = 0x0003;

@@ -19,9 +19,9 @@ using ListView = System.Windows.Forms.ListView;
 namespace MW5_Mod_Manager
 {
     [SupportedOSPlatform("windows")]
-    public partial class MainWindow : Form
+    public partial class MainForm : Form
     {
-        static public MainWindow MainForm;
+        static public MainForm Instance;
         public ModsManager logic = new ModsManager();
         //public TCPFileShare fileShare;
 
@@ -35,7 +35,6 @@ namespace MW5_Mod_Manager
         eFilterMode FilterMode = eFilterMode.None;
         public List<ListViewItem> ModListData = new List<ListViewItem>();
         private List<ListViewItem> markedForRemoval;
-        public Form4 WaitForm;
         private bool MovingItem = false;
         internal bool JustPacking = true;
 
@@ -43,10 +42,10 @@ namespace MW5_Mod_Manager
 
         public bool LoadingAndFilling { get; private set; }
 
-        public MainWindow()
+        public MainForm()
         {
             InitializeComponent();
-            MainForm = this;
+            Instance = this;
             //this.fileShare = new TCPFileShare(logic, this);
             this.markedForRemoval = new List<ListViewItem>();
 
@@ -71,7 +70,7 @@ namespace MW5_Mod_Manager
 
         public string GetVersion()
         {
-            Version versionInfo = typeof(MainWindow).GetTypeInfo().Assembly.GetName().Version;
+            Version versionInfo = typeof(MainForm).GetTypeInfo().Assembly.GetName().Version;
             return versionInfo.Major.ToString() + @"." + versionInfo.Minor.ToString();
         }
 
@@ -255,25 +254,6 @@ namespace MW5_Mod_Manager
             RecomputeLoadOrdersAndUpdateList();
             modListView_SelectedIndexChanged(null, null);
             this.MovingItem = false;
-        }
-
-        //Up button
-        //Get item info, remove item, insert above, set new item as selected.
-        private void button1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        //Down button
-        //Get item info, remove item, insert below, set new item as selected.
-        private void button2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void buttonApply_Click(object sender, EventArgs e)
-        {
-
         }
 
         public void ApplyModSettings()
@@ -584,7 +564,7 @@ namespace MW5_Mod_Manager
         public void RebuildPresetsMenu()
         {
             // Clear all preset menu items first
-            var dropDownItems = MainWindow.MainForm.presetsToolStripMenuItem.DropDownItems;
+            var dropDownItems = MainForm.Instance.presetsToolStripMenuItem.DropDownItems;
 
             for (int i = dropDownItems.Count - 1; i >= 0; i--)
             {
@@ -751,7 +731,7 @@ namespace MW5_Mod_Manager
 
         private void FilterTextChanged()
         {
-            string filtertext = MainForm.toolStripTextFilterBox.Text.ToLower();
+            string filtertext = Instance.toolStripTextFilterBox.Text.ToLower();
             if (Utils.StringNullEmptyOrWhiteSpace(filtertext))
             {
                 if (this.FilterMode != eFilterMode.None)
@@ -767,7 +747,7 @@ namespace MW5_Mod_Manager
             }
             else
             {
-                if (!MainForm.toolStripButtonFilterToggle.Checked)
+                if (!Instance.toolStripButtonFilterToggle.Checked)
                 {
                     FilterMode = eFilterMode.ItemHighlight;
                     bool anyUpdated = false;
@@ -816,7 +796,7 @@ namespace MW5_Mod_Manager
                     FilterMode = eFilterMode.ItemFilter;
                     //Clear the list view
                     this.modsListView.Items.Clear();
-                    MainForm.modsListView.BeginUpdate();
+                    Instance.modsListView.BeginUpdate();
                     UnhighlightAllMods();
                     foreach (ListViewItem item in this.ModListData)
                     {
@@ -825,12 +805,12 @@ namespace MW5_Mod_Manager
                         LoadingAndFilling = true;
                         if (MatchItemToText(filtertext, item))
                         {
-                            MainForm.modsListView.Items.Add(item);
+                            Instance.modsListView.Items.Add(item);
                         }
 
                         LoadingAndFilling = prevLoadingAndFilling;
                     }
-                    MainForm.modsListView.EndUpdate();
+                    Instance.modsListView.EndUpdate();
                 }
                 //While filtering disable the up/down buttons (tough this should no longer be needed).
                 SetMoveControlsEnabled(false);
@@ -1158,90 +1138,14 @@ namespace MW5_Mod_Manager
             this.logic.GetOverridingData(ModListData);
         }
 
-        #region background workers for zipping up files
-        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
-        {
-            // Get the BackgroundWorker that raised this event.
-            BackgroundWorker worker = sender as BackgroundWorker;
-            this.logic.PackModsToZip(worker, e);
-        }
-
-        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            // First, handle the case where an exception was thrown.
-            if (e.Error != null)
-            {
-                MessageBox.Show(e.Error.Message);
-            }
-            else if (e.Cancelled || (string)e.Result == "ABORTED")
-            {
-                //we just wanna do nothing and return here.
-                MainForm.WaitForm.Close();
-                //MessageBox.Show("TEST123");
-            }
-            else
-            {
-                //We are actually done!
-                MainForm.WaitForm.Close();
-
-                //For when we just wanna pack and not show the dialog
-                if (!JustPacking)
-                {
-                    JustPacking = true;
-                    return;
-                }
-
-                //Returing from dialog:
-                SystemSounds.Asterisk.Play();
-                //Get parent dir
-                string parent = Directory.GetParent(this.logic.ModsPaths[eModPathType.Program]).ToString();
-                string m = "Done packing mods, output in: \n" + parent + "\\Mods.zip";
-                string c = "Done";
-                MessageBoxButtons b = MessageBoxButtons.OK;
-                MessageBox.Show(m, c, b);
-                Process.Start(parent);
-            }
-        }
-
-        private void backgroundWorker2_DoWork(object sender, DoWorkEventArgs e)
-        {
-            BackgroundWorker worker = sender as BackgroundWorker;
-            logic.MonitorZipSize(worker, e);
-            //We dont need to pass any results anywhere as we are just monitoring.
-        }
-
-        private void backgroundWorker2_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            // First, handle the case where an exception was thrown.
-            if (e.Error != null)
-            {
-                MessageBox.Show(e.Error.Message);
-            }
-            else
-            {
-                //We are actually done!
-            }
-        }
-
-        private void backgroundWorker2_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            /*MainForm.textBox1.Invoke((MethodInvoker)delegate
-            {
-                // Running on the UI thread
-                MainForm.WaitForm.textProgressBar1.Value = e.ProgressPercentage;
-            });*/
-        }
-        #endregion
-
         private void shareModsViaTCPToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form5 form5 = new Form5(this);
-            form5.ShowDialog(this);
+
         }
 
         private void exportLoadOrderToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            ExportWindow exportDialog = new ExportWindow();
+            ExportForm exportDialog = new ExportForm();
 
             // Show testDialog as a modal dialog and determine if DialogResult = OK.
             exportDialog.ShowDialog(this);
@@ -1250,7 +1154,7 @@ namespace MW5_Mod_Manager
 
         private void importLoadOrderToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            ImportWindow testDialog = new ImportWindow();
+            ImportForm testDialog = new ImportForm();
 
             // Show testDialog as a modal dialog and determine if DialogResult = OK.
             if (testDialog.ShowDialog(this) != DialogResult.OK)
@@ -1275,31 +1179,6 @@ namespace MW5_Mod_Manager
             FilterTextChanged();
             SetModSettingsTainted(true);
             modsListView.EndUpdate();
-        }
-
-        private void exportmodsFolderToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            //apply current settings to file
-            this.buttonApply_Click(null, null);
-
-            //start packing worker
-            backgroundWorker1.RunWorkerAsync();
-            //A little time to start up
-            System.Threading.Thread.Sleep(100);
-            //Start monitoring worker
-            backgroundWorker2.RunWorkerAsync();
-
-            //Show Form 4 with informing user that we are packaging mods..
-            Console.WriteLine(@"Opening form:");
-            this.WaitForm = new Form4(backgroundWorker1, backgroundWorker2);
-            string message = "Packaging Mods.zip, this may take several minutes depending on the combinded size of your mods...";
-            this.WaitForm.textBox1.Text = message;
-            string caption = "Packing Mods.zip";
-            this.WaitForm.Text = caption;
-            WaitForm.ShowDialog(this);
-
-            backgroundWorker2.CancelAsync();
-            //For the rest of the code see "background"
         }
 
         private void openModsFolderToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1335,7 +1214,7 @@ namespace MW5_Mod_Manager
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AboutWindow aboutDialog = new AboutWindow();
+            AboutForm aboutDialog = new AboutForm();
 
             aboutDialog.ShowDialog(this);
             aboutDialog.Dispose();
@@ -1458,7 +1337,7 @@ namespace MW5_Mod_Manager
 
         private void ShowSettingsDialog()
         {
-            SettingsWindow settingsDialog = new SettingsWindow();
+            SettingsForm settingsDialog = new SettingsForm();
 
             settingsDialog.ShowDialog(this);
             settingsDialog.Dispose();
@@ -1617,7 +1496,7 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-            PresetSaveWindow saveDialog = new PresetSaveWindow();
+            PresetSaveForm saveDialog = new PresetSaveForm();
 
             saveDialog.ShowDialog(this);
             saveDialog.Dispose();
@@ -1625,7 +1504,7 @@ namespace MW5_Mod_Manager
 
         private void deletePresetToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            PresetDeleteWindow deleteDialog = new PresetDeleteWindow();
+            PresetDeleteForm deleteDialog = new PresetDeleteForm();
 
             deleteDialog.ShowDialog(this);
             deleteDialog.Dispose();
@@ -1755,7 +1634,7 @@ namespace MW5_Mod_Manager
                         this.logic.ModDetails[modListItem.Tag.ToString()].defaultLoadOrder.ToString();
             }
 
-            MainWindow.MainForm.ColorListViewNumbers(ModListData, MainWindow.MainForm.currentLoadOrderHeader.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
+            MainForm.Instance.ColorListViewNumbers(ModListData, MainForm.Instance.currentLoadOrderHeader.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
             modsListView.EndUpdate();
         }
 
@@ -1796,13 +1675,13 @@ namespace MW5_Mod_Manager
             if (modSettingsTainted)
             {
                 toolStripButtonApply.ForeColor = Color.OrangeRed;
-                toolStripButtonApply.Font = new Font(MainForm.toolStrip1.Font, MainForm.toolStrip1.Font.Style | FontStyle.Bold);
+                toolStripButtonApply.Font = new Font(Instance.toolStrip1.Font, Instance.toolStrip1.Font.Style | FontStyle.Bold);
 
             }
             else
             {
                 toolStripButtonApply.ForeColor = SystemColors.ControlText;
-                toolStripButtonApply.Font = new Font(MainForm.toolStrip1.Font, MainForm.toolStrip1.Font.Style);
+                toolStripButtonApply.Font = new Font(Instance.toolStrip1.Font, Instance.toolStrip1.Font.Style);
             }
         }
 
@@ -1829,7 +1708,10 @@ namespace MW5_Mod_Manager
 
         private void contextMenuItemMoveToTop_Click(object sender, EventArgs e)
         {
-            MoveItemUp(SelectedItemIndex(), true);
+            foreach (ListViewItem item in modsListView.SelectedItems)
+            {
+                MoveItemUp(item.Index, true);
+            }
         }
 
         private void contextMenuItemMoveToBottom_Click(object sender, EventArgs e)
@@ -1839,7 +1721,10 @@ namespace MW5_Mod_Manager
 
         private void moveupToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MoveItemUp(SelectedItemIndex(), false);
+            foreach (ListViewItem item in modsListView.SelectedItems)
+            {
+                MoveItemUp(item.Index, false);
+            }
         }
 
         private void movedownToolStripMenuItem_Click(object sender, EventArgs e)

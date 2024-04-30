@@ -7,11 +7,11 @@ using Newtonsoft.Json;
 namespace MW5_Mod_Manager
 {
     [SupportedOSPlatform("windows")]
-    public partial class ImportWindow : Form
+    public partial class ImportForm : Form
     {
         public Dictionary<string, bool> ResultData;
 
-        public ImportWindow()
+        public ImportForm()
         {
             InitializeComponent();
         }

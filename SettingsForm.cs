@@ -14,18 +14,18 @@ using System.Windows.Forms;
 namespace MW5_Mod_Manager
 {
     [SupportedOSPlatform("windows")]
-    public partial class SettingsWindow : Form
+    public partial class SettingsForm : Form
     {
-        public SettingsWindow()
+        public SettingsForm()
         {
             InitializeComponent();
         }
 
         private void SettingsWindow_Load(object sender, EventArgs e)
         {
-            textBoxMw5Path.Text = MainWindow.MainForm.logic.InstallPath;
+            textBoxMw5Path.Text = MainForm.Instance.logic.InstallPath;
 
-            switch (MainWindow.MainForm.logic.GamePlatform)
+            switch (MainForm.Instance.logic.GamePlatform)
             {
                 case ModsManager.eGamePlatform.Epic:
                     comboBoxPlatform.SelectedIndex = 0;
@@ -77,19 +77,19 @@ namespace MW5_Mod_Manager
             switch (comboBoxPlatform.SelectedIndex)
             {
                 case 0:
-                    MainWindow.MainForm.logic.GamePlatform = ModsManager.eGamePlatform.Epic;
+                    MainForm.Instance.logic.GamePlatform = ModsManager.eGamePlatform.Epic;
                     break;
                 case 1:
-                    MainWindow.MainForm.logic.GamePlatform = ModsManager.eGamePlatform.Gog;
+                    MainForm.Instance.logic.GamePlatform = ModsManager.eGamePlatform.Gog;
                     break;
                 case 2:
-                    MainWindow.MainForm.logic.GamePlatform = ModsManager.eGamePlatform.Steam;
+                    MainForm.Instance.logic.GamePlatform = ModsManager.eGamePlatform.Steam;
                     break;
                 case 3:
-                    MainWindow.MainForm.logic.GamePlatform = ModsManager.eGamePlatform.WindowsStore;
+                    MainForm.Instance.logic.GamePlatform = ModsManager.eGamePlatform.WindowsStore;
                     break;
                 default:
-                    MainWindow.MainForm.logic.GamePlatform = ModsManager.eGamePlatform.None;
+                    MainForm.Instance.logic.GamePlatform = ModsManager.eGamePlatform.None;
                     return;
             }
 
@@ -97,7 +97,7 @@ namespace MW5_Mod_Manager
 
             bool settingsValid = false;
 
-            if (MainWindow.MainForm.logic.GamePlatform != ModsManager.eGamePlatform.WindowsStore)
+            if (MainForm.Instance.logic.GamePlatform != ModsManager.eGamePlatform.WindowsStore)
             {
                 if (!string.IsNullOrEmpty(path))
                 {
@@ -107,7 +107,7 @@ namespace MW5_Mod_Manager
                         return;
                     }
 
-                    if (MainWindow.MainForm.logic.GamePlatform == ModsManager.eGamePlatform.Steam)
+                    if (MainForm.Instance.logic.GamePlatform == ModsManager.eGamePlatform.Steam)
                     {
                         if (ModsManager.FindSteamAppsParentDirectory(path) == null)
                         {
@@ -128,11 +128,11 @@ namespace MW5_Mod_Manager
 
             if (settingsValid)
             {
-                MainWindow.MainForm.ClearAll();
-                MainWindow.MainForm.logic.InstallPath = path;
-                MainWindow.MainForm.logic.UpdateGamePaths();
-                MainWindow.MainForm.logic.SaveSettings();
-                MainWindow.MainForm.RefreshAll();
+                MainForm.Instance.ClearAll();
+                MainForm.Instance.logic.InstallPath = path;
+                MainForm.Instance.logic.UpdateGamePaths();
+                MainForm.Instance.logic.SaveSettings();
+                MainForm.Instance.RefreshAll();
             }
 
             Close();

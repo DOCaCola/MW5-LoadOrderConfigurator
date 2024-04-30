@@ -1,6 +1,6 @@
 ﻿namespace MW5_Mod_Manager
 {
-    partial class PresetDeleteWindow
+    partial class PresetDeleteForm
     {
         /// <summary>
         /// Required designer variable.

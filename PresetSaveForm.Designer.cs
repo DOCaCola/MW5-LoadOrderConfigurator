@@ -1,6 +1,6 @@
 ﻿namespace MW5_Mod_Manager
 {
-    partial class PresetSaveWindow
+    partial class PresetSaveForm
     {
         /// <summary>
         /// Required designer variable.
