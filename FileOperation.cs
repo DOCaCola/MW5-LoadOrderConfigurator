@@ -9,6 +9,14 @@ namespace MW5_Mod_Manager
 {
     internal class FileOperation
     {
+        private const int FO_COPY = 0x0002;
+        private const int FO_DELETE = 0x0003;
+        private const int FO_MOVE = 0x0001;
+        private const int FO_RENAME = 0x0004;
+        private const int FOF_ALLOWUNDO = 0x40;
+        private const int FOF_NOCONFIRMATION = 0x10;
+        private const int FOF_NOCONFIRMMKDIR = 0x0200;
+
         [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
         static extern int SHFileOperation(ref SHFILEOPSTRUCT lpFileOp);
 
@@ -25,13 +33,17 @@ namespace MW5_Mod_Manager
             public string lpszProgressTitle;
         }
 
-        public static bool DeleteFile(string filePath, IntPtr hwnd = new IntPtr())
+        public static bool DeleteFile(string filePath, bool recycleBin, IntPtr hwnd = new IntPtr())
         {
             SHFILEOPSTRUCT fileop = new SHFILEOPSTRUCT();
             fileop.hwnd = hwnd;
             fileop.wFunc = 3; // FO_DELETE
             fileop.pFrom = filePath + "\0"; // Must be double null terminated
-            fileop.fFlags = 0x0;
+            fileop.fFlags = FOF_NOCONFIRMATION;
+            if (recycleBin)
+            {
+                fileop.fFlags |= FOF_ALLOWUNDO;
+            }
 
             int result = SHFileOperation(ref fileop);
 

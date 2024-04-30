@@ -465,10 +465,13 @@ namespace MW5_Mod_Manager
                     break;
             }
 
+            string versionString = (logic.ModDetails[entry.Key].version + " (" +
+                                    logic.ModDetails[entry.Key].buildNumber.ToString() + ")").Trim();
+
             newItem.SubItems[displayHeader.Index].Text = logic.ModDetails[entry.Key].displayName;
             newItem.SubItems[folderHeader.Index].Text = logic.PathToDirectoryDict[modName];
             newItem.SubItems[authorHeader.Index].Text = logic.ModDetails[entry.Key].author;
-            newItem.SubItems[versionHeader.Index].Text = logic.ModDetails[entry.Key].version + " (" + logic.ModDetails[entry.Key].buildNumber.ToString() + ")";
+            newItem.SubItems[versionHeader.Index].Text = versionString;
             newItem.SubItems[currentLoadOrderHeader.Index].Text = logic.ModDetails[entry.Key].defaultLoadOrder.ToString();
             newItem.SubItems[originalLoadOrderHeader.Index].Text = logic.Mods[entry.Key].OriginalLoadOrder.ToString();
             newItem.SubItems[fileSizeHeader.Index].Text = Utils.BytesToHumanReadableString(logic.Mods[entry.Key].ModFileSize);
@@ -2030,12 +2033,29 @@ namespace MW5_Mod_Manager
             }
         }
 
+        private void DeleteMod(string modKey)
+        {
+            DialogResult dialogResult = MessageBox.Show("The mod " + logic.ModDetails[modKey].displayName 
+                                                                          + " will be removed. This will delete the directory\r\n" + modKey
+                                                                          +"\r\n\r\nAre you sure you want to continue?",
+                "Delete Mod",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (dialogResult == DialogResult.Yes)
+            {
+                if (FileOperation.DeleteFile(modKey, true, this.Handle))
+                {
+                    RefreshAll();
+                }
+            }
+        }
+
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string path = (string)modsListView.SelectedItems[0].Tag;
-            if (FileOperation.DeleteFile(path, this.Handle))
+            foreach (ListViewItem selectedItem in modsListView.SelectedItems)
             {
-                RefreshAll();
+                DeleteMod(selectedItem.Tag.ToString());
             }
         }
 
