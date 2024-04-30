@@ -78,6 +78,7 @@ namespace MW5_Mod_Manager
             toolStripMenuItemOpenModFolderSteam = new ToolStripMenuItem();
             openUserModsFolderToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
+            toolStripMenuItemNexusmodsLink = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
             statusStrip1 = new StatusStrip();
             toolStripStatusLabel1 = new ToolStripStatusLabel();
@@ -450,15 +451,22 @@ namespace MW5_Mod_Manager
             // 
             // helpToolStripMenuItem
             // 
-            helpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aboutToolStripMenuItem });
+            helpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { toolStripMenuItemNexusmodsLink, aboutToolStripMenuItem });
             helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             helpToolStripMenuItem.Size = new Size(40, 20);
             helpToolStripMenuItem.Text = "&Info";
             // 
+            // toolStripMenuItemNexusmodsLink
+            // 
+            toolStripMenuItemNexusmodsLink.Name = "toolStripMenuItemNexusmodsLink";
+            toolStripMenuItemNexusmodsLink.Size = new Size(180, 22);
+            toolStripMenuItemNexusmodsLink.Text = "Visit on &Nexusmods";
+            toolStripMenuItemNexusmodsLink.Click += toolStripMenuItemNexusmodsLink_Click;
+            // 
             // aboutToolStripMenuItem
             // 
             aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            aboutToolStripMenuItem.Size = new Size(107, 22);
+            aboutToolStripMenuItem.Size = new Size(180, 22);
             aboutToolStripMenuItem.Text = "Ab&out";
             aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
             // 
@@ -1223,6 +1231,7 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem toolStripMenuItemImportFromFolder;
         private ToolStripSeparator toolStripSeparator12;
         private RichTextBox richTextBoxManifestOverridden;
+        private ToolStripMenuItem toolStripMenuItemNexusmodsLink;
     }
 }
 

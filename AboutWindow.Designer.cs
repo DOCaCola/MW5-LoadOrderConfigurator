@@ -33,9 +33,10 @@
             label2 = new System.Windows.Forms.Label();
             pictureBox1 = new System.Windows.Forms.PictureBox();
             buttonClose = new System.Windows.Forms.Button();
-            linkLabel1 = new System.Windows.Forms.LinkLabel();
+            linkLabelNexusmods = new System.Windows.Forms.LinkLabel();
             label3 = new System.Windows.Forms.Label();
             labelVersion = new System.Windows.Forms.Label();
+            linkLabelGithub = new System.Windows.Forms.LinkLabel();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
@@ -72,7 +73,7 @@
             // 
             // buttonClose
             // 
-            buttonClose.Location = new System.Drawing.Point(19, 279);
+            buttonClose.Location = new System.Drawing.Point(19, 295);
             buttonClose.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             buttonClose.Name = "buttonClose";
             buttonClose.Size = new System.Drawing.Size(88, 26);
@@ -81,16 +82,16 @@
             buttonClose.UseVisualStyleBackColor = true;
             buttonClose.Click += button1_Click;
             // 
-            // linkLabel1
+            // linkLabelNexusmods
             // 
-            linkLabel1.AutoSize = true;
-            linkLabel1.Location = new System.Drawing.Point(19, 247);
-            linkLabel1.Name = "linkLabel1";
-            linkLabel1.Size = new System.Drawing.Size(43, 15);
-            linkLabel1.TabIndex = 5;
-            linkLabel1.TabStop = true;
-            linkLabel1.Text = "Github";
-            linkLabel1.LinkClicked += linkLabel1_LinkClicked;
+            linkLabelNexusmods.AutoSize = true;
+            linkLabelNexusmods.Location = new System.Drawing.Point(19, 247);
+            linkLabelNexusmods.Name = "linkLabelNexusmods";
+            linkLabelNexusmods.Size = new System.Drawing.Size(70, 15);
+            linkLabelNexusmods.TabIndex = 5;
+            linkLabelNexusmods.TabStop = true;
+            linkLabelNexusmods.Text = "Nexusmods";
+            linkLabelNexusmods.LinkClicked += linkLabelNexusmods_LinkClicked;
             // 
             // label3
             // 
@@ -110,15 +111,27 @@
             labelVersion.TabIndex = 7;
             labelVersion.Text = "labelVersion";
             // 
+            // linkLabelGithub
+            // 
+            linkLabelGithub.AutoSize = true;
+            linkLabelGithub.Location = new System.Drawing.Point(19, 265);
+            linkLabelGithub.Name = "linkLabelGithub";
+            linkLabelGithub.Size = new System.Drawing.Size(43, 15);
+            linkLabelGithub.TabIndex = 8;
+            linkLabelGithub.TabStop = true;
+            linkLabelGithub.Text = "Github";
+            linkLabelGithub.LinkClicked += linkLabelGithub_LinkClicked;
+            // 
             // AboutWindow
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             CancelButton = buttonClose;
-            ClientSize = new System.Drawing.Size(287, 318);
+            ClientSize = new System.Drawing.Size(287, 344);
+            Controls.Add(linkLabelGithub);
             Controls.Add(labelVersion);
             Controls.Add(label3);
-            Controls.Add(linkLabel1);
+            Controls.Add(linkLabelNexusmods);
             Controls.Add(buttonClose);
             Controls.Add(pictureBox1);
             Controls.Add(label2);
@@ -143,8 +156,9 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Button buttonClose;
-        private System.Windows.Forms.LinkLabel linkLabel1;
+        private System.Windows.Forms.LinkLabel linkLabelNexusmods;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label labelVersion;
+        private System.Windows.Forms.LinkLabel linkLabelGithub;
     }
 }

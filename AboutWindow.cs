@@ -24,11 +24,11 @@ namespace MW5_Mod_Manager
             Close();
         }
 
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void linkLabelNexusmods_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             var psi = new System.Diagnostics.ProcessStartInfo()
             {
-                FileName = "https://github.com/DOCaCola/MW5-LoadOrderConfigurator",
+                FileName = "https://www.nexusmods.com/mechwarrior5mercenaries/mods/1085",
                 UseShellExecute = true
             };
             System.Diagnostics.Process.Start(psi);
@@ -37,6 +37,16 @@ namespace MW5_Mod_Manager
         private void AboutWindow_Load(object sender, EventArgs e)
         {
             labelVersion.Text = @"Version: " + MainWindow.MainForm.GetVersion();
+        }
+
+        private void linkLabelGithub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo()
+            {
+                FileName = "https://github.com/DOCaCola/MW5-LoadOrderConfigurator",
+                UseShellExecute = true
+            };
+            System.Diagnostics.Process.Start(psi);
         }
     }
 }

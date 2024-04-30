@@ -1590,10 +1590,10 @@ namespace MW5_Mod_Manager
 
                 modListView_SelectedIndexChanged(null, null);
                 modsListView.EndUpdate();
-                
+
                 SetModSettingsTainted(true);
             }
-            
+
             modsListView.InsertionMark.Index = -1;
         }
 
@@ -2035,9 +2035,9 @@ namespace MW5_Mod_Manager
 
         private void DeleteMod(string modKey)
         {
-            DialogResult dialogResult = MessageBox.Show("The mod " + logic.ModDetails[modKey].displayName 
+            DialogResult dialogResult = MessageBox.Show("The mod " + logic.ModDetails[modKey].displayName
                                                                    + " will be removed. This will delete the directory\r\n" + modKey
-                                                                   +"\r\n\r\nAre you sure you want to continue?",
+                                                                   + "\r\n\r\nAre you sure you want to continue?",
                 "Delete Mod",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);
@@ -2101,6 +2101,16 @@ namespace MW5_Mod_Manager
                 ExtractModFromArchive(selectedZipFile);
                 RefreshAll();
             }
+        }
+
+        private void toolStripMenuItemNexusmodsLink_Click(object sender, EventArgs e)
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo()
+            {
+                FileName = "https://www.nexusmods.com/mechwarrior5mercenaries/mods/1085",
+                UseShellExecute = true
+            };
+            System.Diagnostics.Process.Start(psi);
         }
     }
 }
