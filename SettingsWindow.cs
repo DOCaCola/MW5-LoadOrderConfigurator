@@ -27,19 +27,19 @@ namespace MW5_Mod_Manager
 
             switch (MainWindow.MainForm.logic.GamePlatform)
             {
-                case MainLogic.eGamePlatform.Epic:
+                case ModsManager.eGamePlatform.Epic:
                     comboBoxPlatform.SelectedIndex = 0;
                     break;
-                case MainLogic.eGamePlatform.Gog:
+                case ModsManager.eGamePlatform.Gog:
                     comboBoxPlatform.SelectedIndex = 1;
                     break;
-                case MainLogic.eGamePlatform.Steam:
+                case ModsManager.eGamePlatform.Steam:
                     comboBoxPlatform.SelectedIndex = 2;
                     break;
-                case MainLogic.eGamePlatform.WindowsStore:
+                case ModsManager.eGamePlatform.WindowsStore:
                     comboBoxPlatform.SelectedIndex = 3;
                     break;
-                case MainLogic.eGamePlatform.None:
+                case ModsManager.eGamePlatform.None:
                     UpdateInstallPathBoxState();
                     break;
             }
@@ -77,19 +77,19 @@ namespace MW5_Mod_Manager
             switch (comboBoxPlatform.SelectedIndex)
             {
                 case 0:
-                    MainWindow.MainForm.logic.GamePlatform = MainLogic.eGamePlatform.Epic;
+                    MainWindow.MainForm.logic.GamePlatform = ModsManager.eGamePlatform.Epic;
                     break;
                 case 1:
-                    MainWindow.MainForm.logic.GamePlatform = MainLogic.eGamePlatform.Gog;
+                    MainWindow.MainForm.logic.GamePlatform = ModsManager.eGamePlatform.Gog;
                     break;
                 case 2:
-                    MainWindow.MainForm.logic.GamePlatform = MainLogic.eGamePlatform.Steam;
+                    MainWindow.MainForm.logic.GamePlatform = ModsManager.eGamePlatform.Steam;
                     break;
                 case 3:
-                    MainWindow.MainForm.logic.GamePlatform = MainLogic.eGamePlatform.WindowsStore;
+                    MainWindow.MainForm.logic.GamePlatform = ModsManager.eGamePlatform.WindowsStore;
                     break;
                 default:
-                    MainWindow.MainForm.logic.GamePlatform = MainLogic.eGamePlatform.None;
+                    MainWindow.MainForm.logic.GamePlatform = ModsManager.eGamePlatform.None;
                     return;
             }
 
@@ -97,7 +97,7 @@ namespace MW5_Mod_Manager
 
             bool settingsValid = false;
 
-            if (MainWindow.MainForm.logic.GamePlatform != MainLogic.eGamePlatform.WindowsStore)
+            if (MainWindow.MainForm.logic.GamePlatform != ModsManager.eGamePlatform.WindowsStore)
             {
                 if (!string.IsNullOrEmpty(path))
                 {
@@ -107,9 +107,9 @@ namespace MW5_Mod_Manager
                         return;
                     }
 
-                    if (MainWindow.MainForm.logic.GamePlatform == MainLogic.eGamePlatform.Steam)
+                    if (MainWindow.MainForm.logic.GamePlatform == ModsManager.eGamePlatform.Steam)
                     {
-                        if (MainLogic.FindSteamAppsParentDirectory(path) == null)
+                        if (ModsManager.FindSteamAppsParentDirectory(path) == null)
                         {
                             MessageBox.Show(@"The selected directory doesn't appear to be a valid Steam game installation.",
                                 "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);

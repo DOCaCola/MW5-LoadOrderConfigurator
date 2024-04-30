@@ -11,7 +11,7 @@ using System.Reflection;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 using SharpCompress.Archives;
-using static MW5_Mod_Manager.MainLogic;
+using static MW5_Mod_Manager.ModsManager;
 using static System.Net.WebRequestMethods;
 using File = System.IO.File;
 using ListView = System.Windows.Forms.ListView;
@@ -22,7 +22,7 @@ namespace MW5_Mod_Manager
     public partial class MainWindow : Form
     {
         static public MainWindow MainForm;
-        public MainLogic logic = new MainLogic();
+        public ModsManager logic = new ModsManager();
         //public TCPFileShare fileShare;
 
         enum eFilterMode
@@ -78,7 +78,7 @@ namespace MW5_Mod_Manager
         private void MainWindow_Load(object sender, EventArgs e)
         {
             this.Icon = Properties.Resources.MainIcon;
-            this.logic = new MainLogic();
+            this.logic = new ModsManager();
             if (logic.TryLoadProgramSettings())
             {
                 LoadAndFill(false);
@@ -91,9 +91,9 @@ namespace MW5_Mod_Manager
             /*rotatingLabelLowPriority.ForeColor = MainLogic.LowPriorityColor;
             rotatingLabelHighPriority.ForeColor = MainLogic.HighPriorityColor;*/
 
-            panelColorOverridden.BackColor = MainLogic.OverriddenColor;
-            panelColorOverriding.BackColor = MainLogic.OverridingColor;
-            panelColorOverridingOverridden.BackColor = MainLogic.OverriddenOveridingColor;
+            panelColorOverridden.BackColor = ModsManager.OverriddenColor;
+            panelColorOverriding.BackColor = ModsManager.OverridingColor;
+            panelColorOverridingOverridden.BackColor = ModsManager.OverriddenOveridingColor;
         }
 
         //When we hover over the manager with a file or folder
@@ -352,25 +352,25 @@ namespace MW5_Mod_Manager
 
             switch (this.logic.GamePlatform)
             {
-                case MainLogic.eGamePlatform.Epic:
+                case ModsManager.eGamePlatform.Epic:
                     {
                         this.toolStripPlatformLabel.Text = @"Platform: Epic Store";
                         this.toolStripButtonStartGame.Enabled = true;
                         break;
                     }
-                case MainLogic.eGamePlatform.WindowsStore:
+                case ModsManager.eGamePlatform.WindowsStore:
                     {
                         this.toolStripPlatformLabel.Text = @"Platform: Microsoft Store/Xbox Game Pass";
                         this.toolStripButtonStartGame.Enabled = true;
                     }
                     break;
-                case MainLogic.eGamePlatform.Steam:
+                case ModsManager.eGamePlatform.Steam:
                     {
                         this.toolStripPlatformLabel.Text = @"Platform: Steam";
                         this.toolStripButtonStartGame.Enabled = true;
                     }
                     break;
-                case MainLogic.eGamePlatform.Gog:
+                case ModsManager.eGamePlatform.Gog:
                     {
                         this.toolStripPlatformLabel.Text = @"Platform: GOG.com";
                         this.toolStripButtonStartGame.Enabled = true;
@@ -454,10 +454,10 @@ namespace MW5_Mod_Manager
 
             switch (logic.Mods[entry.Key].Origin)
             {
-                case MainLogic.ModData.ModOrigin.Steam:
+                case ModsManager.ModData.ModOrigin.Steam:
                     newItem.ImageKey = "Steam";
                     break;
-                case MainLogic.ModData.ModOrigin.Nexusmods:
+                case ModsManager.ModData.ModOrigin.Nexusmods:
                     newItem.ImageKey = "Nexusmods";
                     break;
                 default:
@@ -633,16 +633,16 @@ namespace MW5_Mod_Manager
 
             switch (logic.GamePlatform)
             {
-                case MainLogic.eGamePlatform.Epic:
+                case ModsManager.eGamePlatform.Epic:
                     LaunchEpicGame();
                     break;
-                case MainLogic.eGamePlatform.Steam:
+                case ModsManager.eGamePlatform.Steam:
                     LaunchSteamGame();
                     break;
-                case MainLogic.eGamePlatform.Gog:
+                case ModsManager.eGamePlatform.Gog:
                     LaunchGogGame();
                     break;
-                case MainLogic.eGamePlatform.WindowsStore:
+                case ModsManager.eGamePlatform.WindowsStore:
                     LaunchMicrosoftStoreGame();
                     break;
             }
@@ -1755,7 +1755,7 @@ namespace MW5_Mod_Manager
                         this.logic.ModDetails[modListItem.Tag.ToString()].defaultLoadOrder.ToString();
             }
 
-            MainWindow.MainForm.ColorListViewNumbers(ModListData, MainWindow.MainForm.currentLoadOrderHeader.Index, MainLogic.LowPriorityColor, MainLogic.HighPriorityColor);
+            MainWindow.MainForm.ColorListViewNumbers(ModListData, MainWindow.MainForm.currentLoadOrderHeader.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
             modsListView.EndUpdate();
         }
 
@@ -2036,8 +2036,8 @@ namespace MW5_Mod_Manager
         private void DeleteMod(string modKey)
         {
             DialogResult dialogResult = MessageBox.Show("The mod " + logic.ModDetails[modKey].displayName 
-                                                                          + " will be removed. This will delete the directory\r\n" + modKey
-                                                                          +"\r\n\r\nAre you sure you want to continue?",
+                                                                   + " will be removed. This will delete the directory\r\n" + modKey
+                                                                   +"\r\n\r\nAre you sure you want to continue?",
                 "Delete Mod",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);

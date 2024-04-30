@@ -22,7 +22,7 @@ namespace MW5_Mod_Manager
 
         private void PresetDeleteWindow_Load(object sender, EventArgs e)
         {
-            MainLogic logic = MainWindow.MainForm.logic;
+            ModsManager logic = MainWindow.MainForm.logic;
             foreach (string key in logic.Presets.Keys)
             {
                 this.listBoxPresets.Items.Add(key);
@@ -36,7 +36,7 @@ namespace MW5_Mod_Manager
 
         private void buttonDelete_Click(object sender, EventArgs e)
         {
-            MainLogic logic = MainWindow.MainForm.logic;
+            ModsManager logic = MainWindow.MainForm.logic;
 
             foreach (var selectedItem in listBoxPresets.SelectedItems)
             {

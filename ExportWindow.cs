@@ -29,7 +29,7 @@ namespace MW5_Mod_Manager
         {
             Dictionary<string, bool> FolderNameModList = new Dictionary<string, bool>();
 
-            MainLogic logic = MainWindow.MainForm.logic;
+            ModsManager logic = MainWindow.MainForm.logic;
 
             //Get the folder names from the paths in modlist
             foreach (string key in logic.ModList.Keys)

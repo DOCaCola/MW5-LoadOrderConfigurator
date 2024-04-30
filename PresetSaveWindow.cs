@@ -66,7 +66,7 @@ namespace MW5_Mod_Manager
 
         private void PresetSaveWindow_Load(object sender, EventArgs e)
         {
-            MainLogic logic = MainWindow.MainForm.logic;
+            ModsManager logic = MainWindow.MainForm.logic;
             foreach (string key in logic.Presets.Keys)
             {
                 this.comboBoxPresets.Items.Add(key);
