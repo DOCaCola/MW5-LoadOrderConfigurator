@@ -191,7 +191,7 @@ namespace MW5_Mod_Manager
 
         private void buttonSave_Click(object sender, EventArgs e)
         {
-            // Save trivial settings
+            // Save trivial settings first
             LocSettings.Instance.Data.ListSortOrder =
                 radioButtonHighToLow.Checked ? eSortOrder.HighToLow : eSortOrder.LowToHigh;
             
@@ -201,13 +201,13 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-            LocSettings.Instance.Data.platform = GetSelectedPlatform();
+            eGamePlatform newPlatform = GetSelectedPlatform();
 
             string path = textBoxMw5Path.Text;
 
             bool settingsValid = false;
 
-            if (LocSettings.Instance.Data.platform != eGamePlatform.WindowsStore)
+            if (newPlatform != eGamePlatform.WindowsStore)
             {
                 if (!string.IsNullOrEmpty(path))
                 {
@@ -217,7 +217,7 @@ namespace MW5_Mod_Manager
                         return;
                     }
 
-                    if (LocSettings.Instance.Data.platform == eGamePlatform.Steam)
+                    if (newPlatform == eGamePlatform.Steam)
                     {
                         if (ModsManager.FindSteamAppsParentDirectory(path) == null)
                         {
@@ -232,19 +232,27 @@ namespace MW5_Mod_Manager
             }
             else
             {
-                path = "";
+                path = string.Empty;
                 settingsValid = true;
             }
 
             if (settingsValid)
             {
-                MainForm.Instance.ClearAll();
+                LocSettings.Instance.Data.platform = newPlatform;
                 LocSettings.Instance.Data.InstallPath = path;
-                ModsManager.Instance.UpdateGamePaths();
-                ModsManager.Instance.SaveSettings();
-                MainForm.Instance.RefreshAll();
-                MainForm.Instance.UpdatePriorityLabels();
             }
+            else
+            {
+                LocSettings.Instance.Data.platform = eGamePlatform.None;
+                LocSettings.Instance.Data.InstallPath = string.Empty; 
+            }
+
+            MainForm.Instance.ClearAll();
+            ModsManager.Instance.UpdateGamePaths();
+            ModsManager.Instance.SaveSettings();
+            MainForm.Instance.RefreshAll();
+
+            MainForm.Instance.UpdatePriorityLabels();
 
             Close();
         }

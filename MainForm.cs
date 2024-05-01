@@ -13,6 +13,7 @@ using static MW5_Mod_Manager.ModsManager;
 using File = System.IO.File;
 using ListView = System.Windows.Forms.ListView;
 using System.Net.Http;
+using System.Xml.XPath;
 using Newtonsoft.Json.Linq;
 
 namespace MW5_Mod_Manager
@@ -264,8 +265,8 @@ namespace MW5_Mod_Manager
             listItem.Selected = true;
             modsListView.EnsureVisible(listItem.Index);
 
-            ModsManager.Instance.GetOverridingData(this.ModListData);
             RecomputeLoadOrdersAndUpdateList();
+            ModsManager.Instance.GetOverridingData(this.ModListData);
             modListView_SelectedIndexChanged(null, null);
             this.MovingItem = false;
         }
@@ -302,8 +303,8 @@ namespace MW5_Mod_Manager
             listItem.Selected = true;
             modsListView.EnsureVisible(listItem.Index);
 
-            ModsManager.Instance.GetOverridingData(ModListData);
             RecomputeLoadOrdersAndUpdateList();
+            ModsManager.Instance.GetOverridingData(ModListData);
             modListView_SelectedIndexChanged(null, null);
             this.MovingItem = false;
         }
@@ -389,7 +390,7 @@ namespace MW5_Mod_Manager
             bool prevLoadingAndFilling = LoadingAndFilling;
             this.LoadingAndFilling = true;
             KeyValuePair<string, bool> currentEntry = default;
-            try
+            //try
             {
                 if (FromClipboard)
                     ModsManager.Instance.LoadFromImportString();
@@ -397,18 +398,24 @@ namespace MW5_Mod_Manager
                     ModsManager.Instance.LoadFromFiles();
 
                 // Sort by mechwarrior load order
-                var orderedModList = ModsManager.Instance.ModList.
-                    Join(ModsManager.Instance.ModDetails,
-                        modListItem => modListItem.Key,
-                        modDetailsItem => modDetailsItem.Key,
-                        (modListItem, modDetailsItem) => 
-                            new { Key = modListItem.Key
-                                , Value = modListItem.Value
-                                , loadOrder = modDetailsItem.Value.defaultLoadOrder
-                                , folderName = ModsManager.Instance.PathToDirectoryDict[modListItem.Key].ToString() })
-                    .OrderByDescending(item => item.folderName)
-                    .OrderByDescending(item => item.loadOrder)
-                    .ToDictionary(item => item.Key, item => item.Value);
+                var orderedModList = ModsManager.Instance.ModEnabledList.ToList();
+                orderedModList.Sort((x, y) =>
+                {
+                    // Compare Original load order
+                    int priorityComparison = ModsManager.Instance.ModDetails[y.Key].defaultLoadOrder
+                            .CompareTo(ModsManager.Instance.ModDetails[x.Key].defaultLoadOrder);
+
+                    // If Priority is equal, compare Folder name
+                    if (priorityComparison == 0)
+                    {
+                        return ModsManager.Instance.PathToDirNameDict[y.Key].ToString()
+                            .CompareTo(ModsManager.Instance.PathToDirNameDict[x.Key]);
+                    }
+
+                    return priorityComparison;
+                });
+
+                
 
                 modsListView.BeginUpdate();
                 foreach (KeyValuePair<string, bool> entry in orderedModList.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
@@ -425,7 +432,7 @@ namespace MW5_Mod_Manager
                 modsListView.EndUpdate();
                 ModsManager.Instance.SaveSettings();
             }
-            catch (Exception e)
+            /*catch (Exception e)
             {
                 if (currentEntry.Key == null)
                 {
@@ -436,7 +443,7 @@ namespace MW5_Mod_Manager
                 string caption = "Error Loading";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
-            }
+            }*/
             this.LoadingAndFilling = prevLoadingAndFilling;
             RecomputeLoadOrdersAndUpdateList();
             ModsManager.Instance.GetOverridingData(ModListData);
@@ -474,7 +481,7 @@ namespace MW5_Mod_Manager
                                     ModsManager.Instance.ModDetails[entry.Key].buildNumber.ToString() + ")").Trim();
 
             newItem.SubItems[displayHeader.Index].Text = ModsManager.Instance.ModDetails[entry.Key].displayName;
-            newItem.SubItems[folderHeader.Index].Text = ModsManager.Instance.PathToDirectoryDict[modName];
+            newItem.SubItems[folderHeader.Index].Text = ModsManager.Instance.PathToDirNameDict[modName];
             newItem.SubItems[authorHeader.Index].Text = ModsManager.Instance.ModDetails[entry.Key].author;
             newItem.SubItems[versionHeader.Index].Text = versionString;
             newItem.SubItems[currentLoadOrderHeader.Index].Text = ModsManager.Instance.ModDetails[entry.Key].defaultLoadOrder.ToString();
@@ -536,9 +543,9 @@ namespace MW5_Mod_Manager
         public void SavePreset(string name)
         {
             Dictionary<string, bool> NoPathModlist = new Dictionary<string, bool>();
-            foreach (KeyValuePair<string, bool> entry in ModsManager.Instance.ModList)
+            foreach (KeyValuePair<string, bool> entry in ModsManager.Instance.ModEnabledList)
             {
-                string folderName = ModsManager.Instance.PathToDirectoryDict[entry.Key];
+                string folderName = ModsManager.Instance.PathToDirNameDict[entry.Key];
                 NoPathModlist[folderName] = entry.Value;
             }
             ModsManager.Instance.Presets[name] = JsonConvert.SerializeObject(NoPathModlist, Formatting.Indented);
@@ -571,8 +578,8 @@ namespace MW5_Mod_Manager
             this.ModListData.Clear();
             ModsManager.Instance.ModDetails = new Dictionary<string, ModObject>();
             ModsManager.Instance.ModDirectories.Clear();
-            ModsManager.Instance.ModList.Clear();
-            ModsManager.Instance.ModList = temp.ReverseIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh);
+            ModsManager.Instance.ModEnabledList.Clear();
+            ModsManager.Instance.ModEnabledList = temp.ReverseIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh);
             ModsManager.Instance.Mods.Clear();
             this.LoadAndFill(true);
             FilterTextChanged();
@@ -910,10 +917,10 @@ namespace MW5_Mod_Manager
 
                 string superMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
 
-                if (!ModsManager.Instance.OverrridingData.ContainsKey(superMod))
+                if (!ModsManager.Instance.OverridingData.ContainsKey(superMod))
                     return;
 
-                OverridingData modData = ModsManager.Instance.OverrridingData[superMod];
+                OverridingData modData = ModsManager.Instance.OverridingData[superMod];
 
                 if (!modData.overriddenBy.ContainsKey(selectedMod.ModDirName))
                     return;
@@ -965,10 +972,10 @@ namespace MW5_Mod_Manager
 
                 string superMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
 
-                if (!ModsManager.Instance.OverrridingData.ContainsKey(superMod))
+                if (!ModsManager.Instance.OverridingData.ContainsKey(superMod))
                     return;
 
-                OverridingData modData = ModsManager.Instance.OverrridingData[superMod];
+                OverridingData modData = ModsManager.Instance.OverridingData[superMod];
 
                 foreach (string entry in modData.overrides[selectedMod.ModDirName])
                 {
@@ -1083,7 +1090,7 @@ namespace MW5_Mod_Manager
         //Handles the showing of overriding data on select
         private void HandleOverriding(string SelectedMod)
         {
-            if (ModsManager.Instance.OverrridingData.Count == 0)
+            if (ModsManager.Instance.OverridingData.Count == 0)
                 return;
 
             this.listBoxOverriding.Items.Clear();
@@ -1091,14 +1098,14 @@ namespace MW5_Mod_Manager
             this.richTextBoxManifestOverridden.Clear();
 
             //If we select a mod that is not ticked its data is never gotten so will get an error if we don't do this.
-            if (!ModsManager.Instance.OverrridingData.ContainsKey(SelectedMod))
+            if (!ModsManager.Instance.OverridingData.ContainsKey(SelectedMod))
                 return;
 
-            OverridingData modData = ModsManager.Instance.OverrridingData[SelectedMod];
+            OverridingData modData = ModsManager.Instance.OverridingData[SelectedMod];
             foreach (string overriding in modData.overriddenBy.Keys)
             {
                 ModListBoxItem modListBoxItem = new ModListBoxItem();
-                string modKey = ModsManager.Instance.DirectoryToPathDict[overriding];
+                string modKey = ModsManager.Instance.DirNameToPathDict[overriding];
                 modListBoxItem.DisplayName = ModsManager.Instance.ModDetails[modKey].displayName;
                 modListBoxItem.ModDirName = overriding;
                 modListBoxItem.ModKey = modKey;
@@ -1109,7 +1116,7 @@ namespace MW5_Mod_Manager
             foreach (string overrides in modData.overrides.Keys)
             {
                 ModListBoxItem modListBoxItem = new ModListBoxItem();
-                string modKey = ModsManager.Instance.DirectoryToPathDict[overrides];
+                string modKey = ModsManager.Instance.DirNameToPathDict[overrides];
                 modListBoxItem.DisplayName = ModsManager.Instance.ModDetails[modKey].displayName;
                 modListBoxItem.ModDirName = overrides;
                 modListBoxItem.ModKey = modKey;
@@ -1126,7 +1133,7 @@ namespace MW5_Mod_Manager
             }
 
             // set mod enabled state
-            ModsManager.Instance.ModList[e.Item.Tag.ToString()] = e.Item.Checked;
+            ModsManager.Instance.ModEnabledList[e.Item.Tag.ToString()] = e.Item.Checked;
 
             RecomputeLoadOrdersAndUpdateList();
 
@@ -1176,7 +1183,7 @@ namespace MW5_Mod_Manager
             this.modsListView.Items.Clear();
             this.ModListData.Clear();
             ModsManager.Instance.ModDetails.Clear();
-            ModsManager.Instance.ModList = newData;
+            ModsManager.Instance.ModEnabledList = newData;
             ModsManager.Instance.ModDirectories.Clear();
             ModsManager.Instance.Mods.Clear();
             this.LoadAndFill(true);
@@ -1238,9 +1245,9 @@ namespace MW5_Mod_Manager
             }
             this.MovingItem = false;
 
-            foreach (var key in ModsManager.Instance.ModList.Keys)
+            foreach (var key in ModsManager.Instance.ModEnabledList.Keys)
             {
-                ModsManager.Instance.ModList[key] = true;
+                ModsManager.Instance.ModEnabledList[key] = true;
             }
 
             ModsManager.Instance.GetOverridingData(this.ModListData);
@@ -1265,9 +1272,9 @@ namespace MW5_Mod_Manager
             }
             this.MovingItem = false;
 
-            foreach (var key in ModsManager.Instance.ModList.Keys)
+            foreach (var key in ModsManager.Instance.ModEnabledList.Keys)
             {
-                ModsManager.Instance.ModList[key] = false;
+                ModsManager.Instance.ModEnabledList[key] = false;
             }
 
             ModsManager.Instance.GetOverridingData(ModListData);
@@ -1475,8 +1482,8 @@ namespace MW5_Mod_Manager
 
                 ModListData.Remove(draggedItem);
                 modsListView.Items.Remove(draggedItem);
-                ModsManager.Instance.GetOverridingData(this.ModListData);
                 RecomputeLoadOrdersAndUpdateList();
+                ModsManager.Instance.GetOverridingData(this.ModListData);
 
                 modListView_SelectedIndexChanged(null, null);
                 modsListView.EndUpdate();
@@ -1591,7 +1598,7 @@ namespace MW5_Mod_Manager
             int count = 0;
             if (enabledOnly)
             {
-                foreach (bool curModState in ModsManager.Instance.ModList.Values)
+                foreach (bool curModState in ModsManager.Instance.ModEnabledList.Values)
                 {
                     if (curModState) { count++; }
                 }
@@ -1618,7 +1625,7 @@ namespace MW5_Mod_Manager
             foreach (ListViewItem curModListItem in ModListData.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
             {
                 string modKey = curModListItem.Tag.ToString();
-                bool modEnabled = ModsManager.Instance.ModList[modKey];
+                bool modEnabled = ModsManager.Instance.ModEnabledList[modKey];
                 newModList[modKey] = modEnabled;
                 if (!isDefaultSorted && (!restoreLoadOrdersOfDisabled || modEnabled))
                 {
@@ -1631,7 +1638,7 @@ namespace MW5_Mod_Manager
                 }
             }
 
-            ModsManager.Instance.ModList = newModList;
+            ModsManager.Instance.ModEnabledList = newModList;
         }
 
         public void RecomputeLoadOrdersAndUpdateList()
@@ -1746,7 +1753,7 @@ namespace MW5_Mod_Manager
             foreach (ListViewItem item in listViewItems)
             {
                 // Skip disabled mods
-                if (!ModsManager.Instance.ModList[item.Tag.ToString()])
+                if (!ModsManager.Instance.ModEnabledList[item.Tag.ToString()])
                     continue;
 
                 int number;
@@ -1769,7 +1776,7 @@ namespace MW5_Mod_Manager
             for (int i = 0; i < listViewItems.Count; i++)
             {
                 // Skip disabled mods
-                if (!ModsManager.Instance.ModList[listViewItems[i].Tag.ToString()])
+                if (!ModsManager.Instance.ModEnabledList[listViewItems[i].Tag.ToString()])
                     continue;
 
                 int number;
@@ -1822,8 +1829,8 @@ namespace MW5_Mod_Manager
             });
 
             ReloadListViewFromData();
-            ModsManager.Instance.GetOverridingData(this.ModListData);
             RecomputeLoadOrdersAndUpdateList();
+            ModsManager.Instance.GetOverridingData(this.ModListData);
             FilterTextChanged();
             modListView_SelectedIndexChanged(null, null);
             SetModSettingsTainted(true);

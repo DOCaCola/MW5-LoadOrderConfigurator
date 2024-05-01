@@ -205,7 +205,7 @@ namespace MW5_Mod_Manager
             // displayHeader
             // 
             displayHeader.Tag = "";
-            displayHeader.Text = "Display Name";
+            displayHeader.Text = "Name";
             displayHeader.Width = 260;
             // 
             // authorHeader

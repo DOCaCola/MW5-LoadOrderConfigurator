@@ -39,10 +39,10 @@
             tabControl1 = new System.Windows.Forms.TabControl();
             tabPage1 = new System.Windows.Forms.TabPage();
             tabPage2 = new System.Windows.Forms.TabPage();
+            groupBox2 = new System.Windows.Forms.GroupBox();
+            label3 = new System.Windows.Forms.Label();
             radioButtonLowToHigh = new System.Windows.Forms.RadioButton();
             radioButtonHighToLow = new System.Windows.Forms.RadioButton();
-            label3 = new System.Windows.Forms.Label();
-            groupBox2 = new System.Windows.Forms.GroupBox();
             groupBox1.SuspendLayout();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
@@ -164,37 +164,6 @@
             tabPage2.Text = "Display";
             tabPage2.UseVisualStyleBackColor = true;
             // 
-            // radioButtonLowToHigh
-            // 
-            radioButtonLowToHigh.AutoSize = true;
-            radioButtonLowToHigh.Location = new System.Drawing.Point(265, 23);
-            radioButtonLowToHigh.Name = "radioButtonLowToHigh";
-            radioButtonLowToHigh.Size = new System.Drawing.Size(118, 19);
-            radioButtonLowToHigh.TabIndex = 2;
-            radioButtonLowToHigh.Text = "Lowest to highest";
-            radioButtonLowToHigh.UseVisualStyleBackColor = true;
-            // 
-            // radioButtonHighToLow
-            // 
-            radioButtonHighToLow.AutoSize = true;
-            radioButtonHighToLow.Checked = true;
-            radioButtonHighToLow.Location = new System.Drawing.Point(142, 23);
-            radioButtonHighToLow.Name = "radioButtonHighToLow";
-            radioButtonHighToLow.Size = new System.Drawing.Size(117, 19);
-            radioButtonHighToLow.TabIndex = 1;
-            radioButtonHighToLow.TabStop = true;
-            radioButtonHighToLow.Text = "Highest to lowest";
-            radioButtonHighToLow.UseVisualStyleBackColor = true;
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Location = new System.Drawing.Point(17, 25);
-            label3.Name = "label3";
-            label3.Size = new System.Drawing.Size(119, 15);
-            label3.TabIndex = 0;
-            label3.Text = "Priority display order:";
-            // 
             // groupBox2
             // 
             groupBox2.Controls.Add(label3);
@@ -207,13 +176,44 @@
             groupBox2.TabStop = false;
             groupBox2.Text = "Mod list";
             // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new System.Drawing.Point(17, 25);
+            label3.Name = "label3";
+            label3.Size = new System.Drawing.Size(157, 15);
+            label3.TabIndex = 0;
+            label3.Text = "Load order display direction:";
+            // 
+            // radioButtonLowToHigh
+            // 
+            radioButtonLowToHigh.AutoSize = true;
+            radioButtonLowToHigh.Location = new System.Drawing.Point(303, 23);
+            radioButtonLowToHigh.Name = "radioButtonLowToHigh";
+            radioButtonLowToHigh.Size = new System.Drawing.Size(118, 19);
+            radioButtonLowToHigh.TabIndex = 2;
+            radioButtonLowToHigh.Text = "Lowest to highest";
+            radioButtonLowToHigh.UseVisualStyleBackColor = true;
+            // 
+            // radioButtonHighToLow
+            // 
+            radioButtonHighToLow.AutoSize = true;
+            radioButtonHighToLow.Checked = true;
+            radioButtonHighToLow.Location = new System.Drawing.Point(180, 23);
+            radioButtonHighToLow.Name = "radioButtonHighToLow";
+            radioButtonHighToLow.Size = new System.Drawing.Size(117, 19);
+            radioButtonHighToLow.TabIndex = 1;
+            radioButtonHighToLow.TabStop = true;
+            radioButtonHighToLow.Text = "Highest to lowest";
+            radioButtonHighToLow.UseVisualStyleBackColor = true;
+            // 
             // SettingsForm
             // 
             AcceptButton = buttonSave;
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             CancelButton = buttonCancel;
-            ClientSize = new System.Drawing.Size(586, 202);
+            ClientSize = new System.Drawing.Size(592, 202);
             Controls.Add(tabControl1);
             Controls.Add(buttonCancel);
             Controls.Add(buttonSave);

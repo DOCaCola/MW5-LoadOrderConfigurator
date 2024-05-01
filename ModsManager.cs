@@ -45,15 +45,15 @@ namespace MW5_Mod_Manager
 
         // Directories found in all mod paths
         public List<string> FoundDirectories = new();
-        public Dictionary<string, string> DirectoryToPathDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        public Dictionary<string, string> PathToDirectoryDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, string> DirNameToPathDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, string> PathToDirNameDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         // Mod data as loaded from the mods' mod.json file
         public Dictionary<string, ModObject> ModDetails = new Dictionary<string, ModObject>(StringComparer.OrdinalIgnoreCase);
         // Valid mod directories
         public List<string> ModDirectories = new();
-        public Dictionary<string, bool> ModList = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-        public Dictionary<string, OverridingData> OverrridingData = new Dictionary<string, OverridingData>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, bool> ModEnabledList = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, OverridingData> OverridingData = new Dictionary<string, OverridingData>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, string> Presets = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         public static Color OverriddenColor = Color.FromArgb(131, 101, 0);
@@ -77,6 +77,8 @@ namespace MW5_Mod_Manager
         public class ModData
         {
             public float OriginalLoadOrder = Single.NaN;
+            // Was the file mod.json modified by LOC before?
+            public bool IsNewMod = true;
 
             public enum ModOrigin
             {
@@ -288,23 +290,23 @@ namespace MW5_Mod_Manager
         private void CheckModDirPresent()
         {
             Dictionary<string, bool> MissingModDirs = new();
-            foreach (var item in this.ModList)
+            foreach (var item in this.ModEnabledList)
             {
                 if (Utils.StringNullEmptyOrWhiteSpace(item.Key))
                 {
-                    ModList.Remove(item.Key);
+                    ModEnabledList.Remove(item.Key);
                     continue;
                 }
 
                 // Collect listed mods that are unavailable locally
-                if (!DirectoryToPathDict.ContainsKey(item.Key))
+                if (!DirNameToPathDict.ContainsKey(item.Key))
                 { 
                     MissingModDirs.Add(item.Key, item.Value);
                 }
             }
             foreach (var missingModDir in MissingModDirs)
             {
-                this.ModList.Remove(missingModDir.Key);
+                this.ModEnabledList.Remove(missingModDir.Key);
 
                 // We will silently ignore missing mods that are not enabled
                 if (!missingModDir.Value)
@@ -330,12 +332,12 @@ namespace MW5_Mod_Manager
         private void AddPathsToModList()
         {
             Dictionary<string, bool> newModList = new Dictionary<string, bool>();
-            foreach (string key in this.ModList.Keys)
+            foreach (string key in this.ModEnabledList.Keys)
             {
-                string fullPath = DirectoryToPathDict[key];
-                newModList[fullPath] = ModList[key];
+                string fullPath = DirNameToPathDict[key];
+                newModList[fullPath] = ModEnabledList[key];
             }
-            this.ModList = newModList;
+            this.ModEnabledList = newModList;
         }
 
         public string GetSettingsDirectory()
@@ -462,8 +464,8 @@ namespace MW5_Mod_Manager
             foreach (string curDirectory in FoundDirectories)
             {
                 string directoryName = Path.GetFileName(curDirectory);
-                this.DirectoryToPathDict[directoryName] = curDirectory;
-                this.PathToDirectoryDict[curDirectory] = directoryName;
+                this.DirNameToPathDict[directoryName] = curDirectory;
+                this.PathToDirNameDict[curDirectory] = directoryName;
             }
         }
 
@@ -502,12 +504,14 @@ namespace MW5_Mod_Manager
             JObject modStatus = modListObjectObject.Value<JObject>("modStatus");
             if (modStatus != null)
             {
+                int modListIndex = 0;
                 foreach (JProperty mod in modStatus.Properties())
                 {
                     bool enabled = (bool)modStatus[mod.Name]["bEnabled"];
-                    if (this.DirectoryToPathDict.TryGetValue(mod.Name, out string modDir))
+                    if (this.DirNameToPathDict.TryGetValue(mod.Name, out string modDir))
                     {
-                        this.ModList.Add(modDir, enabled);
+                        this.ModEnabledList.Add(modDir, enabled);
+                        ++modListIndex;
                     }
                 }
             }
@@ -525,9 +529,9 @@ namespace MW5_Mod_Manager
             this.ModDirectories.Clear();
             this.Mods.Clear();
             this.ModDetails.Clear();
-            this.ModList.Clear();
-            this.DirectoryToPathDict.Clear();
-            this.OverrridingData.Clear();
+            this.ModEnabledList.Clear();
+            this.DirNameToPathDict.Clear();
+            this.OverridingData.Clear();
             this.ModsPaths[eModPathType.Program] = null;
             this.ModsPaths[eModPathType.Steam] = null;
             this.ModsPaths[eModPathType.AppData] = null;
@@ -538,7 +542,7 @@ namespace MW5_Mod_Manager
         //Check if the mod dir is already present in data loaded from modlist.json, if not add it.
         private void CombineDirModList()
         {
-            // First sort the directory by the default MW5 load orders
+            // First sort the directories by the default MW5 load orders
             ModDirectories.Sort((x, y) =>
             {
                 if (!Mods.ContainsKey(x) || !Mods.ContainsKey(y))
@@ -550,24 +554,23 @@ namespace MW5_Mod_Manager
                 // If Priority is equal, compare Folder name
                 if (priorityComparison == 0)
                 {
-                    return PathToDirectoryDict[y].CompareTo(PathToDirectoryDict[x]);
+                    return PathToDirNameDict[y].CompareTo(PathToDirNameDict[x]);
                 }
-                else
-                {
-                    return priorityComparison;
-                }
+
+                return priorityComparison;
             });
 
+            // Disable all mods not in the list. Important if we load from an import string...
             foreach (string modDir in this.ModDirectories)
             {
-                if (this.ModList.ContainsKey(modDir))
+                if (this.ModEnabledList.ContainsKey(modDir))
                     continue;
 
-                ModList[modDir] = false;
+                ModEnabledList[modDir] = false;
             }
             // There are sometimes "ghost" entries in the modlist.json for which there are no directories left, lets remove those.
             List<string> toRemove = new List<string>();
-            foreach (KeyValuePair<string, bool> entry in this.ModList)
+            foreach (KeyValuePair<string, bool> entry in this.ModEnabledList)
             {
                 if (this.ModDirectories.Contains<string>(entry.Key))
                     continue;
@@ -575,7 +578,7 @@ namespace MW5_Mod_Manager
             }
             foreach (string key in toRemove)
             {
-                this.ModList.Remove(key);
+                this.ModEnabledList.Remove(key);
             }
         }
 
@@ -620,7 +623,7 @@ namespace MW5_Mod_Manager
             try
             {
                 ModData modData = new ModData();
-                ModObject modDetails = null;
+                ModObject modJsonDataObject = null;
                 try
                 {
                     string modJsonFilePath = Path.Combine(modPath, @"mod.json");
@@ -629,17 +632,18 @@ namespace MW5_Mod_Manager
                         return;
                     }
 
-                    string modJson = File.ReadAllText(modJsonFilePath);
-                    JObject modDetailsJ = JObject.Parse(modJson);
+                    string modJsonText = File.ReadAllText(modJsonFilePath);
+                    JObject modJsonObject = JObject.Parse(modJsonText);
 
                     var jsonSettings = new JsonSerializerSettings
                     {
                         NullValueHandling = NullValueHandling.Ignore
                     };
 
-                    modDetails = JsonConvert.DeserializeObject<ModObject>(modJson, jsonSettings);
+                    modJsonDataObject = JsonConvert.DeserializeObject<ModObject>(modJsonText, jsonSettings);
 
                     bool foundLoadOrder = false;
+                    modData.IsNewMod = !modJsonObject.ContainsKey("locOriginalLoadOrder");
 
                     // Now let's be a bit overkill and try our best to find the original order of the mod
                     // Since other load order manager save these load orders very differently (or not all),
@@ -661,8 +665,8 @@ namespace MW5_Mod_Manager
                                 modBackupDetailsJ.ContainsKey("buildNumber"))
                             {
                                 buildAndVersionMatches =
-                                    String.Compare(modBackupDetailsJ["version"]?.ToString(), modDetails.version, StringComparison.Ordinal) == 0 &&
-                                    String.Compare(modBackupDetailsJ["buildNumber"]?.ToString(), modDetails.buildNumber.ToString(), StringComparison.Ordinal) == 0;
+                                    String.Compare(modBackupDetailsJ["version"]?.ToString(), modJsonDataObject.version, StringComparison.Ordinal) == 0 &&
+                                    String.Compare(modBackupDetailsJ["buildNumber"]?.ToString(), modJsonDataObject.buildNumber.ToString(), StringComparison.Ordinal) == 0;
                             }
 
                             if (buildAndVersionMatches)
@@ -680,18 +684,18 @@ namespace MW5_Mod_Manager
 
                     if (!foundLoadOrder)
                     {
-                        modData.OriginalLoadOrder = GetOriginalLoadOrderFromObject(modDetailsJ);
+                        modData.OriginalLoadOrder = GetOriginalLoadOrderFromObject(modJsonObject);
                     }
 
                     // Determine mod origin
-                    string modDir = this.PathToDirectoryDict[modPath];
+                    string modDir = this.PathToDirNameDict[modPath];
 
                     // Check if this might be a mod from the steam workshop
                     if (IsSteamWorkshopID(modDir))
                     {
                         // If the mod directory name matches the store id, we can be pretty certain
                         // there are mods however, that don't have this info correctly filled
-                        if (modDir == modDetails.steamPublishedFileId.ToString())
+                        if (modDir == modJsonDataObject.steamPublishedFileId.ToString())
                         {
                             modData.Origin = ModData.ModOrigin.Steam;
                         }
@@ -709,7 +713,7 @@ namespace MW5_Mod_Manager
 
                     if (modData.Origin == ModData.ModOrigin.Unknown)
                     {
-                        string modDirectoryName = PathToDirectoryDict[modPath];
+                        string modDirectoryName = PathToDirNameDict[modPath];
                         if (VortexDeploymentData.ContainsKey(modDirectoryName))
                         {
                             VortexDeploymentModData vortexModData = VortexDeploymentData[modDirectoryName];
@@ -785,7 +789,7 @@ namespace MW5_Mod_Manager
 
                 modData.ModFileSize = totalPakSize;
                 this.Mods.Add(modPath, modData);
-                this.ModDetails.Add(modPath, modDetails);
+                this.ModDetails.Add(modPath, modJsonDataObject);
                 this.ModDirectories.Add(modPath);
                 loadModSuccess = true;
             }
@@ -793,8 +797,8 @@ namespace MW5_Mod_Manager
             {
                 if (!loadModSuccess)
                 {
-                    if (ModList.ContainsKey(modPath))
-                        ModList.Remove(modPath);
+                    if (ModEnabledList.ContainsKey(modPath))
+                        ModEnabledList.Remove(modPath);
                 }
             }
  
@@ -874,7 +878,7 @@ namespace MW5_Mod_Manager
                 modListObject.Add("modStatus", modStatusObject);
             }
 
-            foreach (KeyValuePair<string, bool> entry in this.ModList)
+            foreach (KeyValuePair<string, bool> entry in this.ModEnabledList)
             {
                 string[] temp = entry.Key.Split('\\');
                 string modFolderName = temp[temp.Length - 1];
@@ -900,27 +904,27 @@ namespace MW5_Mod_Manager
             string modA = listItemA.SubItems[MainForm.Instance.folderHeader.Index].Text;
             string modB = listItemB.SubItems[MainForm.Instance.folderHeader.Index].Text;
 
-            if (this.OverrridingData.ContainsKey(modA))
+            if (this.OverridingData.ContainsKey(modA))
             {
-                if (this.OverrridingData[modA].overriddenBy.ContainsKey(modB))
-                    this.OverrridingData[modA].overriddenBy.Remove(modB);
-                if (this.OverrridingData[modA].overrides.ContainsKey(modB))
-                    this.OverrridingData[modA].overrides.Remove(modB);
-                if (this.OverrridingData[modA].overrides.Count == 0)
-                    this.OverrridingData[modA].isOverriding = false;
-                if (this.OverrridingData[modA].overriddenBy.Count == 0)
-                    this.OverrridingData[modA].isOverridden = false;
+                if (this.OverridingData[modA].overriddenBy.ContainsKey(modB))
+                    this.OverridingData[modA].overriddenBy.Remove(modB);
+                if (this.OverridingData[modA].overrides.ContainsKey(modB))
+                    this.OverridingData[modA].overrides.Remove(modB);
+                if (this.OverridingData[modA].overrides.Count == 0)
+                    this.OverridingData[modA].isOverriding = false;
+                if (this.OverridingData[modA].overriddenBy.Count == 0)
+                    this.OverridingData[modA].isOverridden = false;
             }
-            if (this.OverrridingData.ContainsKey(modA))
+            if (this.OverridingData.ContainsKey(modA))
             {
-                if (this.OverrridingData[modB].overriddenBy.ContainsKey(modA))
-                    this.OverrridingData[modB].overriddenBy.Remove(modA);
-                if (this.OverrridingData[modB].overrides.ContainsKey(modA))
-                    this.OverrridingData[modB].overrides.Remove(modA);
-                if (this.OverrridingData[modB].overrides.Count == 0)
-                    this.OverrridingData[modB].isOverriding = false;
-                if (this.OverrridingData[modB].overriddenBy.Count == 0)
-                    this.OverrridingData[modB].isOverridden = false;
+                if (this.OverridingData[modB].overriddenBy.ContainsKey(modA))
+                    this.OverridingData[modB].overriddenBy.Remove(modA);
+                if (this.OverridingData[modB].overrides.ContainsKey(modA))
+                    this.OverridingData[modB].overrides.Remove(modA);
+                if (this.OverridingData[modB].overrides.Count == 0)
+                    this.OverridingData[modB].isOverriding = false;
+                if (this.OverridingData[modB].overriddenBy.Count == 0)
+                    this.OverridingData[modB].isOverridden = false;
             }
             //Console.WriteLine("ResetOverrdingBetweenMods modA: " + modA + " " + this.OverrridingData[modA].isOverriding + " " + this.OverrridingData[modA].isOverriden);
             //Console.WriteLine("ResetOverrdingBetweenMods modB: " + modB + " " + this.OverrridingData[modB].isOverriding + " " + this.OverrridingData[modB].isOverriden);
@@ -980,30 +984,30 @@ namespace MW5_Mod_Manager
             if (!newListItem.Checked)
             {
                 ////Console.WriteLine("--Unchecked");
-                if (this.OverrridingData.ContainsKey(modA))
-                    this.OverrridingData.Remove(modA);
+                if (this.OverridingData.ContainsKey(modA))
+                    this.OverridingData.Remove(modA);
 
-                foreach (string key in this.OverrridingData.Keys)
+                foreach (string key in this.OverridingData.Keys)
                 {
-                    if (OverrridingData[key].overriddenBy.ContainsKey(modA))
-                        OverrridingData[key].overriddenBy.Remove(modA);
+                    if (OverridingData[key].overriddenBy.ContainsKey(modA))
+                        OverridingData[key].overriddenBy.Remove(modA);
 
-                    if (OverrridingData[key].overrides.ContainsKey(modA))
-                        OverrridingData[key].overrides.Remove(modA);
+                    if (OverridingData[key].overrides.ContainsKey(modA))
+                        OverridingData[key].overrides.Remove(modA);
 
-                    if (OverrridingData[key].overrides.Count == 0)
-                        OverrridingData[key].isOverriding = false;
+                    if (OverridingData[key].overrides.Count == 0)
+                        OverridingData[key].isOverriding = false;
 
-                    if (OverrridingData[key].overriddenBy.Count == 0)
-                        OverrridingData[key].isOverridden = false;
+                    if (OverridingData[key].overriddenBy.Count == 0)
+                        OverridingData[key].isOverridden = false;
                 }
             }
             else
             {
                 ////Console.WriteLine("--Unchecked");
-                if (!this.OverrridingData.ContainsKey(modA))
+                if (!this.OverridingData.ContainsKey(modA))
                 {
-                    this.OverrridingData[modA] = new OverridingData
+                    this.OverridingData[modA] = new OverridingData
                     {
                         mod = modA,
                         overrides = new Dictionary<string, List<string>>(),
@@ -1011,25 +1015,25 @@ namespace MW5_Mod_Manager
                     };
                 }
 
-                //check each mod for changes
+                // check each mod for changes
                 foreach (ListViewItem item in items)
                 {
                     string modB = item.SubItems[MainForm.Instance.folderHeader.Index].Text;
 
-                    //Again dont compare mods to themselves.
+                    // Don't compare the same mod
                     if (modA == modB)
                         continue;
 
-                    if (!this.OverrridingData.ContainsKey(modB))
+                    if (!this.OverridingData.ContainsKey(modB))
                     {
-                        this.OverrridingData[modB] = new OverridingData
+                        this.OverridingData[modB] = new OverridingData
                         {
                             mod = modB,
                             overrides = new Dictionary<string, List<string>>(),
                             overriddenBy = new Dictionary<string, List<string>>()
                         };
                     }
-                    GetModOverridingData(newListItem, item, items.Count, this.OverrridingData[modA], this.OverrridingData[modB]);
+                    GetModOverridingData(newListItem, item, items.Count, this.OverridingData[modA], this.OverridingData[modB]);
                 }
             }
 
@@ -1054,18 +1058,18 @@ namespace MW5_Mod_Manager
             string modB = listItemB.SubItems[MainForm.Instance.folderHeader.Index].Text;
             //Console.WriteLine("++" + modB);
 
-            if (!this.OverrridingData.ContainsKey(modA))
+            if (!this.OverridingData.ContainsKey(modA))
             {
-                this.OverrridingData[modA] = new OverridingData
+                this.OverridingData[modA] = new OverridingData
                 {
                     mod = modA,
                     overrides = new Dictionary<string, List<string>>(),
                     overriddenBy = new Dictionary<string, List<string>>()
                 };
             }
-            if (!this.OverrridingData.ContainsKey(modB))
+            if (!this.OverridingData.ContainsKey(modB))
             {
-                this.OverrridingData[modB] = new OverridingData
+                this.OverridingData[modB] = new OverridingData
                 {
                     mod = modB,
                     overrides = new Dictionary<string, List<string>>(),
@@ -1075,10 +1079,10 @@ namespace MW5_Mod_Manager
 
             ResetOverrdingBetweenMods(movedModItem, listItemB);
 
-            GetModOverridingData(movedModItem, items[indexToCheck], items.Count, OverrridingData[modA], OverrridingData[modA]);
+            GetModOverridingData(movedModItem, items[indexToCheck], items.Count, OverridingData[modA], OverridingData[modA]);
 
-            OverridingData A = OverrridingData[modA];
-            OverridingData B = OverrridingData[modB];
+            OverridingData A = OverridingData[modA];
+            OverridingData B = OverridingData[modB];
 
             ColorizeListViewItems(items);
         }
@@ -1086,19 +1090,19 @@ namespace MW5_Mod_Manager
         //See if items A and B are interacting in terms of manifest and return the intersect
         public void GetModOverridingData(ListViewItem listItemA, ListViewItem listItemB, int itemCount, OverridingData A, OverridingData B)
         {
+            if (listItemA.Index == listItemB.Index)
+                return;
+
             string modA = listItemA.SubItems[MainForm.Instance.folderHeader.Index].Text;
             string modB = listItemB.SubItems[MainForm.Instance.folderHeader.Index].Text;
 
-            if (modA == modB)
-                return;
+            float loadOrderA = ModDetails[listItemA.Tag.ToString()].defaultLoadOrder;
+            float loadOrderB = ModDetails[listItemB.Tag.ToString()].defaultLoadOrder;
 
-            int priorityA = itemCount - listItemA.Index;
-            int priorityB = itemCount - listItemB.Index;
-
-            //Now we have a mod that is not the mod we are looking at is enbabled.
+            //Now we have a mod that is not the mod we are looking at is enabled.
             //Lets compare the manifest!
-            List<string> manifestA = this.ModDetails[this.DirectoryToPathDict[modA]].manifest;
-            List<string> manifestB = this.ModDetails[this.DirectoryToPathDict[modB]].manifest;
+            List<string> manifestA = this.ModDetails[this.DirNameToPathDict[modA]].manifest;
+            List<string> manifestB = this.ModDetails[this.DirNameToPathDict[modB]].manifest;
             List<string> intersect = manifestA.Intersect(manifestB).ToList();
 
             //If the intersects elements are greater then zero we have shared parts of the manifest
@@ -1108,14 +1112,14 @@ namespace MW5_Mod_Manager
             ////Console.WriteLine("---Intersection: " + modB + " : " + priorityB.ToString());
 
             //If we are loaded after the mod we are looking at we are overriding it.
-            if (priorityA > priorityB)
+            if (loadOrderA > loadOrderB)
             {
-                if (!(A.mod == modB))
+                if (A.mod != modB)
                 {
                     A.isOverriding = true;
                     A.overrides[modB] = intersect;
                 }
-                if (!(B.mod == modA))
+                if (B.mod != modA)
                 {
                     B.isOverridden = true;
                     B.overriddenBy[modA] = intersect;
@@ -1123,19 +1127,19 @@ namespace MW5_Mod_Manager
             }
             else
             {
-                if (!(A.mod == modB))
+                if (A.mod != modB)
                 {
                     A.isOverridden = true;
                     A.overriddenBy[modB] = intersect;
                 }
-                if (!(B.mod == modA))
+                if (B.mod != modA)
                 {
                     B.isOverriding = true;
                     B.overrides[modA] = intersect;
                 }
             }
-            this.OverrridingData[modA] = A;
-            this.OverrridingData[modB] = B;
+            this.OverridingData[modA] = A;
+            this.OverridingData[modB] = B;
         }
 
         //Return a dict of all overriden mods with a list of overriden files as values.
@@ -1144,11 +1148,11 @@ namespace MW5_Mod_Manager
         {
             ////Console.WriteLine(Environment.StackTrace);
             ////Console.WriteLine("Starting Overriding data check");
-            this.OverrridingData.Clear();
+            this.OverridingData.Clear();
 
             foreach (ListViewItem itemA in items)
             {
-                //We only wanna check this for items actually enabled.
+                // Skip disabled items
                 if (!itemA.Checked)
                     continue;
 
@@ -1156,16 +1160,16 @@ namespace MW5_Mod_Manager
                 int priorityA = items.Count - items.IndexOf(itemA);
 
                 //Check if we already have this mod in the dict if not create an entry for it.
-                if (!this.OverrridingData.ContainsKey(modA))
+                if (!this.OverridingData.ContainsKey(modA))
                 {
-                    this.OverrridingData[modA] = new OverridingData
+                    this.OverridingData[modA] = new OverridingData
                     {
                         mod = modA,
                         overrides = new Dictionary<string, List<string>>(),
                         overriddenBy = new Dictionary<string, List<string>>()
                     };
                 }
-                OverridingData A = this.OverrridingData[modA];
+                OverridingData A = this.OverridingData[modA];
 
                 //Console.WriteLine("Checking: " + modA + " : " + priorityA.ToString());
                 foreach (ListViewItem itemB in items)
@@ -1178,7 +1182,7 @@ namespace MW5_Mod_Manager
                     if (!itemB.Checked)
                         continue;
 
-                    //If we have allready seen modb in comparison to modA we don't need to compare because the comparison is bi-directionary.
+                    //If we have already seen modB in comparison to modA we don't need to compare because the comparison is bi-directionary.
                     if (
                         A.overriddenBy.ContainsKey(modB) ||
                         A.overrides.ContainsKey(modB)
@@ -1188,13 +1192,13 @@ namespace MW5_Mod_Manager
                         continue;
                     }
 
-                    //Check if we have allready seen modB before.
-                    if (this.OverrridingData.ContainsKey(modB))
+                    //Check if we have already seen modB before.
+                    if (this.OverridingData.ContainsKey(modB))
                     {
                         //If we have allready seen modB and we have allready compared modB and modA we don't need to compare because the comparison is bi-directionary.
                         if (
-                            this.OverrridingData[modB].overriddenBy.ContainsKey(modA) ||
-                            this.OverrridingData[modB].overrides.ContainsKey(modA)
+                            this.OverridingData[modB].overriddenBy.ContainsKey(modA) ||
+                            this.OverridingData[modB].overrides.ContainsKey(modA)
                             )
                         {
                             ////Console.WriteLine("--" + modB + "has allready been compared to: " + modA);
@@ -1204,14 +1208,14 @@ namespace MW5_Mod_Manager
                     else
                     {
                         //If we have not make a new modB overridingDatas
-                        this.OverrridingData[modB] = new OverridingData
+                        this.OverridingData[modB] = new OverridingData
                         {
                             mod = modB,
                             overrides = new Dictionary<string, List<string>>(),
                             overriddenBy = new Dictionary<string, List<string>>()
                         };
                     }
-                    GetModOverridingData(itemA, itemB, items.Count, this.OverrridingData[modA], this.OverrridingData[modB]);
+                    GetModOverridingData(itemA, itemB, items.Count, this.OverridingData[modA], this.OverridingData[modB]);
                 }
             }
 
@@ -1258,7 +1262,7 @@ namespace MW5_Mod_Manager
                     continue;
                 }
 
-                bool modEnabled = ModList[item.Tag.ToString()];
+                bool modEnabled = ModEnabledList[item.Tag.ToString()];
 
                 if (modEnabled)
                 {
@@ -1279,13 +1283,13 @@ namespace MW5_Mod_Manager
                     continue;
                 }
 
-                if (!this.OverrridingData.ContainsKey(modName))
+                if (!this.OverridingData.ContainsKey(modName))
                 {
                     item.SubItems[MainForm.Instance.displayHeader.Index].ForeColor = SystemColors.WindowText;
 
                     continue;
                 }
-                OverridingData A = OverrridingData[modName];
+                OverridingData A = OverridingData[modName];
                 Color newItemColor = SystemColors.WindowText;
                 if (A.isOverridden)
                 {
