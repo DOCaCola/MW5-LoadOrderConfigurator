@@ -28,7 +28,7 @@ namespace MW5_Mod_Manager
         {
             var psi = new System.Diagnostics.ProcessStartInfo()
             {
-                FileName = "https://www.nexusmods.com/mechwarrior5mercenaries/mods/1085",
+                FileName = locConstants.UrlNexusmods,
                 UseShellExecute = true
             };
             System.Diagnostics.Process.Start(psi);
@@ -43,7 +43,7 @@ namespace MW5_Mod_Manager
         {
             var psi = new System.Diagnostics.ProcessStartInfo()
             {
-                FileName = "https://github.com/DOCaCola/MW5-LoadOrderConfigurator",
+                FileName = locConstants.UrlGithub,
                 UseShellExecute = true
             };
             System.Diagnostics.Process.Start(psi);

@@ -5,16 +5,14 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.IO.Compression;
-using System.Media;
 using System.Reflection;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
-using SharpCompress.Archives;
 using static MW5_Mod_Manager.ModsManager;
-using static System.Net.WebRequestMethods;
 using File = System.IO.File;
 using ListView = System.Windows.Forms.ListView;
+using System.Net.Http;
+using Newtonsoft.Json.Linq;
 
 namespace MW5_Mod_Manager
 {
@@ -22,7 +20,6 @@ namespace MW5_Mod_Manager
     public partial class MainForm : Form
     {
         static public MainForm Instance;
-        //public TCPFileShare fileShare;
 
         enum eFilterMode
         {
@@ -35,6 +32,7 @@ namespace MW5_Mod_Manager
         public List<ListViewItem> ModListData = new List<ListViewItem>();
         private bool MovingItem = false;
         internal bool JustPacking = true;
+        string OnlineUpdateUrl = locConstants.UrlNexusmods;
 
         static Color HighlightColor = Color.FromArgb(200, 253, 213);
 
@@ -44,23 +42,6 @@ namespace MW5_Mod_Manager
         {
             InitializeComponent();
             Instance = this;
-
-            /*this.AllowDrop = true;
-            this.DragEnter += new DragEventHandler(Form1_DragEnter);
-            this.DragDrop += new DragEventHandler(Form1_DragDrop);*/
-
-            this.BringToFront();
-            this.Focus();
-
-            /*backgroundWorker1.RunWorkerCompleted += backgroundWorker1_RunWorkerCompleted;
-            backgroundWorker1.WorkerReportsProgress = true;
-            backgroundWorker1.WorkerSupportsCancellation = true;
-            backgroundWorker2.WorkerReportsProgress = true;
-            backgroundWorker2.WorkerSupportsCancellation = true;*/
-
-            //start the TCP listner for TCP mod sharing
-            //Disabled for now.
-            //this.fileShare.Listener.RunWorkerAsync();
         }
 
 
@@ -88,6 +69,58 @@ namespace MW5_Mod_Manager
             panelColorOverridden.BackColor = ModsManager.OverriddenColor;
             panelColorOverriding.BackColor = ModsManager.OverridingColor;
             panelColorOverridingOverridden.BackColor = ModsManager.OverriddenOveridingColor;
+
+            CheckForNewVersion();
+        }
+
+        private void ProcessUpdateCheckData(string updateJson)
+        {
+            try
+            {
+                JObject updateData = JObject.Parse(updateJson);
+
+                if (!updateData.ContainsKey("version"))
+                    return;
+
+                string onlineVersion = updateData["version"].ToString();
+
+                if (Utils.CompareVersionStrings(onlineVersion, GetVersion()) == 1)
+                {
+                    // New version available
+                    toolStripStatusLabelUpdate.Visible = true;
+                    toolStripStatusLabelUpdate.Text = "A new version of Load Order Configurator is available. Click here";
+                }
+
+                if (!updateData.ContainsKey("updateUrl"))
+                    return;
+
+                OnlineUpdateUrl = updateData["updateUrl"].ToString();
+            }
+            catch
+            {
+
+            }
+        }
+
+        private async void CheckForNewVersion()
+        {
+            string jsonData = string.Empty;
+            try
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    jsonData = await httpClient.GetStringAsync(locConstants.UrlUpdateCheck);
+                }
+            }
+            catch (Exception ex)
+            {
+                return;
+            }
+
+            Instance.Invoke(new Action(() =>
+            {
+                ProcessUpdateCheckData(jsonData);
+            }));
         }
 
         //When we hover over the manager with a file or folder
@@ -1940,6 +1973,17 @@ namespace MW5_Mod_Manager
             var psi = new System.Diagnostics.ProcessStartInfo()
             {
                 FileName = "https://www.nexusmods.com/mechwarrior5mercenaries/mods/1085",
+                UseShellExecute = true
+            };
+            System.Diagnostics.Process.Start(psi);
+        }
+
+        private void toolStripStatusLabelUpdate_Click(object sender, EventArgs e)
+        {
+            string updateUrl = OnlineUpdateUrl;
+            var psi = new System.Diagnostics.ProcessStartInfo()
+            {
+                FileName = updateUrl,
                 UseShellExecute = true
             };
             System.Diagnostics.Process.Start(psi);

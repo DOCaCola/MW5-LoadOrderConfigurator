@@ -78,6 +78,7 @@ namespace MW5_Mod_Manager
             toolStripMenuItemNexusmodsLink = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
             statusStrip1 = new StatusStrip();
+            toolStripStatusLabelUpdate = new ToolStripStatusLabel();
             toolStripStatusLabel1 = new ToolStripStatusLabel();
             toolStripStatusLabelModsActive = new ToolStripStatusLabel();
             toolStripStatusLabelModCountTotal = new ToolStripStatusLabel();
@@ -451,17 +452,26 @@ namespace MW5_Mod_Manager
             // 
             // statusStrip1
             // 
-            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1, toolStripStatusLabelModsActive, toolStripStatusLabelModCountTotal, toolStripPlatformLabel, toolStripStatusLabelMwVersion });
+            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabelUpdate, toolStripStatusLabel1, toolStripStatusLabelModsActive, toolStripStatusLabelModCountTotal, toolStripPlatformLabel, toolStripStatusLabelMwVersion });
             statusStrip1.Location = new Point(0, 555);
             statusStrip1.Name = "statusStrip1";
             statusStrip1.Size = new Size(1167, 24);
             statusStrip1.TabIndex = 36;
             statusStrip1.Text = "statusStrip1";
             // 
+            // toolStripStatusLabelUpdate
+            // 
+            toolStripStatusLabelUpdate.IsLink = true;
+            toolStripStatusLabelUpdate.Name = "toolStripStatusLabelUpdate";
+            toolStripStatusLabelUpdate.Size = new Size(66, 19);
+            toolStripStatusLabelUpdate.Text = "updateLink";
+            toolStripStatusLabelUpdate.Visible = false;
+            toolStripStatusLabelUpdate.Click += toolStripStatusLabelUpdate_Click;
+            // 
             // toolStripStatusLabel1
             // 
             toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            toolStripStatusLabel1.Size = new Size(1058, 19);
+            toolStripStatusLabel1.Size = new Size(961, 19);
             toolStripStatusLabel1.Spring = true;
             // 
             // toolStripStatusLabelModsActive
@@ -490,57 +500,57 @@ namespace MW5_Mod_Manager
             // 
             contextMenuStripMod.Items.AddRange(new ToolStripItem[] { moveupToolStripMenuItem, movedownToolStripMenuItem, toolStripSeparator6, contextMenuItemMoveToTop, contextMenuItemMoveToBottom, toolStripSeparator5, openFolderToolStripMenuItem, deleteToolStripMenuItem });
             contextMenuStripMod.Name = "contextMenuStripMod";
-            contextMenuStripMod.Size = new Size(181, 170);
+            contextMenuStripMod.Size = new Size(162, 148);
             // 
             // moveupToolStripMenuItem
             // 
             moveupToolStripMenuItem.Name = "moveupToolStripMenuItem";
-            moveupToolStripMenuItem.Size = new Size(180, 22);
+            moveupToolStripMenuItem.Size = new Size(161, 22);
             moveupToolStripMenuItem.Text = "Move &up";
             moveupToolStripMenuItem.Click += moveupToolStripMenuItem_Click;
             // 
             // movedownToolStripMenuItem
             // 
             movedownToolStripMenuItem.Name = "movedownToolStripMenuItem";
-            movedownToolStripMenuItem.Size = new Size(180, 22);
+            movedownToolStripMenuItem.Size = new Size(161, 22);
             movedownToolStripMenuItem.Text = "Move &down";
             movedownToolStripMenuItem.Click += movedownToolStripMenuItem_Click;
             // 
             // toolStripSeparator6
             // 
             toolStripSeparator6.Name = "toolStripSeparator6";
-            toolStripSeparator6.Size = new Size(177, 6);
+            toolStripSeparator6.Size = new Size(158, 6);
             // 
             // contextMenuItemMoveToTop
             // 
             contextMenuItemMoveToTop.Name = "contextMenuItemMoveToTop";
-            contextMenuItemMoveToTop.Size = new Size(180, 22);
+            contextMenuItemMoveToTop.Size = new Size(161, 22);
             contextMenuItemMoveToTop.Text = "Move to &top";
             contextMenuItemMoveToTop.Click += contextMenuItemMoveToTop_Click;
             // 
             // contextMenuItemMoveToBottom
             // 
             contextMenuItemMoveToBottom.Name = "contextMenuItemMoveToBottom";
-            contextMenuItemMoveToBottom.Size = new Size(180, 22);
+            contextMenuItemMoveToBottom.Size = new Size(161, 22);
             contextMenuItemMoveToBottom.Text = "Move to &bottom";
             contextMenuItemMoveToBottom.Click += contextMenuItemMoveToBottom_Click;
             // 
             // toolStripSeparator5
             // 
             toolStripSeparator5.Name = "toolStripSeparator5";
-            toolStripSeparator5.Size = new Size(177, 6);
+            toolStripSeparator5.Size = new Size(158, 6);
             // 
             // openFolderToolStripMenuItem
             // 
             openFolderToolStripMenuItem.Name = "openFolderToolStripMenuItem";
-            openFolderToolStripMenuItem.Size = new Size(180, 22);
+            openFolderToolStripMenuItem.Size = new Size(161, 22);
             openFolderToolStripMenuItem.Text = "Open &Folder";
             openFolderToolStripMenuItem.Click += openFolderToolStripMenuItem_Click;
             // 
             // deleteToolStripMenuItem
             // 
             deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            deleteToolStripMenuItem.Size = new Size(180, 22);
+            deleteToolStripMenuItem.Size = new Size(161, 22);
             deleteToolStripMenuItem.Text = "D&elete";
             deleteToolStripMenuItem.Click += deleteToolStripMenuItem_Click;
             // 
@@ -550,10 +560,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(splitContainer2);
             tabPage1.Controls.Add(labelModNameOverrides);
             tabPage1.Controls.Add(label7);
-            tabPage1.Location = new Point(4, 22);
+            tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(326, 457);
+            tabPage1.Size = new Size(326, 455);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
@@ -1208,6 +1218,7 @@ namespace MW5_Mod_Manager
         private ToolStripSeparator toolStripSeparator12;
         private RichTextBox richTextBoxManifestOverridden;
         private ToolStripMenuItem toolStripMenuItemNexusmodsLink;
+        private ToolStripStatusLabel toolStripStatusLabelUpdate;
     }
 }
 

@@ -1,22 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SharpCompress;
 using SharpCompress.Archives;
 using SharpCompress.Common;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using Label = System.Windows.Forms.Label;
 using ProgressBar = System.Windows.Forms.ProgressBar;
 
