@@ -25,9 +25,9 @@ namespace MW5_Mod_Manager
 
         private void SettingsWindow_Load(object sender, EventArgs e)
         {
-            textBoxMw5Path.Text = MainForm.Instance.logic.InstallPath;
+            textBoxMw5Path.Text = ModsManager.Instance.InstallPath;
 
-            switch (MainForm.Instance.logic.GamePlatform)
+            switch (ModsManager.Instance.GamePlatform)
             {
                 case ModsManager.eGamePlatform.Epic:
                     comboBoxPlatform.SelectedIndex = 0;
@@ -200,7 +200,7 @@ namespace MW5_Mod_Manager
 
             bool settingsValid = false;
 
-            if (MainForm.Instance.logic.GamePlatform != ModsManager.eGamePlatform.WindowsStore)
+            if (ModsManager.Instance.GamePlatform != ModsManager.eGamePlatform.WindowsStore)
             {
                 if (!string.IsNullOrEmpty(path))
                 {
@@ -210,7 +210,7 @@ namespace MW5_Mod_Manager
                         return;
                     }
 
-                    if (MainForm.Instance.logic.GamePlatform == ModsManager.eGamePlatform.Steam)
+                    if (ModsManager.Instance.GamePlatform == ModsManager.eGamePlatform.Steam)
                     {
                         if (ModsManager.FindSteamAppsParentDirectory(path) == null)
                         {
@@ -232,9 +232,9 @@ namespace MW5_Mod_Manager
             if (settingsValid)
             {
                 MainForm.Instance.ClearAll();
-                MainForm.Instance.logic.InstallPath = path;
-                MainForm.Instance.logic.UpdateGamePaths();
-                MainForm.Instance.logic.SaveSettings();
+                ModsManager.Instance.InstallPath = path;
+                ModsManager.Instance.UpdateGamePaths();
+                ModsManager.Instance.SaveSettings();
                 MainForm.Instance.RefreshAll();
             }
 

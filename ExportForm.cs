@@ -29,15 +29,13 @@ namespace MW5_Mod_Manager
         {
             Dictionary<string, bool> FolderNameModList = new Dictionary<string, bool>();
 
-            ModsManager logic = MainForm.Instance.logic;
-
             //Get the folder names from the paths in modlist
-            foreach (string key in logic.ModList.Keys)
+            foreach (string key in ModsManager.Instance.ModList.Keys)
             {
-                bool isEnabled = logic.ModList[key];
+                bool isEnabled = ModsManager.Instance.ModList[key];
                 if (!isEnabled && enabledOnly)
                     continue;
-                string folderName = logic.PathToDirectoryDict[key];
+                string folderName = ModsManager.Instance.PathToDirectoryDict[key];
                 FolderNameModList[folderName] = isEnabled;
             }
 

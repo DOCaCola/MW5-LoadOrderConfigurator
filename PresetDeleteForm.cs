@@ -22,8 +22,7 @@ namespace MW5_Mod_Manager
 
         private void PresetDeleteWindow_Load(object sender, EventArgs e)
         {
-            ModsManager logic = MainForm.Instance.logic;
-            foreach (string key in logic.Presets.Keys)
+            foreach (string key in ModsManager.Instance.Presets.Keys)
             {
                 this.listBoxPresets.Items.Add(key);
             }
@@ -36,12 +35,10 @@ namespace MW5_Mod_Manager
 
         private void buttonDelete_Click(object sender, EventArgs e)
         {
-            ModsManager logic = MainForm.Instance.logic;
-
             foreach (var selectedItem in listBoxPresets.SelectedItems)
             {
                 string presetName = selectedItem.ToString();
-                logic.Presets.Remove(presetName);
+                ModsManager.Instance.Presets.Remove(presetName);
 
                 foreach (ToolStripItem item in MainForm.Instance.presetsToolStripMenuItem.DropDownItems)
                 {
@@ -53,7 +50,7 @@ namespace MW5_Mod_Manager
                 }
             }
 
-            logic.SavePresets();
+            ModsManager.Instance.SavePresets();
             Close();
         }
 

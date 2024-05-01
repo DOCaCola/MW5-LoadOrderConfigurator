@@ -734,7 +734,7 @@ namespace MW5_Mod_Manager
                         // it's certain that this is a steam mod
                         if (modData.Origin == ModData.ModOrigin.Unknown)
                         {
-                            if (modPath.StartsWith(MainForm.Instance.logic.ModsPaths[eModPathType.Steam]))
+                            if (modPath.StartsWith(ModsPaths[eModPathType.Steam]))
                             {
                                 modData.Origin = ModData.ModOrigin.Steam;
                             }
@@ -1358,7 +1358,7 @@ namespace MW5_Mod_Manager
                     continue;
                 }
 
-                bool modEnabled = MainForm.Instance.logic.ModList[item.Tag.ToString()];
+                bool modEnabled = ModList[item.Tag.ToString()];
 
                 if (modEnabled)
                 {

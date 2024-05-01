@@ -66,8 +66,7 @@ namespace MW5_Mod_Manager
 
         private void PresetSaveWindow_Load(object sender, EventArgs e)
         {
-            ModsManager logic = MainForm.Instance.logic;
-            foreach (string key in logic.Presets.Keys)
+            foreach (string key in ModsManager.Instance.Presets.Keys)
             {
                 this.comboBoxPresets.Items.Add(key);
             }
@@ -86,7 +85,7 @@ namespace MW5_Mod_Manager
             {
                 presetName = textBoxPresetName.Text;
                 
-                if (MainForm.Instance.logic.Presets.Keys.Contains(presetName))
+                if (ModsManager.Instance.Presets.Keys.Contains(presetName))
                 {
                     DialogResult result =
                         MessageBox.Show("A preset with the given name already exists. Overwrite preset?",

@@ -22,7 +22,6 @@ namespace MW5_Mod_Manager
     public partial class MainForm : Form
     {
         static public MainForm Instance;
-        public ModsManager logic = new ModsManager();
         //public TCPFileShare fileShare;
 
         enum eFilterMode
@@ -34,7 +33,6 @@ namespace MW5_Mod_Manager
 
         eFilterMode FilterMode = eFilterMode.None;
         public List<ListViewItem> ModListData = new List<ListViewItem>();
-        private List<ListViewItem> markedForRemoval;
         private bool MovingItem = false;
         internal bool JustPacking = true;
 
@@ -46,8 +44,6 @@ namespace MW5_Mod_Manager
         {
             InitializeComponent();
             Instance = this;
-            //this.fileShare = new TCPFileShare(logic, this);
-            this.markedForRemoval = new List<ListViewItem>();
 
             /*this.AllowDrop = true;
             this.DragEnter += new DragEventHandler(Form1_DragEnter);
@@ -77,8 +73,7 @@ namespace MW5_Mod_Manager
         private void MainWindow_Load(object sender, EventArgs e)
         {
             this.Icon = Properties.Resources.MainIcon;
-            this.logic = new ModsManager();
-            if (logic.TryLoadProgramSettings())
+            if (ModsManager.Instance.TryLoadProgramSettings())
             {
                 LoadAndFill(false);
             }
@@ -98,7 +93,7 @@ namespace MW5_Mod_Manager
         //When we hover over the manager with a file or folder
         void Form1_DragEnter(object sender, DragEventArgs e)
         {
-            if (!logic.GameIsConfigured())
+            if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
             if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy;
@@ -106,7 +101,7 @@ namespace MW5_Mod_Manager
 
         public bool CopyModFromFolder(string path)
         {
-            if (Utils.IsSubdirectory(path, logic.GetMainModPath()))
+            if (Utils.IsSubdirectory(path, ModsManager.Instance.GetMainModPath()))
             {
                 MessageBox.Show(@"The source folder is within in the mod directory. Operation aborted.", @"Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -120,14 +115,14 @@ namespace MW5_Mod_Manager
                 return false;
             }
 
-            return FileOperationUtils.CopyDirectory(path, logic.GetMainModPath(), this.Handle);
+            return FileOperationUtils.CopyDirectory(path, ModsManager.Instance.GetMainModPath(), this.Handle);
         }
 
         public bool ExtractModFromArchive(string filePath)
         {
             ExtractForm extractForm = new ExtractForm();
             extractForm.ArchiveFilePath = filePath;
-            extractForm.OutputFolderPath = logic.GetMainModPath();
+            extractForm.OutputFolderPath = ModsManager.Instance.GetMainModPath();
 
             bool result = extractForm.ShowDialog(this) != DialogResult.Cancel;
             extractForm.Dispose();
@@ -138,7 +133,7 @@ namespace MW5_Mod_Manager
         //When we drop a file or folder on the manager
         void MainForm_DragDrop(object sender, DragEventArgs e)
         {
-            if (!logic.GameIsConfigured())
+            if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
             //We only support single file drops!
@@ -212,7 +207,7 @@ namespace MW5_Mod_Manager
             listItem.Selected = true;
             modsListView.EnsureVisible(listItem.Index);
 
-            this.logic.GetOverridingData(this.ModListData);
+            ModsManager.Instance.GetOverridingData(this.ModListData);
             RecomputeLoadOrdersAndUpdateList();
             modListView_SelectedIndexChanged(null, null);
             this.MovingItem = false;
@@ -250,7 +245,7 @@ namespace MW5_Mod_Manager
             listItem.Selected = true;
             modsListView.EnsureVisible(listItem.Index);
 
-            this.logic.GetOverridingData(ModListData);
+            ModsManager.Instance.GetOverridingData(ModListData);
             RecomputeLoadOrdersAndUpdateList();
             modListView_SelectedIndexChanged(null, null);
             this.MovingItem = false;
@@ -258,52 +253,11 @@ namespace MW5_Mod_Manager
 
         public void ApplyModSettings()
         {
-            if (!logic.GameIsConfigured())
+            if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
-            #region mod removal
-
-            //Stuff for removing mods:
-            if (this.markedForRemoval.Count > 0)
-            {
-                List<string> modNames = new List<string>();
-                foreach (ListViewItem item in this.markedForRemoval)
-                {
-                    modNames.Add(item.SubItems[displayHeader.Index].Text);
-                }
-
-                string m = "The following mods will be permanently be removed:\n" + string.Join("\n---", modNames) + "\nARE YOU SURE?";
-                string c = "Are you sure?";
-                MessageBoxButtons b = MessageBoxButtons.YesNo;
-                DialogResult r = MessageBox.Show(m, c, b);
-
-                if (r == DialogResult.Yes)
-                {
-                    foreach (ListViewItem item in markedForRemoval)
-                    {
-                        ModListData.Remove(item);
-                        modsListView.Items.Remove(item);
-                        logic.DeleteMod(logic.DirectoryToPathDict[item.SubItems[folderHeader.Index].Text]);
-                        this.logic.ModDetails.Remove(logic.DirectoryToPathDict[item.SubItems[folderHeader.Index].Text]);
-                    }
-                    markedForRemoval.Clear();
-                }
-                else if (r == DialogResult.No)
-                {
-                    foreach (ListViewItem item in markedForRemoval)
-                    {
-                        item.ForeColor = Color.Black;
-                    }
-                    return;
-                }
-            }
-            #endregion
-
             RecomputeLoadOrders();
-
-            //Save the ModDetails to json file.
-            this.logic.SaveToFiles();
-
+            ModsManager.Instance.SaveToFiles();
             SetModSettingsTainted(false);
         }
 
@@ -319,18 +273,18 @@ namespace MW5_Mod_Manager
             ClearModSidePanel();
             this.ModListData.Clear();
             this.modsListView.Items.Clear();
-            logic.ClearAll();
+            ModsManager.Instance.ClearAll();
         }
 
         //For processing internals and updating ui after setting a vendor
         private void SetVersionAndPlatform()
         {
-            if (this.logic.Version > 0f)
+            if (ModsManager.Instance.Version > 0f)
             {
-                toolStripStatusLabelMwVersion.Text = @"~RJ v." + this.logic.Version.ToString();
+                toolStripStatusLabelMwVersion.Text = @"~RJ v." + ModsManager.Instance.Version.ToString();
             }
 
-            switch (this.logic.GamePlatform)
+            switch (ModsManager.Instance.GamePlatform)
             {
                 case ModsManager.eGamePlatform.Epic:
                     {
@@ -364,15 +318,15 @@ namespace MW5_Mod_Manager
                     break;
             }
 
-            openModsFolderToolStripMenuItem.Visible = this.logic.GamePlatform != eGamePlatform.WindowsStore;
-            toolStripMenuItemOpenModFolderSteam.Visible = this.logic.GamePlatform == eGamePlatform.Steam;
-            openUserModsFolderToolStripMenuItem.Visible = this.logic.GamePlatform == eGamePlatform.WindowsStore;
+            openModsFolderToolStripMenuItem.Visible = ModsManager.Instance.GamePlatform != eGamePlatform.WindowsStore;
+            toolStripMenuItemOpenModFolderSteam.Visible = ModsManager.Instance.GamePlatform == eGamePlatform.Steam;
+            openUserModsFolderToolStripMenuItem.Visible = ModsManager.Instance.GamePlatform == eGamePlatform.WindowsStore;
         }
 
         //Load mod data and fill in the list box...
         public void LoadAndFill(bool FromClipboard)
         {
-            if (!logic.GameIsConfigured())
+            if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
             bool prevLoadingAndFilling = LoadingAndFilling;
@@ -381,12 +335,12 @@ namespace MW5_Mod_Manager
             try
             {
                 if (FromClipboard)
-                    logic.LoadFromImportString();
+                    ModsManager.Instance.LoadFromImportString();
                 else
-                    logic.LoadFromFiles();
+                    ModsManager.Instance.LoadFromFiles();
 
                 modsListView.BeginUpdate();
-                foreach (KeyValuePair<string, bool> entry in logic.ModList)
+                foreach (KeyValuePair<string, bool> entry in ModsManager.Instance.ModList)
                 {
                     if (entry.Equals(new KeyValuePair<string, bool>(null, false)))
                         continue;
@@ -398,7 +352,7 @@ namespace MW5_Mod_Manager
                 }
                 ReloadListViewFromData();
                 modsListView.EndUpdate();
-                logic.SaveSettings();
+                ModsManager.Instance.SaveSettings();
             }
             catch (Exception e)
             {
@@ -414,7 +368,7 @@ namespace MW5_Mod_Manager
             }
             this.LoadingAndFilling = prevLoadingAndFilling;
             RecomputeLoadOrdersAndUpdateList();
-            logic.GetOverridingData(ModListData);
+            ModsManager.Instance.GetOverridingData(ModListData);
             UpdateModCountDisplay();
         }
 
@@ -432,7 +386,7 @@ namespace MW5_Mod_Manager
                 newItem.SubItems.Add("");
             }
 
-            switch (logic.Mods[entry.Key].Origin)
+            switch (ModsManager.Instance.Mods[entry.Key].Origin)
             {
                 case ModsManager.ModData.ModOrigin.Steam:
                     newItem.ImageKey = "Steam";
@@ -445,16 +399,16 @@ namespace MW5_Mod_Manager
                     break;
             }
 
-            string versionString = (logic.ModDetails[entry.Key].version + " (" +
-                                    logic.ModDetails[entry.Key].buildNumber.ToString() + ")").Trim();
+            string versionString = (ModsManager.Instance.ModDetails[entry.Key].version + " (" +
+                                    ModsManager.Instance.ModDetails[entry.Key].buildNumber.ToString() + ")").Trim();
 
-            newItem.SubItems[displayHeader.Index].Text = logic.ModDetails[entry.Key].displayName;
-            newItem.SubItems[folderHeader.Index].Text = logic.PathToDirectoryDict[modName];
-            newItem.SubItems[authorHeader.Index].Text = logic.ModDetails[entry.Key].author;
+            newItem.SubItems[displayHeader.Index].Text = ModsManager.Instance.ModDetails[entry.Key].displayName;
+            newItem.SubItems[folderHeader.Index].Text = ModsManager.Instance.PathToDirectoryDict[modName];
+            newItem.SubItems[authorHeader.Index].Text = ModsManager.Instance.ModDetails[entry.Key].author;
             newItem.SubItems[versionHeader.Index].Text = versionString;
-            newItem.SubItems[currentLoadOrderHeader.Index].Text = logic.ModDetails[entry.Key].defaultLoadOrder.ToString();
-            newItem.SubItems[originalLoadOrderHeader.Index].Text = logic.Mods[entry.Key].OriginalLoadOrder.ToString();
-            newItem.SubItems[fileSizeHeader.Index].Text = Utils.BytesToHumanReadableString(logic.Mods[entry.Key].ModFileSize);
+            newItem.SubItems[currentLoadOrderHeader.Index].Text = ModsManager.Instance.ModDetails[entry.Key].defaultLoadOrder.ToString();
+            newItem.SubItems[originalLoadOrderHeader.Index].Text = ModsManager.Instance.Mods[entry.Key].OriginalLoadOrder.ToString();
+            newItem.SubItems[fileSizeHeader.Index].Text = Utils.BytesToHumanReadableString(ModsManager.Instance.Mods[entry.Key].ModFileSize);
 
             newItem.Tag = entry.Key;
             ModListData.Add(newItem);
@@ -495,11 +449,11 @@ namespace MW5_Mod_Manager
         {
             modsListView.BeginUpdate();
             ClearAll();
-            if (logic.TryLoadProgramSettings())
+            if (ModsManager.Instance.TryLoadProgramSettings())
             {
                 LoadAndFill(false);
                 FilterTextChanged();
-                logic.GetOverridingData(ModListData);
+                ModsManager.Instance.GetOverridingData(ModListData);
             }
 
             SetVersionAndPlatform();
@@ -511,22 +465,22 @@ namespace MW5_Mod_Manager
         public void SavePreset(string name)
         {
             Dictionary<string, bool> NoPathModlist = new Dictionary<string, bool>();
-            foreach (KeyValuePair<string, bool> entry in logic.ModList)
+            foreach (KeyValuePair<string, bool> entry in ModsManager.Instance.ModList)
             {
-                string folderName = logic.PathToDirectoryDict[entry.Key];
+                string folderName = ModsManager.Instance.PathToDirectoryDict[entry.Key];
                 NoPathModlist[folderName] = entry.Value;
             }
-            this.logic.Presets[name] = JsonConvert.SerializeObject(NoPathModlist, Formatting.Indented);
-            this.logic.SavePresets();
+            ModsManager.Instance.Presets[name] = JsonConvert.SerializeObject(NoPathModlist, Formatting.Indented);
+            ModsManager.Instance.SavePresets();
         }
 
         //Sets up the load order from a preset.
         private void LoadPreset(string name)
         {
-            if (!logic.GameIsConfigured())
+            if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
-            string JsonString = logic.Presets[name];
+            string JsonString = ModsManager.Instance.Presets[name];
             Dictionary<string, bool> temp;
             try
             {
@@ -544,11 +498,11 @@ namespace MW5_Mod_Manager
             modsListView.BeginUpdate();
             this.modsListView.Items.Clear();
             this.ModListData.Clear();
-            this.logic.ModDetails = new Dictionary<string, ModObject>();
-            this.logic.ModDirectories.Clear();
-            this.logic.ModList.Clear();
-            this.logic.ModList = temp;
-            this.logic.Mods.Clear();
+            ModsManager.Instance.ModDetails = new Dictionary<string, ModObject>();
+            ModsManager.Instance.ModDirectories.Clear();
+            ModsManager.Instance.ModList.Clear();
+            ModsManager.Instance.ModList = temp;
+            ModsManager.Instance.Mods.Clear();
             this.LoadAndFill(true);
             FilterTextChanged();
             SetModSettingsTainted(true);
@@ -558,7 +512,7 @@ namespace MW5_Mod_Manager
         //Load all presets from file and fill the listbox.
         private void LoadPresets()
         {
-            this.logic.LoadPresets();
+            ModsManager.Instance.LoadPresets();
             RebuildPresetsMenu();
         }
         public void RebuildPresetsMenu()
@@ -576,7 +530,7 @@ namespace MW5_Mod_Manager
             }
 
             int menuIndex = presetsToolStripMenuItem.DropDownItems.IndexOf(toolStripMenuItemLoadPresets);
-            foreach (string key in logic.Presets.Keys)
+            foreach (string key in ModsManager.Instance.Presets.Keys)
             {
                 menuIndex++;
 
@@ -590,10 +544,10 @@ namespace MW5_Mod_Manager
 
         private void LaunchGame()
         {
-            if (!logic.GameIsConfigured())
+            if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
-            if (logic.ModSettingsTainted)
+            if (ModsManager.Instance.ModSettingsTainted)
             {
                 DialogResult result =
                     MessageBox.Show(
@@ -611,7 +565,7 @@ namespace MW5_Mod_Manager
                 }
             }
 
-            switch (logic.GamePlatform)
+            switch (ModsManager.Instance.GamePlatform)
             {
                 case ModsManager.eGamePlatform.Epic:
                     LaunchEpicGame();
@@ -660,7 +614,7 @@ namespace MW5_Mod_Manager
 
         private void LaunchGogGame()
         {
-            string gamePath = Path.Combine(this.logic.InstallPath, "MechWarrior.exe");
+            string gamePath = Path.Combine(ModsManager.Instance.InstallPath, "MechWarrior.exe");
             try
             {
                 Process.Start(gamePath);
@@ -833,27 +787,6 @@ namespace MW5_Mod_Manager
             return false;
         }
 
-        //Mark currently selected mod for removal upon apply
-        private void MarkForRemoval()
-        {
-            foreach (ListViewItem item in modsListView.SelectedItems)
-            {
-                if (this.markedForRemoval.Contains(item))
-                {
-                    markedForRemoval.Remove(item);
-                    item.SubItems[displayHeader.Index].ForeColor = Color.Black;
-                    item.Selected = false;
-                    logic.ColorizeListViewItems(ModListData);
-                }
-                else
-                {
-                    this.markedForRemoval.Add(item);
-                    item.SubItems[displayHeader.Index].ForeColor = Color.Red;
-                    item.Selected = false;
-                }
-            }
-        }
-
         private void AppendContentPathToMainfestList(string contentPath)
         {
             if (!string.IsNullOrWhiteSpace(richTextBoxManifestOverridden.Text))
@@ -906,10 +839,10 @@ namespace MW5_Mod_Manager
 
                 string superMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
 
-                if (!logic.OverrridingData.ContainsKey(superMod))
+                if (!ModsManager.Instance.OverrridingData.ContainsKey(superMod))
                     return;
 
-                OverridingData modData = logic.OverrridingData[superMod];
+                OverridingData modData = ModsManager.Instance.OverrridingData[superMod];
 
                 if (!modData.overriddenBy.ContainsKey(selectedMod.ModDirName))
                     return;
@@ -961,10 +894,10 @@ namespace MW5_Mod_Manager
 
                 string superMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
 
-                if (!logic.OverrridingData.ContainsKey(superMod))
+                if (!ModsManager.Instance.OverrridingData.ContainsKey(superMod))
                     return;
 
-                OverridingData modData = logic.OverrridingData[superMod];
+                OverridingData modData = ModsManager.Instance.OverrridingData[superMod];
 
                 foreach (string entry in modData.overrides[selectedMod.ModDirName])
                 {
@@ -1015,7 +948,7 @@ namespace MW5_Mod_Manager
             }
 
             string modPath = (string)modsListView.SelectedItems[0].Tag;
-            ModObject modDetails = logic.ModDetails[modPath];
+            ModObject modDetails = ModsManager.Instance.ModDetails[modPath];
 
             panelModInfo.Visible = true;
             labelModName.Text = SelectedModDisplayName;
@@ -1039,7 +972,7 @@ namespace MW5_Mod_Manager
                 linkLabelSteamId.Visible = false;
             }
 
-            string nexusModsId = logic.Mods[modPath].NexusModsId;
+            string nexusModsId = ModsManager.Instance.Mods[modPath].NexusModsId;
             if (nexusModsId != "")
             {
                 pictureBoxNexusmodsIcon.Visible = true;
@@ -1079,7 +1012,7 @@ namespace MW5_Mod_Manager
         //Handles the showing of overriding data on select
         private void HandleOverriding(string SelectedMod)
         {
-            if (logic.OverrridingData.Count == 0)
+            if (ModsManager.Instance.OverrridingData.Count == 0)
                 return;
 
             this.listBoxOverriding.Items.Clear();
@@ -1087,15 +1020,15 @@ namespace MW5_Mod_Manager
             this.richTextBoxManifestOverridden.Clear();
 
             //If we select a mod that is not ticked its data is never gotten so will get an error if we don't do this.
-            if (!logic.OverrridingData.ContainsKey(SelectedMod))
+            if (!ModsManager.Instance.OverrridingData.ContainsKey(SelectedMod))
                 return;
 
-            OverridingData modData = logic.OverrridingData[SelectedMod];
+            OverridingData modData = ModsManager.Instance.OverrridingData[SelectedMod];
             foreach (string overriding in modData.overriddenBy.Keys)
             {
                 ModListBoxItem modListBoxItem = new ModListBoxItem();
-                string modKey = logic.DirectoryToPathDict[overriding];
-                modListBoxItem.DisplayName = logic.ModDetails[modKey].displayName;
+                string modKey = ModsManager.Instance.DirectoryToPathDict[overriding];
+                modListBoxItem.DisplayName = ModsManager.Instance.ModDetails[modKey].displayName;
                 modListBoxItem.ModDirName = overriding;
                 modListBoxItem.ModKey = modKey;
                 this.listBoxOverriddenBy.Items.Add(modListBoxItem);
@@ -1105,8 +1038,8 @@ namespace MW5_Mod_Manager
             foreach (string overrides in modData.overrides.Keys)
             {
                 ModListBoxItem modListBoxItem = new ModListBoxItem();
-                string modKey = logic.DirectoryToPathDict[overrides];
-                modListBoxItem.DisplayName = logic.ModDetails[modKey].displayName;
+                string modKey = ModsManager.Instance.DirectoryToPathDict[overrides];
+                modListBoxItem.DisplayName = ModsManager.Instance.ModDetails[modKey].displayName;
                 modListBoxItem.ModDirName = overrides;
                 modListBoxItem.ModKey = modKey;
                 this.listBoxOverriding.Items.Add(modListBoxItem);
@@ -1122,11 +1055,11 @@ namespace MW5_Mod_Manager
             }
 
             // set mod enabled state
-            this.logic.ModList[e.Item.Tag.ToString()] = e.Item.Checked;
+            ModsManager.Instance.ModList[e.Item.Tag.ToString()] = e.Item.Checked;
 
             RecomputeLoadOrdersAndUpdateList();
 
-            logic.UpdateNewModOverrideData(ModListData, ModListData[e.Item.Index]);
+            ModsManager.Instance.UpdateNewModOverrideData(ModListData, ModListData[e.Item.Index]);
             HandleOverriding(e.Item.SubItems[folderHeader.Index].Text);
             UpdateModCountDisplay();
             SetModSettingsTainted(true);
@@ -1135,7 +1068,7 @@ namespace MW5_Mod_Manager
         //Check for mod overrding data
         private void checkBox2_CheckedChanged(object sender, EventArgs e)
         {
-            this.logic.GetOverridingData(ModListData);
+            ModsManager.Instance.GetOverridingData(ModListData);
         }
 
         private void shareModsViaTCPToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1164,17 +1097,17 @@ namespace MW5_Mod_Manager
             Dictionary<string, bool> newData = testDialog.ResultData;
             testDialog.Dispose();
 
-            if (!logic.GameIsConfigured())
+            if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
             modsListView.BeginUpdate();
             //this.ClearAll();
             this.modsListView.Items.Clear();
             this.ModListData.Clear();
-            this.logic.ModDetails.Clear();
-            this.logic.ModList = newData;
-            this.logic.ModDirectories.Clear();
-            this.logic.Mods.Clear();
+            ModsManager.Instance.ModDetails.Clear();
+            ModsManager.Instance.ModList = newData;
+            ModsManager.Instance.ModDirectories.Clear();
+            ModsManager.Instance.Mods.Clear();
             this.LoadAndFill(true);
             FilterTextChanged();
             SetModSettingsTainted(true);
@@ -1183,7 +1116,7 @@ namespace MW5_Mod_Manager
 
         private void openModsFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (Utils.StringNullEmptyOrWhiteSpace(this.logic.ModsPaths[eModPathType.Program]))
+            if (Utils.StringNullEmptyOrWhiteSpace(ModsManager.Instance.ModsPaths[eModPathType.Program]))
             {
                 return;
             }
@@ -1191,7 +1124,7 @@ namespace MW5_Mod_Manager
             {
                 var psi = new System.Diagnostics.ProcessStartInfo()
                 {
-                    FileName = this.logic.ModsPaths[eModPathType.Program],
+                    FileName = ModsManager.Instance.ModsPaths[eModPathType.Program],
                     UseShellExecute = true
                 };
                 System.Diagnostics.Process.Start(psi);
@@ -1222,7 +1155,7 @@ namespace MW5_Mod_Manager
 
         private void enableAllModsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!logic.GameIsConfigured())
+            if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
             modsListView.BeginUpdate();
@@ -1234,12 +1167,12 @@ namespace MW5_Mod_Manager
             }
             this.MovingItem = false;
 
-            foreach (var key in this.logic.ModList.Keys)
+            foreach (var key in ModsManager.Instance.ModList.Keys)
             {
-                this.logic.ModList[key] = true;
+                ModsManager.Instance.ModList[key] = true;
             }
 
-            this.logic.GetOverridingData(this.ModListData);
+            ModsManager.Instance.GetOverridingData(this.ModListData);
             UpdateModCountDisplay();
             RecomputeLoadOrdersAndUpdateList();
             SetModSettingsTainted(true);
@@ -1249,7 +1182,7 @@ namespace MW5_Mod_Manager
 
         private void disableAllModsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!logic.GameIsConfigured())
+            if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
             modsListView.BeginUpdate();
@@ -1261,12 +1194,12 @@ namespace MW5_Mod_Manager
             }
             this.MovingItem = false;
 
-            foreach (var key in this.logic.ModList.Keys)
+            foreach (var key in ModsManager.Instance.ModList.Keys)
             {
-                this.logic.ModList[key] = false;
+                ModsManager.Instance.ModList[key] = false;
             }
 
-            this.logic.GetOverridingData(ModListData);
+            ModsManager.Instance.GetOverridingData(ModListData);
             UpdateModCountDisplay();
             RecomputeLoadOrdersAndUpdateList();
             SetModSettingsTainted(true);
@@ -1301,7 +1234,7 @@ namespace MW5_Mod_Manager
         private void linkLabelModAuthorUrl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             string modKey = (string)modsListView.SelectedItems[0].Tag;
-            string modUrl = logic.ModDetails[modKey].authorURL;
+            string modUrl = ModsManager.Instance.ModDetails[modKey].authorURL;
             bool isValidUrl = Utils.IsUrlValid(modUrl);
             if (isValidUrl)
             {
@@ -1312,7 +1245,7 @@ namespace MW5_Mod_Manager
         private void linkLabelSteamId_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             string modKey = (string)modsListView.SelectedItems[0].Tag;
-            string steamUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=" + logic.ModDetails[modKey].steamPublishedFileId;
+            string steamUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=" + ModsManager.Instance.ModDetails[modKey].steamPublishedFileId;
             var psi = new System.Diagnostics.ProcessStartInfo()
             {
                 FileName = steamUrl,
@@ -1350,7 +1283,7 @@ namespace MW5_Mod_Manager
 
         private void toolStripMenuItemOpenModFolderSteam_Click(object sender, EventArgs e)
         {
-            if (Utils.StringNullEmptyOrWhiteSpace(this.logic.ModsPaths[eModPathType.Steam]))
+            if (Utils.StringNullEmptyOrWhiteSpace(ModsManager.Instance.ModsPaths[eModPathType.Steam]))
             {
                 return;
             }
@@ -1358,7 +1291,7 @@ namespace MW5_Mod_Manager
             {
                 var psi = new System.Diagnostics.ProcessStartInfo()
                 {
-                    FileName = this.logic.ModsPaths[eModPathType.Steam],
+                    FileName = ModsManager.Instance.ModsPaths[eModPathType.Steam],
                     UseShellExecute = true
                 };
                 System.Diagnostics.Process.Start(psi);
@@ -1464,7 +1397,7 @@ namespace MW5_Mod_Manager
 
                 ModListData.Remove(draggedItem);
                 modsListView.Items.Remove(draggedItem);
-                this.logic.GetOverridingData(this.ModListData);
+                ModsManager.Instance.GetOverridingData(this.ModListData);
                 RecomputeLoadOrdersAndUpdateList();
 
                 modListView_SelectedIndexChanged(null, null);
@@ -1513,7 +1446,7 @@ namespace MW5_Mod_Manager
         private void linkLabelNexusmods_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             string modKey = (string)modsListView.SelectedItems[0].Tag;
-            string nexusUrl = "https://www.nexusmods.com/mechwarrior5mercenaries/mods/" + logic.Mods[modKey].NexusModsId;
+            string nexusUrl = "https://www.nexusmods.com/mechwarrior5mercenaries/mods/" + ModsManager.Instance.Mods[modKey].NexusModsId;
 
             var psi = new System.Diagnostics.ProcessStartInfo()
             {
@@ -1580,14 +1513,14 @@ namespace MW5_Mod_Manager
             int count = 0;
             if (enabledOnly)
             {
-                foreach (bool curModState in this.logic.ModList.Values)
+                foreach (bool curModState in ModsManager.Instance.ModList.Values)
                 {
                     if (curModState) { count++; }
                 }
             }
             else
             {
-                count = this.logic.Mods.Count;
+                count = ModsManager.Instance.Mods.Count;
             }
 
             return count;
@@ -1607,20 +1540,20 @@ namespace MW5_Mod_Manager
             foreach (ListViewItem curModListItem in ModListData)
             {
                 string modKey = curModListItem.Tag.ToString();
-                bool modEnabled = this.logic.ModList[modKey];
+                bool modEnabled = ModsManager.Instance.ModList[modKey];
                 newModList[modKey] = modEnabled;
                 if (!isDefaultSorted && (!restoreLoadOrdersOfDisabled || modEnabled))
                 {
-                    this.logic.ModDetails[modKey].defaultLoadOrder = curLoadOrder;
+                    ModsManager.Instance.ModDetails[modKey].defaultLoadOrder = curLoadOrder;
                     --curLoadOrder;
                 }
                 else
                 {
-                    this.logic.ModDetails[modKey].defaultLoadOrder = this.logic.ModDetails[modKey].locOriginalLoadOrder;
+                    ModsManager.Instance.ModDetails[modKey].defaultLoadOrder = ModsManager.Instance.ModDetails[modKey].locOriginalLoadOrder;
                 }
             }
 
-            this.logic.ModList = newModList;
+            ModsManager.Instance.ModList = newModList;
         }
 
         public void RecomputeLoadOrdersAndUpdateList()
@@ -1631,7 +1564,7 @@ namespace MW5_Mod_Manager
             foreach (ListViewItem modListItem in ModListData)
             {
                 modListItem.SubItems[currentLoadOrderHeader.Index].Text =
-                        this.logic.ModDetails[modListItem.Tag.ToString()].defaultLoadOrder.ToString();
+                        ModsManager.Instance.ModDetails[modListItem.Tag.ToString()].defaultLoadOrder.ToString();
             }
 
             MainForm.Instance.ColorListViewNumbers(ModListData, MainForm.Instance.currentLoadOrderHeader.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
@@ -1671,7 +1604,7 @@ namespace MW5_Mod_Manager
 
         public void SetModSettingsTainted(bool modSettingsTainted)
         {
-            logic.ModSettingsTainted = modSettingsTainted;
+            ModsManager.Instance.ModSettingsTainted = modSettingsTainted;
             if (modSettingsTainted)
             {
                 toolStripButtonApply.ForeColor = Color.OrangeRed;
@@ -1687,7 +1620,7 @@ namespace MW5_Mod_Manager
 
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (!logic.ModSettingsTainted)
+            if (!ModsManager.Instance.ModSettingsTainted)
                 return;
 
             DialogResult result =
@@ -1740,7 +1673,7 @@ namespace MW5_Mod_Manager
             foreach (ListViewItem item in listViewItems)
             {
                 // Skip disabled mods
-                if (!logic.ModList[item.Tag.ToString()])
+                if (!ModsManager.Instance.ModList[item.Tag.ToString()])
                     continue;
 
                 int number;
@@ -1763,7 +1696,7 @@ namespace MW5_Mod_Manager
             for (int i = 0; i < listViewItems.Count; i++)
             {
                 // Skip disabled mods
-                if (!logic.ModList[listViewItems[i].Tag.ToString()])
+                if (!ModsManager.Instance.ModList[listViewItems[i].Tag.ToString()])
                     continue;
 
                 int number;
@@ -1788,7 +1721,7 @@ namespace MW5_Mod_Manager
 
         private void toolStripMenuItemSortDefaultLoadOrder_Click(object sender, EventArgs e)
         {
-            if (!logic.GameIsConfigured())
+            if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
             // This sorting follows the way MW5 orders its list
@@ -1811,7 +1744,7 @@ namespace MW5_Mod_Manager
             });
 
             ReloadListViewFromData();
-            this.logic.GetOverridingData(this.ModListData);
+            ModsManager.Instance.GetOverridingData(this.ModListData);
             RecomputeLoadOrdersAndUpdateList();
             FilterTextChanged();
             modListView_SelectedIndexChanged(null, null);
@@ -1841,7 +1774,7 @@ namespace MW5_Mod_Manager
 
         private void openUserModsFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (Utils.StringNullEmptyOrWhiteSpace(this.logic.ModsPaths[eModPathType.AppData]))
+            if (Utils.StringNullEmptyOrWhiteSpace(ModsManager.Instance.ModsPaths[eModPathType.AppData]))
             {
                 return;
             }
@@ -1849,7 +1782,7 @@ namespace MW5_Mod_Manager
             {
                 var psi = new System.Diagnostics.ProcessStartInfo()
                 {
-                    FileName = this.logic.ModsPaths[eModPathType.AppData],
+                    FileName = ModsManager.Instance.ModsPaths[eModPathType.AppData],
                     UseShellExecute = true
                 };
                 System.Diagnostics.Process.Start(psi);
@@ -1912,7 +1845,7 @@ namespace MW5_Mod_Manager
 
         private void MainWindow_Shown(object sender, EventArgs e)
         {
-            if (!logic.GameIsConfigured())
+            if (!ModsManager.Instance.GameIsConfigured())
             {
                 ShowSettingsDialog();
             }
@@ -1920,7 +1853,7 @@ namespace MW5_Mod_Manager
 
         private void DeleteMod(string modKey)
         {
-            DialogResult dialogResult = MessageBox.Show("The mod " + logic.ModDetails[modKey].displayName
+            DialogResult dialogResult = MessageBox.Show("The mod " + ModsManager.Instance.ModDetails[modKey].displayName
                                                                    + " will be removed. This will delete the directory\r\n" + modKey
                                                                    + "\r\n\r\nAre you sure you want to continue?",
                 "Delete Mod",
@@ -1946,7 +1879,7 @@ namespace MW5_Mod_Manager
 
         private void toolStripMenuItemImportFromFolder_Click(object sender, EventArgs e)
         {
-            if (!logic.GameIsConfigured())
+            if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
             using (var fbd = new FolderBrowserDialog())
@@ -1972,7 +1905,7 @@ namespace MW5_Mod_Manager
 
         private void toolStripMenuItemImportArchive_Click(object sender, EventArgs e)
         {
-            if (!logic.GameIsConfigured())
+            if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
