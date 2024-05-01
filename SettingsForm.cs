@@ -25,26 +25,29 @@ namespace MW5_Mod_Manager
 
         private void SettingsWindow_Load(object sender, EventArgs e)
         {
-            textBoxMw5Path.Text = ModsManager.Instance.InstallPath;
+            textBoxMw5Path.Text = LocSettings.Instance.Data.InstallPath;
 
-            switch (ModsManager.Instance.GamePlatform)
+            switch (LocSettings.Instance.Data.platform)
             {
-                case ModsManager.eGamePlatform.Epic:
+                case eGamePlatform.Epic:
                     comboBoxPlatform.SelectedIndex = 0;
                     break;
-                case ModsManager.eGamePlatform.Gog:
+                case eGamePlatform.Gog:
                     comboBoxPlatform.SelectedIndex = 1;
                     break;
-                case ModsManager.eGamePlatform.Steam:
+                case eGamePlatform.Steam:
                     comboBoxPlatform.SelectedIndex = 2;
                     break;
-                case ModsManager.eGamePlatform.WindowsStore:
+                case eGamePlatform.WindowsStore:
                     comboBoxPlatform.SelectedIndex = 3;
                     break;
-                case ModsManager.eGamePlatform.None:
+                case eGamePlatform.None:
                     UpdateInstallPathBoxState();
                     break;
             }
+
+            radioButtonHighToLow.Checked = LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow;
+            radioButtonLowToHigh.Checked = !radioButtonHighToLow.Checked;
         }
 
 
@@ -53,7 +56,7 @@ namespace MW5_Mod_Manager
         {
             switch (GetSelectedPlatform())
             {
-                case ModsManager.eGamePlatform.Steam:
+                case eGamePlatform.Steam:
                     {
                         string steamDirectory = null;
 
@@ -76,7 +79,7 @@ namespace MW5_Mod_Manager
                         }
                     }
                     break;
-                case ModsManager.eGamePlatform.Gog:
+                case eGamePlatform.Gog:
                     {
                         string gogPath = Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "GOG Galaxy", "Games", "MW5Mercs");
                         if (File.Exists(Path.Combine(gogPath, "MechWarrior.exe")))
@@ -85,7 +88,7 @@ namespace MW5_Mod_Manager
                         }
                     }
                     break;
-                case ModsManager.eGamePlatform.Epic:
+                case eGamePlatform.Epic:
                     {
                         string epicPath = Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Epic Games", "MW5Mercs");
                         if (File.Exists(Path.Combine(epicPath, "MechWarrior.exe")))
@@ -169,38 +172,42 @@ namespace MW5_Mod_Manager
             }
         }
 
-        private ModsManager.eGamePlatform GetSelectedPlatform()
+        private eGamePlatform GetSelectedPlatform()
         {
             switch (comboBoxPlatform.SelectedIndex)
             {
                 case 0:
-                    return ModsManager.eGamePlatform.Epic;
+                    return eGamePlatform.Epic;
                 case 1:
-                    return ModsManager.eGamePlatform.Gog;
+                    return eGamePlatform.Gog;
                 case 2:
-                    return ModsManager.eGamePlatform.Steam;
+                    return eGamePlatform.Steam;
                 case 3:
-                    return ModsManager.eGamePlatform.WindowsStore;
+                    return eGamePlatform.WindowsStore;
                 default:
-                    return ModsManager.eGamePlatform.None;
+                    return eGamePlatform.None;
             }
         }
 
         private void buttonSave_Click(object sender, EventArgs e)
         {
+            // Save trivial settings
+            LocSettings.Instance.Data.ListSortOrder =
+                radioButtonHighToLow.Checked ? eSortOrder.HighToLow : eSortOrder.LowToHigh;
+            
             if (comboBoxPlatform.SelectedIndex == -1)
             {
                 MessageBox.Show(@"Please select your platform type.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            ModsManager.Instance.GamePlatform = GetSelectedPlatform();
+            LocSettings.Instance.Data.platform = GetSelectedPlatform();
 
             string path = textBoxMw5Path.Text;
 
             bool settingsValid = false;
 
-            if (ModsManager.Instance.GamePlatform != ModsManager.eGamePlatform.WindowsStore)
+            if (LocSettings.Instance.Data.platform != eGamePlatform.WindowsStore)
             {
                 if (!string.IsNullOrEmpty(path))
                 {
@@ -210,7 +217,7 @@ namespace MW5_Mod_Manager
                         return;
                     }
 
-                    if (ModsManager.Instance.GamePlatform == ModsManager.eGamePlatform.Steam)
+                    if (LocSettings.Instance.Data.platform == eGamePlatform.Steam)
                     {
                         if (ModsManager.FindSteamAppsParentDirectory(path) == null)
                         {
@@ -232,10 +239,11 @@ namespace MW5_Mod_Manager
             if (settingsValid)
             {
                 MainForm.Instance.ClearAll();
-                ModsManager.Instance.InstallPath = path;
+                LocSettings.Instance.Data.InstallPath = path;
                 ModsManager.Instance.UpdateGamePaths();
                 ModsManager.Instance.SaveSettings();
                 MainForm.Instance.RefreshAll();
+                MainForm.Instance.UpdatePriorityLabels();
             }
 
             Close();

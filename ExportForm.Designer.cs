@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             textBox1 = new System.Windows.Forms.TextBox();
-            button1 = new System.Windows.Forms.Button();
+            buttonCopy = new System.Windows.Forms.Button();
             checkBoxEnabledOnly = new System.Windows.Forms.CheckBox();
             buttonCancel = new System.Windows.Forms.Button();
             SuspendLayout();
@@ -46,16 +46,16 @@
             textBox1.TabIndex = 4;
             textBox1.WordWrap = false;
             // 
-            // button1
+            // buttonCopy
             // 
-            button1.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-            button1.Location = new System.Drawing.Point(12, 198);
-            button1.Name = "button1";
-            button1.Size = new System.Drawing.Size(88, 26);
-            button1.TabIndex = 1;
-            button1.Text = "Co&py";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
+            buttonCopy.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            buttonCopy.Location = new System.Drawing.Point(12, 198);
+            buttonCopy.Name = "buttonCopy";
+            buttonCopy.Size = new System.Drawing.Size(88, 26);
+            buttonCopy.TabIndex = 1;
+            buttonCopy.Text = "Co&py";
+            buttonCopy.UseVisualStyleBackColor = true;
+            buttonCopy.Click += buttonCopy_Click;
             // 
             // checkBoxEnabledOnly
             // 
@@ -82,22 +82,22 @@
             buttonCancel.UseVisualStyleBackColor = true;
             buttonCancel.Click += buttonCancel_Click;
             // 
-            // ExportWindow
+            // ExportForm
             // 
-            AcceptButton = button1;
+            AcceptButton = buttonCopy;
             AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             CancelButton = buttonCancel;
             ClientSize = new System.Drawing.Size(375, 242);
             Controls.Add(buttonCancel);
             Controls.Add(checkBoxEnabledOnly);
-            Controls.Add(button1);
+            Controls.Add(buttonCopy);
             Controls.Add(textBox1);
             Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
             MaximizeBox = false;
             MinimizeBox = false;
             MinimumSize = new System.Drawing.Size(388, 259);
-            Name = "ExportWindow";
+            Name = "ExportForm";
             ShowIcon = false;
             ShowInTaskbar = false;
             Text = "Export";
@@ -107,7 +107,7 @@
         }
 
         #endregion
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button buttonCopy;
         public System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.CheckBox checkBoxEnabledOnly;
         private System.Windows.Forms.Button buttonCancel;

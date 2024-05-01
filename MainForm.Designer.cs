@@ -119,8 +119,8 @@ namespace MW5_Mod_Manager
             labelModName = new Label();
             tabControl1 = new TabControl();
             toolTip1 = new ToolTip(components);
-            rotatingLabelHighPriority = new RotatingLabel();
-            rotatingLabelLowPriority = new RotatingLabel();
+            rotatingLabelBottom = new RotatingLabel();
+            rotatingLabelTop = new RotatingLabel();
             panelColorLegend = new Panel();
             label8 = new Label();
             label4 = new Label();
@@ -471,7 +471,7 @@ namespace MW5_Mod_Manager
             // toolStripStatusLabel1
             // 
             toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            toolStripStatusLabel1.Size = new Size(961, 19);
+            toolStripStatusLabel1.Size = new Size(1058, 19);
             toolStripStatusLabel1.Spring = true;
             // 
             // toolStripStatusLabelModsActive
@@ -574,7 +574,7 @@ namespace MW5_Mod_Manager
             richTextBoxManifestOverridden.Location = new Point(9, 164);
             richTextBoxManifestOverridden.Name = "richTextBoxManifestOverridden";
             richTextBoxManifestOverridden.ReadOnly = true;
-            richTextBoxManifestOverridden.Size = new Size(309, 287);
+            richTextBoxManifestOverridden.Size = new Size(309, 289);
             richTextBoxManifestOverridden.TabIndex = 28;
             richTextBoxManifestOverridden.Text = "";
             richTextBoxManifestOverridden.WordWrap = false;
@@ -845,28 +845,26 @@ namespace MW5_Mod_Manager
             tabControl1.Size = new Size(334, 483);
             tabControl1.TabIndex = 11;
             // 
-            // rotatingLabelHighPriority
+            // rotatingLabelBottom
             // 
-            rotatingLabelHighPriority.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            rotatingLabelHighPriority.Location = new Point(5, 22);
-            rotatingLabelHighPriority.Name = "rotatingLabelHighPriority";
-            rotatingLabelHighPriority.NewText = "Highest priority »";
-            rotatingLabelHighPriority.RotateAngle = -90;
-            rotatingLabelHighPriority.Size = new Size(19, 118);
-            rotatingLabelHighPriority.TabIndex = 38;
-            toolTip1.SetToolTip(rotatingLabelHighPriority, "Mods are loaded later and override mods that were loaded earlier.");
+            rotatingLabelBottom.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            rotatingLabelBottom.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            rotatingLabelBottom.Location = new Point(5, 340);
+            rotatingLabelBottom.Name = "rotatingLabelBottom";
+            rotatingLabelBottom.NewText = "« Lowest priority";
+            rotatingLabelBottom.RotateAngle = -90;
+            rotatingLabelBottom.Size = new Size(19, 113);
+            rotatingLabelBottom.TabIndex = 39;
             // 
-            // rotatingLabelLowPriority
+            // rotatingLabelTop
             // 
-            rotatingLabelLowPriority.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            rotatingLabelLowPriority.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            rotatingLabelLowPriority.Location = new Point(5, 340);
-            rotatingLabelLowPriority.Name = "rotatingLabelLowPriority";
-            rotatingLabelLowPriority.NewText = "« Lowest priority";
-            rotatingLabelLowPriority.RotateAngle = -90;
-            rotatingLabelLowPriority.Size = new Size(19, 113);
-            rotatingLabelLowPriority.TabIndex = 39;
-            toolTip1.SetToolTip(rotatingLabelLowPriority, "Mods are loaded earlier and may get overriden by mods loading after them.");
+            rotatingLabelTop.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            rotatingLabelTop.Location = new Point(5, 22);
+            rotatingLabelTop.Name = "rotatingLabelTop";
+            rotatingLabelTop.NewText = "Highest priority »";
+            rotatingLabelTop.RotateAngle = -90;
+            rotatingLabelTop.Size = new Size(19, 118);
+            rotatingLabelTop.TabIndex = 38;
             // 
             // panelColorLegend
             // 
@@ -941,9 +939,9 @@ namespace MW5_Mod_Manager
             // 
             // splitContainerMain.Panel1
             // 
-            splitContainerMain.Panel1.Controls.Add(rotatingLabelLowPriority);
+            splitContainerMain.Panel1.Controls.Add(rotatingLabelBottom);
             splitContainerMain.Panel1.Controls.Add(modsListView);
-            splitContainerMain.Panel1.Controls.Add(rotatingLabelHighPriority);
+            splitContainerMain.Panel1.Controls.Add(rotatingLabelTop);
             splitContainerMain.Panel1.Controls.Add(panelColorLegend);
             // 
             // splitContainerMain.Panel2
@@ -1077,7 +1075,7 @@ namespace MW5_Mod_Manager
             Load += MainWindow_Load;
             Shown += MainWindow_Shown;
             DragDrop += MainForm_DragDrop;
-            DragEnter += Form1_DragEnter;
+            DragEnter += MainForm_DragEnter;
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).EndInit();
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
@@ -1193,8 +1191,8 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem moveupToolStripMenuItem;
         private ToolStripMenuItem movedownToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator6;
-        private RotatingLabel rotatingLabelHighPriority;
-        private RotatingLabel rotatingLabelLowPriority;
+        private RotatingLabel rotatingLabelTop;
+        private RotatingLabel rotatingLabelBottom;
         private SplitContainer splitContainerMain;
         private ColumnHeader fileSizeHeader;
         private ToolStripMenuItem toolStripMenuItemSortDefaultLoadOrder;

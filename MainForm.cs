@@ -32,7 +32,7 @@ namespace MW5_Mod_Manager
         public List<ListViewItem> ModListData = new List<ListViewItem>();
         private bool MovingItem = false;
         internal bool JustPacking = true;
-        string OnlineUpdateUrl = locConstants.UrlNexusmods;
+        string OnlineUpdateUrl = LocConstants.UrlNexusmods;
 
         static Color HighlightColor = Color.FromArgb(200, 253, 213);
 
@@ -71,6 +71,7 @@ namespace MW5_Mod_Manager
             panelColorOverridingOverridden.BackColor = ModsManager.OverriddenOveridingColor;
 
             CheckForNewVersion();
+            UpdatePriorityLabels();
         }
 
         private void ProcessUpdateCheckData(string updateJson)
@@ -109,7 +110,7 @@ namespace MW5_Mod_Manager
             {
                 using (var httpClient = new HttpClient())
                 {
-                    jsonData = await httpClient.GetStringAsync(locConstants.UrlUpdateCheck);
+                    jsonData = await httpClient.GetStringAsync(LocConstants.UrlUpdateCheck);
                 }
             }
             catch (Exception ex)
@@ -123,8 +124,30 @@ namespace MW5_Mod_Manager
             }));
         }
 
+        private const string HighPrioTooltip = "Mods are loaded later and override mods that were loaded earlier.";
+        private const string LowPrioTooltip = "Mods are loaded earlier and may get overriden by mods loading after them.";
+
+        public void UpdatePriorityLabels()
+        {
+            if (LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh)
+            {
+                rotatingLabelTop.NewText = "Lowest priority »";
+                toolTip1.SetToolTip(rotatingLabelTop, LowPrioTooltip);
+                rotatingLabelBottom.NewText = "« Highest priority";
+                toolTip1.SetToolTip(rotatingLabelBottom, HighPrioTooltip);
+                
+            }
+            else
+            {
+                rotatingLabelTop.NewText = "Highest priority »";
+                toolTip1.SetToolTip(rotatingLabelTop, HighPrioTooltip);
+                rotatingLabelBottom.NewText = "« Lowest priority";
+                toolTip1.SetToolTip(rotatingLabelBottom, LowPrioTooltip);
+            }
+        }
+
         //When we hover over the manager with a file or folder
-        void Form1_DragEnter(object sender, DragEventArgs e)
+        void MainForm_DragEnter(object sender, DragEventArgs e)
         {
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
@@ -317,27 +340,27 @@ namespace MW5_Mod_Manager
                 toolStripStatusLabelMwVersion.Text = @"~RJ v." + ModsManager.Instance.Version.ToString();
             }
 
-            switch (ModsManager.Instance.GamePlatform)
+            switch (LocSettings.Instance.Data.platform)
             {
-                case ModsManager.eGamePlatform.Epic:
+                case eGamePlatform.Epic:
                     {
                         this.toolStripPlatformLabel.Text = @"Platform: Epic Store";
                         this.toolStripButtonStartGame.Enabled = true;
                         break;
                     }
-                case ModsManager.eGamePlatform.WindowsStore:
+                case eGamePlatform.WindowsStore:
                     {
                         this.toolStripPlatformLabel.Text = @"Platform: Microsoft Store/Xbox Game Pass";
                         this.toolStripButtonStartGame.Enabled = true;
                     }
                     break;
-                case ModsManager.eGamePlatform.Steam:
+                case eGamePlatform.Steam:
                     {
                         this.toolStripPlatformLabel.Text = @"Platform: Steam";
                         this.toolStripButtonStartGame.Enabled = true;
                     }
                     break;
-                case ModsManager.eGamePlatform.Gog:
+                case eGamePlatform.Gog:
                     {
                         this.toolStripPlatformLabel.Text = @"Platform: GOG.com";
                         this.toolStripButtonStartGame.Enabled = true;
@@ -351,9 +374,9 @@ namespace MW5_Mod_Manager
                     break;
             }
 
-            openModsFolderToolStripMenuItem.Visible = ModsManager.Instance.GamePlatform != eGamePlatform.WindowsStore;
-            toolStripMenuItemOpenModFolderSteam.Visible = ModsManager.Instance.GamePlatform == eGamePlatform.Steam;
-            openUserModsFolderToolStripMenuItem.Visible = ModsManager.Instance.GamePlatform == eGamePlatform.WindowsStore;
+            openModsFolderToolStripMenuItem.Visible = LocSettings.Instance.Data.platform != eGamePlatform.WindowsStore;
+            toolStripMenuItemOpenModFolderSteam.Visible = LocSettings.Instance.Data.platform == eGamePlatform.Steam;
+            openUserModsFolderToolStripMenuItem.Visible = LocSettings.Instance.Data.platform == eGamePlatform.WindowsStore;
         }
 
         //Load mod data and fill in the list box...
@@ -373,7 +396,7 @@ namespace MW5_Mod_Manager
                     ModsManager.Instance.LoadFromFiles();
 
                 modsListView.BeginUpdate();
-                foreach (KeyValuePair<string, bool> entry in ModsManager.Instance.ModList)
+                foreach (KeyValuePair<string, bool> entry in ModsManager.Instance.ModList.ReverseIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow))
                 {
                     if (entry.Equals(new KeyValuePair<string, bool>(null, false)))
                         continue;
@@ -534,7 +557,7 @@ namespace MW5_Mod_Manager
             ModsManager.Instance.ModDetails = new Dictionary<string, ModObject>();
             ModsManager.Instance.ModDirectories.Clear();
             ModsManager.Instance.ModList.Clear();
-            ModsManager.Instance.ModList = temp;
+            ModsManager.Instance.ModList = temp.ReverseIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh);
             ModsManager.Instance.Mods.Clear();
             this.LoadAndFill(true);
             FilterTextChanged();
@@ -598,18 +621,18 @@ namespace MW5_Mod_Manager
                 }
             }
 
-            switch (ModsManager.Instance.GamePlatform)
+            switch (LocSettings.Instance.Data.platform)
             {
-                case ModsManager.eGamePlatform.Epic:
+                case eGamePlatform.Epic:
                     LaunchEpicGame();
                     break;
-                case ModsManager.eGamePlatform.Steam:
+                case eGamePlatform.Steam:
                     LaunchSteamGame();
                     break;
-                case ModsManager.eGamePlatform.Gog:
+                case eGamePlatform.Gog:
                     LaunchGogGame();
                     break;
-                case ModsManager.eGamePlatform.WindowsStore:
+                case eGamePlatform.WindowsStore:
                     LaunchMicrosoftStoreGame();
                     break;
             }
@@ -647,7 +670,7 @@ namespace MW5_Mod_Manager
 
         private void LaunchGogGame()
         {
-            string gamePath = Path.Combine(ModsManager.Instance.InstallPath, "MechWarrior.exe");
+            string gamePath = Path.Combine(LocSettings.Instance.Data.InstallPath, "MechWarrior.exe");
             try
             {
                 Process.Start(gamePath);
@@ -1120,15 +1143,15 @@ namespace MW5_Mod_Manager
 
         private void importLoadOrderToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            ImportForm testDialog = new ImportForm();
+            ImportForm importDialog = new ImportForm();
 
             // Show testDialog as a modal dialog and determine if DialogResult = OK.
-            if (testDialog.ShowDialog(this) != DialogResult.OK)
+            if (importDialog.ShowDialog(this) != DialogResult.OK)
             {
                 return;
             }
-            Dictionary<string, bool> newData = testDialog.ResultData;
-            testDialog.Dispose();
+            Dictionary<string, bool> newData = importDialog.ResultData.ReverseIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh);
+            importDialog.Dispose();
 
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
@@ -1572,12 +1595,12 @@ namespace MW5_Mod_Manager
             // we can reset everyting to the default load order
             bool isDefaultSorted = IsSortedByDefaultLoadOrder();
 
-            int curLoadOrder = GetModCount(restoreLoadOrdersOfDisabled);
+            int curLoadOrder = 1;
 
             // Reorder modlist by recreating it...
             Dictionary<string, bool> newModList = new Dictionary<string, bool>();
 
-            foreach (ListViewItem curModListItem in ModListData)
+            foreach (ListViewItem curModListItem in ModListData.ReverseIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow))
             {
                 string modKey = curModListItem.Tag.ToString();
                 bool modEnabled = ModsManager.Instance.ModList[modKey];
@@ -1585,7 +1608,7 @@ namespace MW5_Mod_Manager
                 if (!isDefaultSorted && (!restoreLoadOrdersOfDisabled || modEnabled))
                 {
                     ModsManager.Instance.ModDetails[modKey].defaultLoadOrder = curLoadOrder;
-                    --curLoadOrder;
+                    ++curLoadOrder;
                 }
                 else
                 {
@@ -1769,13 +1792,18 @@ namespace MW5_Mod_Manager
             modsListView.BeginUpdate();
             ModListData.Sort((x, y) =>
             {
+                if (LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow)
+                {
+                    (x, y) = (y, x);
+                }
+
                 // Compare Original load order
-                int priorityComparison = int.Parse(y.SubItems[originalLoadOrderHeader.Index].Text).CompareTo(int.Parse(x.SubItems[originalLoadOrderHeader.Index].Text));
+                int priorityComparison = int.Parse(x.SubItems[originalLoadOrderHeader.Index].Text).CompareTo(int.Parse(y.SubItems[originalLoadOrderHeader.Index].Text));
 
                 // If Priority is equal, compare Folder name
                 if (priorityComparison == 0)
                 {
-                    return y.SubItems[folderHeader.Index].Text.CompareTo(x.SubItems[folderHeader.Index].Text);
+                    return x.SubItems[folderHeader.Index].Text.CompareTo(y.SubItems[folderHeader.Index].Text);
                 }
                 else
                 {

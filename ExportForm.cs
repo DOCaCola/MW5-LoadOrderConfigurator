@@ -15,7 +15,7 @@ namespace MW5_Mod_Manager
         }
 
         //Copy txt to clipboard
-        private void button1_Click(object sender, EventArgs e)
+        private void buttonCopy_Click(object sender, EventArgs e)
         {
             ClipboardUtils.ClipboardHelper.CopyTextToClipboard(textBox1.Text);
         }
@@ -30,7 +30,7 @@ namespace MW5_Mod_Manager
             Dictionary<string, bool> FolderNameModList = new Dictionary<string, bool>();
 
             //Get the folder names from the paths in modlist
-            foreach (string key in ModsManager.Instance.ModList.Keys)
+            foreach (string key in ModsManager.Instance.ModList.Keys.ReverseIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
             {
                 bool isEnabled = ModsManager.Instance.ModList[key];
                 if (!isEnabled && enabledOnly)

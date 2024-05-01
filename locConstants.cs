@@ -1,6 +1,6 @@
 ﻿namespace MW5_Mod_Manager
 {
-    public static class locConstants
+    public static class LocConstants
     {
         public static string UrlNexusmods = "https://www.nexusmods.com/mechwarrior5mercenaries/mods/1085";
         public static string UrlGithub = "https://github.com/DOCaCola/MW5-LoadOrderConfigurator";

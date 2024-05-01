@@ -26,17 +26,6 @@ namespace MW5_Mod_Manager
         public static ModsManager Instance { get; private set; }
         public float Version = 0f;
 
-        public enum eGamePlatform
-        {
-            None,
-            Epic,
-            Gog,
-            Steam,
-            WindowsStore
-        }
-
-        public eGamePlatform GamePlatform = eGamePlatform.None;
-        public string InstallPath = "";
         public string GameVersion = "";
 
         public enum eModPathType
@@ -48,7 +37,7 @@ namespace MW5_Mod_Manager
         }
         public ArrayByEnum<string,eModPathType> ModsPaths = new();
 
-        public ProgramData ProgramSettings = new();
+        public LocSettings ProgramSettings;
 
         // User made changes not written to files
         public bool ModSettingsTainted = false;
@@ -111,12 +100,18 @@ namespace MW5_Mod_Manager
             Instance = new ModsManager();
         }
 
+        ModsManager()
+        {
+            ProgramSettings = new LocSettings(Path.Combine(GetSettingsDirectory(), SettingsFileName));
+        }
+
         public bool GameIsConfigured()
         {
-            if (GamePlatform == eGamePlatform.None)
+            if (LocSettings.Instance.Data.platform == eGamePlatform.None)
                 return false;
 
-            if (GamePlatform != eGamePlatform.WindowsStore && Utils.StringNullEmptyOrWhiteSpace(InstallPath))
+            if (LocSettings.Instance.Data.platform != eGamePlatform.WindowsStore 
+                && Utils.StringNullEmptyOrWhiteSpace(LocSettings.Instance.Data.InstallPath))
                 return false;
 
             return true;
@@ -125,7 +120,7 @@ namespace MW5_Mod_Manager
         public string GetModListJsonFilePath()
         {
             string path;
-            switch (GamePlatform)
+            switch (LocSettings.Instance.Data.platform)
             {
                 case eGamePlatform.WindowsStore:
                     path = ModsPaths[eModPathType.AppData];
@@ -140,7 +135,7 @@ namespace MW5_Mod_Manager
 
         public string GetMainModPath()
         {
-            switch (GamePlatform)
+            switch (LocSettings.Instance.Data.platform)
             {
                 case eGamePlatform.WindowsStore:
                     return ModsPaths[eModPathType.AppData];
@@ -353,34 +348,11 @@ namespace MW5_Mod_Manager
         public bool TryLoadProgramSettings()
         {
             //Load settings from previous session:
-            string settingsDir = GetSettingsDirectory();
-            if (!Directory.Exists(settingsDir))
-            {
-                Directory.CreateDirectory(settingsDir);
-            }
-
             try
             {
-                string json = File.ReadAllText(Path.Combine(settingsDir, SettingsFileName));
-                this.ProgramSettings = JsonConvert.DeserializeObject<ProgramData>(json);
+                this.ProgramSettings.LoadSettings();
 
-                if (!Utils.StringNullEmptyOrWhiteSpace(ProgramSettings.platform))
-                {
-                    if (!Enum.TryParse(ProgramSettings.platform, out eGamePlatform platform))
-                    {
-                        platform = eGamePlatform.None;
-                    }
-
-                    GamePlatform = platform;
-                }
-
-                this.InstallPath = ProgramSettings.InstallPath;
                 UpdateGamePaths();
-                
-                if (ProgramSettings.version > 0)
-                {
-                    Version = ProgramSettings.version;
-                }
             }
             catch (Exception e)
             {
@@ -389,10 +361,10 @@ namespace MW5_Mod_Manager
                 Console.WriteLine(e.StackTrace);
             }
 
-            if (this.GamePlatform == eGamePlatform.WindowsStore)
+            if (LocSettings.Instance.Data.platform == eGamePlatform.WindowsStore)
                 return true;
 
-            if (!Utils.StringNullEmptyOrWhiteSpace(this.InstallPath))
+            if (!Utils.StringNullEmptyOrWhiteSpace(LocSettings.Instance.Data.InstallPath))
                 return true;
 
             return false;
@@ -413,17 +385,17 @@ namespace MW5_Mod_Manager
             this.ModsPaths[ModsManager.eModPathType.Steam] = null;
             this.ModsPaths[ModsManager.eModPathType.AppData] = null;
 
-            if (this.GamePlatform != eGamePlatform.WindowsStore)
+            if (LocSettings.Instance.Data.platform != eGamePlatform.WindowsStore)
             {
-                this.ModsPaths[ModsManager.eModPathType.Program] = Path.Combine(this.InstallPath, "MW5Mercs", "Mods");
+                this.ModsPaths[ModsManager.eModPathType.Program] = Path.Combine(LocSettings.Instance.Data.InstallPath, "MW5Mercs", "Mods");
             }
 
-            switch (this.GamePlatform)
+            switch (LocSettings.Instance.Data.platform)
             {
-                case ModsManager.eGamePlatform.Steam:
+                case eGamePlatform.Steam:
                     SetSteamWorkshopPath();
                     break;
-                case ModsManager.eGamePlatform.WindowsStore:
+                case eGamePlatform.WindowsStore:
                     this.ModsPaths[ModsManager.eModPathType.AppData] = GetLocalAppDataModPath();
                     break;
             }
@@ -447,7 +419,7 @@ namespace MW5_Mod_Manager
 
         public void SetSteamWorkshopPath()
         {
-            string steamAppsParentDirectory = FindSteamAppsParentDirectory(this.InstallPath);
+            string steamAppsParentDirectory = FindSteamAppsParentDirectory(LocSettings.Instance.Data.InstallPath);
             string workshopPath = Path.Combine(steamAppsParentDirectory, "workshop", "content", "784080");
             this.ModsPaths[ModsManager.eModPathType.Steam] = workshopPath;
         }
@@ -463,7 +435,7 @@ namespace MW5_Mod_Manager
         {
             this.FoundDirectories.Clear();
 
-            if (GamePlatform != eGamePlatform.WindowsStore
+            if (LocSettings.Instance.Data.platform != eGamePlatform.WindowsStore
                 && !Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.Program])
                 && Directory.Exists(ModsPaths[eModPathType.Program]))
             {
@@ -476,7 +448,7 @@ namespace MW5_Mod_Manager
                 this.FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.Steam]));
             }
 
-            if (GamePlatform == eGamePlatform.WindowsStore
+            if (LocSettings.Instance.Data.platform == eGamePlatform.WindowsStore
                 && !Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.AppData])
                 && Directory.Exists(ModsPaths[eModPathType.AppData]))
             {
@@ -497,19 +469,7 @@ namespace MW5_Mod_Manager
 
         public void SaveSettings()
         {
-            string settingsDir = GetSettingsDirectory();
-
-            ProgramSettings.InstallPath = this.InstallPath;
-            this.ProgramSettings.platform = this.GamePlatform.ToString();
-            JsonSerializer serializer = new JsonSerializer
-            {
-                Formatting = Formatting.Indented
-            };
-            using (StreamWriter sw = new StreamWriter(Path.Combine(settingsDir, SettingsFileName)))
-            using (JsonWriter writer = new JsonTextWriter(sw))
-            {
-                serializer.Serialize(writer, this.ProgramSettings);
-            }
+            ProgramSettings.SaveSettings();
         }
 
         public void ModListParser()
@@ -579,12 +539,12 @@ namespace MW5_Mod_Manager
                     return 0;
 
                 // Compare Original load order
-                int priorityComparison = Mods[y].OriginalLoadOrder.CompareTo(Mods[x].OriginalLoadOrder);
+                int priorityComparison = Mods[x].OriginalLoadOrder.CompareTo(Mods[y].OriginalLoadOrder);
 
                 // If Priority is equal, compare Folder name
                 if (priorityComparison == 0)
                 {
-                    return PathToDirectoryDict[y].CompareTo(PathToDirectoryDict[x]);
+                    return PathToDirectoryDict[x].CompareTo(PathToDirectoryDict[y]);
                 }
                 else
                 {
@@ -599,7 +559,7 @@ namespace MW5_Mod_Manager
 
                 ModList[modDir] = false;
             }
-            //Turns out there are sometimes "ghost" entries in the modlist.json for which there are no directories left, lets remove those.
+            // There are sometimes "ghost" entries in the modlist.json for which there are no directories left, lets remove those.
             List<string> toRemove = new List<string>();
             foreach (KeyValuePair<string, bool> entry in this.ModList)
             {

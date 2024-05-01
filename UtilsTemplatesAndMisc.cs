@@ -190,6 +190,16 @@ namespace MW5_Mod_Manager
             int rotatedHeight = Math.Abs(wSinTheta) + Math.Abs(hCosTheta);
 
             this.Width = rotatedWidth;
+            // This is incomplete and only checks if bottom anchor is set
+            int oldHeight = Height;
+            if (Anchor.HasFlag(AnchorStyles.Bottom))
+            {
+                if (Height != rotatedHeight)
+                {
+                    int offset = rotatedHeight - Height;
+                    this.Top -= offset;
+                }
+            }
             this.Height = rotatedHeight;
 
             int numQuadrants =
@@ -427,13 +437,6 @@ namespace MW5_Mod_Manager
         public float locOriginalLoadOrder { set; get; }
     }
 
-    public class ProgramData
-    {
-        public string platform { set; get; }
-        public float version { set; get; }
-        public string InstallPath { set; get; }
-    }
-
     public class OverridingData
     {
         public string mod { set; get; }
@@ -483,5 +486,28 @@ namespace MW5_Mod_Manager
             return Enum.GetValues(typeof(U)).Cast<U>().Select(i => this[i]).GetEnumerator();
         }
     }
+}
 
+public static class EnumerableExtensions
+{
+    public static IEnumerable<TSource> ReverseIf<TSource>(this IEnumerable<TSource> source, bool reverse)
+    {
+        return reverse ? source.Reverse() : source;
+    }
+}
+
+public static class DictionaryExtensions
+{
+    public static Dictionary<TKey, TValue> ReverseIf<TKey, TValue>(this Dictionary<TKey, TValue> source, bool reverse)
+    {
+        if (reverse)
+        {
+            var reversedDict = source.Reverse().ToDictionary(kv => kv.Key, kv => kv.Value);
+            return reversedDict;
+        }
+        else
+        {
+            return source;
+        }
+    }
 }

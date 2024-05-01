@@ -28,7 +28,7 @@ namespace MW5_Mod_Manager
         {
             var psi = new System.Diagnostics.ProcessStartInfo()
             {
-                FileName = locConstants.UrlNexusmods,
+                FileName = LocConstants.UrlNexusmods,
                 UseShellExecute = true
             };
             System.Diagnostics.Process.Start(psi);
@@ -43,7 +43,7 @@ namespace MW5_Mod_Manager
         {
             var psi = new System.Diagnostics.ProcessStartInfo()
             {
-                FileName = locConstants.UrlGithub,
+                FileName = LocConstants.UrlGithub,
                 UseShellExecute = true
             };
             System.Diagnostics.Process.Start(psi);
