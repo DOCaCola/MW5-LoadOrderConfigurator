@@ -30,7 +30,7 @@ namespace MW5_Mod_Manager
             Dictionary<string, bool> FolderNameModList = new Dictionary<string, bool>();
 
             //Get the folder names from the paths in modlist
-            foreach (string key in ModsManager.Instance.ModList.Keys.ReverseIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
+            foreach (string key in ModsManager.Instance.ModList.Keys.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
             {
                 bool isEnabled = ModsManager.Instance.ModList[key];
                 if (!isEnabled && enabledOnly)

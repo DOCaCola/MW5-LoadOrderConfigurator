@@ -27,6 +27,7 @@ namespace MW5_Mod_Manager
         public float Version = 0f;
 
         public string GameVersion = "";
+        public string KnownModListGameVersion = null;
 
         public enum eModPathType
         {
@@ -42,7 +43,6 @@ namespace MW5_Mod_Manager
         // User made changes not written to files
         public bool ModSettingsTainted = false;
 
-        public JObject parent;
         // Directories found in all mod paths
         public List<string> FoundDirectories = new();
         public Dictionary<string, string> DirectoryToPathDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -240,9 +240,9 @@ namespace MW5_Mod_Manager
             string bestAvailableVersion = "0";
 
             // We will trust the game version from modlist.json if it exists.
-            if ((this.parent != null && this.parent.ContainsKey("gameVersion")))
+            if (KnownModListGameVersion != null)
             {
-                bestAvailableVersion = this.parent["gameVersion"].ToString();
+                bestAvailableVersion = KnownModListGameVersion;
             }
             else
             {
@@ -475,10 +475,11 @@ namespace MW5_Mod_Manager
         public void ModListParser()
         {
             string modlistPath = GetModListJsonFilePath();
+            JObject modListObjectObject;
             try
             {
                 this.rawJson = File.ReadAllText(modlistPath);
-                this.parent = JObject.Parse(rawJson);
+                modListObjectObject = JObject.Parse(rawJson);
             }
             catch (Exception e)
             {
@@ -492,12 +493,18 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-            JObject modStatus = this.parent.Value<JObject>("modStatus");
+            string gameVersionObj = modListObjectObject.Value<string>("gameVersion");
+            if (gameVersionObj != null)
+            {
+                KnownModListGameVersion = gameVersionObj.ToString();
+            }
+
+            JObject modStatus = modListObjectObject.Value<JObject>("modStatus");
             if (modStatus != null)
             {
                 foreach (JProperty mod in modStatus.Properties())
                 {
-                    bool enabled = (bool)this.parent["modStatus"][mod.Name]["bEnabled"];
+                    bool enabled = (bool)modStatus[mod.Name]["bEnabled"];
                     if (this.DirectoryToPathDict.TryGetValue(mod.Name, out string modDir))
                     {
                         this.ModList.Add(modDir, enabled);
@@ -508,9 +515,8 @@ namespace MW5_Mod_Manager
 
         public void SaveToFiles()
         {
-            UpdateModlistJObject();
             SaveModDetails();
-            SaveModListJson();
+            SaveModListToFile();
         }
 
         //TODO Fix
@@ -539,12 +545,12 @@ namespace MW5_Mod_Manager
                     return 0;
 
                 // Compare Original load order
-                int priorityComparison = Mods[x].OriginalLoadOrder.CompareTo(Mods[y].OriginalLoadOrder);
+                int priorityComparison = Mods[y].OriginalLoadOrder.CompareTo(Mods[x].OriginalLoadOrder);
 
                 // If Priority is equal, compare Folder name
                 if (priorityComparison == 0)
                 {
-                    return PathToDirectoryDict[x].CompareTo(PathToDirectoryDict[y]);
+                    return PathToDirectoryDict[y].CompareTo(PathToDirectoryDict[x]);
                 }
                 else
                 {
@@ -831,33 +837,7 @@ namespace MW5_Mod_Manager
             }
         }
 
-        public void UpdateModlistJObject()
-        {
-            if (this.parent == null)
-            {
-                this.parent = new JObject();
-                this.parent["gameVersion"] = GameVersion;
-            }
-
-            JObject modStatusObject = this.parent.Value<JObject>("modStatus");
-            if (modStatusObject != null)
-            {
-                modStatusObject.RemoveAll();
-            }
-            else
-            {
-                this.parent.Add("modStatus", new JObject());
-            }
-            
-            foreach (KeyValuePair<string, bool> entry in this.ModList)
-            {
-                string[] temp = entry.Key.Split('\\');
-                string modFolderName = temp[temp.Length - 1];
-                AddModToModlistJObject(modFolderName, entry.Value);
-            }
-        }
-
-        public void SaveModListJson()
+        public void SaveModListToFile()
         {
             string modlistJsonFilePath = GetModListJsonFilePath();
             string modlistJsonFileDir = Path.GetDirectoryName(modlistJsonFilePath);
@@ -871,88 +851,48 @@ namespace MW5_Mod_Manager
                 return;
             }
 
+            JObject modListObject;
             if (File.Exists(modlistJsonFilePath))
             {
                 string modListJsonExisting = File.ReadAllText(modlistJsonFilePath);
-                JObject modListNew = JObject.Parse(modListJsonExisting);
-
-                modListNew["modStatus"] = parent["modStatus"];
-
-                JsonSerializer serializer = new JsonSerializer();
-                serializer.Formatting = Formatting.Indented;
-                using (StreamWriter sw = new StreamWriter(modlistJsonFilePath))
-                using (JsonWriter writer = new JsonTextWriter(sw))
-                {
-                    serializer.Serialize(writer, modListNew);
-                }
+                modListObject = JObject.Parse(modListJsonExisting);
             }
             else
             {
-                string jsonString = this.parent.ToString();
-                StreamWriter sw = File.CreateText(modlistJsonFilePath);
-                sw.WriteLine(jsonString);
-                sw.Flush();
-                sw.Close();
+                modListObject = new JObject();
+                modListObject["gameVersion"] = GameVersion;
             }
 
-        }
-
-        public void AddModToModlistJObject(string ModName, bool status)
-        {
-            JObject modStatus = this.parent["modStatus"] as JObject;
-            JObject newStatus = new JObject(
-                new JProperty("bEnabled", status)
-            );
-            modStatus.Add(ModName, newStatus);
-        }
-
-        public void SetModInJObject(string ModName, bool status)
-        {
-            this.parent["modStatus"][ModName]["bEnabled"] = status;
-        }
-
-        #region pack mods to zip
-
-        public void ThreadProc()
-        {
-            //Get parent dir
-            string parent = Directory.GetParent(this.ModsPaths[eModPathType.Program]).ToString();
-            //Check if Mods.zip allready exists delete it if so, we need to do this else the ZipFile lib will error.
-            if (File.Exists(parent + "\\Mods.zip"))
+            JObject modStatusObject = modListObject.Value<JObject>("modStatus");
+            if (modStatusObject != null)
             {
-                File.Delete(parent + "\\Mods.zip");
+                modStatusObject.RemoveAll();
             }
-            ZipFile.CreateFromDirectory(this.ModsPaths[eModPathType.Program], parent + "\\Mods.zip", CompressionLevel.Fastest, false);
-        }
-
-        public void PackModsToZip(BackgroundWorker worker, DoWorkEventArgs e)
-        {
-            //Console.WriteLine("Starting zip compression");
-            string parent = Directory.GetParent(this.ModsPaths[eModPathType.Program]).ToString();
-
-            Thread t = new Thread(new ThreadStart(ThreadProc));
-            t.Start();
-            while (t.IsAlive)
+            else
             {
-                System.Threading.Thread.Sleep(500);
-                if (worker.CancellationPending || e.Cancel)
-                {
-                    t.Interrupt();
-                    t.Join();
-                    e.Result = "ABORTED";
-                    if (File.Exists(parent + "\\Mods.zip"))
-                    {
-                        File.Delete(parent + "\\Mods.zip");
-                    }
-                    return;
-                }
-                Thread.Yield();
+                modStatusObject = new JObject();
+                modListObject.Add("modStatus", modStatusObject);
             }
-            //Open folder where we stored the zip file
-            e.Result = "DONE";
-        }
 
-        #endregion pack mods to zip
+            foreach (KeyValuePair<string, bool> entry in this.ModList)
+            {
+                string[] temp = entry.Key.Split('\\');
+                string modFolderName = temp[temp.Length - 1];
+
+                JObject newStatus = new JObject(
+                    new JProperty("bEnabled", entry.Value)
+                );
+                modStatusObject.Add(modFolderName, newStatus);
+            }
+
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.Formatting = Formatting.Indented;
+            using (StreamWriter sw = new StreamWriter(modlistJsonFilePath))
+            using (JsonWriter writer = new JsonTextWriter(sw))
+            {
+                serializer.Serialize(writer, modListObject);
+            }
+        }
 
         //Reset the overriding data between two mods and check if after mods are still overriding/being overriden
         public void ResetOverrdingBetweenMods(ListViewItem listItemA, ListViewItem listItemB)

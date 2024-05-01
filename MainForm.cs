@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
@@ -395,8 +396,22 @@ namespace MW5_Mod_Manager
                 else
                     ModsManager.Instance.LoadFromFiles();
 
+                // Sort by mechwarrior load order
+                var orderedModList = ModsManager.Instance.ModList.
+                    Join(ModsManager.Instance.ModDetails,
+                        modListItem => modListItem.Key,
+                        modDetailsItem => modDetailsItem.Key,
+                        (modListItem, modDetailsItem) => 
+                            new { Key = modListItem.Key
+                                , Value = modListItem.Value
+                                , loadOrder = modDetailsItem.Value.defaultLoadOrder
+                                , folderName = ModsManager.Instance.PathToDirectoryDict[modListItem.Key].ToString() })
+                    .OrderByDescending(item => item.folderName)
+                    .OrderByDescending(item => item.loadOrder)
+                    .ToDictionary(item => item.Key, item => item.Value);
+
                 modsListView.BeginUpdate();
-                foreach (KeyValuePair<string, bool> entry in ModsManager.Instance.ModList.ReverseIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow))
+                foreach (KeyValuePair<string, bool> entry in orderedModList.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
                 {
                     if (entry.Equals(new KeyValuePair<string, bool>(null, false)))
                         continue;
@@ -1595,12 +1610,12 @@ namespace MW5_Mod_Manager
             // we can reset everyting to the default load order
             bool isDefaultSorted = IsSortedByDefaultLoadOrder();
 
-            int curLoadOrder = 1;
+            int curLoadOrder = GetModCount(restoreLoadOrdersOfDisabled);
 
             // Reorder modlist by recreating it...
             Dictionary<string, bool> newModList = new Dictionary<string, bool>();
 
-            foreach (ListViewItem curModListItem in ModListData.ReverseIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow))
+            foreach (ListViewItem curModListItem in ModListData.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
             {
                 string modKey = curModListItem.Tag.ToString();
                 bool modEnabled = ModsManager.Instance.ModList[modKey];
@@ -1608,7 +1623,7 @@ namespace MW5_Mod_Manager
                 if (!isDefaultSorted && (!restoreLoadOrdersOfDisabled || modEnabled))
                 {
                     ModsManager.Instance.ModDetails[modKey].defaultLoadOrder = curLoadOrder;
-                    ++curLoadOrder;
+                    --curLoadOrder;
                 }
                 else
                 {
@@ -1652,11 +1667,6 @@ namespace MW5_Mod_Manager
                 ModListBoxItem modListBoxItem = listBoxOverriddenBy.Items[index] as ModListBoxItem;
                 SelectModInList(modListBoxItem.ModKey);
             }
-        }
-
-        private void buttonClearHighlight_Click(object sender, EventArgs e)
-        {
-
         }
 
         public void UpdateModCountDisplay()
@@ -1830,12 +1840,25 @@ namespace MW5_Mod_Manager
         {
             for (int i = 1; i < ModListData.Count; i++)
             {
-                if (int.Parse(ModListData[i].SubItems[originalLoadOrderHeader.Index].Text) > int.Parse(ModListData[i - 1].SubItems[originalLoadOrderHeader.Index].Text) ||
-                    (int.Parse(ModListData[i].SubItems[originalLoadOrderHeader.Index].Text) == int.Parse(ModListData[i - 1].SubItems[originalLoadOrderHeader.Index].Text) &&
-                     string.Compare(ModListData[i].SubItems[folderHeader.Index].Text, ModListData[i - 1].SubItems[folderHeader.Index].Text) > 0))
+                if (LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow)
                 {
-                    return false;
+                    if (int.Parse(ModListData[i].SubItems[originalLoadOrderHeader.Index].Text) > int.Parse(ModListData[i - 1].SubItems[originalLoadOrderHeader.Index].Text) ||
+                        (int.Parse(ModListData[i].SubItems[originalLoadOrderHeader.Index].Text) == int.Parse(ModListData[i - 1].SubItems[originalLoadOrderHeader.Index].Text) &&
+                         string.Compare(ModListData[i].SubItems[folderHeader.Index].Text, ModListData[i - 1].SubItems[folderHeader.Index].Text) > 0))
+                    {
+                        return false;
+                    }
                 }
+                else
+                {
+                    if (int.Parse(ModListData[i-1].SubItems[originalLoadOrderHeader.Index].Text) > int.Parse(ModListData[i].SubItems[originalLoadOrderHeader.Index].Text) ||
+                        (int.Parse(ModListData[i-1].SubItems[originalLoadOrderHeader.Index].Text) == int.Parse(ModListData[i].SubItems[originalLoadOrderHeader.Index].Text) &&
+                         string.Compare(ModListData[i-1].SubItems[folderHeader.Index].Text, ModListData[i].SubItems[folderHeader.Index].Text) > 0))
+                    {
+                        return false;
+                    }
+                }
+
             }
             return true;
         }

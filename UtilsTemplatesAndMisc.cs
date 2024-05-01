@@ -488,11 +488,37 @@ namespace MW5_Mod_Manager
     }
 }
 
+
 public static class EnumerableExtensions
 {
     public static IEnumerable<TSource> ReverseIf<TSource>(this IEnumerable<TSource> source, bool reverse)
     {
         return reverse ? source.Reverse() : source;
+    }
+
+    public static IEnumerable<T> ReverseIterate<T>(this IList<T> items)
+    {
+        for (var i = items.Count - 1; i >= 0; i--)
+            yield return items[i];
+    }
+
+    public static IEnumerable<T> ReverseIterateIf<T>(this IEnumerable<T> enumerable, bool reverse)
+    {
+        if (reverse)
+        {
+            var list = enumerable.ToList();
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                yield return list[i];
+            }
+        }
+        else
+        {
+            foreach (var item in enumerable)
+            {
+                yield return item;
+            }
+        }
     }
 }
 
@@ -508,6 +534,36 @@ public static class DictionaryExtensions
         else
         {
             return source;
+        }
+    }
+
+    public static IEnumerable<KeyValuePair<TKey, TValue>> ReverseIterate<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
+    {
+        var keys = new List<TKey>(dictionary.Keys);
+        for (int i = keys.Count - 1; i >= 0; i--)
+        {
+            var key = keys[i];
+            yield return new KeyValuePair<TKey, TValue>(key, dictionary[key]);
+        }
+    }
+
+    public static IEnumerable<KeyValuePair<TKey, TValue>> ReverseIterateIf<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, bool reverse)
+    {
+        if (reverse)
+        {
+            var keys = new List<TKey>(dictionary.Keys);
+            for (int i = keys.Count - 1; i >= 0; i--)
+            {
+                var key = keys[i];
+                yield return new KeyValuePair<TKey, TValue>(key, dictionary[key]);
+            }
+        }
+        else
+        {
+            foreach (var pair in dictionary)
+            {
+                yield return pair;
+            }
         }
     }
 }
