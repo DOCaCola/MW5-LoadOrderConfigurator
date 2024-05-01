@@ -65,6 +65,8 @@ namespace MW5_Mod_Manager
 
             this.Text += @" " + GetVersion();
 
+            modsListView.SetDoubleBuffered();
+
             /*rotatingLabelLowPriority.ForeColor = MainLogic.LowPriorityColor;
             rotatingLabelHighPriority.ForeColor = MainLogic.HighPriorityColor;*/
 
