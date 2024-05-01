@@ -1223,12 +1223,19 @@ namespace MW5_Mod_Manager
         {
             string path = (string)modsListView.SelectedItems[0].Tag;
 
-            var psi = new System.Diagnostics.ProcessStartInfo()
+            try
             {
-                FileName = path,
-                UseShellExecute = true
-            };
-            System.Diagnostics.Process.Start(psi);
+                var psi = new System.Diagnostics.ProcessStartInfo()
+                {
+                    FileName = path,
+                    UseShellExecute = true
+                };
+                System.Diagnostics.Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error opening directory", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void linkLabelModAuthorUrl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -1853,6 +1860,13 @@ namespace MW5_Mod_Manager
 
         private void DeleteMod(string modKey)
         {
+            // If the directory already vanished (i.e. deleted by the user externally)
+            if (!Directory.Exists(modKey))
+            {
+                RefreshAll();
+                return;
+            }
+
             DialogResult dialogResult = MessageBox.Show("The mod " + ModsManager.Instance.ModDetails[modKey].displayName
                                                                    + " will be removed. This will delete the directory\r\n" + modKey
                                                                    + "\r\n\r\nAre you sure you want to continue?",
