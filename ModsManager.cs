@@ -57,6 +57,15 @@ namespace MW5_Mod_Manager
         public Dictionary<string, OverridingData> OverridingData = new Dictionary<string, OverridingData>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, string> Presets = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
+        public class LastAppliedPresetData
+        {
+            public long timeStamp = 0;
+            public string gameVersion = "";
+            public Dictionary<string, bool> modStatus = null;
+        }
+
+        public LastAppliedPresetData LastAppliedPreset;
+
         public static Color OverriddenColor = Color.FromArgb(131, 101, 0);
         public static Color OverridingColor = Color.FromArgb(80, 37, 192);
         public static Color OverriddenOveridingColor = Color.FromArgb(170,73,97);
@@ -148,22 +157,45 @@ namespace MW5_Mod_Manager
             }
         }
 
-        // (Re)load all mod data
-        // desiredMods in order they need to be loaded and enabled state
-        public void ReloadModData(Dictionary<string, bool> desiredMods)
+        public void LoadLastAppliedPresetData()
         {
-            //find all mod directories and parse them into just folder names:
-            ParseDirectories();
-            if (desiredMods == null)
+            string lastAppliedJsonFile = GetSettingsDirectory() + Path.DirectorySeparatorChar + LastAppliedOrderFileName;
+
+
+            if (!File.Exists(lastAppliedJsonFile))
             {
-                //parse modlist.json
-                ModListParser();
-            }
-            else
-            {
-                //ModEnabledList = desiredMods;
+                return;
             }
 
+            string modJsonText = File.ReadAllText(lastAppliedJsonFile);
+            try
+            {
+                var jsonSettings = new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                };
+                LastAppliedPreset = JsonConvert.DeserializeObject<LastAppliedPresetData>(modJsonText, jsonSettings);
+            }
+            catch (JsonReaderException e)
+            {
+                return;
+            }
+        }
+
+        public void InitModEnabledList()
+        {
+            ModEnabledList.Clear();
+            foreach (string modDir in this.ModDirectories)
+            {
+                ModEnabledList[modDir] = false;
+            }
+        }
+
+        // (Re)load all mod data
+        // desiredMods in order they need to be loaded and enabled state
+        public void ReloadModData()
+        {
+            LoadLastAppliedPresetData();
             ReadVortexDeploymentData();
             //Load each mods mod.json and store in Dict.
             LoadAllModDetails();
@@ -312,13 +344,13 @@ namespace MW5_Mod_Manager
                 MessageBox.Show(message, caption, buttons, MessageBoxIcon.Warning);
             }
 
-            Dictionary<string, bool> newModList = new Dictionary<string, bool>();
+            Dictionary<string, bool> newModListDict = new Dictionary<string, bool>();
             foreach (var curFolderItem in newFolderNamesEnabledList)
             {
                 string fullPath = DirNameToPathDict[curFolderItem.Key];
-                newModList[fullPath] = curFolderItem.Value;
+                newModListDict[fullPath] = curFolderItem.Value;
             }
-            newFolderNamesEnabledList = newModList;
+            newFolderNamesEnabledList = newModListDict;
         }
 
         /// <summary>
@@ -429,7 +461,7 @@ namespace MW5_Mod_Manager
             Directory.Delete(directory, true);
         }
 
-        private void ParseDirectories()
+        public void ParseDirectories()
         {
             this.FoundDirectories.Clear();
 
@@ -452,7 +484,7 @@ namespace MW5_Mod_Manager
             {
                 this.FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.AppData]));
             }
-            AddDirectoryPathsToDict();
+            //AddDirectoryPathsToDict();
         }
 
         private void AddDirectoryPathsToDict()
@@ -470,7 +502,7 @@ namespace MW5_Mod_Manager
             ProgramSettings.SaveSettings();
         }
 
-        public void ModListParser()
+        public Dictionary<string, bool> LoadModList()
         {
             string modlistPath = GetModListJsonFilePath();
             JObject modListObjectObject;
@@ -488,7 +520,7 @@ namespace MW5_Mod_Manager
                     +@"LOC will try to create the file with the correct version number when applying your profile, but there is high chance that this will fail."+System.Environment.NewLine
                     +@"It is recommended to start the game once in order to create this file before applying your mod profile.",
                     @"Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                return null;
             }
 
             string gameVersionObj = modListObjectObject.Value<string>("gameVersion");
@@ -500,17 +532,20 @@ namespace MW5_Mod_Manager
             JObject modStatus = modListObjectObject.Value<JObject>("modStatus");
             if (modStatus != null)
             {
+                Dictionary<string, bool> modList = new();
                 int modListIndex = 0;
-                foreach (JProperty mod in modStatus.Properties())
+                foreach (JProperty curMOD in modStatus.Properties())
+
                 {
-                    bool enabled = (bool)modStatus[mod.Name]["bEnabled"];
-                    if (this.DirNameToPathDict.TryGetValue(mod.Name, out string modDir))
-                    {
-                        this.ModEnabledList.Add(modDir, enabled);
-                        ++modListIndex;
-                    }
+                    bool enabled = (bool)modStatus[curMOD.Name]?["bEnabled"];
+                    modList.Add(curMOD.Name, enabled);
+                    ++modListIndex;
                 }
+
+                return modList;
             }
+
+            return null;
         }
 
         public void SaveToFiles()
@@ -556,14 +591,6 @@ namespace MW5_Mod_Manager
                 return priorityComparison;
             });
 
-            // Disable all mods not in the list. Important if we load from an import string...
-            foreach (string modDir in this.ModDirectories)
-            {
-                if (this.ModEnabledList.ContainsKey(modDir))
-                    continue;
-
-                ModEnabledList[modDir] = false;
-            }
             // There are sometimes "ghost" entries in the modlist.json for which there are no directories left, lets remove those.
             List<string> toRemove = new List<string>();
             foreach (KeyValuePair<string, bool> entry in this.ModEnabledList)
@@ -684,14 +711,14 @@ namespace MW5_Mod_Manager
                     }
 
                     // Determine mod origin
-                    string modDir = this.PathToDirNameDict[modPath];
+                    string modDirName = Path.GetFileName(modPath);
 
                     // Check if this might be a mod from the steam workshop
-                    if (IsSteamWorkshopID(modDir))
+                    if (IsSteamWorkshopID(modDirName))
                     {
                         // If the mod directory name matches the store id, we can be pretty certain
                         // there are mods however, that don't have this info correctly filled
-                        if (modDir == modJsonDataObject.steamPublishedFileId.ToString())
+                        if (modDirName == modJsonDataObject.steamPublishedFileId.ToString())
                         {
                             modData.Origin = ModData.ModOrigin.Steam;
                         }
@@ -709,10 +736,9 @@ namespace MW5_Mod_Manager
 
                     if (modData.Origin == ModData.ModOrigin.Unknown)
                     {
-                        string modDirectoryName = PathToDirNameDict[modPath];
-                        if (VortexDeploymentData.ContainsKey(modDirectoryName))
+                        if (VortexDeploymentData.ContainsKey(modDirName))
                         {
-                            VortexDeploymentModData vortexModData = VortexDeploymentData[modDirectoryName];
+                            VortexDeploymentModData vortexModData = VortexDeploymentData[modDirName];
 
                             modData.Origin = ModData.ModOrigin.Nexusmods;
                             modData.NexusModsId = vortexModData.nexusModsId;
@@ -787,6 +813,9 @@ namespace MW5_Mod_Manager
                 this.Mods.Add(modPath, modData);
                 this.ModDetails.Add(modPath, modJsonDataObject);
                 this.ModDirectories.Add(modPath);
+                string directoryName = Path.GetFileName(modPath);
+                this.DirNameToPathDict[directoryName] = modPath;
+                this.PathToDirNameDict[modPath] = directoryName;
                 loadModSuccess = true;
             }
             finally
@@ -802,6 +831,8 @@ namespace MW5_Mod_Manager
 
         private void LoadAllModDetails()
         {
+            Mods.Clear();
+            ModDetails.Clear();
             foreach (string modDir in this.FoundDirectories)
             {
                 LoadModDetails(modDir);

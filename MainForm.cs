@@ -58,7 +58,11 @@ namespace MW5_Mod_Manager
             this.Icon = Properties.Resources.MainIcon;
             if (ModsManager.Instance.TryLoadProgramSettings())
             {
-                LoadAndFill(null);
+                ModsManager.Instance.ParseDirectories();
+                ModsManager.Instance.ReloadModData();
+                var modList = ModsManager.Instance.LoadModList();
+                ModsManager.Instance.ProcessModFolderList(ref modList);
+                LoadAndFill(modList, false);
             }
             this.LoadPresets();
             this.SetVersionAndPlatform();
@@ -248,7 +252,7 @@ namespace MW5_Mod_Manager
             items.RemoveAt(i);
             ModListData.RemoveAt(i);
 
-            SetModSettingsTainted(true);
+            SetModConfigTainted(true);
 
             if (moveToTop)
             {
@@ -288,7 +292,7 @@ namespace MW5_Mod_Manager
             items.RemoveAt(i);
             ModListData.RemoveAt(i);
 
-            SetModSettingsTainted(true);
+            SetModConfigTainted(true);
 
             if (moveToTop)
             {
@@ -319,7 +323,7 @@ namespace MW5_Mod_Manager
             RecomputeLoadOrders();
             ModsManager.Instance.SaveToFiles();
             ModsManager.Instance.SaveLastAppliedModOrder();
-            SetModSettingsTainted(false);
+            SetModConfigTainted(false);
         }
 
 
@@ -406,21 +410,23 @@ namespace MW5_Mod_Manager
         }
 
         //Load mod data and fill in the list box...
-        public void LoadAndFill(Dictionary<string, bool> desiredMods)
+        public void LoadAndFill(Dictionary<string, bool> desiredMods, bool orderByDesired)
         {
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
             bool prevLoadingAndFilling = LoadingAndFilling;
             this.LoadingAndFilling = true;
-            KeyValuePair<string, bool> currentEntry = default;
+
             //try
             {
-                ModsManager.Instance.ReloadModData(desiredMods);
+                //ModsManager.Instance.ModEnabledList = modList;
+
+                ModsManager.Instance.InitModEnabledList();
 
                 List<KeyValuePair<string, bool>> orderedModList;
                 // Sort by mechwarrior load order
-                if (desiredMods == null)
+                if (!orderByDesired)
                 {
                     orderedModList = ModsManager.Instance.ModEnabledList.ToList();
                     orderedModList.Sort((x, y) =>
@@ -445,6 +451,24 @@ namespace MW5_Mod_Manager
                     SwapModsToMatchFilter(ref orderedModList, desiredMods.ToList());
                 }
 
+				// set all mods to desired enabled states
+                foreach (var curDesiredMod in desiredMods)
+                {
+                    ModsManager.Instance.ModEnabledList[curDesiredMod.Key] = curDesiredMod.Value;
+                }
+
+                for (int i = 0; i < orderedModList.Count; i++)
+                {
+                    bool newState = false;
+                    var curModListItem = orderedModList[i];
+                    if (desiredMods.ContainsKey(curModListItem.Key))
+                    {
+                        newState = desiredMods[curModListItem.Key];
+                    }
+
+                    orderedModList[i] = new KeyValuePair<string, bool>(curModListItem.Key, newState);
+                }
+
                 modsListView.BeginUpdate();
                 foreach (KeyValuePair<string, bool> entry in orderedModList.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
                 {
@@ -453,7 +477,6 @@ namespace MW5_Mod_Manager
                     if (entry.Key == null)
                         continue;
 
-                    currentEntry = entry;
                     AddEntryToListViewAndData(entry);
                 }
                 ReloadListViewFromData();
@@ -557,13 +580,18 @@ namespace MW5_Mod_Manager
             ClearAll();
             if (ModsManager.Instance.TryLoadProgramSettings())
             {
-                LoadAndFill(null);
+                ModsManager.Instance.ParseDirectories();
+                ModsManager.Instance.ReloadModData();
+                var modList = ModsManager.Instance.LoadModList();
+                ModsManager.Instance.ProcessModFolderList(ref modList);
+                LoadAndFill(modList, false);
+
                 FilterTextChanged();
                 ModsManager.Instance.GetOverridingData(ModListData);
             }
 
             SetVersionAndPlatform();
-            SetModSettingsTainted(false);
+            SetModConfigTainted(false);
             modsListView.EndUpdate();
         }
 
@@ -602,7 +630,6 @@ namespace MW5_Mod_Manager
             }
 
             temp.ReverseIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh);
-            ModsManager.Instance.ProcessModFolderList(ref temp);
 
             modsListView.BeginUpdate();
             this.modsListView.Items.Clear();
@@ -611,9 +638,13 @@ namespace MW5_Mod_Manager
             ModsManager.Instance.ModEnabledList.Clear();
             ModsManager.Instance.ModDirectories.Clear();
             ModsManager.Instance.Mods.Clear();
-            this.LoadAndFill(temp);
+
+            ModsManager.Instance.ParseDirectories();
+            ModsManager.Instance.ReloadModData();
+            ModsManager.Instance.ProcessModFolderList(ref temp);
+            this.LoadAndFill(temp, true);
             FilterTextChanged();
-            SetModSettingsTainted(true);
+            SetModConfigTainted(true);
             modsListView.EndUpdate();
         }
 
@@ -918,6 +949,7 @@ namespace MW5_Mod_Manager
                 if (FilterMode == eFilterMode.None)
                 {
                     startedListUpdate = true;
+                    richTextBoxManifestOverridden.Suspend();
                     modsListView.BeginUpdate();
                     UnhighlightAllMods();
                 }
@@ -964,6 +996,7 @@ namespace MW5_Mod_Manager
             {
                 if (startedListUpdate)
                 {
+                    richTextBoxManifestOverridden.Resume();
                     modsListView.EndUpdate();
                 }
             }
@@ -979,6 +1012,7 @@ namespace MW5_Mod_Manager
                 {
                     startedListUpdate = true;
                     modsListView.BeginUpdate();
+                    richTextBoxManifestOverridden.Suspend();
                     UnhighlightAllMods();
                 }
 
@@ -1016,6 +1050,7 @@ namespace MW5_Mod_Manager
             {
                 if (startedListUpdate)
                 {
+                    richTextBoxManifestOverridden.Resume();
                     modsListView.EndUpdate();
                 }
             }
@@ -1170,7 +1205,7 @@ namespace MW5_Mod_Manager
             ModsManager.Instance.UpdateNewModOverrideData(ModListData, ModListData[e.Item.Index]);
             HandleOverriding(e.Item.SubItems[folderHeader.Index].Text);
             UpdateModCountDisplay();
-            SetModSettingsTainted(true);
+            SetModConfigTainted(true);
         }
 
         //Check for mod overrding data
@@ -1217,9 +1252,11 @@ namespace MW5_Mod_Manager
             ModsManager.Instance.ModEnabledList.Clear();
             ModsManager.Instance.ModDirectories.Clear();
             ModsManager.Instance.Mods.Clear();
-            this.LoadAndFill(newData);
+            ModsManager.Instance.ParseDirectories();
+            ModsManager.Instance.ReloadModData();
+            this.LoadAndFill(newData, true);
             FilterTextChanged();
-            SetModSettingsTainted(true);
+            SetModConfigTainted(true);
             modsListView.EndUpdate();
         }
 
@@ -1284,7 +1321,7 @@ namespace MW5_Mod_Manager
             ModsManager.Instance.GetOverridingData(this.ModListData);
             UpdateModCountDisplay();
             RecomputeLoadOrdersAndUpdateList();
-            SetModSettingsTainted(true);
+            SetModConfigTainted(true);
 
             modsListView.EndUpdate();
         }
@@ -1311,7 +1348,7 @@ namespace MW5_Mod_Manager
             ModsManager.Instance.GetOverridingData(ModListData);
             UpdateModCountDisplay();
             RecomputeLoadOrdersAndUpdateList();
-            SetModSettingsTainted(true);
+            SetModConfigTainted(true);
 
             modsListView.EndUpdate();
         }
@@ -1519,7 +1556,7 @@ namespace MW5_Mod_Manager
                 modListView_SelectedIndexChanged(null, null);
                 modsListView.EndUpdate();
 
-                SetModSettingsTainted(true);
+                SetModConfigTainted(true);
             }
 
             modsListView.InsertionMark.Index = -1;
@@ -1713,7 +1750,7 @@ namespace MW5_Mod_Manager
             toolStripStatusLabelModsActive.Text = @"Active: " + GetModCount(true);
         }
 
-        public void SetModSettingsTainted(bool modSettingsTainted)
+        public void SetModConfigTainted(bool modSettingsTainted)
         {
             ModsManager.Instance.ModSettingsTainted = modSettingsTainted;
             if (modSettingsTainted)
@@ -1864,7 +1901,7 @@ namespace MW5_Mod_Manager
             ModsManager.Instance.GetOverridingData(this.ModListData);
             FilterTextChanged();
             modListView_SelectedIndexChanged(null, null);
-            SetModSettingsTainted(true);
+            SetModConfigTainted(true);
             int selectedItemIndex = SelectedItemIndex();
             if (selectedItemIndex != -1)
             {
