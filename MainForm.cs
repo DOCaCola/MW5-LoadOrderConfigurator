@@ -58,7 +58,7 @@ namespace MW5_Mod_Manager
             this.Icon = Properties.Resources.MainIcon;
             if (ModsManager.Instance.TryLoadProgramSettings())
             {
-                LoadAndFill(false);
+                LoadAndFill(null);
             }
             this.LoadPresets();
             this.SetVersionAndPlatform();
@@ -318,6 +318,7 @@ namespace MW5_Mod_Manager
 
             RecomputeLoadOrders();
             ModsManager.Instance.SaveToFiles();
+            ModsManager.Instance.SaveLastAppliedModOrder();
             SetModSettingsTainted(false);
         }
 
@@ -383,8 +384,29 @@ namespace MW5_Mod_Manager
             openUserModsFolderToolStripMenuItem.Visible = LocSettings.Instance.Data.platform == eGamePlatform.WindowsStore;
         }
 
+        // Swaps items the targetList by the sequence of mods in filterList
+        static void SwapModsToMatchFilter(ref List<KeyValuePair<string, bool>> targetList, List<KeyValuePair<string, bool>> filterList)
+        {
+            int filterIndex = 0;
+            for (int i = 0; i < targetList.Count && filterIndex < filterList.Count; i++)
+            {
+                KeyValuePair<string, bool> currentItem = targetList[i];
+                if (targetList.FindIndex(t => t.Key == currentItem.Key) != -1)
+                {
+                    if (currentItem.Key != filterList[filterIndex].Key)
+                    {
+                        // Swap the items
+                        int filterItemIndex = targetList.FindIndex(t => t.Key == filterList[filterIndex].Key);
+                        targetList[filterItemIndex] = currentItem;
+                        targetList[i] = filterList[filterIndex];
+                    }
+                    filterIndex++;
+                }
+            }
+        }
+
         //Load mod data and fill in the list box...
-        public void LoadAndFill(bool FromClipboard)
+        public void LoadAndFill(Dictionary<string, bool> desiredMods)
         {
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
@@ -394,30 +416,34 @@ namespace MW5_Mod_Manager
             KeyValuePair<string, bool> currentEntry = default;
             //try
             {
-                if (FromClipboard)
-                    ModsManager.Instance.LoadFromImportString();
-                else
-                    ModsManager.Instance.LoadFromFiles();
+                ModsManager.Instance.ReloadModData(desiredMods);
 
+                List<KeyValuePair<string, bool>> orderedModList;
                 // Sort by mechwarrior load order
-                var orderedModList = ModsManager.Instance.ModEnabledList.ToList();
-                orderedModList.Sort((x, y) =>
+                if (desiredMods == null)
                 {
-                    // Compare Original load order
-                    int priorityComparison = ModsManager.Instance.ModDetails[y.Key].defaultLoadOrder
+                    orderedModList = ModsManager.Instance.ModEnabledList.ToList();
+                    orderedModList.Sort((x, y) =>
+                    {
+                        // Compare Original load order
+                        int priorityComparison = ModsManager.Instance.ModDetails[y.Key].defaultLoadOrder
                             .CompareTo(ModsManager.Instance.ModDetails[x.Key].defaultLoadOrder);
 
-                    // If Priority is equal, compare Folder name
-                    if (priorityComparison == 0)
-                    {
-                        return ModsManager.Instance.PathToDirNameDict[y.Key].ToString()
-                            .CompareTo(ModsManager.Instance.PathToDirNameDict[x.Key]);
-                    }
+                        // If Priority is equal, compare Folder name
+                        if (priorityComparison == 0)
+                        {
+                            return ModsManager.Instance.PathToDirNameDict[y.Key].ToString()
+                                .CompareTo(ModsManager.Instance.PathToDirNameDict[x.Key]);
+                        }
 
-                    return priorityComparison;
-                });
-
-                
+                        return priorityComparison;
+                    });
+                }
+                else
+                {
+                    orderedModList = ModsManager.Instance.ModEnabledList.ToList();
+                    SwapModsToMatchFilter(ref orderedModList, desiredMods.ToList());
+                }
 
                 modsListView.BeginUpdate();
                 foreach (KeyValuePair<string, bool> entry in orderedModList.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
@@ -531,7 +557,7 @@ namespace MW5_Mod_Manager
             ClearAll();
             if (ModsManager.Instance.TryLoadProgramSettings())
             {
-                LoadAndFill(false);
+                LoadAndFill(null);
                 FilterTextChanged();
                 ModsManager.Instance.GetOverridingData(ModListData);
             }
@@ -571,19 +597,21 @@ namespace MW5_Mod_Manager
                 string message = "There was an error in decoding the load order string.";
                 string caption = "Load Order Decoding Error";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, caption, buttons);
+                MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
                 return;
             }
+
+            temp.ReverseIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh);
+            ModsManager.Instance.ProcessModFolderList(ref temp);
 
             modsListView.BeginUpdate();
             this.modsListView.Items.Clear();
             this.ModListData.Clear();
             ModsManager.Instance.ModDetails = new Dictionary<string, ModObject>();
-            ModsManager.Instance.ModDirectories.Clear();
             ModsManager.Instance.ModEnabledList.Clear();
-            ModsManager.Instance.ModEnabledList = temp.ReverseIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh);
+            ModsManager.Instance.ModDirectories.Clear();
             ModsManager.Instance.Mods.Clear();
-            this.LoadAndFill(true);
+            this.LoadAndFill(temp);
             FilterTextChanged();
             SetModSettingsTainted(true);
             modsListView.EndUpdate();
@@ -1175,6 +1203,7 @@ namespace MW5_Mod_Manager
                 return;
             }
             Dictionary<string, bool> newData = importDialog.ResultData.ReverseIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh);
+            ModsManager.Instance.ProcessModFolderList(ref newData);
             importDialog.Dispose();
 
             if (!ModsManager.Instance.GameIsConfigured())
@@ -1185,10 +1214,10 @@ namespace MW5_Mod_Manager
             this.modsListView.Items.Clear();
             this.ModListData.Clear();
             ModsManager.Instance.ModDetails.Clear();
-            ModsManager.Instance.ModEnabledList = newData;
+            ModsManager.Instance.ModEnabledList.Clear();
             ModsManager.Instance.ModDirectories.Clear();
             ModsManager.Instance.Mods.Clear();
-            this.LoadAndFill(true);
+            this.LoadAndFill(newData);
             FilterTextChanged();
             SetModSettingsTainted(true);
             modsListView.EndUpdate();

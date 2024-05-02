@@ -7,6 +7,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Runtime.Versioning;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -65,6 +66,7 @@ namespace MW5_Mod_Manager
 
         public static string SettingsFileName = @"Settings.json";
         public static string PresetsFileName = @"Presets.json";
+        public static string LastAppliedOrderFileName = @"LastApplied.json";
 
         public class VortexDeploymentModData
         {
@@ -146,16 +148,21 @@ namespace MW5_Mod_Manager
             }
         }
 
-        /// <summary>
-        /// Starts suquence to load all mods from folders, loads modlist, combines modlist with found folders structure
-        /// and loads details of each found mod.
-        /// </summary>
-        public void LoadFromFiles()
+        // (Re)load all mod data
+        // desiredMods in order they need to be loaded and enabled state
+        public void ReloadModData(Dictionary<string, bool> desiredMods)
         {
             //find all mod directories and parse them into just folder names:
             ParseDirectories();
-            //parse modlist.json
-            ModListParser();
+            if (desiredMods == null)
+            {
+                //parse modlist.json
+                ModListParser();
+            }
+            else
+            {
+                //ModEnabledList = desiredMods;
+            }
 
             ReadVortexDeploymentData();
             //Load each mods mod.json and store in Dict.
@@ -264,37 +271,18 @@ namespace MW5_Mod_Manager
         }
 
         /// <summary>
-        /// Used to load mods when using a preset or importing a load order string.
-        /// Starts sequence to load all mods from folders, loads modlist, checks mod folder names against their possible paths
-        /// and adds those paths, combines modlist with found folders structure and loads details of each found mod.
-        /// </summary>
-        public void LoadFromImportString()
-        {
-            //find all mod directories and parse them into just folder names:
-            ParseDirectories();
-            //We need to check if the mod we want to load from a preset is actually present on the system.
-            CheckModDirPresent();
-            //We are coming from an string of just modfolder names and no directory paths in the modlist object
-            //so we need to convert using the DirectoryToPathDict
-            AddPathsToModList();
-            //Load each mods mod.json and store in Dict.
-            LoadAllModDetails();
-            //Combine so we have all mods in the ModList Dict for easy later use and writing to JObject
-            CombineDirModList();
-        }
-
-        /// <summary>
         /// Checks for all items in the modlist if they have a possible folder on system they can point to.
         /// If not removes them from the modlist and informs user.
+        /// newFoldernamesEnabledList has only foldernames as key, not full paths
         /// </summary>
-        private void CheckModDirPresent()
+        public void ProcessModFolderList(ref Dictionary<string, bool> newFolderNamesEnabledList)
         {
             Dictionary<string, bool> MissingModDirs = new();
-            foreach (var item in this.ModEnabledList)
+            foreach (var item in newFolderNamesEnabledList)
             {
                 if (Utils.StringNullEmptyOrWhiteSpace(item.Key))
                 {
-                    ModEnabledList.Remove(item.Key);
+                    newFolderNamesEnabledList.Remove(item.Key);
                     continue;
                 }
 
@@ -306,7 +294,7 @@ namespace MW5_Mod_Manager
             }
             foreach (var missingModDir in MissingModDirs)
             {
-                this.ModEnabledList.Remove(missingModDir.Key);
+                newFolderNamesEnabledList.Remove(missingModDir.Key);
 
                 // We will silently ignore missing mods that are not enabled
                 if (!missingModDir.Value)
@@ -323,6 +311,14 @@ namespace MW5_Mod_Manager
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, caption, buttons, MessageBoxIcon.Warning);
             }
+
+            Dictionary<string, bool> newModList = new Dictionary<string, bool>();
+            foreach (var curFolderItem in newFolderNamesEnabledList)
+            {
+                string fullPath = DirNameToPathDict[curFolderItem.Key];
+                newModList[fullPath] = curFolderItem.Value;
+            }
+            newFolderNamesEnabledList = newModList;
         }
 
         /// <summary>
@@ -521,6 +517,7 @@ namespace MW5_Mod_Manager
         {
             SaveModDetails();
             SaveModListToFile();
+            SaveLastAppliedModOrder();
         }
 
         //TODO Fix
@@ -539,7 +536,6 @@ namespace MW5_Mod_Manager
             
         }
 
-        //Check if the mod dir is already present in data loaded from modlist.json, if not add it.
         private void CombineDirModList()
         {
             // First sort the directories by the default MW5 load orders
@@ -930,18 +926,45 @@ namespace MW5_Mod_Manager
             //Console.WriteLine("ResetOverrdingBetweenMods modB: " + modB + " " + this.OverrridingData[modB].isOverriding + " " + this.OverrridingData[modB].isOverriden);
         }
 
+        internal void SaveLastAppliedModOrder()
+        {
+            string lastAppliedJsonFile = GetSettingsDirectory() + Path.DirectorySeparatorChar + LastAppliedOrderFileName;
+
+            Dictionary<string, bool> NoPathModlist = new Dictionary<string, bool>();
+            foreach (KeyValuePair<string, bool> entry in ModEnabledList)
+            {
+                string folderName = ModsManager.Instance.PathToDirNameDict[entry.Key];
+                NoPathModlist[folderName] = entry.Value;
+            }
+
+            JObject json = new JObject();
+            json["timestamp"] = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
+            json["gameVersion"] = GameVersion;
+            json["modStatus"] = JObject.FromObject(NoPathModlist);
+
+            string lastAppliedString = JsonConvert.SerializeObject(json, Formatting.Indented);
+
+            if (File.Exists(lastAppliedJsonFile))
+                File.Delete(lastAppliedJsonFile);
+
+            StreamWriter sw = File.CreateText(lastAppliedJsonFile);
+            sw.WriteLine(lastAppliedString);
+            sw.Flush();
+            sw.Close();
+        }
+
         //Save presets from memory to file for use in next session.
         internal void SavePresets()
         {
-            string JsonFile = GetSettingsDirectory() + Path.DirectorySeparatorChar + PresetsFileName;
-            string JsonString = JsonConvert.SerializeObject(this.Presets, Formatting.Indented);
+            string presetsJsonFile = GetSettingsDirectory() + Path.DirectorySeparatorChar + PresetsFileName;
+            string presetJsonString = JsonConvert.SerializeObject(this.Presets, Formatting.Indented);
 
-            if (File.Exists(JsonFile))
-                File.Delete(JsonFile);
+            if (File.Exists(presetsJsonFile))
+                File.Delete(presetsJsonFile);
 
             //Console.WriteLine(JsonString);
-            StreamWriter sw = File.CreateText(JsonFile);
-            sw.WriteLine(JsonString);
+            StreamWriter sw = File.CreateText(presetsJsonFile);
+            sw.WriteLine(presetJsonString);
             sw.Flush();
             sw.Close();
         }
