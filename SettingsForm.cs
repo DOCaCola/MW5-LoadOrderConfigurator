@@ -112,11 +112,23 @@ namespace MW5_Mod_Manager
             }
             else
             {
-                DialogResult msgBoxResult = MessageBox.Show(
-                    "MechWarrior 5 installation found in: " + mw5InstallDir +
-                    "\r\n\r\nDo you want to use this path?", "MechWarrior found", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                TaskDialogButton result = TaskDialog.ShowDialog(this.Handle, new TaskDialogPage()
+                {
+                    Text = "MechWarrior 5 installation found in:\r\n" + mw5InstallDir +
+                                           "\r\n\r\nDo you want to use this path?",
+                    Heading = "MechWarrior installation found.",
+                    Caption = "MechWarrior found",
+                    Buttons =
+                    {
+                        TaskDialogButton.Yes,
+                        TaskDialogButton.No,
+                    },
+                    Icon = TaskDialogIcon.None,
+                    DefaultButton = TaskDialogButton.Yes,
+                    AllowCancel = true
+                });
 
-                showFolderSelect = msgBoxResult != DialogResult.Yes;
+                showFolderSelect = result == TaskDialogButton.No;
             }
 
             if (showFolderSelect)
@@ -141,9 +153,21 @@ namespace MW5_Mod_Manager
                             if (!fileDirectory.EndsWith(@"\MW5Mercs\Binaries\Win64",
                                     StringComparison.OrdinalIgnoreCase))
                             {
-                                MessageBox.Show(
-                                    @"The MechWarrior directory could not be determined using path: " +
-                                    selectedFilePath, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                TaskDialog.ShowDialog(this, new TaskDialogPage()
+                                {
+                                    Text = "The MechWarrior directory could not be determined using path:\r\n" +
+                                                                               selectedFilePath,
+                                    Heading = "MechWarrior not found.",
+                                    Caption = "Error",
+                                    Buttons =
+                                    {
+                                        TaskDialogButton.OK,
+                                    },
+                                    Icon = TaskDialogIcon.Error,
+                                    DefaultButton = TaskDialogButton.OK,
+                                    AllowCancel = true
+                                });
+
                                 return;
                             }
 
@@ -155,11 +179,22 @@ namespace MW5_Mod_Manager
                         }
                         else
                         {
-                            MessageBox.Show(
-                                @"The MechWarrior installation directory could not be located using path: " +
-                                selectedFilePath +
-                                "\r\n\r\nPlease select the MechWarrior.exe or MechWarrior-Win64-Shipping.exe in your MechWarrior 5 directory.",
-                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            TaskDialog.ShowDialog(this, new TaskDialogPage()
+                            {
+                                Text = "The MechWarrior installation directory could not be located using path:\r\n" +
+                                       selectedFilePath+
+                                       "\r\n\r\nPlease select the MechWarrior.exe or MechWarrior-Win64-Shipping.exe in your MechWarrior 5 directory.",
+                                Heading = "MechWarrior not found.",
+                                Caption = "Error",
+                                Buttons =
+                                {
+                                    TaskDialogButton.OK,
+                                },
+                                Icon = TaskDialogIcon.Error,
+                                DefaultButton = TaskDialogButton.OK,
+                                AllowCancel = true
+                            });
+
                             return;
                         }
                     }
@@ -213,7 +248,19 @@ namespace MW5_Mod_Manager
                 {
                     if (!File.Exists(path + "\\mechwarrior.exe"))
                     {
-                        MessageBox.Show(@"The 'MechWarrior.exe' file could not be found in the selected directory.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        TaskDialog.ShowDialog(this, new TaskDialogPage()
+                        {
+                            Text = @"The 'MechWarrior.exe' file could not be found in the selected directory.",
+                            Caption = "Error",
+                            Buttons =
+                            {
+                                TaskDialogButton.OK,
+                            },
+                            Icon = TaskDialogIcon.Error,
+                            DefaultButton = TaskDialogButton.OK,
+                            AllowCancel = true
+                        });
+
                         return;
                     }
 
@@ -221,8 +268,18 @@ namespace MW5_Mod_Manager
                     {
                         if (ModsManager.FindSteamAppsParentDirectory(path) == null)
                         {
-                            MessageBox.Show(@"The selected directory doesn't appear to be a valid Steam game installation.",
-                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            TaskDialog.ShowDialog(this, new TaskDialogPage()
+                            {
+                                Text = @"The selected directory doesn't appear to be a valid Steam game installation.",
+                                Caption = "Error",
+                                Buttons =
+                                {
+                                    TaskDialogButton.OK,
+                                },
+                                Icon = TaskDialogIcon.Error,
+                                DefaultButton = TaskDialogButton.OK,
+                                AllowCancel = true
+                            });
                             return;
                         }
                     }

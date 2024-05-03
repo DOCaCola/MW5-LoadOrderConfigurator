@@ -679,17 +679,13 @@ namespace MW5_Mod_Manager
 
             if (ModsManager.Instance.ModSettingsTainted)
             {
-                DialogResult result =
-                    MessageBox.Show(
-                        @"You have unapplied changes to your mod list." + System.Environment.NewLine + System.Environment.NewLine
-                        + "Do you want to apply your changes before starting?",
-                        @"Unapplied changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+                var result = ShowUnappliedChangesDialog();
 
-                if (result == DialogResult.Yes)
+                if (result == eUnappliedChangesDialogResult.Apply)
                 {
                     ApplyModSettings();
                 }
-                else if (result == DialogResult.Cancel)
+                else if (result == eUnappliedChangesDialogResult.Cancel)
                 {
                     return;
                 }
@@ -1755,22 +1751,56 @@ namespace MW5_Mod_Manager
             }
         }
 
+        public enum eUnappliedChangesDialogResult
+        {
+            Apply,
+            DontApply,
+            Cancel
+        }
+
+        private eUnappliedChangesDialogResult ShowUnappliedChangesDialog()
+        {
+            // Create the page which we want to show in the dialog.
+            TaskDialogButton btnCancel = TaskDialogButton.Cancel;
+            TaskDialogButton btnApply = new TaskDialogButton("&Apply");
+            TaskDialogButton btnDontApply = new TaskDialogButton("Do&n't apply");
+
+            var page = new TaskDialogPage()
+            {
+                Caption = "MechWarrior 5 Load Order Configurator",
+                Heading = "Do you want to apply your changes to the MechWarrior 5 mod list?",
+                /*Text = "You have unapplied changes to your mod list.",*/
+                Buttons =
+                {
+                    btnCancel,
+                    btnApply,
+                    btnDontApply
+                }
+            };
+
+            // Show a modal dialog, then check the result.
+            TaskDialogButton result = TaskDialog.ShowDialog(this, page);
+
+            if (result == btnApply)
+                return eUnappliedChangesDialogResult.Apply;
+            if (result == btnDontApply)
+                return eUnappliedChangesDialogResult.DontApply;
+
+            return eUnappliedChangesDialogResult.Cancel;
+        }
+
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (!ModsManager.Instance.ModSettingsTainted)
                 return;
 
-            DialogResult result =
-                MessageBox.Show(
-                    @"You have unapplied changes to your mod list." + System.Environment.NewLine + System.Environment.NewLine
-                    + @"Do you want to apply your changes before quitting?",
-                    @"Unapplied changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+            var result = ShowUnappliedChangesDialog();
 
-            if (result == DialogResult.Yes)
+            if (result == eUnappliedChangesDialogResult.Apply)
             {
                 ApplyModSettings();
             }
-            else if (result == DialogResult.Cancel)
+            else if (result == eUnappliedChangesDialogResult.Cancel)
             {
                 e.Cancel = true;
             }

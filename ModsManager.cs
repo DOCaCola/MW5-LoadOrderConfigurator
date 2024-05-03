@@ -655,13 +655,24 @@ namespace MW5_Mod_Manager
             if (File.Exists(modlistPath))
                 return;
 
-            MessageBox.Show(
-                @"The modlist.json file could not be found in"+ System.Environment.NewLine 
-                                                              + modlistPath +@"."+System.Environment.NewLine+System.Environment.NewLine
-                                                              +@"It is necessary to read this file in order to validate it with the correct version number the game expects." + System.Environment.NewLine + System.Environment.NewLine
-                                                              +@"LOC will try to create the file with the correct version number when applying your profile, but there is high chance that this will fail."+System.Environment.NewLine
-                                                              +@"It is recommended to start the game once in order to create this file before applying your mod profile.",
-                @"Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            TaskDialogButton result = TaskDialog.ShowDialog(MainForm.Instance.Handle, new TaskDialogPage()
+            {
+                Text =                 @"The modlist.json file could not be found in"+ System.Environment.NewLine 
+                    + modlistPath +@"."+System.Environment.NewLine+System.Environment.NewLine
+                    +@"It is necessary to read this file in order to validate it with the correct version number the game expects." + System.Environment.NewLine + System.Environment.NewLine
+                    +@"LOC will try to create the file with the correct version number when applying your profile, but there is high chance that this will fail."+System.Environment.NewLine
+                    +@"It is recommended to start the game once in order to create this file before applying your mod profile.",
+
+                Heading = "The modlist.json file could not be found.",
+                Caption = "Mod list error",
+                Buttons =
+                {
+                    TaskDialogButton.OK,
+                },
+                Icon = TaskDialogIcon.Warning,
+                DefaultButton = TaskDialogButton.OK,
+                AllowCancel = true
+            });
         }
 
         public Dictionary<string, bool> LoadModList()
