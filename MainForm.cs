@@ -13,7 +13,6 @@ using static MW5_Mod_Manager.ModsManager;
 using File = System.IO.File;
 using ListView = System.Windows.Forms.ListView;
 using System.Net.Http;
-using System.Xml.XPath;
 using Newtonsoft.Json.Linq;
 
 namespace MW5_Mod_Manager
@@ -408,7 +407,7 @@ namespace MW5_Mod_Manager
                     orderedModList = ModsManager.Instance.ModEnabledList.ToList();
                     orderedModList.Sort((x, y) =>
                     {
-                        // Compare Original load order
+                        // Compare load order
                         int priorityComparison = ModsManager.Instance.ModDetails[y.Key].defaultLoadOrder
                             .CompareTo(ModsManager.Instance.ModDetails[x.Key].defaultLoadOrder);
 
@@ -512,7 +511,7 @@ namespace MW5_Mod_Manager
             newItem.SubItems[folderHeader.Index].Text = ModsManager.Instance.PathToDirNameDict[modName];
             newItem.SubItems[authorHeader.Index].Text = ModsManager.Instance.ModDetails[entry.Key].author;
             newItem.SubItems[versionHeader.Index].Text = versionString;
-            newItem.SubItems[currentLoadOrderHeader.Index].Text = ModsManager.Instance.ModDetails[entry.Key].defaultLoadOrder.ToString();
+            newItem.SubItems[currentLoadOrderHeader.Index].Text = ModsManager.Instance.Mods[entry.Key].NewLoadOrder.ToString();
             newItem.SubItems[originalLoadOrderHeader.Index].Text = ModsManager.Instance.Mods[entry.Key].OriginalLoadOrder.ToString();
             newItem.SubItems[fileSizeHeader.Index].Text = Utils.BytesToHumanReadableString(ModsManager.Instance.Mods[entry.Key].ModFileSize);
 
@@ -1679,12 +1678,12 @@ namespace MW5_Mod_Manager
                 newModList[modKey] = modEnabled;
                 if (!isDefaultSorted && (!restoreLoadOrdersOfDisabled || modEnabled))
                 {
-                    ModsManager.Instance.ModDetails[modKey].defaultLoadOrder = curLoadOrder;
+                    ModsManager.Instance.Mods[modKey].NewLoadOrder = curLoadOrder;
                     --curLoadOrder;
                 }
                 else
                 {
-                    ModsManager.Instance.ModDetails[modKey].defaultLoadOrder = ModsManager.Instance.ModDetails[modKey].locOriginalLoadOrder;
+                    ModsManager.Instance.Mods[modKey].NewLoadOrder = ModsManager.Instance.ModDetails[modKey].locOriginalLoadOrder;
                 }
             }
 
@@ -1699,7 +1698,7 @@ namespace MW5_Mod_Manager
             foreach (ListViewItem modListItem in ModListData)
             {
                 modListItem.SubItems[currentLoadOrderHeader.Index].Text =
-                        ModsManager.Instance.ModDetails[modListItem.Tag.ToString()].defaultLoadOrder.ToString();
+                        ModsManager.Instance.Mods[modListItem.Tag.ToString()].NewLoadOrder.ToString();
             }
 
             MainForm.Instance.ColorListViewNumbers(ModListData, MainForm.Instance.currentLoadOrderHeader.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);

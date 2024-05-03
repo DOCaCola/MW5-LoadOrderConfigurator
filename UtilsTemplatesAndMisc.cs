@@ -433,7 +433,6 @@ namespace MW5_Mod_Manager
         public long steamPublishedFileId { set; get; }
         public long steamLastSubmittedBuildNumber { set; get; }
         public string steamModVisibility { set; get; }
-        public List<string> Requires { set; get; }
         public float locOriginalLoadOrder { set; get; }
     }
 

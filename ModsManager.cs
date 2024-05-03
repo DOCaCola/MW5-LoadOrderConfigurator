@@ -3,14 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Runtime.Versioning;
-using System.Text;
-using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -91,6 +86,7 @@ namespace MW5_Mod_Manager
 
         public class ModData
         {
+            public float NewLoadOrder = Single.NaN;
             public float OriginalLoadOrder = Single.NaN;
             // Was the file mod.json modified by LOC before?
             public bool IsNewMod = true;
@@ -209,12 +205,23 @@ namespace MW5_Mod_Manager
                 .Select(kv => kv.Key)
                 .ToList();
 
-            curEnabledModList.Add("blabl");
+            var nonMatchingMods = ModUtils.GetNonMatchingMods(curEnabledModList, lastEnabledModList);
 
-            bool matching = ModUtils.IsModOrderMatching(curEnabledModList, lastEnabledModList);
-            if (!matching)
+            List<string> nonMatchingModsNames = new List<string>(nonMatchingMods.Count);
+
+            foreach (var mod in nonMatchingMods)
             {
-                MessageBox.Show("The mod load order has changed since the last time it was applied with Load Order Configurator.\r\nThis might be due to the load order being changed ingame, an installed game update, a installed mod update or another utility modifying the load order.\r\n Do you want to load your last applied load order?", "Load order changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                nonMatchingModsNames.Add(ModDetails[mod].displayName);
+            }
+            
+            if (nonMatchingMods.Count > 0)
+            {
+                MessageBox.Show("The mod load order has changed since the last time it was applied with Load Order Configurator.\r\n"+
+                                "This might be due to the load order being changed ingame, an installed game update, a installed mod update or another utility modifying the load order.\r\n" +
+                               string.Join(", ", nonMatchingModsNames) + "\r\n" +
+                                "Do you want to load your last applied load order?"
+                    
+                        , "Load order changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             }
         }
 
@@ -699,6 +706,7 @@ namespace MW5_Mod_Manager
 
                     modJsonDataObject = JsonConvert.DeserializeObject<ModObject>(modJsonText, jsonSettings);
 
+                    modData.NewLoadOrder = modJsonDataObject.defaultLoadOrder;
                     bool foundLoadOrder = false;
                     modData.IsNewMod = !modJsonObject.ContainsKey("locOriginalLoadOrder");
 
@@ -888,7 +896,7 @@ namespace MW5_Mod_Manager
 
                 //JObject modDetailsUpdate = JObject.FromObject(entry.Value);
                 modDetailsNew["locOriginalLoadOrder"] = Mods[entry.Key].OriginalLoadOrder;
-                modDetailsNew["defaultLoadOrder"] = entry.Value.defaultLoadOrder;
+                modDetailsNew["defaultLoadOrder"] = Mods[entry.Key].NewLoadOrder;
 
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Formatting = Formatting.Indented;
@@ -1002,7 +1010,7 @@ namespace MW5_Mod_Manager
 
                 LastAppliedPresetModData lastAppliedModData = new LastAppliedPresetModData();
                 lastAppliedModData.state = entry.Value;
-                lastAppliedModData.lastLoadOrder = ModDetails[entry.Key].defaultLoadOrder;
+                lastAppliedModData.lastLoadOrder = Mods[entry.Key].NewLoadOrder;
                 lastAppliedModList[folderName] = lastAppliedModData;
             }
 
@@ -1189,8 +1197,8 @@ namespace MW5_Mod_Manager
             string modA = listItemA.SubItems[MainForm.Instance.folderHeader.Index].Text;
             string modB = listItemB.SubItems[MainForm.Instance.folderHeader.Index].Text;
 
-            float loadOrderA = ModDetails[listItemA.Tag.ToString()].defaultLoadOrder;
-            float loadOrderB = ModDetails[listItemB.Tag.ToString()].defaultLoadOrder;
+            float loadOrderA = Mods[listItemA.Tag.ToString()].NewLoadOrder;
+            float loadOrderB = Mods[listItemB.Tag.ToString()].NewLoadOrder;
 
             //Now we have a mod that is not the mod we are looking at is enabled.
             //Lets compare the manifest!

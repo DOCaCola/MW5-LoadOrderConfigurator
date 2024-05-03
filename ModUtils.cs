@@ -75,5 +75,23 @@ namespace MW5_Mod_Manager
             }
             return filterIndex == filterList.Count;
         }
+
+        public static List<string> GetNonMatchingMods(List<string> targetList, List<string> filterList)
+        {
+            List<string> nonMatchingItems = new List<string>();
+            int filterIndex = 0;
+            foreach (string item in targetList)
+            {
+                if (filterIndex < filterList.Count && item == filterList[filterIndex])
+                {
+                    filterIndex++;
+                }
+                else
+                {
+                    nonMatchingItems.Add(item);
+                }
+            }
+            return nonMatchingItems;
+        }
     }
 }
