@@ -552,7 +552,6 @@ namespace MW5_Mod_Manager
                 ModsManager.Instance.WarnIfNoModList();
                 ModsManager.Instance.ParseDirectories();
                 ModsManager.Instance.ReloadModData();
-                ModsManager.Instance.DetermineBestAvailableGameVersion();
 
                 // load modlist.json
                 Dictionary<string, bool> modlist = ModsManager.Instance.LoadModList();
@@ -561,6 +560,7 @@ namespace MW5_Mod_Manager
                     ModsManager.Instance.ProcessModFolderList(ref modlist, false);
                     ModsManager.Instance.ModEnabledListLastState = modlist;
                 }
+                ModsManager.Instance.DetermineBestAvailableGameVersion();
 
                 // Check if we want to load the last applied mod list
                 Dictionary<string, bool> loadModlist = modlist;
