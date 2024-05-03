@@ -459,6 +459,16 @@ namespace MW5_Mod_Manager
         }
     }
 
+    static class FloatUtils {
+
+        public const float DefaultEpsilon = (float)0.00001;
+
+        public static bool IsEqual(float a, float b, float epsilon = DefaultEpsilon)
+        {
+            return Math.Abs(a - b) < epsilon;
+        }
+    }
+
     /// <summary>An array indexed by an Enum</summary>
     /// <typeparam name="T">Type stored in array</typeparam>
     /// <typeparam name="U">Indexer Enum type</typeparam>

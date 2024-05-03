@@ -55,6 +55,8 @@ namespace MW5_Mod_Manager
         {
             public bool state = false;
             public float lastLoadOrder = -1;
+            public string version;
+            public int buildNumber = -1;
         }
         public class LastAppliedPresetData
         {
@@ -63,7 +65,9 @@ namespace MW5_Mod_Manager
             public Dictionary<string, LastAppliedPresetModData> mods = null;
         }
 
-        public LastAppliedPresetData LastAppliedPreset;
+        public LastAppliedPresetData LastAppliedPreset = null;
+        // Last applied preset in ready-to-load form
+        public Dictionary<string, bool> LastAppliedPresetModList = null;
 
         public static Color OverriddenColor = Color.FromArgb(131, 101, 0);
         public static Color OverridingColor = Color.FromArgb(80, 37, 192);
@@ -180,13 +184,22 @@ namespace MW5_Mod_Manager
             {
                 return;
             }
+
+            Dictionary<string, bool> lastAppliedValid = new Dictionary<string, bool>();
+            foreach (var curMod in LastAppliedPreset.mods)
+            {
+                lastAppliedValid[curMod.Key] = curMod.Value.state;
+            }
+            ProcessModFolderList(ref lastAppliedValid, false);
+            LastAppliedPresetModList = lastAppliedValid;
         }
 
-        public void CheckPrevAppliedPresetDataAgainstCurrentMods()
+        public bool ShouldLoadLastApplied()
         {
             if (LastAppliedPreset == null || LastAppliedPreset.mods == null)
-                return;
+                return false;
 
+            // Remove invalid mods from last loaded list.
             Dictionary<string, bool> lastMods = new();
             foreach (var curModItem in LastAppliedPreset.mods)
             {
@@ -205,24 +218,40 @@ namespace MW5_Mod_Manager
                 .Select(kv => kv.Key)
                 .ToList();
 
-            var nonMatchingMods = ModUtils.GetNonMatchingMods(curEnabledModList, lastEnabledModList);
+            var modOrderMatches = ModUtils.IsModOrderMatching(curEnabledModList, lastEnabledModList);
 
-            List<string> nonMatchingModsNames = new List<string>(nonMatchingMods.Count);
+            if (modOrderMatches)
+                return false;
 
-            foreach (var mod in nonMatchingMods)
+            List<string> nonMatchingModsNames = new List<string>();
+
+            foreach (var curCandidate in lastEnabledModList)
             {
-                nonMatchingModsNames.Add(ModDetails[mod].displayName);
+                // Compare current load order in mod.json with the one we last saved
+                string curCandidateFolderName = Path.GetFileName(curCandidate);
+                bool loadOrderChanged = !FloatUtils.IsEqual(
+                    LastAppliedPreset.mods[curCandidateFolderName].lastLoadOrder,
+                    ModDetails[curCandidate].defaultLoadOrder);
+
+                if (loadOrderChanged)
+                {
+                    nonMatchingModsNames.Add(ModDetails[curCandidate].displayName);
+                }
             }
             
-            if (nonMatchingMods.Count > 0)
+            if (nonMatchingModsNames.Count > 0)
             {
-                MessageBox.Show("The mod load order has changed since the last time it was applied with Load Order Configurator.\r\n"+
-                                "This might be due to the load order being changed ingame, an installed game update, a installed mod update or another utility modifying the load order.\r\n" +
-                               string.Join(", ", nonMatchingModsNames) + "\r\n" +
+                DialogResult result = MessageBox.Show("The mod load order has changed since the last time it was applied.\r\n"+
+                                "This might be due to the load order being changed ingame, an installed game update, a installed mod update or another utility modifying the load order.\r\n\r\n" +
+                               string.Join(", ", nonMatchingModsNames) + "\r\n\r\n" +
                                 "Do you want to load your last applied load order?"
                     
                         , "Load order changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                return result == DialogResult.Yes;
             }
+
+            return false;
         }
 
         public void InitModEnabledList()
@@ -545,9 +574,28 @@ namespace MW5_Mod_Manager
             ProgramSettings.SaveSettings();
         }
 
+        public void WarnIfNoModList()
+        {
+            string modlistPath = GetModListJsonFilePath();
+            if (File.Exists(modlistPath))
+                return;
+
+            MessageBox.Show(
+                @"The modlist.json file could not be found in"+ System.Environment.NewLine 
+                                                              + modlistPath +@"."+System.Environment.NewLine+System.Environment.NewLine
+                                                              +@"It is necessary to read this file in order to validate it with the correct version number the game expects." + System.Environment.NewLine + System.Environment.NewLine
+                                                              +@"LOC will try to create the file with the correct version number when applying your profile, but there is high chance that this will fail."+System.Environment.NewLine
+                                                              +@"It is recommended to start the game once in order to create this file before applying your mod profile.",
+                @"Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+
         public Dictionary<string, bool> LoadModList()
         {
             string modlistPath = GetModListJsonFilePath();
+
+            if (!File.Exists(modlistPath))
+                return null;
+
             JObject modListObjectObject;
             try
             {
@@ -557,12 +605,9 @@ namespace MW5_Mod_Manager
             catch (Exception e)
             {
                 MessageBox.Show(
-                    @"The modlist.json file could not be found in"+ System.Environment.NewLine 
+                    @"There was an error trying to parse the modlist.json file in "+ System.Environment.NewLine 
                     + modlistPath +@"."+System.Environment.NewLine+System.Environment.NewLine
-                    +@"It is necessary to read this file in order to validate it with the correct version number the game expects." + System.Environment.NewLine + System.Environment.NewLine
-                    +@"LOC will try to create the file with the correct version number when applying your profile, but there is high chance that this will fail."+System.Environment.NewLine
-                    +@"It is recommended to start the game once in order to create this file before applying your mod profile.",
-                    @"Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    , @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
 
@@ -680,7 +725,11 @@ namespace MW5_Mod_Manager
                     // Might have been set by the MW5-LOTS mod order manager
                     return jsonObject["lotsOriginalLoadOrder"].Value<float>();
                 }
-                return jsonObject["defaultLoadOrder"].Value<float>();
+                else if (jsonObject.ContainsKey("defaultLoadOrder"))
+                {
+                    return jsonObject["defaultLoadOrder"].Value<float>();
+                }
+                return 0.0f;
             }
 
             bool loadModSuccess = false;
@@ -715,7 +764,7 @@ namespace MW5_Mod_Manager
                     // try some different methods
 
                     // See if there is a backup file generated by MW5 Mod Organizer that has the original load order
-                    // Some mods also accidentially deploy with this file
+                    // Some mods also accidentally deploy with this file
                     string modBackupJsonFilePath = Path.Combine(modPath, @"backup.json");
                     if (File.Exists(modBackupJsonFilePath))
                     {
@@ -1011,6 +1060,8 @@ namespace MW5_Mod_Manager
                 LastAppliedPresetModData lastAppliedModData = new LastAppliedPresetModData();
                 lastAppliedModData.state = entry.Value;
                 lastAppliedModData.lastLoadOrder = Mods[entry.Key].NewLoadOrder;
+                lastAppliedModData.version = ModDetails[entry.Key].version;
+                lastAppliedModData.buildNumber = ModDetails[entry.Key].buildNumber;
                 lastAppliedModList[folderName] = lastAppliedModData;
             }
 
