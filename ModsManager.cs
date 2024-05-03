@@ -25,7 +25,6 @@ namespace MW5_Mod_Manager
     public class ModsManager
     {
         public static ModsManager Instance { get; private set; }
-        public float Version = 0f;
 
         public string GameVersion = "";
         public string KnownModListGameVersion = null;
@@ -57,11 +56,16 @@ namespace MW5_Mod_Manager
         public Dictionary<string, OverridingData> OverridingData = new Dictionary<string, OverridingData>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, string> Presets = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
+        public class LastAppliedPresetModData
+        {
+            public bool state = false;
+            public float lastLoadOrder = -1;
+        }
         public class LastAppliedPresetData
         {
             public long timeStamp = 0;
             public string gameVersion = "";
-            public Dictionary<string, bool> modStatus = null;
+            public Dictionary<string, LastAppliedPresetModData> mods = null;
         }
 
         public LastAppliedPresetData LastAppliedPreset;
@@ -182,6 +186,38 @@ namespace MW5_Mod_Manager
             }
         }
 
+        public void CheckPrevAppliedPresetDataAgainstCurrentMods()
+        {
+            if (LastAppliedPreset == null || LastAppliedPreset.mods == null)
+                return;
+
+            Dictionary<string, bool> lastMods = new();
+            foreach (var curModItem in LastAppliedPreset.mods)
+            {
+                lastMods.Add(curModItem.Key, curModItem.Value.state);
+            }
+            ProcessModFolderList(ref lastMods, false);
+
+            // Filter to enabled only mods
+            List<string> lastEnabledModList = lastMods
+                .Where(kv => kv.Value)
+                .Select(kv => kv.Key)
+                .ToList();
+
+            List<string> curEnabledModList = ModEnabledList
+                .Where(kv => kv.Value)
+                .Select(kv => kv.Key)
+                .ToList();
+
+            curEnabledModList.Add("blabl");
+
+            bool matching = ModUtils.IsModOrderMatching(curEnabledModList, lastEnabledModList);
+            if (!matching)
+            {
+                MessageBox.Show("The mod load order has changed since the last time it was applied with Load Order Configurator.\r\nThis might be due to the load order being changed ingame, an installed game update, a installed mod update or another utility modifying the load order.\r\n Do you want to load your last applied load order?", "Load order changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            }
+        }
+
         public void InitModEnabledList()
         {
             ModEnabledList.Clear();
@@ -195,13 +231,11 @@ namespace MW5_Mod_Manager
         // desiredMods in order they need to be loaded and enabled state
         public void ReloadModData()
         {
-            LoadLastAppliedPresetData();
             ReadVortexDeploymentData();
             //Load each mods mod.json and store in Dict.
             LoadAllModDetails();
             //Combine so we have all mods in the ModList Dict for easy later use and writing to JObject
             CombineDirModList();
-            DetermineBestAvailableGameVersion();
         }
 
         private void ReadVortexDeploymentData()
@@ -307,7 +341,7 @@ namespace MW5_Mod_Manager
         /// If not removes them from the modlist and informs user.
         /// newFoldernamesEnabledList has only foldernames as key, not full paths
         /// </summary>
-        public void ProcessModFolderList(ref Dictionary<string, bool> newFolderNamesEnabledList)
+        public void ProcessModFolderList(ref Dictionary<string, bool> newFolderNamesEnabledList, bool warnMissing)
         {
             Dictionary<string, bool> MissingModDirs = new();
             foreach (var item in newFolderNamesEnabledList)
@@ -334,11 +368,13 @@ namespace MW5_Mod_Manager
                     MissingModDirs.Remove(missingModDir.Key);
                 }
             }
-            if (MissingModDirs.Count > 0)
+            if (warnMissing && MissingModDirs.Count > 0)
             {
+                var missingMods = string.Join(MissingModDirs.Count > 5 ? ", " : "\r\n", MissingModDirs.Keys);
+
                 string message = "The mod list includes the following enabled mods which are unavailable locally:\r\n\r\n"
-                    + string.Join("\r\n", MissingModDirs.Keys)
-                    + "\r\n\r\nThese mods will be ignored.";
+                                 + missingMods
+                                 + "\r\n\r\nThese mods will be ignored.";
                 string caption = "Warning";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, caption, buttons, MessageBoxIcon.Warning);
@@ -555,7 +591,6 @@ namespace MW5_Mod_Manager
             SaveLastAppliedModOrder();
         }
 
-        //TODO Fix
         public void ClearAll()
         {
             this.ModDirectories.Clear();
@@ -568,7 +603,6 @@ namespace MW5_Mod_Manager
             this.ModsPaths[eModPathType.Steam] = null;
             this.ModsPaths[eModPathType.AppData] = null;
             this.VortexDeploymentData.Clear();
-            
         }
 
         private void CombineDirModList()
@@ -961,17 +995,21 @@ namespace MW5_Mod_Manager
         {
             string lastAppliedJsonFile = GetSettingsDirectory() + Path.DirectorySeparatorChar + LastAppliedOrderFileName;
 
-            Dictionary<string, bool> NoPathModlist = new Dictionary<string, bool>();
+            Dictionary<string, LastAppliedPresetModData> lastAppliedModList = new Dictionary<string, LastAppliedPresetModData>();
             foreach (KeyValuePair<string, bool> entry in ModEnabledList)
             {
                 string folderName = ModsManager.Instance.PathToDirNameDict[entry.Key];
-                NoPathModlist[folderName] = entry.Value;
+
+                LastAppliedPresetModData lastAppliedModData = new LastAppliedPresetModData();
+                lastAppliedModData.state = entry.Value;
+                lastAppliedModData.lastLoadOrder = ModDetails[entry.Key].defaultLoadOrder;
+                lastAppliedModList[folderName] = lastAppliedModData;
             }
 
             JObject json = new JObject();
             json["timestamp"] = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
             json["gameVersion"] = GameVersion;
-            json["modStatus"] = JObject.FromObject(NoPathModlist);
+            json["mods"] = JObject.FromObject(lastAppliedModList);
 
             string lastAppliedString = JsonConvert.SerializeObject(json, Formatting.Indented);
 
@@ -1019,7 +1057,8 @@ namespace MW5_Mod_Manager
             }
             catch (Exception Ex)
             {
-                string message = "There was an error in decoding the presets file!";
+                string message = "There was an error in decoding the presets file:\r\n\r\n"
+                    + Ex.Message;
                 string caption = "Presets File Decoding Error";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);

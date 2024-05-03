@@ -586,6 +586,7 @@ public static class ListViewExtensions
 
 namespace System.Windows.Forms
 {
+    [SupportedOSPlatform("windows")]
     public static class ControlExtensions
     {
         [System.Runtime.InteropServices.DllImport("user32.dll")]

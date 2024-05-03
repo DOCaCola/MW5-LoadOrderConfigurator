@@ -310,7 +310,6 @@ namespace MW5_Mod_Manager
             shareModsViaTCPToolStripMenuItem.Size = new Size(189, 22);
             shareModsViaTCPToolStripMenuItem.Text = "Share mods via &TCP";
             shareModsViaTCPToolStripMenuItem.Visible = false;
-            shareModsViaTCPToolStripMenuItem.Click += shareModsViaTCPToolStripMenuItem_Click;
             // 
             // toolStripSeparator2
             // 
@@ -560,10 +559,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(splitContainer2);
             tabPage1.Controls.Add(labelModNameOverrides);
             tabPage1.Controls.Add(label7);
-            tabPage1.Location = new Point(4, 24);
+            tabPage1.Location = new Point(4, 22);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(326, 455);
+            tabPage1.Size = new Size(326, 457);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;
@@ -574,7 +573,7 @@ namespace MW5_Mod_Manager
             richTextBoxManifestOverridden.Location = new Point(9, 164);
             richTextBoxManifestOverridden.Name = "richTextBoxManifestOverridden";
             richTextBoxManifestOverridden.ReadOnly = true;
-            richTextBoxManifestOverridden.Size = new Size(309, 295);
+            richTextBoxManifestOverridden.Size = new Size(309, 313);
             richTextBoxManifestOverridden.TabIndex = 28;
             richTextBoxManifestOverridden.Text = "";
             richTextBoxManifestOverridden.WordWrap = false;
@@ -617,9 +616,9 @@ namespace MW5_Mod_Manager
             label6.AutoSize = true;
             label6.Location = new Point(0, 2);
             label6.Name = "label6";
-            label6.Size = new Size(62, 13);
+            label6.Size = new Size(65, 13);
             label6.TabIndex = 25;
-            label6.Text = "Overriding";
+            label6.Text = "Overriding:";
             // 
             // listBoxOverriddenBy
             // 
@@ -639,9 +638,9 @@ namespace MW5_Mod_Manager
             label5.AutoSize = true;
             label5.Location = new Point(0, 2);
             label5.Name = "label5";
-            label5.Size = new Size(79, 13);
+            label5.Size = new Size(83, 13);
             label5.TabIndex = 24;
-            label5.Text = "Overridden By";
+            label5.Text = "Overridden by:";
             // 
             // labelModNameOverrides
             // 
@@ -658,9 +657,9 @@ namespace MW5_Mod_Manager
             label7.AutoSize = true;
             label7.Location = new Point(9, 148);
             label7.Name = "label7";
-            label7.Size = new Size(74, 13);
+            label7.Size = new Size(77, 13);
             label7.TabIndex = 26;
-            label7.Text = "Mod content";
+            label7.Text = "Mod content:";
             // 
             // tabPageModInfo
             // 
