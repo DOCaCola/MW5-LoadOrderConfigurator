@@ -291,7 +291,8 @@ namespace MW5_Mod_Manager
 
                 TaskDialogButton dialogResult = TaskDialog.ShowDialog(MainForm.Instance.Visible ? MainForm.Instance.Handle : 0, page);
 
-                return (int)dialogResult.Tag == 1;
+                if (dialogResult.Tag is int resultIndex)
+                    return resultIndex == 1;
             }
             else if (modsWereDisabled && enabledStateChangedModNames.Count > 0)
             {

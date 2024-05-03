@@ -36,7 +36,7 @@ namespace MW5_Mod_Manager
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             openFileDialog1 = new OpenFileDialog();
             toolStripPlatformLabel = new ToolStripStatusLabel();
-            modsListView = new ListView();
+            modsListView = new ModsListView();
             enabledHeader = new ColumnHeader();
             displayHeader = new ColumnHeader();
             authorHeader = new ColumnHeader();
@@ -187,6 +187,7 @@ namespace MW5_Mod_Manager
             modsListView.TabIndex = 10;
             modsListView.UseCompatibleStateImageBehavior = false;
             modsListView.View = View.Details;
+            modsListView.ColumnWidthChanging += modsListView_ColumnWidthChanging;
             modsListView.ItemChecked += modListView_ItemChecked;
             modsListView.ItemDrag += modsListView_ItemDrag;
             modsListView.SelectedIndexChanged += modListView_SelectedIndexChanged;
@@ -559,10 +560,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(splitContainer2);
             tabPage1.Controls.Add(labelModNameOverrides);
             tabPage1.Controls.Add(label7);
-            tabPage1.Location = new Point(4, 22);
+            tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(326, 457);
+            tabPage1.Size = new Size(326, 455);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Overrides";
             tabPage1.UseVisualStyleBackColor = true;

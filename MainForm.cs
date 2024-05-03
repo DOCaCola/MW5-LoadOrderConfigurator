@@ -129,7 +129,7 @@ namespace MW5_Mod_Manager
                 toolTip1.SetToolTip(rotatingLabelTop, LowPrioTooltip);
                 rotatingLabelBottom.NewText = "« Highest priority";
                 toolTip1.SetToolTip(rotatingLabelBottom, HighPrioTooltip);
-                
+
             }
             else
             {
@@ -411,7 +411,7 @@ namespace MW5_Mod_Manager
                     ModUtils.SwapModsToMatchFilter(ref orderedModList, desiredMods.ToList());
                 }
 
-				// set all mods to desired enabled states
+                // set all mods to desired enabled states
                 if (desiredMods != null)
                 {
                     foreach (var curDesiredMod in desiredMods)
@@ -1691,7 +1691,7 @@ namespace MW5_Mod_Manager
                 }
                 else
                 {
-                    ModsManager.Instance.Mods[modKey].NewLoadOrder = ModsManager.Instance.ModDetails[modKey].locOriginalLoadOrder;
+                    ModsManager.Instance.Mods[modKey].NewLoadOrder = ModsManager.Instance.Mods[modKey].OriginalLoadOrder;
                 }
             }
 
@@ -1915,9 +1915,9 @@ namespace MW5_Mod_Manager
                 }
                 else
                 {
-                    if (int.Parse(ModListData[i-1].SubItems[originalLoadOrderHeader.Index].Text) > int.Parse(ModListData[i].SubItems[originalLoadOrderHeader.Index].Text) ||
-                        (int.Parse(ModListData[i-1].SubItems[originalLoadOrderHeader.Index].Text) == int.Parse(ModListData[i].SubItems[originalLoadOrderHeader.Index].Text) &&
-                         string.Compare(ModListData[i-1].SubItems[folderHeader.Index].Text, ModListData[i].SubItems[folderHeader.Index].Text) > 0))
+                    if (int.Parse(ModListData[i - 1].SubItems[originalLoadOrderHeader.Index].Text) > int.Parse(ModListData[i].SubItems[originalLoadOrderHeader.Index].Text) ||
+                        (int.Parse(ModListData[i - 1].SubItems[originalLoadOrderHeader.Index].Text) == int.Parse(ModListData[i].SubItems[originalLoadOrderHeader.Index].Text) &&
+                         string.Compare(ModListData[i - 1].SubItems[folderHeader.Index].Text, ModListData[i].SubItems[folderHeader.Index].Text) > 0))
                     {
                         return false;
                     }
@@ -2105,6 +2105,15 @@ namespace MW5_Mod_Manager
                 UseShellExecute = true
             };
             System.Diagnostics.Process.Start(psi);
+        }
+
+        private void modsListView_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
+        {
+            if (e.ColumnIndex == this.enabledHeader.Index)
+            {
+                e.NewWidth = this.modsListView.Columns[e.ColumnIndex].Width;
+                e.Cancel = true;
+            }
         }
     }
 }

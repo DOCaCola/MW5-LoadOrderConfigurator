@@ -162,6 +162,20 @@ namespace MW5_Mod_Manager
 
     #region extra designer items
 
+    [SupportedOSPlatform("windows")]
+    public class ModsListView : System.Windows.Forms.ListView
+    {
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                var cp = base.CreateParams;
+                cp.Style |= 0x8000; // LVS_NOSORTHEADER
+                return cp;
+            }
+        }
+    }
+
     //The rotating label for priority indication.
     [SupportedOSPlatform("windows")]
     public class RotatingLabel : System.Windows.Forms.Label
