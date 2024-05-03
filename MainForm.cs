@@ -56,19 +56,6 @@ namespace MW5_Mod_Manager
         {
             this.Icon = Properties.Resources.MainIcon;
 
-            RefreshAll();
-            /*if (ModsManager.Instance.TryLoadProgramSettings())
-            {
-                ModsManager.Instance.ParseDirectories();
-                ModsManager.Instance.ReloadModData();
-                var modList = ModsManager.Instance.LoadModList();
-                ModsManager.Instance.ProcessModFolderList(ref modList);
-                LoadAndFill(modList, false);
-                ModsManager.Instance.LoadLastAppliedPresetData();
-            }
-            this.LoadPresets();
-            this.SetVersionAndPlatform();*/
-
             this.Text += @" " + GetVersion();
 
             modsListView.SetDoubleBuffered();
@@ -79,9 +66,6 @@ namespace MW5_Mod_Manager
             panelColorOverridden.BackColor = ModsManager.OverriddenColor;
             panelColorOverriding.BackColor = ModsManager.OverridingColor;
             panelColorOverridingOverridden.BackColor = ModsManager.OverriddenOveridingColor;
-
-            CheckForNewVersion();
-            UpdatePriorityLabels();
         }
 
         private void ProcessUpdateCheckData(string updateJson)
@@ -449,6 +433,7 @@ namespace MW5_Mod_Manager
                 }
 
                 modsListView.BeginUpdate();
+                ModListData.Clear();
                 foreach (KeyValuePair<string, bool> entry in orderedModList.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
                 {
                     if (entry.Equals(new KeyValuePair<string, bool>(null, false)))
@@ -562,37 +547,40 @@ namespace MW5_Mod_Manager
             bool modConfigTainted = false;
             if (ModsManager.Instance.TryLoadProgramSettings())
             {
+                UpdatePriorityLabels();
+                SetVersionAndPlatform();
                 ModsManager.Instance.WarnIfNoModList();
                 ModsManager.Instance.ParseDirectories();
                 ModsManager.Instance.ReloadModData();
-                
                 ModsManager.Instance.DetermineBestAvailableGameVersion();
 
-                Dictionary<string, bool> modList = null;
-                ModsManager.Instance.LoadLastAppliedPresetData();
-                bool orderByDesired = false;
-                if (ModsManager.Instance.ShouldLoadLastApplied())
+                // load modlist.json
+                Dictionary<string, bool> modlist = ModsManager.Instance.LoadModList();
+                if (modlist != null)
                 {
-                    modList = ModsManager.Instance.LastAppliedPresetModList;
-                    orderByDesired = true;
-                    modConfigTainted = true;
-                }
-                else
-                {
-                    modList = ModsManager.Instance.LoadModList();
-                    if (modList != null)
-                    {
-                        ModsManager.Instance.ProcessModFolderList(ref modList, false);
-                    }
+                    ModsManager.Instance.ProcessModFolderList(ref modlist, false);
+                    ModsManager.Instance.ModEnabledListLastState = modlist;
                 }
 
-                LoadAndFill(modList, orderByDesired);
+                // Check if we want to load the last applied mod list
+                Dictionary<string, bool> loadModlist = modlist;
+
+                LoadAndFill(loadModlist, false);
+
+                ModsManager.Instance.LoadLastAppliedPresetData();
+                if (ModsManager.Instance.ShouldLoadLastApplied())
+                {
+                    // Load last saved preset
+                    loadModlist = ModsManager.Instance.LastAppliedPresetModList;
+
+                    LoadAndFill(loadModlist, true);
+                    modConfigTainted = true;
+                }
 
                 FilterTextChanged();
                 ModsManager.Instance.GetOverridingData(ModListData);
             }
             LoadPresets();
-            SetVersionAndPlatform();
             SetModConfigTainted(modConfigTainted);
             modsListView.EndUpdate();
             Cursor.Current = tempCursor;
@@ -601,7 +589,7 @@ namespace MW5_Mod_Manager
         //Saves current load order to preset.
         public void SavePreset(string name)
         {
-            Dictionary<string, bool> NoPathModlist = new Dictionary<string, bool>();
+            Dictionary<string, bool> NoPathModlist = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
             foreach (KeyValuePair<string, bool> entry in ModsManager.Instance.ModEnabledList)
             {
                 string folderName = ModsManager.Instance.PathToDirNameDict[entry.Key];
@@ -2012,10 +2000,13 @@ namespace MW5_Mod_Manager
 
         private void MainWindow_Shown(object sender, EventArgs e)
         {
+            CheckForNewVersion();
             if (!ModsManager.Instance.GameIsConfigured())
             {
                 ShowSettingsDialog();
             }
+
+            RefreshAll();
         }
 
         private void DeleteMod(string modKey)

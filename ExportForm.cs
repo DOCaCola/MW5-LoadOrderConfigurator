@@ -27,7 +27,7 @@ namespace MW5_Mod_Manager
 
         private void RefreshList(bool enabledOnly)
         {
-            Dictionary<string, bool> FolderNameModList = new Dictionary<string, bool>();
+            Dictionary<string, bool> FolderNameModList = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 
             //Get the folder names from the paths in modlist
             foreach (string key in ModsManager.Instance.ModEnabledList.Keys.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))

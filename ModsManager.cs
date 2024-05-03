@@ -48,6 +48,8 @@ namespace MW5_Mod_Manager
         // Valid mod directories
         public List<string> ModDirectories = new();
         public Dictionary<string, bool> ModEnabledList = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+        // As it was last loaded from file
+        public Dictionary<string, bool> ModEnabledListLastState;
         public Dictionary<string, OverridingData> OverridingData = new Dictionary<string, OverridingData>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, string> Presets = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
@@ -213,17 +215,27 @@ namespace MW5_Mod_Manager
                 .Select(kv => kv.Key)
                 .ToList();
 
-            List<string> curEnabledModList = ModEnabledList
-                .Where(kv => kv.Value)
+            List<string> curEnabledModList = new();
+            if (ModEnabledListLastState != null)
+            {
+                curEnabledModList = ModEnabledListLastState
+                    .Where(kv => kv.Value)
+                    .Select(kv => kv.Key)
+                    .ToList();
+            }
+
+            List<string> availableModList = this.Mods
                 .Select(kv => kv.Key)
                 .ToList();
 
             var modOrderMatches = ModUtils.IsModOrderMatching(curEnabledModList, lastEnabledModList);
+            bool modsWereDisabled = curEnabledModList.Count == 0 && lastEnabledModList.Count > 0;
 
-            if (modOrderMatches)
+            if (modOrderMatches && !modsWereDisabled)
                 return false;
 
-            List<string> nonMatchingModsNames = new List<string>();
+            List<string> loadOrderChangedModNames = new List<string>();
+            List<string> enabledStateChangedModNames = new List<string>();
 
             foreach (var curCandidate in lastEnabledModList)
             {
@@ -235,20 +247,82 @@ namespace MW5_Mod_Manager
 
                 if (loadOrderChanged)
                 {
-                    nonMatchingModsNames.Add(ModDetails[curCandidate].displayName);
+                    loadOrderChangedModNames.Add(ModDetails[curCandidate].displayName);
+                }
+
+                bool enabledStateChanged = ModEnabledListLastState == null || !ModEnabledListLastState.ContainsKey(curCandidate) || !ModEnabledListLastState[curCandidate];
+
+                if (enabledStateChanged)
+                {
+                    enabledStateChangedModNames.Add(ModDetails[curCandidate].displayName);
                 }
             }
             
-            if (nonMatchingModsNames.Count > 0)
+            if (loadOrderChangedModNames.Count > 0)
             {
-                DialogResult result = MessageBox.Show("The mod load order has changed since the last time it was applied.\r\n"+
-                                "This might be due to the load order being changed ingame, an installed game update, a installed mod update or another utility modifying the load order.\r\n\r\n" +
-                               string.Join(", ", nonMatchingModsNames) + "\r\n\r\n" +
-                                "Do you want to load your last applied load order?"
-                    
-                        , "Load order changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                // Force refresh of the modlist so the user can see the progress so far.
+                // A bit hacky putting this here
+                MainForm.Instance.modsListView.ForceRedraw();
 
-                return result == DialogResult.Yes;
+                var page = new TaskDialogPage()
+                {
+                    Caption = "Mod load order changed",
+                    Icon = TaskDialogIcon.Warning,
+                    AllowCancel = true,
+                };
+
+                page.Buttons.Add(new TaskDialogCommandLinkButton("&Restore last applied order", "Load the load order you last applied.")
+                    {
+                        Tag = 1
+                    });
+                page.Buttons.Add(new TaskDialogCommandLinkButton("&Ignore", "Use current saved game state from game files.")
+                {
+                    Tag = 2
+                });
+
+                page.Heading = "The mod load order has changed since the last time it was applied.";
+                var changedMods = string.Join(loadOrderChangedModNames.Count > 5 ? ", " : "\r\n", loadOrderChangedModNames);
+                page.Text = "This following mods are affected:\r\n"+changedMods+"\r\n\r\n How would you like to proceed?";
+                
+                page.Footnote = new TaskDialogFootnote()
+                {
+                    Text = "This might be due to an mod update or after use of another program modifying mod data."
+                };
+
+                TaskDialogButton dialogResult = TaskDialog.ShowDialog(MainForm.Instance.Visible ? MainForm.Instance.Handle : 0, page);
+
+                return (int)dialogResult.Tag == 1;
+            }
+            else if (modsWereDisabled && enabledStateChangedModNames.Count > 0)
+            {
+                // Force refresh of the modlist so the user can see the progress so far.
+                // A bit hacky putting this here
+                MainForm.Instance.modsListView.ForceRedraw();
+
+                var page = new TaskDialogPage()
+                {
+                    Caption = "Mod list empty",
+                    Icon = TaskDialogIcon.Warning,
+                    AllowCancel = true,
+                };
+
+                page.Buttons.Add(new TaskDialogCommandLinkButton("&Restore last applied mod list", "Load the mod list you last applied.")
+                {
+                    Tag = 1
+                });
+                page.Buttons.Add(new TaskDialogCommandLinkButton("&Ignore", "Continue with empty mod list.")
+                {
+                    Tag = 2
+                });
+
+                page.Heading = "Your mod list has been reset or was deleted.";
+                var changedMods = string.Join(enabledStateChangedModNames.Count > 5 ? ", " : "\r\n", enabledStateChangedModNames);
+                page.Text = "This may have been caused by the game itself after a game update or another program modifying the mod list.\r\n\r\nThe following mods are affected:\r\n"+changedMods+"\r\n\r\n How would you like to proceed?";
+
+                TaskDialogButton dialogResult = TaskDialog.ShowDialog(MainForm.Instance.Visible ? MainForm.Instance.Handle : 0, page);
+
+                if (dialogResult.Tag is int resultIndex)
+                    return resultIndex == 1;
             }
 
             return false;
@@ -416,7 +490,7 @@ namespace MW5_Mod_Manager
                 MessageBox.Show(message, caption, buttons, MessageBoxIcon.Warning);
             }
 
-            Dictionary<string, bool> newModListDict = new Dictionary<string, bool>();
+            Dictionary<string, bool> newModListDict = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
             foreach (var curFolderItem in newFolderNamesEnabledList)
             {
                 string fullPath = DirNameToPathDict[curFolderItem.Key];
@@ -431,7 +505,7 @@ namespace MW5_Mod_Manager
         /// </summary>
         private void AddPathsToModList()
         {
-            Dictionary<string, bool> newModList = new Dictionary<string, bool>();
+            Dictionary<string, bool> newModList = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
             foreach (string key in this.ModEnabledList.Keys)
             {
                 string fullPath = DirNameToPathDict[key];
@@ -620,7 +694,7 @@ namespace MW5_Mod_Manager
             JObject modStatus = modListObjectObject.Value<JObject>("modStatus");
             if (modStatus != null)
             {
-                Dictionary<string, bool> modList = new();
+                Dictionary<string, bool> modList = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
                 int modListIndex = 0;
                 foreach (JProperty curMOD in modStatus.Properties())
 

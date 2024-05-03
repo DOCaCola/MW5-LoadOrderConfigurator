@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 
@@ -590,6 +591,17 @@ public static class ListViewExtensions
             .GetType()
             .GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
             .SetValue(listView, doubleBuffered, null);
+    }
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wparam, IntPtr lparam);
+
+    private const int WM_SETREDRAW = 0x000B;
+
+    // Force redraw of the list, even if in BeginUpdate/EndUpdate state
+    public static void ForceRedraw(this ListView listView)
+    {
+        SendMessage(listView.Handle, WM_SETREDRAW, (IntPtr)1, IntPtr.Zero);
     }
 }
 
