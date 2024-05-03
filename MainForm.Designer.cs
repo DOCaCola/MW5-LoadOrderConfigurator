@@ -1111,7 +1111,6 @@ namespace MW5_Mod_Manager
 
         #endregion
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
-        public System.Windows.Forms.ListView modsListView;
         public System.Windows.Forms.ColumnHeader displayHeader;
         public System.Windows.Forms.ColumnHeader folderHeader;
         public System.Windows.Forms.ColumnHeader authorHeader;
@@ -1217,6 +1216,7 @@ namespace MW5_Mod_Manager
         private RichTextBox richTextBoxManifestOverridden;
         private ToolStripMenuItem toolStripMenuItemNexusmodsLink;
         private ToolStripStatusLabel toolStripStatusLabelUpdate;
+        public ModsListView modsListView;
     }
 }
 

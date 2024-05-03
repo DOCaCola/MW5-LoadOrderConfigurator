@@ -218,7 +218,7 @@ namespace MW5_Mod_Manager
             List<string> curEnabledModList = new();
             if (ModEnabledListLastState != null)
             {
-                curEnabledModList = ModEnabledListLastState
+                curEnabledModList = ModEnabledList
                     .Where(kv => kv.Value)
                     .Select(kv => kv.Key)
                     .ToList();
@@ -280,7 +280,7 @@ namespace MW5_Mod_Manager
                     Tag = 2
                 });
 
-                page.Heading = "The mod load order has changed since the last time it was applied.";
+                page.Heading = "The mod load order has changed since it was last applied.";
                 var changedMods = string.Join(loadOrderChangedModNames.Count > 5 ? ", " : "\r\n", loadOrderChangedModNames);
                 page.Text = "This following mods are affected:\r\n"+changedMods+"\r\n\r\n How would you like to proceed?";
                 
@@ -483,12 +483,21 @@ namespace MW5_Mod_Manager
             {
                 var missingMods = string.Join(MissingModDirs.Count > 5 ? ", " : "\r\n", MissingModDirs.Keys);
 
-                string message = "The mod list includes the following enabled mods which are unavailable locally:\r\n\r\n"
-                                 + missingMods
-                                 + "\r\n\r\nThese mods will be ignored.";
-                string caption = "Warning";
-                MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, caption, buttons, MessageBoxIcon.Warning);
+                TaskDialog.ShowDialog(MainForm.Instance.Handle, new TaskDialogPage()
+                {
+                    Text = "The mod list includes the following enabled mods which are unavailable locally:\r\n\r\n"
+                           + missingMods
+                           + "\r\n\r\nThese mods will be ignored.",
+                    Heading = "Invalid mods in preset.",
+                    Caption = "Warning",
+                    Buttons =
+                    {
+                        TaskDialogButton.OK,
+                    },
+                    Icon = TaskDialogIcon.Warning,
+                    DefaultButton = TaskDialogButton.OK,
+                    AllowCancel = true
+                });
             }
 
             Dictionary<string, bool> newModListDict = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);

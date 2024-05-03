@@ -33,6 +33,7 @@ namespace MW5_Mod_Manager
 
         private eExtractionState extractionState = eExtractionState.None;
         private CancellationTokenSource _cts;
+        public List<string> ExtractedModDirNames { get; set; }
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         static extern uint SendMessage(IntPtr hWnd,
@@ -261,6 +262,7 @@ namespace MW5_Mod_Manager
                     }
                     this.Invoke(new Action(() =>
                     {
+                        this.ExtractedModDirNames = validModDirectories;
                         this.extractionState = eExtractionState.Done;
                     }));
                 }

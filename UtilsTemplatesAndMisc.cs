@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace MW5_Mod_Manager
 {
@@ -624,18 +625,24 @@ namespace System.Windows.Forms
     [SupportedOSPlatform("windows")]
     public static class ControlExtensions
     {
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        public static extern bool LockWindowUpdate(IntPtr hWndLock);
+        private const int WM_SETREDRAW = 0x000B;
+        [DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wparam, IntPtr lparam);
 
-        public static void Suspend(this Control control)
+        public static void SuspendDrawing(this Control control)
         {
-            LockWindowUpdate(control.Handle);
+            SendMessage(control.Handle, WM_SETREDRAW, 0, IntPtr.Zero);
         }
 
-        public static void Resume(this Control control)
+        public static void ResumeDrawing(this Control control)
         {
-            LockWindowUpdate(IntPtr.Zero);
+            SendMessage(control.Handle, WM_SETREDRAW, 1, IntPtr.Zero);
+            control.Refresh();
         }
 
+        public static void ForceRedraw(this Control control)
+        {
+            SendMessage(control.Handle, WM_SETREDRAW, (IntPtr)1, IntPtr.Zero);
+        }
     }
 }

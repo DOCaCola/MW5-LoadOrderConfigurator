@@ -165,19 +165,46 @@ namespace MW5_Mod_Manager
                 return false;
             }
 
+            string destinationPath = Path.GetFullPath(Path.Combine(ModsManager.Instance.GetMainModPath(), Path.GetFileName(path)));
+
+            bool targetDirectoryCleared = false;
+            if (Directory.Exists(destinationPath))
+            {
+                DialogResult dialogResult = MessageBox.Show("The target directory " + destinationPath
+                    + " already exists. It has to be deleted before the copy operation can begin."
+                    +"\r\n\r\nAre you sure you want to continue?",
+                    "Mod Directory already exists",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+
+                if (dialogResult == DialogResult.Yes)
+                {
+                    if (FileOperationUtils.DeleteFile(destinationPath, true, this.Handle))
+                    {
+                        targetDirectoryCleared = true;
+                    }
+                }
+
+            }
+
+            if (!targetDirectoryCleared)
+                return false;
+
             return FileOperationUtils.CopyDirectory(path, ModsManager.Instance.GetMainModPath(), this.Handle);
         }
 
-        public bool ExtractModFromArchive(string filePath)
+        public List<string> ExtractModFromArchive(string filePath)
         {
             ExtractForm extractForm = new ExtractForm();
             extractForm.ArchiveFilePath = filePath;
             extractForm.OutputFolderPath = ModsManager.Instance.GetMainModPath();
 
             bool result = extractForm.ShowDialog(this) != DialogResult.Cancel;
+
+            List<string> extractedModDirs = extractForm.ExtractedModDirNames;
             extractForm.Dispose();
 
-            return result;
+            return extractedModDirs;
         }
 
         //When we drop a file or folder on the manager
@@ -199,6 +226,14 @@ namespace MW5_Mod_Manager
             FileAttributes attr = File.GetAttributes(filePath);
             bool isDirectory = ((attr & FileAttributes.Directory) == FileAttributes.Directory);
 
+            if (ModsManager.Instance.ModSettingsTainted)
+            {
+                if (ShowChangesNeedToBeAppliedDialog())
+                    ApplyModSettings();
+                else
+                    return;
+            }
+
             if (isDirectory)
             {
                 CopyModFromFolder(filePath);
@@ -217,11 +252,12 @@ namespace MW5_Mod_Manager
                     return;
                 }
 
-                if (!ExtractModFromArchive(filePath))
+                List<string> extractedModDirNames = ExtractModFromArchive(filePath);
+                if (extractedModDirNames == null || extractedModDirNames.Count == 0)
                     return;
             }
 
-            RefreshAll();
+            RefreshAll(true);
         }
 
         private void MoveItemUp(int itemIndex, bool moveToTop)
@@ -538,7 +574,7 @@ namespace MW5_Mod_Manager
             return index;
         }
 
-        public void RefreshAll()
+        public void RefreshAll(bool forceLoadLastApplied = false)
         {
             Cursor tempCursor = Cursor.Current;
             Cursor.Current = Cursors.WaitCursor;
@@ -568,7 +604,8 @@ namespace MW5_Mod_Manager
                 LoadAndFill(loadModlist, false);
 
                 ModsManager.Instance.LoadLastAppliedPresetData();
-                if (ModsManager.Instance.ShouldLoadLastApplied())
+                
+                if (forceLoadLastApplied || ModsManager.Instance.ShouldLoadLastApplied())
                 {
                     // Load last saved preset
                     loadModlist = ModsManager.Instance.LastAppliedPresetModList;
@@ -936,7 +973,7 @@ namespace MW5_Mod_Manager
                 if (FilterMode == eFilterMode.None)
                 {
                     startedListUpdate = true;
-                    richTextBoxManifestOverridden.Suspend();
+                    richTextBoxManifestOverridden.SuspendDrawing();
                     modsListView.BeginUpdate();
                     UnhighlightAllMods();
                 }
@@ -983,7 +1020,7 @@ namespace MW5_Mod_Manager
             {
                 if (startedListUpdate)
                 {
-                    richTextBoxManifestOverridden.Resume();
+                    richTextBoxManifestOverridden.ResumeDrawing();
                     modsListView.EndUpdate();
                 }
             }
@@ -999,7 +1036,7 @@ namespace MW5_Mod_Manager
                 {
                     startedListUpdate = true;
                     modsListView.BeginUpdate();
-                    richTextBoxManifestOverridden.Suspend();
+                    richTextBoxManifestOverridden.SuspendDrawing();
                     UnhighlightAllMods();
                 }
 
@@ -1037,7 +1074,7 @@ namespace MW5_Mod_Manager
             {
                 if (startedListUpdate)
                 {
-                    richTextBoxManifestOverridden.Resume();
+                    richTextBoxManifestOverridden.ResumeDrawing();
                     modsListView.EndUpdate();
                 }
             }
@@ -1153,8 +1190,8 @@ namespace MW5_Mod_Manager
             if (!ModsManager.Instance.OverridingData.ContainsKey(SelectedMod))
                 return;
 
-            listBoxOverriding.Suspend();
-            listBoxOverriddenBy.Suspend();
+            listBoxOverriding.SuspendDrawing();
+            listBoxOverriddenBy.SuspendDrawing();
             OverridingData modData = ModsManager.Instance.OverridingData[SelectedMod];
             foreach (string overriding in modData.overriddenBy.Keys)
             {
@@ -1174,8 +1211,8 @@ namespace MW5_Mod_Manager
                 modListBoxItem.ModKey = modKey;
                 this.listBoxOverriding.Items.Add(modListBoxItem);
             }
-            listBoxOverriding.Resume();
-            listBoxOverriddenBy.Resume();
+            listBoxOverriding.ResumeDrawing();
+            listBoxOverriddenBy.ResumeDrawing();
         }
 
         private void modListView_ItemChecked(object sender, ItemCheckedEventArgs e)
@@ -2077,6 +2114,14 @@ namespace MW5_Mod_Manager
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
+            if (ModsManager.Instance.ModSettingsTainted)
+            {
+                if (ShowChangesNeedToBeAppliedDialog())
+                    ApplyModSettings();
+                else
+                    return;
+            }
+
             using (var fbd = new FolderBrowserDialog())
             {
                 fbd.Description = "Select a mod folder for import";
@@ -2093,15 +2138,47 @@ namespace MW5_Mod_Manager
                     }
 
                     CopyModFromFolder(fbd.SelectedPath);
-                    RefreshAll();
+                    RefreshAll(true);
                 }
             }
+        }
+
+        private bool ShowChangesNeedToBeAppliedDialog()
+        {
+            // Create the page which we want to show in the dialog.
+            TaskDialogButton btnCancel = TaskDialogButton.Cancel;
+            TaskDialogButton btnApply = new TaskDialogButton("&Apply");
+
+            var page = new TaskDialogPage()
+            {
+                Caption = "MechWarrior 5 Load Order Configurator",
+                Heading = "Apply pending changes to mod list?",
+                Text = "Pending mod list changes need be applied before you can continue.",
+                Buttons =
+                {
+                    btnCancel,
+                    btnApply,
+                }
+            };
+
+            // Show a modal dialog, then check the result.
+            TaskDialogButton result = TaskDialog.ShowDialog(this, page);
+
+            return result == btnApply;
         }
 
         private void toolStripMenuItemImportArchive_Click(object sender, EventArgs e)
         {
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
+
+            if (ModsManager.Instance.ModSettingsTainted)
+            {
+                if (ShowChangesNeedToBeAppliedDialog())
+                    ApplyModSettings();
+                else
+                    return;
+            }
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Mod Archives|*.zip;*.7z;*.rar|All files (*.*)|*.*";
@@ -2111,8 +2188,10 @@ namespace MW5_Mod_Manager
             {
                 string selectedZipFile = openFileDialog.FileName;
 
-                ExtractModFromArchive(selectedZipFile);
-                RefreshAll();
+                List<string> extractedModDirNames = ExtractModFromArchive(selectedZipFile);
+                if (extractedModDirNames == null || extractedModDirNames.Count == 0)
+                    return;
+                RefreshAll(true);
             }
         }
 
