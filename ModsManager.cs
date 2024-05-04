@@ -271,22 +271,32 @@ namespace MW5_Mod_Manager
                     AllowCancel = true,
                 };
 
-                page.Buttons.Add(new TaskDialogCommandLinkButton("&Restore last applied order", "Load the load order you last applied.")
+                DateTime timestamp = DateTime.UnixEpoch.AddSeconds(LastAppliedPreset.timeStamp);
+
+                page.Buttons.Add(new TaskDialogCommandLinkButton("&Restore last applied load order", "Use the load order you applied " + timestamp.ToTimeSinceString() + ".")
                     {
                         Tag = 1
                     });
-                page.Buttons.Add(new TaskDialogCommandLinkButton("&Ignore", "Use current saved game state from game files.")
+                page.Buttons.Add(new TaskDialogCommandLinkButton("&Ignore", "Use current load order.")
                 {
                     Tag = 2
                 });
 
-                page.Heading = "The mod load order has changed since it was last applied.";
+                page.Heading = "The mod load order has changed since you last applied it.";
                 var changedMods = string.Join(loadOrderChangedModNames.Count > 5 ? ", " : "\r\n", loadOrderChangedModNames);
-                page.Text = "This following mods are affected:\r\n"+changedMods+"\r\n\r\n How would you like to proceed?";
+                if (changedMods.Length == 1)
+                {
+                    page.Text = "The following mod is affected:\r\n" + changedMods;
+                }
+                else
+                {
+                    page.Text = "The following mods are affected:\r\n" + changedMods;
+                }
+                page.Text += "\r\n\r\n How would you like to proceed?";
                 
                 page.Footnote = new TaskDialogFootnote()
                 {
-                    Text = "This might be due to an mod update or after use of another program modifying mod data."
+                    Text = "This could occur due to an update to an installed mod or through the use of other tools that modify mod data, potentially altering the load order."
                 };
 
                 TaskDialogButton dialogResult = TaskDialog.ShowDialog(MainForm.Instance.Visible ? MainForm.Instance.Handle : 0, page);
@@ -307,7 +317,9 @@ namespace MW5_Mod_Manager
                     AllowCancel = true,
                 };
 
-                page.Buttons.Add(new TaskDialogCommandLinkButton("&Restore last applied mod list", "Load the mod list you last applied.")
+                DateTime timestamp = DateTime.UnixEpoch.AddSeconds(LastAppliedPreset.timeStamp);
+
+                page.Buttons.Add(new TaskDialogCommandLinkButton("&Restore last applied mod list", "Use the mod list you applied " + timestamp.ToTimeSinceString() + ".")
                 {
                     Tag = 1
                 });
@@ -318,7 +330,7 @@ namespace MW5_Mod_Manager
 
                 page.Heading = "Your mod list has been reset or was deleted.";
                 var changedMods = string.Join(enabledStateChangedModNames.Count > 5 ? ", " : "\r\n", enabledStateChangedModNames);
-                page.Text = "This may have been caused by the game itself after a game update or another program modifying the mod list.\r\n\r\nThe following mods are affected:\r\n"+changedMods+"\r\n\r\n How would you like to proceed?";
+                page.Text = "This might have been caused as a result of a game update or due to another programs altering the mod list.\r\n\r\nThe following mods are affected:\r\n"+changedMods+"\r\n\r\n How would you like to proceed?";
 
                 TaskDialogButton dialogResult = TaskDialog.ShowDialog(MainForm.Instance.Visible ? MainForm.Instance.Handle : 0, page);
 
@@ -954,16 +966,25 @@ namespace MW5_Mod_Manager
                 }
 
                 // Sanity check for mod files
-                string pakDir = modPath + @"\Paks";
+                string pakDir = Path.Combine(modPath, "Paks");
                 if (!Directory.Exists(pakDir) || Directory.GetFiles(pakDir, "*.pak").Length == 0)
                 {
-                    string message = @"The mod in the path" + System.Environment.NewLine +
-                                     modPath + System.Environment.NewLine + 
-                                     @"might be corrupted." + System.Environment.NewLine +
-                                     "The mod has a valid mod.json, but has no Pak game data files associated with it.";
-                    string caption = "Loading mod";
-                    MessageBoxButtons buttons = MessageBoxButtons.OK;
-                    MessageBox.Show(message, caption, buttons, MessageBoxIcon.Warning);
+                    TaskDialog.ShowDialog(MainForm.Instance.Handle, new TaskDialogPage()
+                    {
+                        Text = @"The mod in the path" + System.Environment.NewLine +
+                               modPath + System.Environment.NewLine + 
+                               @"might be corrupted." + System.Environment.NewLine +
+                               "The mod has a valid mod.json, but has no Pak game data files associated with it.",
+                        Heading = "Invalid or corrupted mod.",
+                        Caption = "Warning",
+                        Buttons =
+                        {
+                            TaskDialogButton.OK,
+                        },
+                        Icon = TaskDialogIcon.Warning,
+                        DefaultButton = TaskDialogButton.OK,
+                        AllowCancel = true
+                    });
                 }
 
                 long totalPakSize = 0;
@@ -986,13 +1007,22 @@ namespace MW5_Mod_Manager
 
                 if (hasZeroBytePak)
                 {
-                    string message = @"The mod in the path" + System.Environment.NewLine +
-                                     modPath + System.Environment.NewLine + 
-                                     @"might be corrupted." + System.Environment.NewLine +
-                                     "The mod has one or more Pak game data files that are zero bytes in size.";
-                    string caption = "Error Loading mod";
-                    MessageBoxButtons buttons = MessageBoxButtons.OK;
-                    MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
+                    TaskDialog.ShowDialog(MainForm.Instance.Handle, new TaskDialogPage()
+                    {
+                        Text = @"The mod in the path" + System.Environment.NewLine +
+                               modPath + System.Environment.NewLine + 
+                               @"might be corrupted." + System.Environment.NewLine +
+                               "The mod has one or more Pak game data files that are zero bytes in size.",
+                        Heading = "Invalid or corrupted mod.",
+                        Caption = "Warning",
+                        Buttons =
+                        {
+                            TaskDialogButton.OK,
+                        },
+                        Icon = TaskDialogIcon.Warning,
+                        DefaultButton = TaskDialogButton.OK,
+                        AllowCancel = true
+                    });
                 }
 
                 modData.ModFileSize = totalPakSize;

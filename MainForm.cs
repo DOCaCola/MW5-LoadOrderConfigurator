@@ -649,10 +649,10 @@ namespace MW5_Mod_Manager
                 return;
 
             string JsonString = ModsManager.Instance.Presets[name];
-            Dictionary<string, bool> temp;
+            Dictionary<string, bool> presetData;
             try
             {
-                temp = JsonConvert.DeserializeObject<Dictionary<string, bool>>(JsonString);
+                presetData = JsonConvert.DeserializeObject<Dictionary<string, bool>>(JsonString);
             }
             catch (Exception Ex)
             {
@@ -663,7 +663,7 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-            temp.ReverseIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh);
+            presetData.ReverseIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh);
 
             modsListView.BeginUpdate();
             this.modsListView.Items.Clear();
@@ -675,8 +675,8 @@ namespace MW5_Mod_Manager
 
             ModsManager.Instance.ParseDirectories();
             ModsManager.Instance.ReloadModData();
-            ModsManager.Instance.ProcessModFolderList(ref temp, true);
-            this.LoadAndFill(temp, true);
+            ModsManager.Instance.ProcessModFolderList(ref presetData, true);
+            this.LoadAndFill(presetData, true);
             FilterTextChanged();
             SetModConfigTainted(true);
             modsListView.EndUpdate();
@@ -1333,6 +1333,9 @@ namespace MW5_Mod_Manager
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
+            if (AreAllModsEnabled())
+                return;
+
             modsListView.BeginUpdate();
 
             this.MovingItem = true;
@@ -1358,6 +1361,9 @@ namespace MW5_Mod_Manager
         private void disableAllModsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (!ModsManager.Instance.GameIsConfigured())
+                return;
+
+            if (AreAllModsDisabled())
                 return;
 
             modsListView.BeginUpdate();
@@ -1712,7 +1718,7 @@ namespace MW5_Mod_Manager
         {
             // If the list is sorted according to MW5's default load order,
             // we can reset everyting to the default load order
-            bool isDefaultSorted = IsSortedByDefaultLoadOrder();
+            bool isDefaultSorted = AreModsSortedByDefaultLoadOrder();
 
             int curLoadOrder = GetModCount(restoreLoadOrdersOfDisabled);
 
@@ -1935,6 +1941,9 @@ namespace MW5_Mod_Manager
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
+            if (AreModsSortedByDefaultLoadOrder())
+                return;
+
             // This sorting follows the way MW5 orders its list
 
             modsListView.BeginUpdate();
@@ -1974,7 +1983,29 @@ namespace MW5_Mod_Manager
             modsListView.EndUpdate();
         }
 
-        public bool IsSortedByDefaultLoadOrder()
+        public bool AreAllModsEnabled()
+        {
+            for (int i = 1; i < ModListData.Count; i++)
+            {
+                if (!ModListData[i].Checked)
+                    return false;
+            }
+
+            return true;
+        }
+
+        public bool AreAllModsDisabled()
+        {
+            for (int i = 1; i < ModListData.Count; i++)
+            {
+                if (ModListData[i].Checked)
+                    return false;
+            }
+
+            return true;
+        }
+
+        public bool AreModsSortedByDefaultLoadOrder()
         {
             for (int i = 1; i < ModListData.Count; i++)
             {
