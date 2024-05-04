@@ -77,7 +77,7 @@
             // 
             comboBoxPlatform.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             comboBoxPlatform.FormattingEnabled = true;
-            comboBoxPlatform.Items.AddRange(new object[] { "Epic Games Store", "GOG.com", "Steam", "Microsoft Store/Xbox Game Pass" });
+            comboBoxPlatform.Items.AddRange(new object[] { "Epic Games Store", "GOG.com", "Steam", "Microsoft Store/Xbox Game Pass", "Other" });
             comboBoxPlatform.Location = new System.Drawing.Point(110, 22);
             comboBoxPlatform.Name = "comboBoxPlatform";
             comboBoxPlatform.Size = new System.Drawing.Size(205, 23);

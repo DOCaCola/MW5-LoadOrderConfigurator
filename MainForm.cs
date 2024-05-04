@@ -392,6 +392,12 @@ namespace MW5_Mod_Manager
                         this.toolStripButtonStartGame.Enabled = true;
                     }
                     break;
+                case eGamePlatform.Generic:
+                {
+                    this.toolStripPlatformLabel.Text = @"Platform: MW5";
+                    this.toolStripButtonStartGame.Enabled = true;
+                }
+                    break;
                 default:
                     {
                         this.toolStripPlatformLabel.Text = @"Platform: None";
@@ -731,16 +737,17 @@ namespace MW5_Mod_Manager
             switch (LocSettings.Instance.Data.platform)
             {
                 case eGamePlatform.Epic:
-                    LaunchEpicGame();
+                    LaunchGameEpic();
                     break;
                 case eGamePlatform.Steam:
-                    LaunchSteamGame();
+                    LanchGameSteam();
                     break;
+                case eGamePlatform.Generic:
                 case eGamePlatform.Gog:
-                    LaunchGogGame();
+                    LaunchGameGeneric();
                     break;
                 case eGamePlatform.WindowsStore:
-                    LaunchMicrosoftStoreGame();
+                    LaunchGameMicrosoftStore();
                     break;
             }
         }
@@ -753,7 +760,7 @@ namespace MW5_Mod_Manager
         }
 
         #region Launch Game
-        private static void LaunchMicrosoftStoreGame()
+        private static void LaunchGameMicrosoftStore()
         {
             try
             {
@@ -775,7 +782,7 @@ namespace MW5_Mod_Manager
             }
         }
 
-        private void LaunchGogGame()
+        private void LaunchGameGeneric()
         {
             string gamePath = Path.Combine(LocSettings.Instance.Data.InstallPath, "MechWarrior.exe");
             try
@@ -793,7 +800,7 @@ namespace MW5_Mod_Manager
             }
         }
 
-        private static void LaunchEpicGame()
+        private static void LaunchGameEpic()
         {
             try
             {
@@ -815,7 +822,7 @@ namespace MW5_Mod_Manager
             }
         }
 
-        private static void LaunchSteamGame()
+        private static void LanchGameSteam()
         {
             try
             {

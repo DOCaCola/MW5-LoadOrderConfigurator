@@ -12,7 +12,8 @@ namespace MW5_Mod_Manager
         Epic,
         Gog,
         Steam,
-        WindowsStore
+        WindowsStore,
+        Generic
     }
 
     public enum eSortOrder

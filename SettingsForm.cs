@@ -41,6 +41,9 @@ namespace MW5_Mod_Manager
                 case eGamePlatform.WindowsStore:
                     comboBoxPlatform.SelectedIndex = 3;
                     break;
+                case eGamePlatform.Generic:
+                    comboBoxPlatform.SelectedIndex = 4;
+                    break;
                 case eGamePlatform.None:
                     UpdateInstallPathBoxState();
                     break;
@@ -219,6 +222,8 @@ namespace MW5_Mod_Manager
                     return eGamePlatform.Steam;
                 case 3:
                     return eGamePlatform.WindowsStore;
+                case 4:
+                    return eGamePlatform.Generic;
                 default:
                     return eGamePlatform.None;
             }
