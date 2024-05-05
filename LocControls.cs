@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 
@@ -281,6 +282,39 @@ namespace MW5_Mod_Manager
     {
         protected override void OnRenderToolStripBorder(ToolStripRenderEventArgs e)
         {
+        }
+    }
+
+    [SupportedOSPlatform("windows")]
+    [ToolboxBitmap(typeof(ToolStripTextBox))]
+    public class LocToolStripTextBox : ToolStripTextBox
+    {
+        private const int EM_SETCUEBANNER = 0x1501;
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern Int32 SendMessage(IntPtr hWnd, int msg,
+            int wParam, string lParam);
+        public LocToolStripTextBox()
+        {
+            this.Control.HandleCreated += Control_HandleCreated;
+        }
+        private void Control_HandleCreated(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(cueBanner))
+                UpdateCueBanner();
+        }
+        string cueBanner;
+        public string CueBanner
+        {
+            get { return cueBanner; }
+            set
+            {
+                cueBanner = value;
+                UpdateCueBanner();
+            }
+        }
+        private void UpdateCueBanner()
+        {
+            SendMessage(this.Control.Handle, EM_SETCUEBANNER, 0, cueBanner);
         }
     }
 }

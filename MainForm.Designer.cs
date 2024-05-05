@@ -141,10 +141,9 @@ namespace MW5_Mod_Manager
             toolStripSeparator10 = new ToolStripSeparator();
             toolStripButtonReload = new ToolStripButton();
             toolStripSeparator9 = new ToolStripSeparator();
-            toolStripLabel1 = new ToolStripLabel();
-            toolStripTextFilterBox = new ToolStripTextBox();
-            toolStripButtonClearFilter = new ToolStripButton();
+            toolStripTextFilterBox = new LocToolStripTextBox();
             toolStripButtonFilterToggle = new ToolStripButton();
+            toolStripButtonClearFilter = new ToolStripButton();
             toolStripSeparator11 = new ToolStripSeparator();
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
             menuStrip1.SuspendLayout();
@@ -1025,7 +1024,7 @@ namespace MW5_Mod_Manager
             // 
             toolStrip1.AutoSize = false;
             toolStrip1.Font = new Font("Segoe UI", 9F);
-            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButtonApply, toolStripButtonStartGame, toolStripSeparator10, toolStripButtonReload, toolStripSeparator9, toolStripLabel1, toolStripTextFilterBox, toolStripButtonClearFilter, toolStripButtonFilterToggle, toolStripSeparator11 });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButtonApply, toolStripButtonStartGame, toolStripSeparator10, toolStripButtonReload, toolStripSeparator9, toolStripTextFilterBox, toolStripButtonFilterToggle, toolStripButtonClearFilter, toolStripSeparator11 });
             toolStrip1.Location = new Point(0, 24);
             toolStrip1.Name = "toolStrip1";
             toolStrip1.Size = new Size(1167, 48);
@@ -1081,30 +1080,13 @@ namespace MW5_Mod_Manager
             toolStripSeparator9.Name = "toolStripSeparator9";
             toolStripSeparator9.Size = new Size(6, 48);
             // 
-            // toolStripLabel1
-            // 
-            toolStripLabel1.Name = "toolStripLabel1";
-            toolStripLabel1.Size = new Size(45, 45);
-            toolStripLabel1.Text = "Search:";
-            // 
             // toolStripTextFilterBox
             // 
+            toolStripTextFilterBox.CueBanner = "Search";
+            toolStripTextFilterBox.Margin = new Padding(5, 0, 5, 0);
             toolStripTextFilterBox.Name = "toolStripTextFilterBox";
-            toolStripTextFilterBox.Size = new Size(130, 48);
+            toolStripTextFilterBox.Size = new Size(230, 48);
             toolStripTextFilterBox.TextChanged += toolStripTextFilterBox_TextChanged;
-            // 
-            // toolStripButtonClearFilter
-            // 
-            toolStripButtonClearFilter.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            toolStripButtonClearFilter.Enabled = false;
-            toolStripButtonClearFilter.Image = (Image)resources.GetObject("toolStripButtonClearFilter.Image");
-            toolStripButtonClearFilter.ImageTransparentColor = Color.Magenta;
-            toolStripButtonClearFilter.Name = "toolStripButtonClearFilter";
-            toolStripButtonClearFilter.Size = new Size(23, 45);
-            toolStripButtonClearFilter.Text = "Clear";
-            toolStripButtonClearFilter.TextImageRelation = TextImageRelation.ImageAboveText;
-            toolStripButtonClearFilter.ToolTipText = "Clear filter";
-            toolStripButtonClearFilter.Click += toolStripButtonClearFilter_Click;
             // 
             // toolStripButtonFilterToggle
             // 
@@ -1118,6 +1100,19 @@ namespace MW5_Mod_Manager
             toolStripButtonFilterToggle.TextImageRelation = TextImageRelation.ImageAboveText;
             toolStripButtonFilterToggle.ToolTipText = "Toggle filter mode";
             toolStripButtonFilterToggle.CheckedChanged += toolStripButtonFilterToggle_CheckedChanged;
+            // 
+            // toolStripButtonClearFilter
+            // 
+            toolStripButtonClearFilter.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            toolStripButtonClearFilter.Enabled = false;
+            toolStripButtonClearFilter.Image = (Image)resources.GetObject("toolStripButtonClearFilter.Image");
+            toolStripButtonClearFilter.ImageTransparentColor = Color.Magenta;
+            toolStripButtonClearFilter.Name = "toolStripButtonClearFilter";
+            toolStripButtonClearFilter.Size = new Size(23, 45);
+            toolStripButtonClearFilter.Text = "Clear";
+            toolStripButtonClearFilter.TextImageRelation = TextImageRelation.ImageAboveText;
+            toolStripButtonClearFilter.ToolTipText = "Clear filter";
+            toolStripButtonClearFilter.Click += toolStripButtonClearFilter_Click;
             // 
             // toolStripSeparator11
             // 
@@ -1271,8 +1266,6 @@ namespace MW5_Mod_Manager
         private ToolStripButton toolStripButtonReload;
         private ToolStripButton toolStripButtonApply;
         private ToolStripButton toolStripButtonStartGame;
-        private ToolStripTextBox toolStripTextFilterBox;
-        private ToolStripLabel toolStripLabel1;
         private ToolStripButton toolStripButtonFilterToggle;
         private ToolStripSeparator toolStripSeparator9;
         private ToolStripSeparator toolStripSeparator11;
@@ -1293,6 +1286,7 @@ namespace MW5_Mod_Manager
         private ToolStripButton downToolStripButton;
         private ToolStripButton toBottomToolStripButton;
         private ToolStripLabel toolStripLabel2;
+        private LocToolStripTextBox toolStripTextFilterBox;
     }
 }
 

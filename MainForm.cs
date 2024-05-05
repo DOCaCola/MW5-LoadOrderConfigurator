@@ -265,9 +265,10 @@ namespace MW5_Mod_Manager
 
         public enum MoveDirection { Up, Down };
 
-        public void MoveListItems(ListView.SelectedListViewItemCollection draggedItems, MoveDirection direction)
+        public void MoveListItems(ListView.SelectedListViewItemCollection moveItems, MoveDirection direction)
         {
-            var selectedItems = draggedItems.Cast<ListViewItem>().ToList();
+            var selectedItems = moveItems.Cast<ListViewItem>().ToList();
+            bool anyMoved = false;
             selectedItems = selectedItems.OrderBy(i => this.modsListView.Items.IndexOf(i)).ToList();
 
             modsListView.BeginUpdate();
@@ -289,6 +290,8 @@ namespace MW5_Mod_Manager
 
                     modsListView.Items.Insert(newIndex, listItem);
                     ModListData.Insert(newIndex, listItem);
+
+                    anyMoved = true;
                 }
             }
             else
@@ -308,7 +311,14 @@ namespace MW5_Mod_Manager
 
                     modsListView.Items.Insert(newIndex, listItem);
                     ModListData.Insert(newIndex, listItem);
+
+                    anyMoved = true;
                 }
+            }
+
+            if (anyMoved)
+            {
+                SetModConfigTainted(true);
             }
 
             _movingItems = false;
@@ -317,37 +327,52 @@ namespace MW5_Mod_Manager
 
         public enum MovePosition { Top, Bottom };
 
-        public void MoveListItems(ListView.SelectedListViewItemCollection draggedItems, MovePosition position)
+        public void MoveListItems(ListView.SelectedListViewItemCollection moveItems, MovePosition position)
         {
             modsListView.BeginUpdate();
             _movingItems = true;
-            var selectedItems = draggedItems.Cast<ListViewItem>().ToList();
+            bool anyMoved = false;
+            var selectedItems = moveItems.Cast<ListViewItem>().ToList();
             selectedItems = selectedItems.OrderBy(i => this.modsListView.Items.IndexOf(i)).ToList();
-
-            foreach (var item in selectedItems)
-            {
-                modsListView.Items.Remove(item);
-                ModListData.Remove(item);
-            }
 
             if (position == MovePosition.Top)
             {
                 int listOffset = 0;
                 foreach (var item in selectedItems)
                 {
-                    modsListView.Items.Insert(listOffset, item);
-                    ModListData.Insert(listOffset, item);
+                    if (item.Index != listOffset)
+                    {
+                        modsListView.Items.Remove(item);
+                        ModListData.Remove(item);
+
+                        modsListView.Items.Insert(listOffset, item);
+                        ModListData.Insert(listOffset, item);
+                        
+                        anyMoved = true;
+                    }
                     ++listOffset;
                 }
             }
             else
             {
+                int endOffset = selectedItems.Count;
                 foreach (var item in selectedItems)
                 {
+                    if (item.Index == modsListView.Items.Count - endOffset--)
+                        continue;
+
+                    modsListView.Items.Remove(item);
+                    ModListData.Remove(item);
+
                     modsListView.Items.Add(item);
                     ModListData.Add(item);
+
+                    anyMoved = true;
                 }
             }
+
+            if (anyMoved)
+                SetModConfigTainted(true);
 
             _movingItems = false;
             modsListView.EndUpdate();
