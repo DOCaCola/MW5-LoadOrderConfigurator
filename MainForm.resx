@@ -128,7 +128,7 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAEZTeXN0ZW0uV2luZG93cy5Gb3JtcywgQ3VsdHVyZT1uZXV0cmFs
         LCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5BQEAAAAmU3lzdGVtLldpbmRvd3MuRm9ybXMu
         SW1hZ2VMaXN0U3RyZWFtZXIBAAAABERhdGEHAgIAAAAJAwAAAA8DAAAAPBEAAAJNU0Z0AUkBTAIBAQMB
-        AAFQAQwBUAEMARABAAEQAQAD/wEAASEBAAj/AUIBTQE2BwABNgMAASgDAAFAAwABEAMAAQEBAAEgBgAB
+        AAHIAQwByAEMARABAAEQAQAD/wEAASEBAAj/AUIBTQE2BwABNgMAASgDAAFAAwABEAMAAQEBAAEgBgAB
         EFIAAzUBVgFnAV4BWgHyAWcCTQH6AmgBSgH5AmgBSQH5AmgBRwH5AmgBSQH5AmgBSgH5AmgBSgH5AmgB
         SgH5AmgBSgH5AmgBSgH5AmgBSgH5AWcCTQH6AWcBXgFaAfIDNQFVCAADIQEvA1UBsQNfAeUDUAGdAyMB
         MgMhAS8DIwEyAxkBIgQCAw4BEgMcAScDEgEYSAADHgErA04BlQFQAlEBnQFQAlEBnAFQAlEBnAFQAlEB
@@ -312,12 +312,12 @@
   <data name="toolStripButtonStartGame.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEsSURBVDhP3ZExSwNBEIWXVFYKcrczFwKnf8IfkcZOCCjY
-        Wdha2aSwSiVYaCMWwfwAC7EXWxsbK0FFbRWUCEdu1/c2U0iKS60PPtjZN/N29879D03AM9hK1VTHIIJ3
-        FqHT6UfVOEutOqDPxgdwD1ZBZnvkAzBg7c77uhY5x9AIXIAjNLTos3EIHsEInIIxuAH0XGi3N9KpNjAr
-        Nu2Dnq3JJjiwNW+wV4m8BO97OPksqPaxt0yPYtPhdOm+Ab8JdQJSAIWhnd/v/1L9jCIr9AqwyAXEVH4D
-        agnQS0JAGbKsQGILN1lnyMT7a7ObFYsii2W5YGVS7f0lQ6xsVhDZZTNu0bUtV6m+vqlWVjYr5rmiOTAE
-        v/KqyvOnFIhga5kvhuDNtxxMYSLbZv1tOfcDBfx/uTS5qL0AAAAASUVORK5CYII=
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAErSURBVDhP3ZExSwNBEIWXVFYG5G5nLgRO/4Q/wsZOCCjY
+        Wdha2aSwshIstBELMT/AQuwT29SpBBVTKygKR27X9zZTSIqz1gcf7Oybebt75/6HZuAZ7KRqrjMQwSuL
+        0O32o2pcpFY9ps/GBzABayCzPfIGGLA+8r6uRa4xNAA34BQNLfpsvAKPYAAuwCe4B/Rc6HS20qk2sCg2
+        HYKerck2OLI1b3BQibwE73s4+TKo9rG3Qo9i08l86b4Avwl1DlIAhaG9n+//UH2PIqv0CrDMBcRUfgOq
+        DeglIaAMWVYgsYWbbDJk5v3Q7GbFoshiWS5ZmVR7f8sQK5sVRPbZjFts2JarVKdT1crKZsU814lqYAh+
+        5V2V508pEMHW8rsYgjePOZjCRHbN+tty7hu8kn+LzIJtWAAAAABJRU5ErkJggg==
 </value>
   </data>
   <data name="toolStripButtonReload.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
@@ -359,6 +359,9 @@
         QmCC
 </value>
   </data>
+  <metadata name="timerOverviewUpdateDelay.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>746, 64</value>
+  </metadata>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>124</value>
   </metadata>

@@ -955,12 +955,21 @@ namespace MW5_Mod_Manager
                 }
                 catch (Exception e)
                 {
-                    string message = @"Error loading mod.json in : " + modPath + System.Environment.NewLine +
-                                     System.Environment.NewLine +
-                                     "The folder will be skipped.";
-                    string caption = "Error Loading mod.json";
-                    MessageBoxButtons buttons = MessageBoxButtons.OK;
-                    MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
+                    TaskDialog.ShowDialog(MainForm.Instance.Handle, new TaskDialogPage()
+                    {
+                        Text = @"Error loading mod.json in : " + modPath + System.Environment.NewLine +
+                               System.Environment.NewLine +
+                               "The mod will be skipped.",
+                        Heading = "Invalid or corrupted mod.",
+                        Caption = "Error",
+                        Buttons =
+                        {
+                            TaskDialogButton.OK,
+                        },
+                        Icon = TaskDialogIcon.Error,
+                        DefaultButton = TaskDialogButton.OK,
+                        AllowCancel = true
+                    });
 
                     return;
                 }

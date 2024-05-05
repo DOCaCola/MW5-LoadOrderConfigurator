@@ -347,7 +347,7 @@ namespace MW5_Mod_Manager
 
                         modsListView.Items.Insert(listOffset, item);
                         ModListData.Insert(listOffset, item);
-                        
+
                         anyMoved = true;
                     }
                     ++listOffset;
@@ -1149,16 +1149,8 @@ namespace MW5_Mod_Manager
             downToolStripButton.Enabled = anySelected;
         }
 
-        private void modListView_SelectedIndexChanged(object sender, EventArgs e)
+        private void UpdateSidePanelData()
         {
-            UpdateUpMoveButtonsState();
-
-            if (_filterMode == eFilterMode.None)
-                UnhighlightAllMods();
-
-            if (_movingItems)
-                return;
-
             if (modsListView.SelectedItems.Count == 0)
             {
                 ClearModSidePanel();
@@ -1167,14 +1159,6 @@ namespace MW5_Mod_Manager
 
             string SelectedMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
             string SelectedModDisplayName = modsListView.SelectedItems[0].SubItems[displayHeader.Index].Text;
-
-            if (Utils.StringNullEmptyOrWhiteSpace(SelectedMod) ||
-                Utils.StringNullEmptyOrWhiteSpace(SelectedModDisplayName)
-               )
-            {
-                ClearModSidePanel();
-                return;
-            }
 
             string modPath = (string)modsListView.SelectedItems[0].Tag;
             ModObject modDetails = ModsManager.Instance.ModDetails[modPath];
@@ -1236,6 +1220,37 @@ namespace MW5_Mod_Manager
                 }
             }
             pictureBoxModImage.Visible = imageLoadSuccess;
+        }
+
+        private void modListView_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            UpdateUpMoveButtonsState();
+
+            if (_filterMode == eFilterMode.None)
+                UnhighlightAllMods();
+
+            if (_movingItems)
+                return;
+
+            if (modsListView.SelectedItems.Count == 0)
+            {
+                ClearModSidePanel();
+                return;
+            }
+
+            string SelectedMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
+            string SelectedModDisplayName = modsListView.SelectedItems[0].SubItems[displayHeader.Index].Text;
+
+            if (Utils.StringNullEmptyOrWhiteSpace(SelectedMod) ||
+                Utils.StringNullEmptyOrWhiteSpace(SelectedModDisplayName)
+               )
+            {
+                ClearModSidePanel();
+                return;
+            }
+
+            timerOverviewUpdateDelay.Stop();
+            timerOverviewUpdateDelay.Start();
         }
 
         //Handles the showing of overriding data on select
@@ -1302,7 +1317,7 @@ namespace MW5_Mod_Manager
             ModsManager.Instance.GetOverridingData(ModListData);
         }
 
-        private void exportLoadOrderToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void ExportLoadOrder()
         {
             ExportForm exportDialog = new ExportForm();
 
@@ -1311,7 +1326,12 @@ namespace MW5_Mod_Manager
             exportDialog.Dispose();
         }
 
-        private void importLoadOrderToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void exportLoadOrderToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            ExportLoadOrder();
+        }
+
+        private void ImportLoadOrder()
         {
             ImportForm importDialog = new ImportForm();
 
@@ -1342,6 +1362,11 @@ namespace MW5_Mod_Manager
             FilterTextChanged();
             SetModConfigTainted(true);
             modsListView.EndUpdate();
+        }
+
+        private void importLoadOrderToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            ImportLoadOrder();
         }
 
         private void openModsFolderToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2334,6 +2359,50 @@ namespace MW5_Mod_Manager
         private void downToolStripButton_Click(object sender, EventArgs e)
         {
             MoveListItems(modsListView.SelectedItems, MoveDirection.Down);
+        }
+
+        private void timerOverviewUpdateDelay_Tick(object sender, EventArgs e)
+        {
+            UpdateSidePanelData();
+            timerOverviewUpdateDelay.Stop();
+        }
+
+        private void reloadModDataToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RefreshAll();
+        }
+
+        private void MainForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.S)
+            {
+                ApplyModSettings();
+                return;
+            }
+
+            if (e.Control && e.KeyCode == Keys.M)
+            {
+                LaunchGame();
+                return;
+            }
+
+            if (e.Control && e.KeyCode == Keys.R)
+            {
+                RefreshAll(false);
+                return;
+            }
+
+            if (e.Control && e.KeyCode == Keys.I)
+            {
+                ImportLoadOrder();
+                return;
+            }
+
+            if (e.Control && e.KeyCode == Keys.E)
+            {
+                ExportLoadOrder();
+                return;
+            }
         }
     }
 }

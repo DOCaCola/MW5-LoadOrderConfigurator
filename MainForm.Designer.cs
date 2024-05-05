@@ -49,13 +49,14 @@ namespace MW5_Mod_Manager
             textProgressBarBindingSource = new BindingSource(components);
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
+            applyCurrentConfigToolStripMenuItem = new ToolStripMenuItem();
+            runMechWarrior5ToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator14 = new ToolStripSeparator();
             toolStripMenuItemInstallArchive = new ToolStripMenuItem();
             toolStripMenuItemInstallFromFolder = new ToolStripMenuItem();
             toolStripSeparator12 = new ToolStripSeparator();
             importLoadOrderToolStripMenuItem1 = new ToolStripMenuItem();
             exportLoadOrderToolStripMenuItem1 = new ToolStripMenuItem();
-            toolStripSeparator7 = new ToolStripSeparator();
-            shareModsViaTCPToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator2 = new ToolStripSeparator();
             toolStripMenuItemSettings = new ToolStripMenuItem();
             toolStripSeparator1 = new ToolStripSeparator();
@@ -66,6 +67,8 @@ namespace MW5_Mod_Manager
             savePresetToolStripMenuItem = new ToolStripMenuItem();
             deletePresetToolStripMenuItem = new ToolStripMenuItem();
             modsToolStripMenuItem = new ToolStripMenuItem();
+            reloadModDataToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator13 = new ToolStripSeparator();
             enableAllModsToolStripMenuItem = new ToolStripMenuItem();
             disableAllModsToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator3 = new ToolStripSeparator();
@@ -145,6 +148,7 @@ namespace MW5_Mod_Manager
             toolStripButtonFilterToggle = new ToolStripButton();
             toolStripButtonClearFilter = new ToolStripButton();
             toolStripSeparator11 = new ToolStripSeparator();
+            timerOverviewUpdateDelay = new Timer(components);
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -266,78 +270,86 @@ namespace MW5_Mod_Manager
             // 
             // fileToolStripMenuItem
             // 
-            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { toolStripMenuItemInstallArchive, toolStripMenuItemInstallFromFolder, toolStripSeparator12, importLoadOrderToolStripMenuItem1, exportLoadOrderToolStripMenuItem1, toolStripSeparator7, shareModsViaTCPToolStripMenuItem, toolStripSeparator2, toolStripMenuItemSettings, toolStripSeparator1, exitToolStripMenuItem });
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { applyCurrentConfigToolStripMenuItem, runMechWarrior5ToolStripMenuItem, toolStripSeparator14, toolStripMenuItemInstallArchive, toolStripMenuItemInstallFromFolder, toolStripSeparator12, importLoadOrderToolStripMenuItem1, exportLoadOrderToolStripMenuItem1, toolStripSeparator2, toolStripMenuItemSettings, toolStripSeparator1, exitToolStripMenuItem });
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             fileToolStripMenuItem.Size = new Size(37, 20);
             fileToolStripMenuItem.Text = "&File";
             // 
+            // applyCurrentConfigToolStripMenuItem
+            // 
+            applyCurrentConfigToolStripMenuItem.Name = "applyCurrentConfigToolStripMenuItem";
+            applyCurrentConfigToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+S";
+            applyCurrentConfigToolStripMenuItem.Size = new Size(223, 22);
+            applyCurrentConfigToolStripMenuItem.Text = "&Apply current config";
+            // 
+            // runMechWarrior5ToolStripMenuItem
+            // 
+            runMechWarrior5ToolStripMenuItem.Name = "runMechWarrior5ToolStripMenuItem";
+            runMechWarrior5ToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+M";
+            runMechWarrior5ToolStripMenuItem.Size = new Size(223, 22);
+            runMechWarrior5ToolStripMenuItem.Text = "Run &MechWarrior 5";
+            // 
+            // toolStripSeparator14
+            // 
+            toolStripSeparator14.Name = "toolStripSeparator14";
+            toolStripSeparator14.Size = new Size(220, 6);
+            // 
             // toolStripMenuItemInstallArchive
             // 
             toolStripMenuItemInstallArchive.Name = "toolStripMenuItemInstallArchive";
-            toolStripMenuItemInstallArchive.Size = new Size(184, 22);
+            toolStripMenuItemInstallArchive.Size = new Size(223, 22);
             toolStripMenuItemInstallArchive.Text = "Install from &archive...";
             toolStripMenuItemInstallArchive.Click += toolStripMenuItemInstallArchive_Click;
             // 
             // toolStripMenuItemInstallFromFolder
             // 
             toolStripMenuItemInstallFromFolder.Name = "toolStripMenuItemInstallFromFolder";
-            toolStripMenuItemInstallFromFolder.Size = new Size(184, 22);
+            toolStripMenuItemInstallFromFolder.Size = new Size(223, 22);
             toolStripMenuItemInstallFromFolder.Text = "Install from &folder...";
             toolStripMenuItemInstallFromFolder.Click += toolStripMenuItemInstallFromFolder_Click;
             // 
             // toolStripSeparator12
             // 
             toolStripSeparator12.Name = "toolStripSeparator12";
-            toolStripSeparator12.Size = new Size(181, 6);
+            toolStripSeparator12.Size = new Size(220, 6);
             // 
             // importLoadOrderToolStripMenuItem1
             // 
             importLoadOrderToolStripMenuItem1.Name = "importLoadOrderToolStripMenuItem1";
-            importLoadOrderToolStripMenuItem1.Size = new Size(184, 22);
+            importLoadOrderToolStripMenuItem1.ShortcutKeyDisplayString = "Ctrl+I";
+            importLoadOrderToolStripMenuItem1.Size = new Size(223, 22);
             importLoadOrderToolStripMenuItem1.Text = "&Import load order...";
             importLoadOrderToolStripMenuItem1.Click += importLoadOrderToolStripMenuItem1_Click;
             // 
             // exportLoadOrderToolStripMenuItem1
             // 
             exportLoadOrderToolStripMenuItem1.Name = "exportLoadOrderToolStripMenuItem1";
-            exportLoadOrderToolStripMenuItem1.Size = new Size(184, 22);
+            exportLoadOrderToolStripMenuItem1.ShortcutKeyDisplayString = "Ctrl+E";
+            exportLoadOrderToolStripMenuItem1.Size = new Size(223, 22);
             exportLoadOrderToolStripMenuItem1.Text = "&Export load order...";
             exportLoadOrderToolStripMenuItem1.Click += exportLoadOrderToolStripMenuItem1_Click;
-            // 
-            // toolStripSeparator7
-            // 
-            toolStripSeparator7.Name = "toolStripSeparator7";
-            toolStripSeparator7.Size = new Size(181, 6);
-            toolStripSeparator7.Visible = false;
-            // 
-            // shareModsViaTCPToolStripMenuItem
-            // 
-            shareModsViaTCPToolStripMenuItem.Name = "shareModsViaTCPToolStripMenuItem";
-            shareModsViaTCPToolStripMenuItem.Size = new Size(184, 22);
-            shareModsViaTCPToolStripMenuItem.Text = "Share mods via &TCP";
-            shareModsViaTCPToolStripMenuItem.Visible = false;
             // 
             // toolStripSeparator2
             // 
             toolStripSeparator2.Name = "toolStripSeparator2";
-            toolStripSeparator2.Size = new Size(181, 6);
+            toolStripSeparator2.Size = new Size(220, 6);
             // 
             // toolStripMenuItemSettings
             // 
             toolStripMenuItemSettings.Name = "toolStripMenuItemSettings";
-            toolStripMenuItemSettings.Size = new Size(184, 22);
+            toolStripMenuItemSettings.Size = new Size(223, 22);
             toolStripMenuItemSettings.Text = "&Settings";
             toolStripMenuItemSettings.Click += toolStripMenuItemSettings_Click;
             // 
             // toolStripSeparator1
             // 
             toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new Size(181, 6);
+            toolStripSeparator1.Size = new Size(220, 6);
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(184, 22);
+            exitToolStripMenuItem.Size = new Size(223, 22);
             exitToolStripMenuItem.Text = "E&xit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
@@ -376,10 +388,23 @@ namespace MW5_Mod_Manager
             // 
             // modsToolStripMenuItem
             // 
-            modsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { enableAllModsToolStripMenuItem, disableAllModsToolStripMenuItem, toolStripSeparator3, toolStripMenuItemSortDefaultLoadOrder, toolStripSeparator8, openModsFolderToolStripMenuItem, toolStripMenuItemOpenModFolderSteam, openUserModsFolderToolStripMenuItem });
+            modsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { reloadModDataToolStripMenuItem, toolStripSeparator13, enableAllModsToolStripMenuItem, disableAllModsToolStripMenuItem, toolStripSeparator3, toolStripMenuItemSortDefaultLoadOrder, toolStripSeparator8, openModsFolderToolStripMenuItem, toolStripMenuItemOpenModFolderSteam, openUserModsFolderToolStripMenuItem });
             modsToolStripMenuItem.Name = "modsToolStripMenuItem";
             modsToolStripMenuItem.Size = new Size(49, 20);
             modsToolStripMenuItem.Text = "&Mods";
+            // 
+            // reloadModDataToolStripMenuItem
+            // 
+            reloadModDataToolStripMenuItem.Name = "reloadModDataToolStripMenuItem";
+            reloadModDataToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+R";
+            reloadModDataToolStripMenuItem.Size = new Size(208, 22);
+            reloadModDataToolStripMenuItem.Text = "&Reload mod data";
+            reloadModDataToolStripMenuItem.Click += reloadModDataToolStripMenuItem_Click;
+            // 
+            // toolStripSeparator13
+            // 
+            toolStripSeparator13.Name = "toolStripSeparator13";
+            toolStripSeparator13.Size = new Size(205, 6);
             // 
             // enableAllModsToolStripMenuItem
             // 
@@ -579,7 +604,7 @@ namespace MW5_Mod_Manager
             richTextBoxManifestOverridden.Location = new Point(9, 164);
             richTextBoxManifestOverridden.Name = "richTextBoxManifestOverridden";
             richTextBoxManifestOverridden.ReadOnly = true;
-            richTextBoxManifestOverridden.Size = new Size(309, 290);
+            richTextBoxManifestOverridden.Size = new Size(309, 287);
             richTextBoxManifestOverridden.TabIndex = 28;
             richTextBoxManifestOverridden.Text = "";
             richTextBoxManifestOverridden.WordWrap = false;
@@ -982,6 +1007,7 @@ namespace MW5_Mod_Manager
             toTopToolStripButton.Name = "toTopToolStripButton";
             toTopToolStripButton.Size = new Size(23, 20);
             toTopToolStripButton.Text = "To top";
+            toTopToolStripButton.ToolTipText = "Move mods to top";
             toTopToolStripButton.Click += toTopToolStripButton_Click;
             // 
             // upToolStripButton
@@ -992,6 +1018,7 @@ namespace MW5_Mod_Manager
             upToolStripButton.Name = "upToolStripButton";
             upToolStripButton.Size = new Size(23, 20);
             upToolStripButton.Text = "Up";
+            upToolStripButton.ToolTipText = "Move mods up";
             upToolStripButton.Click += upToolStripButton_Click;
             // 
             // toolStripLabel2
@@ -1008,6 +1035,7 @@ namespace MW5_Mod_Manager
             downToolStripButton.Name = "downToolStripButton";
             downToolStripButton.Size = new Size(23, 20);
             downToolStripButton.Text = "Down";
+            downToolStripButton.ToolTipText = "Move mods down";
             downToolStripButton.Click += downToolStripButton_Click;
             // 
             // toBottomToolStripButton
@@ -1018,6 +1046,7 @@ namespace MW5_Mod_Manager
             toBottomToolStripButton.Name = "toBottomToolStripButton";
             toBottomToolStripButton.Size = new Size(23, 20);
             toBottomToolStripButton.Text = "To bottom";
+            toBottomToolStripButton.ToolTipText = "Move mods to bottom";
             toBottomToolStripButton.Click += toBottomToolStripButton_Click;
             // 
             // toolStrip1
@@ -1082,10 +1111,11 @@ namespace MW5_Mod_Manager
             // 
             // toolStripTextFilterBox
             // 
+            toolStripTextFilterBox.AutoSize = false;
             toolStripTextFilterBox.CueBanner = "Search";
             toolStripTextFilterBox.Margin = new Padding(5, 0, 5, 0);
             toolStripTextFilterBox.Name = "toolStripTextFilterBox";
-            toolStripTextFilterBox.Size = new Size(230, 48);
+            toolStripTextFilterBox.Size = new Size(268, 23);
             toolStripTextFilterBox.TextChanged += toolStripTextFilterBox_TextChanged;
             // 
             // toolStripButtonFilterToggle
@@ -1119,6 +1149,11 @@ namespace MW5_Mod_Manager
             toolStripSeparator11.Name = "toolStripSeparator11";
             toolStripSeparator11.Size = new Size(6, 48);
             // 
+            // timerOverviewUpdateDelay
+            // 
+            timerOverviewUpdateDelay.Interval = 50;
+            timerOverviewUpdateDelay.Tick += timerOverviewUpdateDelay_Tick;
+            // 
             // MainForm
             // 
             AllowDrop = true;
@@ -1130,6 +1165,7 @@ namespace MW5_Mod_Manager
             Controls.Add(menuStrip1);
             Controls.Add(statusStrip1);
             Font = new Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            KeyPreview = true;
             MainMenuStrip = menuStrip1;
             MinimumSize = new Size(900, 550);
             Name = "MainForm";
@@ -1139,6 +1175,7 @@ namespace MW5_Mod_Manager
             Shown += MainWindow_Shown;
             DragDrop += MainForm_DragDrop;
             DragEnter += MainForm_DragEnter;
+            KeyDown += MainForm_KeyDown;
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).EndInit();
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
@@ -1188,8 +1225,6 @@ namespace MW5_Mod_Manager
         private StatusStrip statusStrip1;
         private ToolStripMenuItem exportLoadOrderToolStripMenuItem1;
         private ToolStripMenuItem importLoadOrderToolStripMenuItem1;
-        private ToolStripSeparator toolStripSeparator7;
-        private ToolStripMenuItem shareModsViaTCPToolStripMenuItem;
         private ToolStripStatusLabel toolStripPlatformLabel;
         private ToolStripMenuItem modsToolStripMenuItem;
         private ToolStripMenuItem openModsFolderToolStripMenuItem;
@@ -1287,6 +1322,12 @@ namespace MW5_Mod_Manager
         private ToolStripButton toBottomToolStripButton;
         private ToolStripLabel toolStripLabel2;
         private LocToolStripTextBox toolStripTextFilterBox;
+        private Timer timerOverviewUpdateDelay;
+        private ToolStripMenuItem reloadModDataToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator13;
+        private ToolStripMenuItem applyCurrentConfigToolStripMenuItem;
+        private ToolStripMenuItem runMechWarrior5ToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator14;
     }
 }
 
