@@ -49,8 +49,8 @@ namespace MW5_Mod_Manager
             textProgressBarBindingSource = new BindingSource(components);
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
-            toolStripMenuItemImportArchive = new ToolStripMenuItem();
-            toolStripMenuItemImportFromFolder = new ToolStripMenuItem();
+            toolStripMenuItemInstallArchive = new ToolStripMenuItem();
+            toolStripMenuItemInstallFromFolder = new ToolStripMenuItem();
             toolStripSeparator12 = new ToolStripSeparator();
             importLoadOrderToolStripMenuItem1 = new ToolStripMenuItem();
             exportLoadOrderToolStripMenuItem1 = new ToolStripMenuItem();
@@ -179,7 +179,6 @@ namespace MW5_Mod_Manager
             modsListView.GridLines = true;
             modsListView.LabelWrap = false;
             modsListView.Location = new Point(30, 3);
-            modsListView.MultiSelect = false;
             modsListView.Name = "modsListView";
             modsListView.RightToLeft = RightToLeft.No;
             modsListView.Size = new Size(795, 454);
@@ -261,78 +260,78 @@ namespace MW5_Mod_Manager
             // 
             // fileToolStripMenuItem
             // 
-            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { toolStripMenuItemImportArchive, toolStripMenuItemImportFromFolder, toolStripSeparator12, importLoadOrderToolStripMenuItem1, exportLoadOrderToolStripMenuItem1, toolStripSeparator7, shareModsViaTCPToolStripMenuItem, toolStripSeparator2, toolStripMenuItemSettings, toolStripSeparator1, exitToolStripMenuItem });
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { toolStripMenuItemInstallArchive, toolStripMenuItemInstallFromFolder, toolStripSeparator12, importLoadOrderToolStripMenuItem1, exportLoadOrderToolStripMenuItem1, toolStripSeparator7, shareModsViaTCPToolStripMenuItem, toolStripSeparator2, toolStripMenuItemSettings, toolStripSeparator1, exitToolStripMenuItem });
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             fileToolStripMenuItem.Size = new Size(37, 20);
             fileToolStripMenuItem.Text = "&File";
             // 
-            // toolStripMenuItemImportArchive
+            // toolStripMenuItemInstallArchive
             // 
-            toolStripMenuItemImportArchive.Name = "toolStripMenuItemImportArchive";
-            toolStripMenuItemImportArchive.Size = new Size(189, 22);
-            toolStripMenuItemImportArchive.Text = "Import from &archive...";
-            toolStripMenuItemImportArchive.Click += toolStripMenuItemImportArchive_Click;
+            toolStripMenuItemInstallArchive.Name = "toolStripMenuItemInstallArchive";
+            toolStripMenuItemInstallArchive.Size = new Size(184, 22);
+            toolStripMenuItemInstallArchive.Text = "Install from &archive...";
+            toolStripMenuItemInstallArchive.Click += toolStripMenuItemInstallArchive_Click;
             // 
-            // toolStripMenuItemImportFromFolder
+            // toolStripMenuItemInstallFromFolder
             // 
-            toolStripMenuItemImportFromFolder.Name = "toolStripMenuItemImportFromFolder";
-            toolStripMenuItemImportFromFolder.Size = new Size(189, 22);
-            toolStripMenuItemImportFromFolder.Text = "Import from &folder...";
-            toolStripMenuItemImportFromFolder.Click += toolStripMenuItemImportFromFolder_Click;
+            toolStripMenuItemInstallFromFolder.Name = "toolStripMenuItemInstallFromFolder";
+            toolStripMenuItemInstallFromFolder.Size = new Size(184, 22);
+            toolStripMenuItemInstallFromFolder.Text = "Install from &folder...";
+            toolStripMenuItemInstallFromFolder.Click += toolStripMenuItemInstallFromFolder_Click;
             // 
             // toolStripSeparator12
             // 
             toolStripSeparator12.Name = "toolStripSeparator12";
-            toolStripSeparator12.Size = new Size(186, 6);
+            toolStripSeparator12.Size = new Size(181, 6);
             // 
             // importLoadOrderToolStripMenuItem1
             // 
             importLoadOrderToolStripMenuItem1.Name = "importLoadOrderToolStripMenuItem1";
-            importLoadOrderToolStripMenuItem1.Size = new Size(189, 22);
+            importLoadOrderToolStripMenuItem1.Size = new Size(184, 22);
             importLoadOrderToolStripMenuItem1.Text = "&Import load order...";
             importLoadOrderToolStripMenuItem1.Click += importLoadOrderToolStripMenuItem1_Click;
             // 
             // exportLoadOrderToolStripMenuItem1
             // 
             exportLoadOrderToolStripMenuItem1.Name = "exportLoadOrderToolStripMenuItem1";
-            exportLoadOrderToolStripMenuItem1.Size = new Size(189, 22);
+            exportLoadOrderToolStripMenuItem1.Size = new Size(184, 22);
             exportLoadOrderToolStripMenuItem1.Text = "&Export load order...";
             exportLoadOrderToolStripMenuItem1.Click += exportLoadOrderToolStripMenuItem1_Click;
             // 
             // toolStripSeparator7
             // 
             toolStripSeparator7.Name = "toolStripSeparator7";
-            toolStripSeparator7.Size = new Size(186, 6);
+            toolStripSeparator7.Size = new Size(181, 6);
             toolStripSeparator7.Visible = false;
             // 
             // shareModsViaTCPToolStripMenuItem
             // 
             shareModsViaTCPToolStripMenuItem.Name = "shareModsViaTCPToolStripMenuItem";
-            shareModsViaTCPToolStripMenuItem.Size = new Size(189, 22);
+            shareModsViaTCPToolStripMenuItem.Size = new Size(184, 22);
             shareModsViaTCPToolStripMenuItem.Text = "Share mods via &TCP";
             shareModsViaTCPToolStripMenuItem.Visible = false;
             // 
             // toolStripSeparator2
             // 
             toolStripSeparator2.Name = "toolStripSeparator2";
-            toolStripSeparator2.Size = new Size(186, 6);
+            toolStripSeparator2.Size = new Size(181, 6);
             // 
             // toolStripMenuItemSettings
             // 
             toolStripMenuItemSettings.Name = "toolStripMenuItemSettings";
-            toolStripMenuItemSettings.Size = new Size(189, 22);
+            toolStripMenuItemSettings.Size = new Size(184, 22);
             toolStripMenuItemSettings.Text = "&Settings";
             toolStripMenuItemSettings.Click += toolStripMenuItemSettings_Click;
             // 
             // toolStripSeparator1
             // 
             toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new Size(186, 6);
+            toolStripSeparator1.Size = new Size(181, 6);
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(189, 22);
+            exitToolStripMenuItem.Size = new Size(184, 22);
             exitToolStripMenuItem.Text = "E&xit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
@@ -1210,8 +1209,8 @@ namespace MW5_Mod_Manager
         private ToolStripSeparator toolStripSeparator10;
         private SplitContainer splitContainer2;
         private ToolStripMenuItem deleteToolStripMenuItem;
-        private ToolStripMenuItem toolStripMenuItemImportArchive;
-        private ToolStripMenuItem toolStripMenuItemImportFromFolder;
+        private ToolStripMenuItem toolStripMenuItemInstallArchive;
+        private ToolStripMenuItem toolStripMenuItemInstallFromFolder;
         private ToolStripSeparator toolStripSeparator12;
         private RichTextBox richTextBoxManifestOverridden;
         private ToolStripMenuItem toolStripMenuItemNexusmodsLink;

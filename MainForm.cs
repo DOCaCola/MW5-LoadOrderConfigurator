@@ -29,13 +29,12 @@ namespace MW5_Mod_Manager
             ItemHighlight
         }
 
-        eFilterMode FilterMode = eFilterMode.None;
+        eFilterMode _filterMode = eFilterMode.None;
         public List<ListViewItem> ModListData = new List<ListViewItem>();
-        private bool MovingItem = false;
-        internal bool JustPacking = true;
-        string OnlineUpdateUrl = LocConstants.UrlNexusmods;
+        private bool _movingItems = false;
+        string _onlineUpdateUrl = LocConstants.UrlNexusmods;
 
-        static Color HighlightColor = Color.FromArgb(200, 253, 213);
+        static Color _highlightColor = Color.FromArgb(200, 253, 213);
 
         public bool LoadingAndFilling { get; private set; }
 
@@ -89,7 +88,7 @@ namespace MW5_Mod_Manager
                 if (!updateData.ContainsKey("updateUrl"))
                     return;
 
-                OnlineUpdateUrl = updateData["updateUrl"].ToString();
+                _onlineUpdateUrl = updateData["updateUrl"].ToString();
             }
             catch
             {
@@ -172,7 +171,7 @@ namespace MW5_Mod_Manager
             {
                 DialogResult dialogResult = MessageBox.Show("The target directory " + destinationPath
                     + " already exists. It has to be deleted before the copy operation can begin."
-                    +"\r\n\r\nAre you sure you want to continue?",
+                    + "\r\n\r\nAre you sure you want to continue?",
                     "Mod Directory already exists",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning);
@@ -260,81 +259,94 @@ namespace MW5_Mod_Manager
             RefreshAll(true);
         }
 
-        private void MoveItemUp(int itemIndex, bool moveToTop)
+        public enum MoveDirection { Up, Down };
+
+        public void MoveListItems(ListView.SelectedListViewItemCollection draggedItems, MoveDirection direction)
         {
-            ListView.ListViewItemCollection items = modsListView.Items;
-            this.MovingItem = true;
-            int i = itemIndex;
-            if (i < 1)
+            var selectedItems = draggedItems.Cast<ListViewItem>().ToList();
+            selectedItems = selectedItems.OrderBy(i => this.modsListView.Items.IndexOf(i)).ToList();
+
+            modsListView.BeginUpdate();
+            _movingItems = true;
+
+            if (direction == MoveDirection.Up)
             {
-                this.MovingItem = false;
-                return;
-            }
-            ListViewItem listItem = ModListData[i];
-            items.RemoveAt(i);
-            ModListData.RemoveAt(i);
+                for (int selectedItemIndex = 0; selectedItemIndex < selectedItems.Count; selectedItemIndex++)
+                {
+                    int currentIndex = selectedItems[selectedItemIndex].Index;
+                    int newIndex = currentIndex - 1;
 
-            SetModConfigTainted(true);
+                    if (currentIndex == selectedItemIndex)
+                        continue;
 
-            if (moveToTop)
-            {
-                //Move to top
-                items.Insert(0, listItem);
-                ModListData.Insert(0, listItem);
+                    ListViewItem listItem = ModListData[currentIndex];
+                    modsListView.Items.RemoveAt(currentIndex);
+                    ModListData.RemoveAt(currentIndex);
 
+                    modsListView.Items.Insert(newIndex, listItem);
+                    ModListData.Insert(newIndex, listItem);
+                }
             }
             else
             {
-                //move one up
-                items.Insert(i - 1, listItem);
-                ModListData.Insert(i - 1, listItem);
+                int endOffset = 1;
+                for (int selectedItemIndex = selectedItems.Count - 1; selectedItemIndex >= 0; selectedItemIndex--)
+                {
+                    int currentIndex = selectedItems[selectedItemIndex].Index;
+                    int newIndex = currentIndex + 1;
 
+                    if (currentIndex == modsListView.Items.Count - endOffset++)
+                        continue;
+
+                    ListViewItem listItem = ModListData[currentIndex];
+                    modsListView.Items.RemoveAt(currentIndex);
+                    ModListData.RemoveAt(currentIndex);
+
+                    modsListView.Items.Insert(newIndex, listItem);
+                    ModListData.Insert(newIndex, listItem);
+                }
             }
-            listItem.Selected = true;
-            modsListView.EnsureVisible(listItem.Index);
 
-            RecomputeLoadOrdersAndUpdateList();
-            ModsManager.Instance.GetOverridingData(this.ModListData);
-            modListView_SelectedIndexChanged(null, null);
-            this.MovingItem = false;
+            _movingItems = false;
+            modsListView.EndUpdate();
         }
 
-        private void MoveItemDown(int itemIndex, bool moveToTop)
+        public enum MovePosition { Top, Bottom };
+
+        public void MoveListItems(ListView.SelectedListViewItemCollection draggedItems, MovePosition position)
         {
-            ListView.ListViewItemCollection items = modsListView.Items;
-            this.MovingItem = true;
-            int i = itemIndex;
-            if (i > ModListData.Count - 2 || i < 0)
+            modsListView.BeginUpdate();
+            _movingItems = true;
+            var selectedItems = draggedItems.Cast<ListViewItem>().ToList();
+            selectedItems = selectedItems.OrderBy(i => this.modsListView.Items.IndexOf(i)).ToList();
+
+            foreach (var item in selectedItems)
             {
-                this.MovingItem = false;
-                return;
+                modsListView.Items.Remove(item);
+                ModListData.Remove(item);
             }
 
-            ListViewItem listItem = ModListData[i];
-            items.RemoveAt(i);
-            ModListData.RemoveAt(i);
-
-            SetModConfigTainted(true);
-
-            if (moveToTop)
+            if (position == MovePosition.Top)
             {
-                //Move to bottom
-                items.Insert(ModListData.Count, listItem);
-                ModListData.Insert(ModListData.Count, listItem);
+                int listOffset = 0;
+                foreach (var item in selectedItems)
+                {
+                    modsListView.Items.Insert(listOffset, item);
+                    ModListData.Insert(listOffset, item);
+                    ++listOffset;
+                }
             }
             else
             {
-                //move one down
-                items.Insert(i + 1, listItem);
-                ModListData.Insert(i + 1, listItem);
+                foreach (var item in selectedItems)
+                {
+                    modsListView.Items.Add(item);
+                    ModListData.Add(item);
+                }
             }
-            listItem.Selected = true;
-            modsListView.EnsureVisible(listItem.Index);
 
-            RecomputeLoadOrdersAndUpdateList();
-            ModsManager.Instance.GetOverridingData(ModListData);
-            modListView_SelectedIndexChanged(null, null);
-            this.MovingItem = false;
+            _movingItems = false;
+            modsListView.EndUpdate();
         }
 
         public void ApplyModSettings()
@@ -393,10 +405,10 @@ namespace MW5_Mod_Manager
                     }
                     break;
                 case eGamePlatform.Generic:
-                {
-                    this.toolStripPlatformLabel.Text = @"Platform: MW5";
-                    this.toolStripButtonStartGame.Enabled = true;
-                }
+                    {
+                        this.toolStripPlatformLabel.Text = @"Platform: MW5";
+                        this.toolStripButtonStartGame.Enabled = true;
+                    }
                     break;
                 default:
                     {
@@ -610,7 +622,7 @@ namespace MW5_Mod_Manager
                 LoadAndFill(loadModlist, false);
 
                 ModsManager.Instance.LoadLastAppliedPresetData();
-                
+
                 if (forceLoadLastApplied || ModsManager.Instance.ShouldLoadLastApplied())
                 {
                     // Load last saved preset
@@ -858,7 +870,7 @@ namespace MW5_Mod_Manager
             string filtertext = Instance.toolStripTextFilterBox.Text.ToLower();
             if (Utils.StringNullEmptyOrWhiteSpace(filtertext))
             {
-                if (this.FilterMode != eFilterMode.None)
+                if (this._filterMode != eFilterMode.None)
                 {
                     // end filtering
                     modsListView.BeginUpdate();
@@ -866,14 +878,14 @@ namespace MW5_Mod_Manager
                     ReloadListViewFromData();
                     modsListView.EndUpdate();
                     SetMoveControlsEnabled(true);
-                    this.FilterMode = eFilterMode.None;
+                    this._filterMode = eFilterMode.None;
                 }
             }
             else
             {
                 if (!Instance.toolStripButtonFilterToggle.Checked)
                 {
-                    FilterMode = eFilterMode.ItemHighlight;
+                    _filterMode = eFilterMode.ItemHighlight;
                     bool anyUpdated = false;
                     foreach (ListViewItem item in this.ModListData)
                     {
@@ -881,7 +893,7 @@ namespace MW5_Mod_Manager
                         {
                             foreach (ListViewItem.ListViewSubItem subItem in item.SubItems)
                             {
-                                if (subItem.BackColor != HighlightColor)
+                                if (subItem.BackColor != _highlightColor)
                                 {
                                     if (!anyUpdated)
                                     {
@@ -889,7 +901,7 @@ namespace MW5_Mod_Manager
                                         modsListView.BeginUpdate();
                                     }
 
-                                    subItem.BackColor = HighlightColor;
+                                    subItem.BackColor = _highlightColor;
                                 }
                             }
                         }
@@ -917,7 +929,7 @@ namespace MW5_Mod_Manager
                 //We are filtering by selected adding.
                 else
                 {
-                    FilterMode = eFilterMode.ItemFilter;
+                    _filterMode = eFilterMode.ItemFilter;
                     //Clear the list view
                     this.modsListView.Items.Clear();
                     Instance.modsListView.BeginUpdate();
@@ -977,7 +989,7 @@ namespace MW5_Mod_Manager
             bool startedListUpdate = false;
             try
             {
-                if (FilterMode == eFilterMode.None)
+                if (_filterMode == eFilterMode.None)
                 {
                     startedListUpdate = true;
                     richTextBoxManifestOverridden.SuspendDrawing();
@@ -998,7 +1010,7 @@ namespace MW5_Mod_Manager
 
                 ModListBoxItem selectedMod = (ModListBoxItem)listBoxOverriddenBy.SelectedItem;
 
-                if (FilterMode == eFilterMode.None)
+                if (_filterMode == eFilterMode.None)
                 {
                     HighlightModInList(selectedMod.ModKey);
                 }
@@ -1039,7 +1051,7 @@ namespace MW5_Mod_Manager
             bool startedListUpdate = false;
             try
             {
-                if (FilterMode == eFilterMode.None)
+                if (_filterMode == eFilterMode.None)
                 {
                     startedListUpdate = true;
                     modsListView.BeginUpdate();
@@ -1060,7 +1072,7 @@ namespace MW5_Mod_Manager
 
                 ModListBoxItem selectedMod = (ModListBoxItem)listBoxOverriding.SelectedItem;
 
-                if (FilterMode == eFilterMode.None)
+                if (_filterMode == eFilterMode.None)
                 {
                     HighlightModInList(selectedMod.ModKey);
                 }
@@ -1101,8 +1113,11 @@ namespace MW5_Mod_Manager
 
         private void modListView_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (FilterMode == eFilterMode.None)
+            if (_filterMode == eFilterMode.None)
                 UnhighlightAllMods();
+
+            if (_movingItems)
+                return;
 
             if (modsListView.SelectedItems.Count == 0)
             {
@@ -1225,7 +1240,7 @@ namespace MW5_Mod_Manager
         private void modListView_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
             //While we are removing/inserting items this will fire and we dont want that to happen when we move an item.
-            if (MovingItem || this.LoadingAndFilling)
+            if (_movingItems || this.LoadingAndFilling)
             {
                 return;
             }
@@ -1338,12 +1353,12 @@ namespace MW5_Mod_Manager
 
             modsListView.BeginUpdate();
 
-            this.MovingItem = true;
+            this._movingItems = true;
             foreach (ListViewItem item in this.ModListData)
             {
                 item.Checked = true;
             }
-            this.MovingItem = false;
+            this._movingItems = false;
 
             foreach (var key in ModsManager.Instance.ModEnabledList.Keys)
             {
@@ -1368,12 +1383,12 @@ namespace MW5_Mod_Manager
 
             modsListView.BeginUpdate();
 
-            this.MovingItem = true;
+            this._movingItems = true;
             foreach (ListViewItem item in this.modsListView.Items)
             {
                 item.Checked = false;
             }
-            this.MovingItem = false;
+            this._movingItems = false;
 
             foreach (var key in ModsManager.Instance.ModEnabledList.Keys)
             {
@@ -1499,17 +1514,22 @@ namespace MW5_Mod_Manager
         {
             modsListView.AllowDrop = true;
 
-            if (FilterMode != eFilterMode.None)
+            if (_filterMode != eFilterMode.None)
                 return;
 
-            MovingItem = true;
-            DoDragDrop(e.Item, DragDropEffects.Move);
-            MovingItem = false;
+            _movingItems = true;
+            DoDragDrop(modsListView.SelectedItems, DragDropEffects.Move);
+            _movingItems = false;
         }
 
         private void modsListView_DragEnter(object sender, DragEventArgs e)
         {
-            if (MovingItem) e.Effect = e.AllowedEffect;
+            if (!e.Data.GetDataPresent(typeof(ListView.SelectedListViewItemCollection)))
+            {
+                e.Effect = DragDropEffects.None;
+            }
+
+            e.Effect = e.AllowedEffect;
         }
 
         private void modsListView_DragOver(object sender, DragEventArgs e)
@@ -1556,27 +1576,35 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-            // If the insertion mark is to the right of the item with
-            // the corresponding index, increment the target index.
-            /*if (modsListView.InsertionMark.AppearsAfterItem) 
-            {
-                targetIndex++;
-            }*/
+            if (!e.Data.GetDataPresent(typeof(ListView.SelectedListViewItemCollection)))
+                return;
 
             // Retrieve the dragged item.
-            ListViewItem draggedItem =
-                (ListViewItem)e.Data.GetData(typeof(ListViewItem));
+            var draggedItems = (ListView.SelectedListViewItemCollection)e.Data.GetData(typeof(ListView.SelectedListViewItemCollection));
 
-            int itemIndex = draggedItem.Index;
 
-            int targetIndex =
-                modsListView.InsertionMark.AppearsAfterItem
-                    ? insertIndex + 1
-                    : insertIndex;
+            DragDropRows(insertIndex, draggedItems);
 
-            if (itemIndex != targetIndex)
+            modsListView.InsertionMark.Index = -1;
+        }
+
+        private void modsListView_DragLeave(object sender, EventArgs e)
+        {
+            modsListView.InsertionMark.Index = -1;
+        }
+
+        private void DragDropRows(int insertIndex, ListView.SelectedListViewItemCollection draggedItems)
+        {
+            modsListView.BeginUpdate();
+            foreach (ListViewItem draggedItem in draggedItems)
             {
-                modsListView.BeginUpdate();
+                int oldIndex = draggedItem.Index;
+
+                // If AppearsAfterItem is enabled, insert one item down.
+                int targetIndex =
+                    modsListView.InsertionMark.AppearsAfterItem
+                        ? insertIndex + 1
+                        : insertIndex;
 
                 ListViewItem newItem = (ListViewItem)draggedItem.Clone();
                 ModListData.Insert(targetIndex, newItem);
@@ -1585,21 +1613,21 @@ namespace MW5_Mod_Manager
 
                 ModListData.Remove(draggedItem);
                 modsListView.Items.Remove(draggedItem);
-                RecomputeLoadOrdersAndUpdateList();
-                ModsManager.Instance.GetOverridingData(this.ModListData);
 
-                modListView_SelectedIndexChanged(null, null);
-                modsListView.EndUpdate();
-
-                SetModConfigTainted(true);
+                // Bottom to top reverses the order for multiple items.
+                if (oldIndex > insertIndex)
+                {
+                    insertIndex++;
+                }
             }
 
-            modsListView.InsertionMark.Index = -1;
-        }
+            RecomputeLoadOrdersAndUpdateList();
+            ModsManager.Instance.GetOverridingData(this.ModListData);
 
-        private void modsListView_DragLeave(object sender, EventArgs e)
-        {
-            modsListView.InsertionMark.Index = -1;
+            modListView_SelectedIndexChanged(null, null);
+            modsListView.EndUpdate();
+
+            SetModConfigTainted(true);
         }
 
         private void presetMenuItem_Click(object sender, EventArgs e)
@@ -1665,7 +1693,7 @@ namespace MW5_Mod_Manager
                 {
                     foreach (ListViewItem.ListViewSubItem subItem in modListItem.SubItems)
                     {
-                        subItem.BackColor = HighlightColor;
+                        subItem.BackColor = _highlightColor;
                     }
                     break;
                 }
@@ -1858,28 +1886,23 @@ namespace MW5_Mod_Manager
 
         private void contextMenuItemMoveToTop_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem item in modsListView.SelectedItems)
-            {
-                MoveItemUp(item.Index, true);
-            }
+            MoveListItems(modsListView.SelectedItems, MovePosition.Top);
         }
 
         private void contextMenuItemMoveToBottom_Click(object sender, EventArgs e)
         {
-            MoveItemDown(SelectedItemIndex(), true);
+            MoveListItems(modsListView.SelectedItems, MovePosition.Bottom);
         }
 
         private void moveupToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem item in modsListView.SelectedItems)
-            {
-                MoveItemUp(item.Index, false);
-            }
+            MoveListItems(modsListView.SelectedItems, MoveDirection.Up);
         }
 
         private void movedownToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MoveItemDown(SelectedItemIndex(), false);
+
+            MoveListItems(modsListView.SelectedItems, MoveDirection.Down);
         }
 
         public void ColorListViewNumbers(List<ListViewItem> listViewItems, int subItemIndex, Color fromColor, Color toColor)
@@ -2063,16 +2086,6 @@ namespace MW5_Mod_Manager
             RefreshAll();
         }
 
-        private void toolStripButtonUp_Click(object sender, EventArgs e)
-        {
-            MoveItemUp(SelectedItemIndex(), Control.ModifierKeys == Keys.Shift);
-        }
-
-        private void toolStripButtonDown_Click(object sender, EventArgs e)
-        {
-            MoveItemDown(SelectedItemIndex(), Control.ModifierKeys == Keys.Shift);
-        }
-
         private void toolStripButtonApply_Click(object sender, EventArgs e)
         {
             ApplyModSettings();
@@ -2147,7 +2160,7 @@ namespace MW5_Mod_Manager
             }
         }
 
-        private void toolStripMenuItemImportFromFolder_Click(object sender, EventArgs e)
+        private void toolStripMenuItemInstallFromFolder_Click(object sender, EventArgs e)
         {
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
@@ -2162,7 +2175,7 @@ namespace MW5_Mod_Manager
 
             using (var fbd = new FolderBrowserDialog())
             {
-                fbd.Description = "Select a mod folder for import";
+                fbd.Description = "Select a mod folder to install";
                 fbd.UseDescriptionForTitle = true;
                 DialogResult result = fbd.ShowDialog();
 
@@ -2205,7 +2218,7 @@ namespace MW5_Mod_Manager
             return result == btnApply;
         }
 
-        private void toolStripMenuItemImportArchive_Click(object sender, EventArgs e)
+        private void toolStripMenuItemInstallArchive_Click(object sender, EventArgs e)
         {
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
@@ -2220,7 +2233,7 @@ namespace MW5_Mod_Manager
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Mod Archives|*.zip;*.7z;*.rar|All files (*.*)|*.*";
-            openFileDialog.Title = "Select a mod archive for import";
+            openFileDialog.Title = "Select a mod archive to install";
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -2245,7 +2258,7 @@ namespace MW5_Mod_Manager
 
         private void toolStripStatusLabelUpdate_Click(object sender, EventArgs e)
         {
-            string updateUrl = OnlineUpdateUrl;
+            string updateUrl = _onlineUpdateUrl;
             var psi = new System.Diagnostics.ProcessStartInfo()
             {
                 FileName = updateUrl,
