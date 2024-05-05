@@ -65,6 +65,10 @@ namespace MW5_Mod_Manager
             panelColorOverridden.BackColor = ModsManager.OverriddenColor;
             panelColorOverriding.BackColor = ModsManager.OverridingColor;
             panelColorOverridingOverridden.BackColor = ModsManager.OverriddenOveridingColor;
+
+            toolStrip2.Renderer = new ToolStripTransparentRenderer();
+
+            UpdateUpMoveButtonsState();
         }
 
         private void ProcessUpdateCheckData(string updateJson)
@@ -1111,8 +1115,19 @@ namespace MW5_Mod_Manager
             listBoxOverriding.Items.Clear();
         }
 
+        public void UpdateUpMoveButtonsState()
+        {
+            bool anySelected = modsListView.SelectedItems.Count > 0;
+            toTopToolStripButton.Enabled = anySelected;
+            toBottomToolStripButton.Enabled = anySelected;
+            upToolStripButton.Enabled = anySelected;
+            downToolStripButton.Enabled = anySelected;
+        }
+
         private void modListView_SelectedIndexChanged(object sender, EventArgs e)
         {
+            UpdateUpMoveButtonsState();
+
             if (_filterMode == eFilterMode.None)
                 UnhighlightAllMods();
 
@@ -2274,6 +2289,26 @@ namespace MW5_Mod_Manager
                 e.NewWidth = this.modsListView.Columns[e.ColumnIndex].Width;
                 e.Cancel = true;
             }
+        }
+
+        private void toTopToolStripButton_Click(object sender, EventArgs e)
+        {
+            MoveListItems(modsListView.SelectedItems, MovePosition.Top);
+        }
+
+        private void toBottomToolStripButton_Click(object sender, EventArgs e)
+        {
+            MoveListItems(modsListView.SelectedItems, MovePosition.Bottom);
+        }
+
+        private void upToolStripButton_Click(object sender, EventArgs e)
+        {
+            MoveListItems(modsListView.SelectedItems, MoveDirection.Up);
+        }
+
+        private void downToolStripButton_Click(object sender, EventArgs e)
+        {
+            MoveListItems(modsListView.SelectedItems, MoveDirection.Down);
         }
     }
 }

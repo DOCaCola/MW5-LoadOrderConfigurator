@@ -129,6 +129,12 @@ namespace MW5_Mod_Manager
             panelColorOverriding = new Panel();
             panelColorOverridden = new Panel();
             splitContainerMain = new SplitContainer();
+            toolStrip2 = new ToolStrip();
+            toTopToolStripButton = new ToolStripButton();
+            upToolStripButton = new ToolStripButton();
+            toolStripLabel2 = new ToolStripLabel();
+            downToolStripButton = new ToolStripButton();
+            toBottomToolStripButton = new ToolStripButton();
             toolStrip1 = new ToolStrip();
             toolStripButtonApply = new ToolStripButton();
             toolStripButtonStartGame = new ToolStripButton();
@@ -160,6 +166,7 @@ namespace MW5_Mod_Manager
             splitContainerMain.Panel1.SuspendLayout();
             splitContainerMain.Panel2.SuspendLayout();
             splitContainerMain.SuspendLayout();
+            toolStrip2.SuspendLayout();
             toolStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -938,6 +945,7 @@ namespace MW5_Mod_Manager
             // 
             // splitContainerMain.Panel1
             // 
+            splitContainerMain.Panel1.Controls.Add(toolStrip2);
             splitContainerMain.Panel1.Controls.Add(rotatingLabelBottom);
             splitContainerMain.Panel1.Controls.Add(modsListView);
             splitContainerMain.Panel1.Controls.Add(rotatingLabelTop);
@@ -951,6 +959,67 @@ namespace MW5_Mod_Manager
             splitContainerMain.SplitterDistance = 828;
             splitContainerMain.SplitterWidth = 5;
             splitContainerMain.TabIndex = 40;
+            // 
+            // toolStrip2
+            // 
+            toolStrip2.Anchor = AnchorStyles.Left;
+            toolStrip2.AutoSize = false;
+            toolStrip2.BackColor = Color.Transparent;
+            toolStrip2.Dock = DockStyle.None;
+            toolStrip2.GripStyle = ToolStripGripStyle.Hidden;
+            toolStrip2.Items.AddRange(new ToolStripItem[] { toTopToolStripButton, upToolStripButton, toolStripLabel2, downToolStripButton, toBottomToolStripButton });
+            toolStrip2.LayoutStyle = ToolStripLayoutStyle.Flow;
+            toolStrip2.Location = new Point(4, 180);
+            toolStrip2.Name = "toolStrip2";
+            toolStrip2.Size = new Size(24, 118);
+            toolStrip2.TabIndex = 40;
+            toolStrip2.Text = "toolStrip2";
+            // 
+            // toTopToolStripButton
+            // 
+            toTopToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            toTopToolStripButton.Image = (Image)resources.GetObject("toTopToolStripButton.Image");
+            toTopToolStripButton.ImageTransparentColor = Color.Magenta;
+            toTopToolStripButton.Name = "toTopToolStripButton";
+            toTopToolStripButton.Size = new Size(23, 20);
+            toTopToolStripButton.Text = "To top";
+            toTopToolStripButton.Click += toTopToolStripButton_Click;
+            // 
+            // upToolStripButton
+            // 
+            upToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            upToolStripButton.Image = (Image)resources.GetObject("upToolStripButton.Image");
+            upToolStripButton.ImageTransparentColor = Color.Magenta;
+            upToolStripButton.Name = "upToolStripButton";
+            upToolStripButton.Size = new Size(23, 20);
+            upToolStripButton.Text = "Up";
+            upToolStripButton.Click += upToolStripButton_Click;
+            // 
+            // toolStripLabel2
+            // 
+            toolStripLabel2.AutoSize = false;
+            toolStripLabel2.Name = "toolStripLabel2";
+            toolStripLabel2.Size = new Size(15, 15);
+            // 
+            // downToolStripButton
+            // 
+            downToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            downToolStripButton.Image = (Image)resources.GetObject("downToolStripButton.Image");
+            downToolStripButton.ImageTransparentColor = Color.Magenta;
+            downToolStripButton.Name = "downToolStripButton";
+            downToolStripButton.Size = new Size(23, 20);
+            downToolStripButton.Text = "Down";
+            downToolStripButton.Click += downToolStripButton_Click;
+            // 
+            // toBottomToolStripButton
+            // 
+            toBottomToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            toBottomToolStripButton.Image = (Image)resources.GetObject("toBottomToolStripButton.Image");
+            toBottomToolStripButton.ImageTransparentColor = Color.Magenta;
+            toBottomToolStripButton.Name = "toBottomToolStripButton";
+            toBottomToolStripButton.Size = new Size(23, 20);
+            toBottomToolStripButton.Text = "To bottom";
+            toBottomToolStripButton.Click += toBottomToolStripButton_Click;
             // 
             // toolStrip1
             // 
@@ -1102,6 +1171,8 @@ namespace MW5_Mod_Manager
             splitContainerMain.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainerMain).EndInit();
             splitContainerMain.ResumeLayout(false);
+            toolStrip2.ResumeLayout(false);
+            toolStrip2.PerformLayout();
             toolStrip1.ResumeLayout(false);
             toolStrip1.PerformLayout();
             ResumeLayout(false);
@@ -1216,6 +1287,12 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem toolStripMenuItemNexusmodsLink;
         private ToolStripStatusLabel toolStripStatusLabelUpdate;
         public ModsListView modsListView;
+        private ToolStrip toolStrip2;
+        private ToolStripButton toTopToolStripButton;
+        private ToolStripButton upToolStripButton;
+        private ToolStripButton downToolStripButton;
+        private ToolStripButton toBottomToolStripButton;
+        private ToolStripLabel toolStripLabel2;
     }
 }
 
