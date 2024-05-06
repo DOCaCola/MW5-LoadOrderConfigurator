@@ -314,6 +314,10 @@ namespace MW5_Mod_Manager
         }
         private void UpdateCueBanner()
         {
+            // Otherwise causes the component to resize in design mode on save
+            if (DesignMode)
+                return;
+            
             SendMessage(this.Control.Handle, EM_SETCUEBANNER, 0, cueBanner);
         }
     }

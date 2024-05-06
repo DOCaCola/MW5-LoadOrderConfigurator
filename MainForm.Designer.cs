@@ -989,6 +989,7 @@ namespace MW5_Mod_Manager
             toolStrip2.Anchor = AnchorStyles.Left;
             toolStrip2.AutoSize = false;
             toolStrip2.BackColor = Color.Transparent;
+            toolStrip2.CanOverflow = false;
             toolStrip2.Dock = DockStyle.None;
             toolStrip2.GripStyle = ToolStripGripStyle.Hidden;
             toolStrip2.Items.AddRange(new ToolStripItem[] { toTopToolStripButton, upToolStripButton, toolStripLabel2, downToolStripButton, toBottomToolStripButton });
@@ -1111,11 +1112,10 @@ namespace MW5_Mod_Manager
             // 
             // toolStripTextFilterBox
             // 
-            toolStripTextFilterBox.AutoSize = false;
             toolStripTextFilterBox.CueBanner = "Search";
             toolStripTextFilterBox.Margin = new Padding(5, 0, 5, 0);
             toolStripTextFilterBox.Name = "toolStripTextFilterBox";
-            toolStripTextFilterBox.Size = new Size(268, 23);
+            toolStripTextFilterBox.Size = new Size(170, 48);
             toolStripTextFilterBox.TextChanged += toolStripTextFilterBox_TextChanged;
             // 
             // toolStripButtonFilterToggle
@@ -1321,13 +1321,13 @@ namespace MW5_Mod_Manager
         private ToolStripButton downToolStripButton;
         private ToolStripButton toBottomToolStripButton;
         private ToolStripLabel toolStripLabel2;
-        private LocToolStripTextBox toolStripTextFilterBox;
         private Timer timerOverviewUpdateDelay;
         private ToolStripMenuItem reloadModDataToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator13;
         private ToolStripMenuItem applyCurrentConfigToolStripMenuItem;
         private ToolStripMenuItem runMechWarrior5ToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator14;
+        private LocToolStripTextBox toolStripTextFilterBox;
     }
 }
 
