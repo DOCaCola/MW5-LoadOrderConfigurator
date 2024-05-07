@@ -879,11 +879,11 @@ namespace MW5_Mod_Manager
             // 
             rotatingLabelBottom.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             rotatingLabelBottom.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            rotatingLabelBottom.Location = new Point(5, 340);
+            rotatingLabelBottom.Location = new Point(5, 359);
             rotatingLabelBottom.Name = "rotatingLabelBottom";
-            rotatingLabelBottom.NewText = "« Lowest priority";
+            rotatingLabelBottom.NewText = "« Low priority";
             rotatingLabelBottom.RotateAngle = -90;
-            rotatingLabelBottom.Size = new Size(19, 113);
+            rotatingLabelBottom.Size = new Size(19, 94);
             rotatingLabelBottom.TabIndex = 39;
             // 
             // rotatingLabelTop
@@ -891,9 +891,9 @@ namespace MW5_Mod_Manager
             rotatingLabelTop.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             rotatingLabelTop.Location = new Point(5, 22);
             rotatingLabelTop.Name = "rotatingLabelTop";
-            rotatingLabelTop.NewText = "Highest priority »";
+            rotatingLabelTop.NewText = "High priority »";
             rotatingLabelTop.RotateAngle = -90;
-            rotatingLabelTop.Size = new Size(19, 118);
+            rotatingLabelTop.Size = new Size(19, 99);
             rotatingLabelTop.TabIndex = 38;
             // 
             // panelColorLegend

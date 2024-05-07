@@ -192,7 +192,7 @@ namespace MW5_Mod_Manager
             {
                 lastAppliedValid[curMod.Key] = curMod.Value.state;
             }
-            ProcessModFolderList(ref lastAppliedValid, false);
+            ProcessModFolderEnabledList(ref lastAppliedValid, false);
             LastAppliedPresetModList = lastAppliedValid;
         }
 
@@ -207,7 +207,7 @@ namespace MW5_Mod_Manager
             {
                 lastMods.Add(curModItem.Key, curModItem.Value.state);
             }
-            ProcessModFolderList(ref lastMods, false);
+            ProcessModFolderEnabledList(ref lastMods, false);
 
             // Filter to enabled only mods
             List<string> lastEnabledModList = lastMods
@@ -464,7 +464,7 @@ namespace MW5_Mod_Manager
         /// If not removes them from the modlist and informs user.
         /// newFoldernamesEnabledList has only foldernames as key, not full paths
         /// </summary>
-        public void ProcessModFolderList(ref Dictionary<string, bool> newFolderNamesEnabledList, bool warnMissing)
+        public void ProcessModFolderEnabledList(ref Dictionary<string, bool> newFolderNamesEnabledList, bool warnMissing)
         {
             Dictionary<string, bool> MissingModDirs = new();
             foreach (var item in newFolderNamesEnabledList)
@@ -519,6 +519,69 @@ namespace MW5_Mod_Manager
                 newModListDict[fullPath] = curFolderItem.Value;
             }
             newFolderNamesEnabledList = newModListDict;
+        }
+
+        public void ProcessModNameEnabledList(ref Dictionary<string, bool> newNamesEnabledList, bool warnMissing)
+        {
+            Dictionary<string, bool> newModListDict = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, bool> MissingMods = new();
+            foreach (var curItem in newNamesEnabledList)
+            {
+                if (Utils.StringNullEmptyOrWhiteSpace(curItem.Key))
+                {
+                    newNamesEnabledList.Remove(curItem.Key);
+                    continue;
+                }
+
+                // Collect listed mods that are unavailable locally
+                bool foundMatch = false;
+                foreach (var curModDetail in ModDetails)
+                {
+                    if (curModDetail.Value.displayName == curItem.Key)
+                    {
+                        foundMatch = true;
+                        newModListDict.Add(curModDetail.Key, curItem.Value);
+                        break;
+                    }
+                }
+
+                if (!foundMatch)
+                {
+                    MissingMods.Add(curItem.Key, curItem.Value);
+                }
+            }
+            foreach (var curMissingMod in MissingMods)
+            {
+                newNamesEnabledList.Remove(curMissingMod.Key);
+
+                // We will silently ignore missing mods that are not enabled
+                if (!curMissingMod.Value)
+                {
+                    MissingMods.Remove(curMissingMod.Key);
+                }
+            }
+            if (warnMissing && MissingMods.Count > 0)
+            {
+                var missingMods = string.Join(MissingMods.Count > 5 ? ", " : "\r\n", MissingMods.Keys);
+
+                TaskDialog.ShowDialog(MainForm.Instance.Handle, new TaskDialogPage()
+                {
+                    Text = "The mod list includes the following enabled mods which are unavailable locally:\r\n\r\n"
+                           + missingMods
+                           + "\r\n\r\nThese mods will be ignored.",
+                    Heading = "Invalid mods in preset.",
+                    Caption = "Warning",
+                    Buttons =
+                    {
+                        TaskDialogButton.OK,
+                    },
+                    Icon = TaskDialogIcon.Warning,
+                    DefaultButton = TaskDialogButton.OK,
+                    AllowCancel = true
+                });
+            }
+
+            newNamesEnabledList = newModListDict;
         }
 
         /// <summary>

@@ -128,17 +128,17 @@ namespace MW5_Mod_Manager
         {
             if (LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh)
             {
-                rotatingLabelTop.NewText = "Lowest priority »";
+                rotatingLabelTop.NewText = "Low priority »";
                 toolTip1.SetToolTip(rotatingLabelTop, LowPrioTooltip);
-                rotatingLabelBottom.NewText = "« Highest priority";
+                rotatingLabelBottom.NewText = "« High priority";
                 toolTip1.SetToolTip(rotatingLabelBottom, HighPrioTooltip);
 
             }
             else
             {
-                rotatingLabelTop.NewText = "Highest priority »";
+                rotatingLabelTop.NewText = "High priority »";
                 toolTip1.SetToolTip(rotatingLabelTop, HighPrioTooltip);
-                rotatingLabelBottom.NewText = "« Lowest priority";
+                rotatingLabelBottom.NewText = "« Low priority";
                 toolTip1.SetToolTip(rotatingLabelBottom, LowPrioTooltip);
             }
         }
@@ -640,7 +640,7 @@ namespace MW5_Mod_Manager
                 Dictionary<string, bool> modlist = ModsManager.Instance.LoadModList();
                 if (modlist != null)
                 {
-                    ModsManager.Instance.ProcessModFolderList(ref modlist, false);
+                    ModsManager.Instance.ProcessModFolderEnabledList(ref modlist, false);
                     ModsManager.Instance.ModEnabledListLastState = modlist;
                 }
                 ModsManager.Instance.DetermineBestAvailableGameVersion();
@@ -716,7 +716,7 @@ namespace MW5_Mod_Manager
 
             ModsManager.Instance.ParseDirectories();
             ModsManager.Instance.ReloadModData();
-            ModsManager.Instance.ProcessModFolderList(ref presetData, true);
+            ModsManager.Instance.ProcessModFolderEnabledList(ref presetData, true);
             this.LoadAndFill(presetData, true);
             FilterTextChanged();
             SetModConfigTainted(true);
@@ -1340,8 +1340,17 @@ namespace MW5_Mod_Manager
             {
                 return;
             }
-            Dictionary<string, bool> newData = importDialog.ResultData.ReverseIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh);
-            ModsManager.Instance.ProcessModFolderList(ref newData, true);
+
+            Dictionary<string, bool> newData = importDialog.ResultData;
+            if (importDialog.ResultDataType == ImportForm.eResultDataType.DirNames)
+            {
+                ModsManager.Instance.ProcessModFolderEnabledList(ref newData, true);
+            }
+            else if (importDialog.ResultDataType == ImportForm.eResultDataType.ModNames)
+            {
+                ModsManager.Instance.ProcessModNameEnabledList(ref newData, true);
+            }
+            
             importDialog.Dispose();
 
             if (!ModsManager.Instance.GameIsConfigured())
