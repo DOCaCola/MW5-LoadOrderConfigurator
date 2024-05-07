@@ -79,7 +79,7 @@
             toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { toolStripButtonLoadFromFile, toolStripButtonPaste });
             toolStrip1.Location = new System.Drawing.Point(12, 9);
             toolStrip1.Name = "toolStrip1";
-            toolStrip1.Size = new System.Drawing.Size(199, 25);
+            toolStrip1.Size = new System.Drawing.Size(168, 25);
             toolStrip1.TabIndex = 5;
             toolStrip1.Text = "toolStrip1";
             // 
@@ -120,7 +120,7 @@
             Name = "ImportForm";
             ShowIcon = false;
             ShowInTaskbar = false;
-            Text = " Import";
+            Text = " Import load order";
             Load += ImportForm_Load;
             toolStrip1.ResumeLayout(false);
             toolStrip1.PerformLayout();

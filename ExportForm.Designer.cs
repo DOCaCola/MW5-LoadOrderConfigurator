@@ -68,7 +68,7 @@
             toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { toolStripButtonSaveToFile, toolStripButtonCopy });
             toolStrip1.Location = new System.Drawing.Point(12, 9);
             toolStrip1.Name = "toolStrip1";
-            toolStrip1.Size = new System.Drawing.Size(182, 25);
+            toolStrip1.Size = new System.Drawing.Size(151, 25);
             toolStrip1.TabIndex = 6;
             toolStrip1.Text = "toolStrip1";
             // 
@@ -108,7 +108,7 @@
             Name = "ExportForm";
             ShowIcon = false;
             ShowInTaskbar = false;
-            Text = "Export";
+            Text = "Export load order";
             Load += ExportWindow_Load;
             toolStrip1.ResumeLayout(false);
             toolStrip1.PerformLayout();

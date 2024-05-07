@@ -1350,7 +1350,7 @@ namespace MW5_Mod_Manager
             {
                 ModsManager.Instance.ProcessModNameEnabledList(ref newData, true);
             }
-            
+
             importDialog.Dispose();
 
             if (!ModsManager.Instance.GameIsConfigured())
@@ -1491,21 +1491,24 @@ namespace MW5_Mod_Manager
 
         private void openFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string path = (string)modsListView.SelectedItems[0].Tag;
-
-            try
+            foreach (ListViewItem selectedItem in modsListView.SelectedItems)
             {
-                var psi = new System.Diagnostics.ProcessStartInfo()
+                string path = (string)selectedItem.Tag;
+                try
                 {
-                    FileName = path,
-                    UseShellExecute = true
-                };
-                System.Diagnostics.Process.Start(psi);
+                    var psi = new System.Diagnostics.ProcessStartInfo()
+                    {
+                        FileName = path,
+                        UseShellExecute = true
+                    };
+                    System.Diagnostics.Process.Start(psi);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Error opening directory", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error opening directory", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+
         }
 
         private void linkLabelModAuthorUrl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -2412,6 +2415,44 @@ namespace MW5_Mod_Manager
                 ExportLoadOrder();
                 return;
             }
+        }
+
+        public void SetSelectedModEnabledState(bool newState)
+        {
+            bool tainted = false;
+            modsListView.BeginUpdate();
+            this._movingItems = true;
+            foreach (ListViewItem selectedItem in modsListView.SelectedItems)
+            {
+                if (newState == selectedItem.Checked)
+                    continue;
+
+                tainted = true;
+                selectedItem.Checked = newState;
+                string key = selectedItem.Tag as string;
+                ModsManager.Instance.ModEnabledList[key] = newState;
+            }
+            this._movingItems = false;
+
+            if (tainted)
+            {
+                ModsManager.Instance.GetOverridingData(this.ModListData);
+                UpdateModCountDisplay();
+                RecomputeLoadOrdersAndUpdateList();
+                SetModConfigTainted(true);
+            }
+
+            modsListView.EndUpdate();
+        }
+
+        private void enableModsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SetSelectedModEnabledState(true);
+        }
+
+        private void disableModsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SetSelectedModEnabledState(false);
         }
     }
 }

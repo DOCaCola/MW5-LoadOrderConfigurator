@@ -87,6 +87,9 @@ namespace MW5_Mod_Manager
             toolStripStatusLabelModCountTotal = new ToolStripStatusLabel();
             toolStripStatusLabelMwVersion = new ToolStripStatusLabel();
             contextMenuStripMod = new ContextMenuStrip(components);
+            enableModsToolStripMenuItem = new ToolStripMenuItem();
+            disableModsToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator7 = new ToolStripSeparator();
             moveupToolStripMenuItem = new ToolStripMenuItem();
             movedownToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator6 = new ToolStripSeparator();
@@ -528,59 +531,78 @@ namespace MW5_Mod_Manager
             // 
             // contextMenuStripMod
             // 
-            contextMenuStripMod.Items.AddRange(new ToolStripItem[] { moveupToolStripMenuItem, movedownToolStripMenuItem, toolStripSeparator6, contextMenuItemMoveToTop, contextMenuItemMoveToBottom, toolStripSeparator5, openFolderToolStripMenuItem, deleteToolStripMenuItem });
+            contextMenuStripMod.Items.AddRange(new ToolStripItem[] { enableModsToolStripMenuItem, disableModsToolStripMenuItem, toolStripSeparator7, moveupToolStripMenuItem, movedownToolStripMenuItem, toolStripSeparator6, contextMenuItemMoveToTop, contextMenuItemMoveToBottom, toolStripSeparator5, openFolderToolStripMenuItem, deleteToolStripMenuItem });
             contextMenuStripMod.Name = "contextMenuStripMod";
-            contextMenuStripMod.Size = new Size(162, 148);
+            contextMenuStripMod.Size = new Size(181, 220);
+            // 
+            // enableModsToolStripMenuItem
+            // 
+            enableModsToolStripMenuItem.Name = "enableModsToolStripMenuItem";
+            enableModsToolStripMenuItem.Size = new Size(180, 22);
+            enableModsToolStripMenuItem.Text = "Enable";
+            enableModsToolStripMenuItem.Click += enableModsToolStripMenuItem_Click;
+            // 
+            // disableModsToolStripMenuItem
+            // 
+            disableModsToolStripMenuItem.Name = "disableModsToolStripMenuItem";
+            disableModsToolStripMenuItem.Size = new Size(180, 22);
+            disableModsToolStripMenuItem.Text = "Disable";
+            disableModsToolStripMenuItem.Click += disableModsToolStripMenuItem_Click;
+            // 
+            // toolStripSeparator7
+            // 
+            toolStripSeparator7.Name = "toolStripSeparator7";
+            toolStripSeparator7.Size = new Size(177, 6);
             // 
             // moveupToolStripMenuItem
             // 
             moveupToolStripMenuItem.Name = "moveupToolStripMenuItem";
-            moveupToolStripMenuItem.Size = new Size(161, 22);
+            moveupToolStripMenuItem.Size = new Size(180, 22);
             moveupToolStripMenuItem.Text = "Move &up";
             moveupToolStripMenuItem.Click += moveupToolStripMenuItem_Click;
             // 
             // movedownToolStripMenuItem
             // 
             movedownToolStripMenuItem.Name = "movedownToolStripMenuItem";
-            movedownToolStripMenuItem.Size = new Size(161, 22);
+            movedownToolStripMenuItem.Size = new Size(180, 22);
             movedownToolStripMenuItem.Text = "Move &down";
             movedownToolStripMenuItem.Click += movedownToolStripMenuItem_Click;
             // 
             // toolStripSeparator6
             // 
             toolStripSeparator6.Name = "toolStripSeparator6";
-            toolStripSeparator6.Size = new Size(158, 6);
+            toolStripSeparator6.Size = new Size(177, 6);
             // 
             // contextMenuItemMoveToTop
             // 
             contextMenuItemMoveToTop.Name = "contextMenuItemMoveToTop";
-            contextMenuItemMoveToTop.Size = new Size(161, 22);
+            contextMenuItemMoveToTop.Size = new Size(180, 22);
             contextMenuItemMoveToTop.Text = "Move to &top";
             contextMenuItemMoveToTop.Click += contextMenuItemMoveToTop_Click;
             // 
             // contextMenuItemMoveToBottom
             // 
             contextMenuItemMoveToBottom.Name = "contextMenuItemMoveToBottom";
-            contextMenuItemMoveToBottom.Size = new Size(161, 22);
+            contextMenuItemMoveToBottom.Size = new Size(180, 22);
             contextMenuItemMoveToBottom.Text = "Move to &bottom";
             contextMenuItemMoveToBottom.Click += contextMenuItemMoveToBottom_Click;
             // 
             // toolStripSeparator5
             // 
             toolStripSeparator5.Name = "toolStripSeparator5";
-            toolStripSeparator5.Size = new Size(158, 6);
+            toolStripSeparator5.Size = new Size(177, 6);
             // 
             // openFolderToolStripMenuItem
             // 
             openFolderToolStripMenuItem.Name = "openFolderToolStripMenuItem";
-            openFolderToolStripMenuItem.Size = new Size(161, 22);
+            openFolderToolStripMenuItem.Size = new Size(180, 22);
             openFolderToolStripMenuItem.Text = "Open &Folder";
             openFolderToolStripMenuItem.Click += openFolderToolStripMenuItem_Click;
             // 
             // deleteToolStripMenuItem
             // 
             deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            deleteToolStripMenuItem.Size = new Size(161, 22);
+            deleteToolStripMenuItem.Size = new Size(180, 22);
             deleteToolStripMenuItem.Text = "D&elete";
             deleteToolStripMenuItem.Click += deleteToolStripMenuItem_Click;
             // 
@@ -1328,6 +1350,9 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem runMechWarrior5ToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator14;
         private LocToolStripTextBox toolStripTextFilterBox;
+        private ToolStripMenuItem enableModsToolStripMenuItem;
+        private ToolStripMenuItem disableModsToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator7;
     }
 }
 

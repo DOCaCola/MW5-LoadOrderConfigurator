@@ -110,6 +110,46 @@ namespace MW5_Mod_Manager
                 return;
             }
 
+            // We also can check for a MW5MO loadorder, though these are not particularly hardened for parsing
+            bool isMw5MoLoadorder = false;
+            try
+            {
+                // Check for strings in format
+                // 0(13)	 | 	"Super Test Mod" 3.1.2 by The Modder
+                // 1 2           3            4      5
+                Regex regexObj = new Regex(@"^([\d]+)\(([\d]+)\)[ \t]+\|[ \t]+\""(.*)\"" (.*) by *(.*)$", RegexOptions.Multiline);
+                Match matchResult = regexObj.Match(textBoxData.Text);
+                while (matchResult.Success)
+                {
+                    isMw5MoLoadorder = true;
+
+                    string modName = matchResult.Groups[3].ToString().Replace("\"\"", "\"");
+
+                    resultModNames.Add(int.Parse(matchResult.Groups[1].ToString()), modName);
+
+                    matchResult = matchResult.NextMatch();
+                }
+            }
+            catch (ArgumentException ex)
+            {
+
+            }
+
+            if (isMw5MoLoadorder)
+            {
+                var sortedDict = resultModNames.OrderByDescending(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
+
+                foreach (var kvp in sortedDict)
+                {
+                    resultData.Add(kvp.Value, true);
+                }
+
+                ResultDataType = eResultDataType.ModNames;
+                ResultData = resultData;
+                this.DialogResult = DialogResult.OK;
+                return;
+            }
+
             TaskDialog.ShowDialog(MainForm.Instance.Handle, new TaskDialogPage()
             {
                 Text = "Make sure the entered load order is in a supported format.",
@@ -153,7 +193,10 @@ namespace MW5_Mod_Manager
             openFileDialog.Filter = "Text files|*.txt";
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                textBoxData.Text = File.ReadAllText(openFileDialog.FileName);
+                string fileContents = File.ReadAllText(openFileDialog.FileName);
+                // normalize (unix) line endings
+                fileContents = fileContents.ReplaceLineEndings("\r\n");
+                textBoxData.Text = fileContents;
             }
         }
     }
