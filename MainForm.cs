@@ -13,6 +13,7 @@ using static MW5_Mod_Manager.ModsManager;
 using File = System.IO.File;
 using ListView = System.Windows.Forms.ListView;
 using System.Net.Http;
+using System.Text;
 using Newtonsoft.Json.Linq;
 
 namespace MW5_Mod_Manager
@@ -59,9 +60,6 @@ namespace MW5_Mod_Manager
 
             modsListView.SetDoubleBuffered();
 
-            /*rotatingLabelLowPriority.ForeColor = MainLogic.LowPriorityColor;
-            rotatingLabelHighPriority.ForeColor = MainLogic.HighPriorityColor;*/
-
             panelColorOverridden.BackColor = ModsManager.OverriddenColor;
             panelColorOverriding.BackColor = ModsManager.OverridingColor;
             panelColorOverridingOverridden.BackColor = ModsManager.OverriddenOveridingColor;
@@ -69,6 +67,12 @@ namespace MW5_Mod_Manager
             toolStrip2.Renderer = new ToolStripTransparentRenderer();
 
             UpdateUpMoveButtonsState();
+
+            /*Font monospaceFont = Utils.CreateBestAvailableMonospacePlatformFont(richTextBoxManifestOverridden.Font.Size);
+            if (monospaceFont != null)
+            {
+                richTextBoxManifestOverridden.Font = monospaceFont;
+            }*/
         }
 
         private void ProcessUpdateCheckData(string updateJson)
@@ -132,6 +136,8 @@ namespace MW5_Mod_Manager
                 toolTip1.SetToolTip(rotatingLabelTop, LowPrioTooltip);
                 rotatingLabelBottom.NewText = "« High priority";
                 toolTip1.SetToolTip(rotatingLabelBottom, HighPrioTooltip);
+                /*rotatingLabelTop.ForeColor = ModsManager.LowPriorityColor;
+                rotatingLabelBottom.ForeColor = ModsManager.HighPriorityColor;*/
 
             }
             else
@@ -140,6 +146,8 @@ namespace MW5_Mod_Manager
                 toolTip1.SetToolTip(rotatingLabelTop, HighPrioTooltip);
                 rotatingLabelBottom.NewText = "« Low priority";
                 toolTip1.SetToolTip(rotatingLabelBottom, LowPrioTooltip);
+                /*rotatingLabelTop.ForeColor = ModsManager.HighPriorityColor;
+                rotatingLabelBottom.ForeColor = ModsManager.LowPriorityColor;*/
             }
         }
 
@@ -998,22 +1006,18 @@ namespace MW5_Mod_Manager
             return false;
         }
 
-        private void AppendContentPathToMainfestList(string contentPath)
+        private void AppendContentPathToMainfestList(string contentPath, ref StringBuilder sb)
         {
-            if (!string.IsNullOrWhiteSpace(richTextBoxManifestOverridden.Text))
-            {
-                richTextBoxManifestOverridden.AppendText("\r\n");
-            }
+            sb.Append(@"\b ");
+            sb.Append(Path.GetFileName(contentPath));
+            sb.Append(@" \b0 ");
 
-            richTextBoxManifestOverridden.SelectionFont = new Font(richTextBoxManifestOverridden.Font, FontStyle.Bold);
-            richTextBoxManifestOverridden.AppendText(Path.GetFileName(contentPath));
-
-            richTextBoxManifestOverridden.SelectionFont = richTextBoxManifestOverridden.Font;
-            richTextBoxManifestOverridden.AppendText(@" (" + Path.GetDirectoryName(contentPath) + @")");
+            sb.Append(@" (" + Utils.RtfEscape(Path.GetDirectoryName(contentPath)) + @")");
+            sb.Append(@" \line ");
         }
 
         //Selected index of mods overriding the currently selected mod has changed.
-        private void listBox3_SelectedIndexChanged(object sender, EventArgs e)
+        private void listBoxOverriddenBy_SelectedIndexChanged(object sender, EventArgs e)
         {
             bool startedListUpdate = false;
             try
@@ -1059,10 +1063,14 @@ namespace MW5_Mod_Manager
                 if (!modData.overriddenBy.ContainsKey(selectedMod.ModDirName))
                     return;
 
+                var sb = new StringBuilder();
+                sb.Append(@"{\rtf1\ansi");
                 foreach (string entry in modData.overriddenBy[selectedMod.ModDirName])
                 {
-                    AppendContentPathToMainfestList(entry);
+                    AppendContentPathToMainfestList(entry, ref sb);
                 }
+                sb.Append(@"}");
+                richTextBoxManifestOverridden.Rtf = sb.ToString();
             }
             finally
             {
@@ -1113,10 +1121,14 @@ namespace MW5_Mod_Manager
 
                 OverridingData modData = ModsManager.Instance.OverridingData[superMod];
 
+                var sb = new StringBuilder();
+                sb.Append(@"{\rtf1\ansi");
                 foreach (string entry in modData.overrides[selectedMod.ModDirName])
                 {
-                    AppendContentPathToMainfestList(entry);
+                    AppendContentPathToMainfestList(entry, ref sb);
                 }
+                sb.Append(@"}");
+                richTextBoxManifestOverridden.Rtf = sb.ToString();
             }
             finally
             {

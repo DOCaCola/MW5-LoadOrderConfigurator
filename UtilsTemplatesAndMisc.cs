@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using System.Text;
 using System.Windows.Forms;
 
 namespace MW5_Mod_Manager
@@ -206,6 +207,46 @@ namespace MW5_Mod_Manager
                 .FirstOrDefault(font => font.Name == preferredFonts.FirstOrDefault(f => f == font.Name));
 
             return selectedFont;
+        }
+
+        public static string RtfEscape(string s) {
+            if (s == null)
+                return s;
+
+            var sb = new StringBuilder();
+            char c;
+
+            for (int i = 0; i < s.Length; i++) {
+                c = s[i];
+
+                // \r
+                if (c == 13)
+                    continue;
+
+                // \n
+                if (c == 10) {
+                    sb.Append("\\line ");
+                }
+                else if (c >= 0x20 && c < 0x80) {
+                    if (c == '\\' || c == '{' || c == '}')
+                        sb.Append('\\');
+
+                    sb.Append(c);
+                }
+                else if (c < 0x20 || (c >= 0x80 && c <= 0xFF)) {
+                    sb
+                        .Append('\\')
+                        .Append(((byte) c).ToString("X"));
+                }
+                else {
+                    sb
+                        .Append("\\u")
+                        .Append((uint) c)
+                        .Append('?');
+                }
+            }
+
+            return sb.ToString();
         }
     }
 
