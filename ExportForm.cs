@@ -20,12 +20,6 @@ namespace MW5_Mod_Manager
             InitializeComponent();
         }
 
-        //Copy txt to clipboard
-        private void buttonCopy_Click(object sender, EventArgs e)
-        {
-            ClipboardUtils.ClipboardHelper.CopyTextToClipboard(textBoxData.Text);
-        }
-
         private void ExportWindow_Load(object sender, EventArgs e)
         {
             Font monospaceFont = Utils.CreateBestAvailableMonospacePlatformFont(textBoxData.Font.Size);
@@ -90,6 +84,8 @@ namespace MW5_Mod_Manager
 
             if (!anyEnabled)
             {
+                toolStripButtonSaveToFile.Enabled = false;
+                toolStripButtonCopy.Enabled = false;
                 return "No enabled mods.";
             }
 
@@ -115,7 +111,7 @@ namespace MW5_Mod_Manager
                 bool isEnabled = ModsManager.Instance.ModEnabledList[key];
                 if (!isEnabled)
                     continue;
-                
+
                 int originalLoadOrder = (int)ModsManager.Instance.Mods[key].OriginalLoadOrder;
                 int currentLoadOrder = (int)ModsManager.Instance.Mods[key].NewLoadOrder;
 
@@ -127,7 +123,7 @@ namespace MW5_Mod_Manager
                 sb.Append("   ");
 
                 string versionString = System.Net.WebUtility.UrlEncode(modDetails.version);
-                
+
                 // Escape all ' in display name
                 string escapedModDisplayName = modDetails.displayName.Replace("\"", "\"\"");
                 string line = $"\"{escapedModDisplayName}\" {versionString}({modDetails.buildNumber}) by {modDetails.author}\r\n";
@@ -135,7 +131,7 @@ namespace MW5_Mod_Manager
             }
 
             sb.Append("\r\n« End of load order. »");
-            return  sb.ToString();
+            return sb.ToString();
         }
 
         private void RefreshList()
@@ -146,6 +142,23 @@ namespace MW5_Mod_Manager
         private void buttonCancel_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void ToolStripButtonSaveToFileClick(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Title = "Save load order file";
+            saveFileDialog.Filter = "Text files|*.txt";
+            saveFileDialog.FileName = "locLoadOrder.txt";
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                File.WriteAllText(saveFileDialog.FileName, textBoxData.Text);
+            }
+        }
+
+        private void toolStripButtonCopy_Click(object sender, EventArgs e)
+        {
+            ClipboardUtils.ClipboardHelper.CopyTextToClipboard(textBoxData.Text);
         }
     }
 }

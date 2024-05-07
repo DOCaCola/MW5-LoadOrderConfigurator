@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
@@ -129,17 +130,30 @@ namespace MW5_Mod_Manager
             buttonImport.Enabled = textBoxData.Text.Length > 0;
         }
 
-        private void buttonPaste_Click(object sender, EventArgs e)
-        {
-            textBoxData.Text = ClipboardUtils.ClipboardHelper.GetTextFromClipboard();
-        }
-
         private void ImportForm_Load(object sender, EventArgs e)
         {
+            toolStrip1.Renderer = new ToolStripTransparentRenderer();
+
             Font monospaceFont = Utils.CreateBestAvailableMonospacePlatformFont(textBoxData.Font.Size);
             if (monospaceFont != null)
             {
                 textBoxData.Font = monospaceFont;
+            }
+        }
+
+        private void toolStripButtonPaste_Click(object sender, EventArgs e)
+        {
+            textBoxData.Text = ClipboardUtils.ClipboardHelper.GetTextFromClipboard();
+        }
+
+        private void toolStripButtonLoadFromFile_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Title = "Open Load Order File";
+            openFileDialog.Filter = "Text files|*.txt";
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                textBoxData.Text = File.ReadAllText(openFileDialog.FileName);
             }
         }
     }

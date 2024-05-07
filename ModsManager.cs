@@ -1022,7 +1022,7 @@ namespace MW5_Mod_Manager
                     {
                         Text = @"Error loading mod.json in : " + modPath + System.Environment.NewLine +
                                System.Environment.NewLine +
-                               "The mod will be skipped.",
+                               "In order to fix this issue, the affected mod should be reinstalled. The mod will be skipped.",
                         Heading = "Invalid or corrupted mod.",
                         Caption = "Error",
                         Buttons =
@@ -1046,7 +1046,7 @@ namespace MW5_Mod_Manager
                         Text = @"The mod in the path" + System.Environment.NewLine +
                                modPath + System.Environment.NewLine + 
                                @"might be corrupted." + System.Environment.NewLine +
-                               "The mod has a valid mod.json, but has no Pak game data files associated with it.",
+                               "The mod has a valid mod.json, but has no Pak game data files associated with it. In order to fix this issue, the affected mod should be reinstalled.",
                         Heading = "Invalid or corrupted mod.",
                         Caption = "Warning",
                         Buttons =
@@ -1084,7 +1084,7 @@ namespace MW5_Mod_Manager
                         Text = @"The mod in the path" + System.Environment.NewLine +
                                modPath + System.Environment.NewLine + 
                                @"might be corrupted." + System.Environment.NewLine +
-                               "The mod has one or more Pak game data files that are zero bytes in size.",
+                               "The mod has one or more Pak game data files that are zero bytes in size. In order to fix this issue, the affected mod should be reinstalled.",
                         Heading = "Invalid or corrupted mod.",
                         Caption = "Warning",
                         Buttons =
