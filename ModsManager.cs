@@ -1022,7 +1022,7 @@ namespace MW5_Mod_Manager
                     {
                         Text = @"Error loading mod.json in : " + modPath + System.Environment.NewLine +
                                System.Environment.NewLine +
-                               "In order to fix this issue, the affected mod should be reinstalled. The mod will be skipped.",
+                               "The affected mod might need to be reinstalled. The mod will be skipped.",
                         Heading = "Invalid or corrupted mod.",
                         Caption = "Error",
                         Buttons =
@@ -1046,7 +1046,7 @@ namespace MW5_Mod_Manager
                         Text = @"The mod in the path" + System.Environment.NewLine +
                                modPath + System.Environment.NewLine + 
                                @"might be corrupted." + System.Environment.NewLine +
-                               "The mod has a valid mod.json, but has no Pak game data files associated with it. In order to fix this issue, the affected mod should be reinstalled.",
+                               "The mod has a valid mod.json, but has no Pak game data files associated with it.\r\nThe affected mod might need to be reinstalled.",
                         Heading = "Invalid or corrupted mod.",
                         Caption = "Warning",
                         Buttons =
@@ -1065,13 +1065,10 @@ namespace MW5_Mod_Manager
                 {
                     foreach (string filePath in Directory.GetFiles(pakDir, "*.pak"))
                     {
-                        long fileSize = new FileInfo(filePath).Length;
+                        long fileSize = LocFileUtils.GetFileSize(filePath);
 
                         if (fileSize == 0)
-                        {
                             hasZeroBytePak = true;
-                            break;
-                        }
 
                         totalPakSize += fileSize;
                     }
@@ -1084,7 +1081,7 @@ namespace MW5_Mod_Manager
                         Text = @"The mod in the path" + System.Environment.NewLine +
                                modPath + System.Environment.NewLine + 
                                @"might be corrupted." + System.Environment.NewLine +
-                               "The mod has one or more Pak game data files that are zero bytes in size. In order to fix this issue, the affected mod should be reinstalled.",
+                               "The mod has one or more Pak game data files that are zero bytes in size.\r\nThe affected mod might need to be reinstalled.",
                         Heading = "Invalid or corrupted mod.",
                         Caption = "Warning",
                         Buttons =

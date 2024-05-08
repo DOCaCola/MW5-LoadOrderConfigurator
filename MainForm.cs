@@ -15,6 +15,7 @@ using ListView = System.Windows.Forms.ListView;
 using System.Net.Http;
 using System.Text;
 using Newtonsoft.Json.Linq;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
 namespace MW5_Mod_Manager
 {
@@ -125,17 +126,14 @@ namespace MW5_Mod_Manager
             }));
         }
 
-        private const string HighPrioTooltip = "Mods are loaded later and override mods that were loaded earlier.";
-        private const string LowPrioTooltip = "Mods are loaded earlier and may get overriden by mods loading after them.";
-
         public void UpdatePriorityLabels()
         {
             if (LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh)
             {
                 rotatingLabelTop.NewText = "Low priority »";
-                toolTip1.SetToolTip(rotatingLabelTop, LowPrioTooltip);
+                toolTip1.SetToolTip(rotatingLabelTop, "Mods higher in the list are loaded earlier and may get overridden by mods below them");
                 rotatingLabelBottom.NewText = "« High priority";
-                toolTip1.SetToolTip(rotatingLabelBottom, HighPrioTooltip);
+                toolTip1.SetToolTip(rotatingLabelBottom, "Mods lower in the list are loaded later, and may override mods above them");
                 /*rotatingLabelTop.ForeColor = ModsManager.LowPriorityColor;
                 rotatingLabelBottom.ForeColor = ModsManager.HighPriorityColor;*/
 
@@ -143,9 +141,9 @@ namespace MW5_Mod_Manager
             else
             {
                 rotatingLabelTop.NewText = "High priority »";
-                toolTip1.SetToolTip(rotatingLabelTop, HighPrioTooltip);
+                toolTip1.SetToolTip(rotatingLabelTop, "Mods higher in the list are loaded later and may override mods below them");
                 rotatingLabelBottom.NewText = "« Low priority";
-                toolTip1.SetToolTip(rotatingLabelBottom, LowPrioTooltip);
+                toolTip1.SetToolTip(rotatingLabelBottom, "Mods lower in the list are loaded earlier and may get overridden by mods above them");
                 /*rotatingLabelTop.ForeColor = ModsManager.HighPriorityColor;
                 rotatingLabelBottom.ForeColor = ModsManager.LowPriorityColor;*/
             }
