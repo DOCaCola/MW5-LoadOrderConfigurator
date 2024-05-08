@@ -1197,13 +1197,22 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-            JObject modListObject;
+            JObject modListObject = null;
+            // Fail silently if the current modlist.json could not be read for whatever reason
             if (File.Exists(modlistJsonFilePath))
             {
-                string modListJsonExisting = File.ReadAllText(modlistJsonFilePath);
-                modListObject = JObject.Parse(modListJsonExisting);
+                try
+                {
+                    string modListJsonExisting = File.ReadAllText(modlistJsonFilePath);
+                    modListObject = JObject.Parse(modListJsonExisting);
+                }
+                catch (Exception e)
+                {
+
+                }
             }
-            else
+            
+            if (modListObject == null)
             {
                 modListObject = new JObject();
                 modListObject["gameVersion"] = GameVersion;
