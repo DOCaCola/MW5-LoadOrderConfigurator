@@ -17,7 +17,7 @@ namespace MW5_Mod_Manager
 			// Symlinked files report their file size as zero
             if (fileSize == 0)
             {
-                if (fi.LinkTarget != null)
+                if (fi.LinkTarget != null && fi.DirectoryName != null)
                 {
                     string linkTargetPath = Path.GetFullPath(Path.Combine(fi.DirectoryName, fi.LinkTarget));
                     var fiLinkTarget = new FileInfo(linkTargetPath);

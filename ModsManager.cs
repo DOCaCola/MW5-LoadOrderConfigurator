@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -524,7 +525,7 @@ namespace MW5_Mod_Manager
         public void ProcessModNameEnabledList(ref Dictionary<string, bool> newNamesEnabledList, bool warnMissing)
         {
             Dictionary<string, bool> newModListDict = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-            Dictionary<string, bool> MissingMods = new();
+            Dictionary<string, bool> missingMods = new();
             foreach (var curItem in newNamesEnabledList)
             {
                 if (Utils.StringNullEmptyOrWhiteSpace(curItem.Key))
@@ -533,41 +534,70 @@ namespace MW5_Mod_Manager
                     continue;
                 }
 
-                // Collect listed mods that are unavailable locally
                 bool foundMatch = false;
+
+                // find all mods that match the name. There might be duplicates
+                List<string> foundMods = new List<string>();
                 foreach (var curModDetail in ModDetails)
                 {
                     if (curModDetail.Value.displayName == curItem.Key)
                     {
-                        foundMatch = true;
-                        newModListDict.Add(curModDetail.Key, curItem.Value);
-                        break;
+                        foundMods.Add(curModDetail.Key);
                     }
                 }
 
+                if (foundMods.Count > 0)
+                {
+                    // Sort available version, so that newest is on top of the list
+                    foundMods.Sort((x, y) =>
+                    {
+                        int compResult = string.IsNullOrWhiteSpace(ModDetails[x].version)
+                            .CompareTo(string.IsNullOrWhiteSpace(ModDetails[y].version));
+
+                        if (compResult == 0 && 
+                            (!string.IsNullOrWhiteSpace(ModDetails[y].version) &&
+                            !string.IsNullOrWhiteSpace(ModDetails[x].version))
+                            )
+                        {
+                            compResult = Utils.CompareVersionStrings(ModDetails[y].version, ModDetails[x].version);
+                        }
+
+                        if (compResult == 0)
+                        {
+                            compResult = ModDetails[y].buildNumber.CompareTo(ModDetails[x].buildNumber);
+                        }
+
+                        return compResult;
+                    });
+
+                    foundMatch = true;
+                    newModListDict.Add(foundMods[0], curItem.Value);
+                }
+
+                // Collect mods that are unavailable locally
                 if (!foundMatch)
                 {
-                    MissingMods.Add(curItem.Key, curItem.Value);
+                    missingMods.Add(curItem.Key, curItem.Value);
                 }
             }
-            foreach (var curMissingMod in MissingMods)
+            foreach (var curMissingMod in missingMods)
             {
                 newNamesEnabledList.Remove(curMissingMod.Key);
 
                 // We will silently ignore missing mods that are not enabled
                 if (!curMissingMod.Value)
                 {
-                    MissingMods.Remove(curMissingMod.Key);
+                    missingMods.Remove(curMissingMod.Key);
                 }
             }
-            if (warnMissing && MissingMods.Count > 0)
+            if (warnMissing && missingMods.Count > 0)
             {
-                var missingMods = string.Join(MissingMods.Count > 5 ? ", " : "\r\n", MissingMods.Keys);
+                var missingModsString = string.Join(missingMods.Count > 5 ? ", " : "\r\n", missingMods.Keys);
 
                 TaskDialog.ShowDialog(MainForm.Instance.Handle, new TaskDialogPage()
                 {
                     Text = "The mod list includes the following enabled mods which are unavailable locally:\r\n\r\n"
-                           + missingMods
+                           + missingModsString
                            + "\r\n\r\nThese mods will be ignored.",
                     Heading = "Invalid mods in preset.",
                     Caption = "Warning",
