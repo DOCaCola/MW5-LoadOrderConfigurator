@@ -2375,21 +2375,33 @@ namespace MW5_Mod_Manager
         private void toTopToolStripButton_Click(object sender, EventArgs e)
         {
             MoveListItems(modsListView.SelectedItems, MovePosition.Top);
+
+            if (modsListView.SelectedItems.Count > 0)
+                modsListView.SelectedItems[0].EnsureVisible();
         }
 
         private void toBottomToolStripButton_Click(object sender, EventArgs e)
         {
             MoveListItems(modsListView.SelectedItems, MovePosition.Bottom);
+            if (modsListView.SelectedItems.Count > 0)
+                modsListView.SelectedItems[^1].EnsureVisible();
+
         }
 
         private void upToolStripButton_Click(object sender, EventArgs e)
         {
             MoveListItems(modsListView.SelectedItems, MoveDirection.Up);
+            if (modsListView.SelectedItems.Count > 0)
+                modsListView.SelectedItems[0].EnsureVisible();
+
         }
 
         private void downToolStripButton_Click(object sender, EventArgs e)
         {
             MoveListItems(modsListView.SelectedItems, MoveDirection.Down);
+            if (modsListView.SelectedItems.Count > 0)
+                modsListView.SelectedItems[^1].EnsureVisible();
+
         }
 
         private void timerOverviewUpdateDelay_Tick(object sender, EventArgs e)
