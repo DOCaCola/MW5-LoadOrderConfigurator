@@ -34,6 +34,7 @@
             toolStrip1 = new System.Windows.Forms.ToolStrip();
             toolStripButtonSaveToFile = new System.Windows.Forms.ToolStripButton();
             toolStripButtonCopy = new System.Windows.Forms.ToolStripButton();
+            labelCharCount = new System.Windows.Forms.Label();
             toolStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -47,7 +48,7 @@
             textBoxData.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             textBoxData.Size = new System.Drawing.Size(570, 196);
             textBoxData.TabIndex = 4;
-            textBoxData.WordWrap = false;
+            textBoxData.TextChanged += textBoxData_TextChanged;
             // 
             // buttonCancel
             // 
@@ -92,12 +93,24 @@
             toolStripButtonCopy.ToolTipText = "Copy to clipboard";
             toolStripButtonCopy.Click += toolStripButtonCopy_Click;
             // 
+            // labelCharCount
+            // 
+            labelCharCount.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+            labelCharCount.Location = new System.Drawing.Point(438, 250);
+            labelCharCount.Name = "labelCharCount";
+            labelCharCount.Size = new System.Drawing.Size(144, 13);
+            labelCharCount.TabIndex = 7;
+            labelCharCount.Text = "0 characters";
+            labelCharCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            labelCharCount.Visible = false;
+            // 
             // ExportForm
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             CancelButton = buttonCancel;
             ClientSize = new System.Drawing.Size(594, 281);
+            Controls.Add(labelCharCount);
             Controls.Add(toolStrip1);
             Controls.Add(buttonCancel);
             Controls.Add(textBoxData);
@@ -122,5 +135,6 @@
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton toolStripButtonSaveToFile;
         private System.Windows.Forms.ToolStripButton toolStripButtonCopy;
+        private System.Windows.Forms.Label labelCharCount;
     }
 }

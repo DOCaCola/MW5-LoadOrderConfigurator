@@ -7,8 +7,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Windows.Forms;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MW5_Mod_Manager
 {
@@ -22,6 +24,8 @@ namespace MW5_Mod_Manager
 
         private void ExportWindow_Load(object sender, EventArgs e)
         {
+            toolStrip1.Renderer = new ToolStripTransparentRenderer();
+
             Font monospaceFont = Utils.CreateBestAvailableMonospacePlatformFont(textBoxData.Font.Size);
             if (monospaceFont != null)
             {
@@ -47,11 +51,30 @@ namespace MW5_Mod_Manager
             }
 
             string json = JsonConvert.SerializeObject(FolderNameModList, Formatting.Indented);
-            ExportForm exportDialog = new ExportForm();
 
             return json;
         }
 
+
+        private string CreateShortJson()
+        {
+            List<string> modNameList = new List<string>();
+
+            //Get the folder names from the paths in modlist
+            foreach (string key in ModsManager.Instance.ModEnabledList.Keys)
+            {
+                bool isEnabled = ModsManager.Instance.ModEnabledList[key];
+                if (!isEnabled)
+                    continue;
+
+                modNameList.Add(ModsManager.Instance.ModDetails[key].displayName);
+            }
+
+            JObject jsonObject = new JObject();
+            jsonObject["modNames"] = JArray.FromObject(modNameList);
+            string json = jsonObject.ToString(Formatting.None);
+            return json;
+        }
 
 
         private string CreateHumanReadableList()
@@ -159,6 +182,11 @@ namespace MW5_Mod_Manager
         private void toolStripButtonCopy_Click(object sender, EventArgs e)
         {
             ClipboardUtils.ClipboardHelper.CopyTextToClipboard(textBoxData.Text);
+        }
+
+        private void textBoxData_TextChanged(object sender, EventArgs e)
+        {
+            labelCharCount.Text = textBoxData.Text.Length.ToString() + " characters";
         }
     }
 }

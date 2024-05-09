@@ -67,7 +67,7 @@ namespace MW5_Mod_Manager
 
             toolStrip2.Renderer = new ToolStripTransparentRenderer();
 
-            UpdateUpMoveButtonsState();
+            UpdateMoveControlEnabledState();
 
             /*Font monospaceFont = Utils.CreateBestAvailableMonospacePlatformFont(richTextBoxManifestOverridden.Font.Size);
             if (monospaceFont != null)
@@ -324,6 +324,11 @@ namespace MW5_Mod_Manager
 
             if (anyMoved)
             {
+                RecomputeLoadOrdersAndUpdateList();
+                ModsManager.Instance.GetOverridingData(this.ModListData);
+
+                modListView_SelectedIndexChanged(null, null);
+
                 SetModConfigTainted(true);
             }
 
@@ -378,7 +383,13 @@ namespace MW5_Mod_Manager
             }
 
             if (anyMoved)
+            {
+                RecomputeLoadOrdersAndUpdateList();
+                ModsManager.Instance.GetOverridingData(this.ModListData);
+
+                modListView_SelectedIndexChanged(null, null);
                 SetModConfigTainted(true);
+            }
 
             _movingItems = false;
             modsListView.EndUpdate();
@@ -892,8 +903,15 @@ namespace MW5_Mod_Manager
         }
         #endregion
 
-        private void SetMoveControlsEnabled(bool enabled)
+        private void UpdateMoveControlEnabledState()
         {
+            bool anySelected = modsListView.SelectedItems.Count > 0;
+            bool enabled = anySelected && _filterMode == eFilterMode.None;
+            toTopToolStripButton.Enabled = enabled;
+            toBottomToolStripButton.Enabled = enabled;
+            upToolStripButton.Enabled = enabled;
+            downToolStripButton.Enabled = enabled;
+
             moveupToolStripMenuItem.Enabled = enabled;
             movedownToolStripMenuItem.Enabled = enabled;
             contextMenuItemMoveToTop.Enabled = enabled;
@@ -912,7 +930,7 @@ namespace MW5_Mod_Manager
                     UnhighlightAllMods();
                     ReloadListViewFromData();
                     modsListView.EndUpdate();
-                    SetMoveControlsEnabled(true);
+                    UpdateMoveControlEnabledState();
                     this._filterMode = eFilterMode.None;
                 }
             }
@@ -984,7 +1002,7 @@ namespace MW5_Mod_Manager
                     Instance.modsListView.EndUpdate();
                 }
                 //While filtering disable the up/down buttons (tough this should no longer be needed).
-                SetMoveControlsEnabled(false);
+                UpdateMoveControlEnabledState();
             }
             toolStripButtonClearFilter.Enabled = toolStripTextFilterBox.Text.Length > 0;
         }
@@ -1150,15 +1168,6 @@ namespace MW5_Mod_Manager
             listBoxOverriding.Items.Clear();
         }
 
-        public void UpdateUpMoveButtonsState()
-        {
-            bool anySelected = modsListView.SelectedItems.Count > 0;
-            toTopToolStripButton.Enabled = anySelected;
-            toBottomToolStripButton.Enabled = anySelected;
-            upToolStripButton.Enabled = anySelected;
-            downToolStripButton.Enabled = anySelected;
-        }
-
         private void UpdateSidePanelData()
         {
             if (modsListView.SelectedItems.Count == 0)
@@ -1234,7 +1243,7 @@ namespace MW5_Mod_Manager
 
         private void modListView_SelectedIndexChanged(object sender, EventArgs e)
         {
-            UpdateUpMoveButtonsState();
+            UpdateMoveControlEnabledState();
 
             if (_filterMode == eFilterMode.None)
                 UnhighlightAllMods();
