@@ -1173,7 +1173,7 @@ namespace MW5_Mod_Manager
             // 
             // timerOverviewUpdateDelay
             // 
-            timerOverviewUpdateDelay.Interval = 50;
+            timerOverviewUpdateDelay.Interval = 75;
             timerOverviewUpdateDelay.Tick += timerOverviewUpdateDelay_Tick;
             // 
             // MainForm

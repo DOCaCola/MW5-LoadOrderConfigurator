@@ -333,6 +333,9 @@ namespace MW5_Mod_Manager
             }
 
             _movingItems = false;
+
+            timerOverviewUpdateDelay.Stop();
+            timerOverviewUpdateDelay.Start();
             modsListView.EndUpdate();
         }
 
@@ -392,6 +395,9 @@ namespace MW5_Mod_Manager
             }
 
             _movingItems = false;
+
+            timerOverviewUpdateDelay.Stop();
+            timerOverviewUpdateDelay.Start();
             modsListView.EndUpdate();
         }
 
@@ -1616,6 +1622,9 @@ namespace MW5_Mod_Manager
             _movingItems = true;
             DoDragDrop(modsListView.SelectedItems, DragDropEffects.Move);
             _movingItems = false;
+
+            timerOverviewUpdateDelay.Stop();
+            timerOverviewUpdateDelay.Start();
         }
 
         private void modsListView_DragEnter(object sender, DragEventArgs e)
