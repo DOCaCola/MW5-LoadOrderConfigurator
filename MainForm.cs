@@ -42,6 +42,11 @@ namespace MW5_Mod_Manager
 
         static Color _highlightColor = Color.FromArgb(200, 253, 213);
         static Color _highlightColorAlternate = Color.FromArgb(189, 240, 202);
+
+        public static Color _OverriddenBackColor = Color.FromArgb(255, 242, 203);
+        public static Color _OverriddenBackColorAlternate = Color.FromArgb(247, 234, 196);
+        public static Color _OverridingBackColor = Color.FromArgb(235, 225, 255);
+        public static Color _OverridingBackColorAlternate = Color.FromArgb(226, 217, 245);
         
         public bool LoadingAndFilling { get; private set; }
 
@@ -1275,7 +1280,6 @@ namespace MW5_Mod_Manager
             this.listBoxOverriddenBy.Items.Clear();
             this.richTextBoxManifestOverridden.Clear();
 
-            //If we select a mod that is not ticked its data is never gotten so will get an error if we don't do this.
             if (!ModsManager.Instance.OverridingData.ContainsKey(SelectedMod))
                 return;
 
@@ -1804,16 +1808,18 @@ namespace MW5_Mod_Manager
 
         public void RecolorListViewRows()
         {
+            bool showModOverrides = modsListView.SelectedItems.Count == 1 && _filterMode == eFilterMode.None;
+
             bool anyUpdated = false;
             for (int i = 0; i <= ModListData.Count - 1; ++i)
             {
                 ListViewItem curItem = ModListData[i];
 
                 bool alternateColor = i % 2 == 1;
-                Color newColor = SystemColors.Window;
+                Color newBackColor = SystemColors.Window;
                 if (alternateColor)
                 {
-                    newColor = Color.FromArgb(246, 245, 246);
+                    newBackColor = Color.FromArgb(246, 245, 246);
                 }
 
                 if (_filterMode == eFilterMode.ItemHighlight)
@@ -1822,22 +1828,65 @@ namespace MW5_Mod_Manager
                     if (!string.IsNullOrWhiteSpace(filtertext) && MatchItemToText(filtertext, curItem))
                     {
                         if (!alternateColor)
-                            newColor = _highlightColor;
+                            newBackColor = _highlightColor;
                         else
-                            newColor = _highlightColorAlternate;
+                            newBackColor = _highlightColorAlternate;
+                    }
+                }
+
+                // Color mod overrides following the currently selected mod
+                if (showModOverrides)
+                {
+                    string selectedModPath = (string)modsListView.SelectedItems[0].Tag;
+                    string selectedModFolder = ModsManager.Instance.PathToDirNameDict[selectedModPath];
+                    if (ModsManager.Instance.OverridingData.ContainsKey(selectedModFolder))
+                    {
+                        OverridingData modData = ModsManager.Instance.OverridingData[selectedModFolder];
+                        bool foundMatch = false;
+                        foreach (string overriding in modData.overriddenBy.Keys)
+                        {
+                            ModListBoxItem modListBoxItem = new ModListBoxItem();
+                            string modKey = ModsManager.Instance.DirNameToPathDict[overriding];
+                            if (modKey == (string)curItem.Tag)
+                            {
+                                if (!alternateColor)
+                                    newBackColor = _OverridingBackColor;
+                                else
+                                    newBackColor = _OverridingBackColorAlternate;
+                                foundMatch = true;
+                                break;
+                            }
+                        }
+
+                        if (!foundMatch)
+                        {
+                            foreach (string overrides in modData.overrides.Keys)
+                            {
+                                ModListBoxItem modListBoxItem = new ModListBoxItem();
+                                string modKey = ModsManager.Instance.DirNameToPathDict[overrides];
+                                if (modKey == (string)curItem.Tag)
+                                {
+                                    if (!alternateColor)
+                                        newBackColor = _OverriddenBackColor;
+                                    else
+                                        newBackColor = _OverriddenBackColorAlternate;
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
 
                 foreach (ListViewItem.ListViewSubItem subItem in curItem.SubItems)
                 {
-                    if (subItem.BackColor != newColor)
+                    if (subItem.BackColor != newBackColor)
                     {
                         if (!anyUpdated)
                         {
                             anyUpdated = true;
                             this.modsListView.BeginUpdate();
                         }
-                        subItem.BackColor = newColor;
+                        subItem.BackColor = newBackColor;
                     }
 
                 }
