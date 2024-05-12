@@ -37,6 +37,7 @@ namespace MW5_Mod_Manager
         string _onlineUpdateUrl = LocConstants.UrlNexusmods;
 
         static Color _highlightColor = Color.FromArgb(200, 253, 213);
+        static Color _highlightColorAlternate = Color.FromArgb(189, 240, 202);
 
         public bool LoadingAndFilling { get; private set; }
 
@@ -926,64 +927,40 @@ namespace MW5_Mod_Manager
 
         private void FilterTextChanged()
         {
-            string filtertext = Instance.toolStripTextFilterBox.Text.ToLower();
+            bool searchFailed = true;
+            string filtertext = toolStripTextFilterBox.Text.ToLower();
             if (Utils.StringNullEmptyOrWhiteSpace(filtertext))
             {
                 if (this._filterMode != eFilterMode.None)
                 {
                     // end filtering
                     modsListView.BeginUpdate();
-                    UnhighlightAllMods();
+                    RecolorListViewRows();
                     ReloadListViewFromData();
                     modsListView.EndUpdate();
                     UpdateMoveControlEnabledState();
                     this._filterMode = eFilterMode.None;
                 }
+
+                searchFailed = false;
             }
             else
             {
                 if (!Instance.toolStripButtonFilterToggle.Checked)
                 {
-                    _filterMode = eFilterMode.ItemHighlight;
-                    bool anyUpdated = false;
+                    // ensure that first found item is visible
                     foreach (ListViewItem item in this.ModListData)
                     {
                         if (MatchItemToText(filtertext, item))
                         {
-                            foreach (ListViewItem.ListViewSubItem subItem in item.SubItems)
-                            {
-                                if (subItem.BackColor != _highlightColor)
-                                {
-                                    if (!anyUpdated)
-                                    {
-                                        anyUpdated = true;
-                                        modsListView.BeginUpdate();
-                                    }
-
-                                    subItem.BackColor = _highlightColor;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            foreach (ListViewItem.ListViewSubItem subItem in item.SubItems)
-                            {
-                                if (subItem.BackColor != SystemColors.Window)
-                                {
-                                    if (!anyUpdated)
-                                    {
-                                        anyUpdated = true;
-                                        modsListView.BeginUpdate();
-                                    }
-
-                                    subItem.BackColor = SystemColors.Window;
-                                }
-
-                            }
+                            item.EnsureVisible();
+                            searchFailed = false;
+                            break;
                         }
                     }
-                    if (anyUpdated)
-                        modsListView.EndUpdate();
+
+                    _filterMode = eFilterMode.ItemHighlight;
+                    RecolorListViewRows();
                 }
                 //We are filtering by selected adding.
                 else
@@ -992,14 +969,14 @@ namespace MW5_Mod_Manager
                     //Clear the list view
                     this.modsListView.Items.Clear();
                     Instance.modsListView.BeginUpdate();
-                    UnhighlightAllMods();
+                    RecolorListViewRows();
                     foreach (ListViewItem item in this.ModListData)
                     {
-
                         bool prevLoadingAndFilling = LoadingAndFilling;
                         LoadingAndFilling = true;
                         if (MatchItemToText(filtertext, item))
                         {
+                            searchFailed = false;
                             Instance.modsListView.Items.Add(item);
                         }
 
@@ -1007,10 +984,22 @@ namespace MW5_Mod_Manager
                     }
                     Instance.modsListView.EndUpdate();
                 }
-                //While filtering disable the up/down buttons (tough this should no longer be needed).
-                UpdateMoveControlEnabledState();
             }
             toolStripButtonClearFilter.Enabled = toolStripTextFilterBox.Text.Length > 0;
+
+            if (searchFailed)
+            {
+                toolStripTextFilterBox.ForeColor = Color.White;
+                toolStripTextFilterBox.BackColor = Color.FromArgb(252, 104, 99);
+            }
+            else
+            {
+                toolStripTextFilterBox.ForeColor = SystemColors.WindowText;
+                toolStripTextFilterBox.BackColor = SystemColors.Window;
+            }
+
+            //While filtering disable the up/down buttons (tough this should no longer be needed).
+            UpdateMoveControlEnabledState();
         }
 
         //Check if given listviewitem can be matched to a string.
@@ -1049,7 +1038,7 @@ namespace MW5_Mod_Manager
                     startedListUpdate = true;
                     richTextBoxManifestOverridden.SuspendDrawing();
                     modsListView.BeginUpdate();
-                    UnhighlightAllMods();
+                    RecolorListViewRows();
                 }
 
                 if (listBoxOverriddenBy.SelectedIndex == -1)
@@ -1115,7 +1104,7 @@ namespace MW5_Mod_Manager
                     startedListUpdate = true;
                     modsListView.BeginUpdate();
                     richTextBoxManifestOverridden.SuspendDrawing();
-                    UnhighlightAllMods();
+                    RecolorListViewRows();
                 }
 
                 if (listBoxOverriding.SelectedIndex == -1)
@@ -1252,7 +1241,7 @@ namespace MW5_Mod_Manager
             UpdateMoveControlEnabledState();
 
             if (_filterMode == eFilterMode.None)
-                UnhighlightAllMods();
+                RecolorListViewRows();
 
             if (_movingItems)
                 return;
@@ -1405,10 +1394,12 @@ namespace MW5_Mod_Manager
 
         private void openModsFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (Utils.StringNullEmptyOrWhiteSpace(ModsManager.Instance.ModsPaths[eModPathType.Program]))
-            {
+            if (!ModsManager.Instance.GameIsConfigured())
                 return;
-            }
+
+            if (Utils.StringNullEmptyOrWhiteSpace(ModsManager.Instance.ModsPaths[eModPathType.Program]))
+                return;
+
             try
             {
                 var psi = new System.Diagnostics.ProcessStartInfo()
@@ -1588,10 +1579,12 @@ namespace MW5_Mod_Manager
 
         private void toolStripMenuItemOpenModFolderSteam_Click(object sender, EventArgs e)
         {
-            if (Utils.StringNullEmptyOrWhiteSpace(ModsManager.Instance.ModsPaths[eModPathType.Steam]))
-            {
+            if (!ModsManager.Instance.GameIsConfigured())
                 return;
-            }
+
+            if (Utils.StringNullEmptyOrWhiteSpace(ModsManager.Instance.ModsPaths[eModPathType.Steam]))
+                return;
+
             try
             {
                 var psi = new System.Diagnostics.ProcessStartInfo()
@@ -1798,28 +1791,56 @@ namespace MW5_Mod_Manager
                 {
                     foreach (ListViewItem.ListViewSubItem subItem in modListItem.SubItems)
                     {
-                        subItem.BackColor = _highlightColor;
+                        if (modListItem.Index % 2 == 1)
+                        {
+                            subItem.BackColor = _highlightColorAlternate;
+                        }
+                        else
+                        {
+                            subItem.BackColor = _highlightColor;
+                        }
                     }
                     break;
                 }
             }
         }
 
-        public void UnhighlightAllMods()
+        public void RecolorListViewRows()
         {
             bool anyUpdated = false;
-            foreach (ListViewItem modListItem in ModListData)
+            for (int i = 0; i <= ModListData.Count - 1; ++i)
             {
-                foreach (ListViewItem.ListViewSubItem subItem in modListItem.SubItems)
+                ListViewItem curItem = ModListData[i];
+
+                bool alternateColor = i % 2 == 1;
+                Color newColor = SystemColors.Window;
+                if (alternateColor)
                 {
-                    if (subItem.BackColor != SystemColors.Window)
+                    newColor = Color.FromArgb(246, 245, 246);
+                }
+
+                if (_filterMode == eFilterMode.ItemHighlight)
+                {
+                    string filtertext = toolStripTextFilterBox.Text.ToLower();
+                    if (!string.IsNullOrWhiteSpace(filtertext) && MatchItemToText(filtertext, curItem))
+                    {
+                        if (!alternateColor)
+                            newColor = _highlightColor;
+                        else
+                            newColor = _highlightColorAlternate;
+                    }
+                }
+
+                foreach (ListViewItem.ListViewSubItem subItem in curItem.SubItems)
+                {
+                    if (subItem.BackColor != newColor)
                     {
                         if (!anyUpdated)
                         {
                             anyUpdated = true;
                             this.modsListView.BeginUpdate();
                         }
-                        subItem.BackColor = SystemColors.Window;
+                        subItem.BackColor = newColor;
                     }
 
                 }
@@ -1888,7 +1909,8 @@ namespace MW5_Mod_Manager
                         ModsManager.Instance.Mods[modListItem.Tag.ToString()].NewLoadOrder.ToString();
             }
 
-            MainForm.Instance.ColorListViewNumbers(ModListData, MainForm.Instance.currentLoadOrderHeader.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
+            ColorListViewNumbers(ModListData, MainForm.Instance.currentLoadOrderHeader.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
+            RecolorListViewRows();
             modsListView.EndUpdate();
         }
 
@@ -2162,10 +2184,12 @@ namespace MW5_Mod_Manager
 
         private void openUserModsFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (Utils.StringNullEmptyOrWhiteSpace(ModsManager.Instance.ModsPaths[eModPathType.AppData]))
-            {
+            if (!ModsManager.Instance.GameIsConfigured())
                 return;
-            }
+
+            if (Utils.StringNullEmptyOrWhiteSpace(ModsManager.Instance.ModsPaths[eModPathType.AppData]))
+                return;
+
             try
             {
                 var psi = new System.Diagnostics.ProcessStartInfo()
@@ -2227,6 +2251,9 @@ namespace MW5_Mod_Manager
             if (!ModsManager.Instance.GameIsConfigured())
             {
                 ShowSettingsDialog();
+                // Also calls refresh all. We end up calling refreshall twice
+                // and may get the recovery dialog twice if we don't return early
+                return;
             }
 
             RefreshAll();
@@ -2241,14 +2268,28 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-            DialogResult dialogResult = MessageBox.Show("The mod " + ModsManager.Instance.ModDetails[modKey].displayName
-                                                                   + " will be removed. This will delete the directory\r\n" + modKey
-                                                                   + "\r\n\r\nAre you sure you want to continue?",
-                "Delete Mod",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning);
+            // Create the page which we want to show in the dialog.
+            TaskDialogButton btnCancel = TaskDialogButton.Cancel;
+            TaskDialogButton btnDelete = new TaskDialogButton("&Remove");
 
-            if (dialogResult == DialogResult.Yes)
+            var page = new TaskDialogPage()
+            {
+                Caption = "Remove mod",
+                Heading = "Remove "+ ModsManager.Instance.ModDetails[modKey].displayName + "?",
+                Text = "This will delete the directory\r\n" + modKey,
+                Icon = TaskDialogIcon.Warning,
+                Buttons =
+                {
+                    btnCancel,
+                    btnDelete,
+                },
+                AllowCancel = true
+            };
+
+            // Show a modal dialog, then check the result.
+            TaskDialogButton result = TaskDialog.ShowDialog(this, page);
+
+            if (result == btnDelete)
             {
                 if (FileOperationUtils.DeleteFile(modKey, true, this.Handle))
                 {

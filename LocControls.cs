@@ -4,21 +4,63 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
+using SharpCompress;
 
 namespace MW5_Mod_Manager
 {
     [SupportedOSPlatform("windows")]
     public class ModsListView : System.Windows.Forms.ListView
     {
+
+        public ModsListView()
+        {
+            // Hide selection dotted line
+            SendMessage(Handle, 0x127, 0x10001, 0);
+
+            EmptyText = "No data available.";
+        }
         protected override CreateParams CreateParams
         {
             get
             {
+                // No sort header
                 var cp = base.CreateParams;
                 cp.Style |= 0x8000; // LVS_NOSORTHEADER
                 return cp;
             }
         }
+        [DefaultValue("No data available.")]
+        public string EmptyText { get; set; }
+
+        [DllImport("uxtheme.dll", CharSet = CharSet.Unicode)]
+        private extern static int SetWindowTheme(IntPtr hWnd, string pszSubAppName,
+            string pszSubIdList);
+
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+
+        protected override void CreateHandle()
+        {
+            base.CreateHandle();
+
+            if (!this.DesignMode)
+                SetWindowTheme(this.Handle, "explorer", null);
+        }
+        
+        protected override void WndProc(ref Message m)
+        {
+            base.WndProc(ref m);
+            if (m.Msg == 0xF) // WM_PAINT
+            {
+                if (this.Items.Count == 0 && !string.IsNullOrWhiteSpace(EmptyText))
+                {
+                    using (var g = Graphics.FromHwnd(this.Handle))
+                        TextRenderer.DrawText(g, EmptyText, Font, ClientRectangle, ForeColor);
+                }
+            }
+        }
+
     }
 
     //The rotating label for priority indication.
