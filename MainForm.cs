@@ -15,7 +15,6 @@ using ListView = System.Windows.Forms.ListView;
 using System.Net.Http;
 using System.Text;
 using Newtonsoft.Json.Linq;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
 namespace MW5_Mod_Manager
 {
@@ -68,6 +67,13 @@ namespace MW5_Mod_Manager
             this.Icon = Properties.Resources.MainIcon;
 
             this.Text += @" " + GetVersion();
+
+            imageListIcons.Images.Add("Steam", UiIcons.Steam);
+            imageListIcons.Images.Add("SteamDis", UiIcons.SteamDis);
+            imageListIcons.Images.Add("Nexusmods", UiIcons.Nexusmods);
+            imageListIcons.Images.Add("NexusmodsDis", UiIcons.NexusmodsDis);
+            imageListIcons.Images.Add("Folder", UiIcons.Folder);
+            imageListIcons.Images.Add("FolderDis", UiIcons.FolderDis);
 
             modsListView.SetDoubleBuffered();
 
@@ -602,19 +608,6 @@ namespace MW5_Mod_Manager
             for (int i = 1; i < modsListView.Columns.Count; i++)
             {
                 newItem.SubItems.Add("");
-            }
-
-            switch (ModsManager.Instance.Mods[entry.Key].Origin)
-            {
-                case ModsManager.ModData.ModOrigin.Steam:
-                    newItem.ImageKey = "Steam";
-                    break;
-                case ModsManager.ModData.ModOrigin.Nexusmods:
-                    newItem.ImageKey = "Nexusmods";
-                    break;
-                default:
-                    newItem.ImageKey = "Folder";
-                    break;
             }
 
             string versionString = (ModsManager.Instance.ModDetails[entry.Key].version + " (" +

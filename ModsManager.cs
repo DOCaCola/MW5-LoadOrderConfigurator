@@ -1649,13 +1649,35 @@ namespace MW5_Mod_Manager
 
                 bool modEnabled = ModEnabledList[item.Tag.ToString()];
 
-                if (modEnabled)
+                /*if (modEnabled)
                 {
                     item.SubItems[MainForm.Instance.displayHeader.Index].Font = new Font(MainForm.Instance.modsListView.Font, MainForm.Instance.modsListView.Font.Style | FontStyle.Bold);  
                 }
                 else
                 {
                     item.SubItems[MainForm.Instance.displayHeader.Index].Font = new Font(MainForm.Instance.modsListView.Font, MainForm.Instance.modsListView.Font.Style);  
+                }*/
+
+                switch (ModsManager.Instance.Mods[item.Tag.ToString()].Origin)
+                {
+                    case ModsManager.ModData.ModOrigin.Steam:
+                        if (modEnabled)
+                            item.ImageKey = "Steam";
+                        else
+                            item.ImageKey = "SteamDis";
+                        break;
+                    case ModsManager.ModData.ModOrigin.Nexusmods:
+                        if (modEnabled)
+                            item.ImageKey = "Nexusmods";
+                        else
+                            item.ImageKey = "NexusmodsDis";
+                        break;
+                    default:
+                        if (modEnabled)
+                            item.ImageKey = "Folder";
+                        else
+                            item.ImageKey = "FolderDis";
+                        break;
                 }
 
                 foreach (ListViewItem.ListViewSubItem curItem in item.SubItems)
