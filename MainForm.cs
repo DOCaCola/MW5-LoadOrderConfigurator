@@ -35,10 +35,14 @@ namespace MW5_Mod_Manager
         public List<ListViewItem> ModListData = new List<ListViewItem>();
         private bool _movingItems = false;
         string _onlineUpdateUrl = LocConstants.UrlNexusmods;
+        // The mod currently displaed in the sidebar
+        private static string _sideBarSelectedModKey = string.Empty;
+        // Force next sidepanel update to execute
+        private bool _forceSidePanelUpdate = false;
 
         static Color _highlightColor = Color.FromArgb(200, 253, 213);
         static Color _highlightColorAlternate = Color.FromArgb(189, 240, 202);
-
+        
         public bool LoadingAndFilling { get; private set; }
 
         public MainForm()
@@ -217,6 +221,17 @@ namespace MW5_Mod_Manager
             return extractedModDirs;
         }
 
+        public void QueueSidePanelUpdate(bool forceUpdate)
+        {
+            if (forceUpdate && !_forceSidePanelUpdate)
+            {
+                _forceSidePanelUpdate = true;
+            }
+
+            timerOverviewUpdateDelay.Stop();
+            timerOverviewUpdateDelay.Start();
+        }
+
         //When we drop a file or folder on the manager
         void MainForm_DragDrop(object sender, DragEventArgs e)
         {
@@ -335,8 +350,7 @@ namespace MW5_Mod_Manager
 
             _movingItems = false;
 
-            timerOverviewUpdateDelay.Stop();
-            timerOverviewUpdateDelay.Start();
+            QueueSidePanelUpdate(true);
             modsListView.EndUpdate();
         }
 
@@ -397,8 +411,7 @@ namespace MW5_Mod_Manager
 
             _movingItems = false;
 
-            timerOverviewUpdateDelay.Stop();
-            timerOverviewUpdateDelay.Start();
+            QueueSidePanelUpdate(true);
             modsListView.EndUpdate();
         }
 
@@ -422,10 +435,10 @@ namespace MW5_Mod_Manager
             richTextBoxManifestOverridden.Clear();
             pictureBoxModImage.Visible = false;
             labelModNameOverrides.Text = "";
-            ClearModSidePanel();
             this.ModListData.Clear();
             this.modsListView.Items.Clear();
             ModsManager.Instance.ClearAll();
+            UpdateSidePanelData(true);
         }
 
         //For processing internals and updating ui after setting a vendor
@@ -935,8 +948,9 @@ namespace MW5_Mod_Manager
                 {
                     // end filtering
                     modsListView.BeginUpdate();
+                    if (this._filterMode == eFilterMode.ItemFilter)
+                        ReloadListViewFromData();
                     RecolorListViewRows();
-                    ReloadListViewFromData();
                     modsListView.EndUpdate();
                     UpdateMoveControlEnabledState();
                     this._filterMode = eFilterMode.None;
@@ -1151,35 +1165,37 @@ namespace MW5_Mod_Manager
             }
         }
 
-
-
-        public void ClearModSidePanel()
-        {
-            labelModNameOverrides.Text = "";
-            pictureBoxModImage.Visible = false;
-            panelModInfo.Visible = false;
-            richTextBoxManifestOverridden.Clear();
-            listBoxOverriddenBy.Items.Clear();
-            listBoxOverriding.Items.Clear();
-        }
-
-        private void UpdateSidePanelData()
+        private void UpdateSidePanelData(bool forceUpdate)
         {
             if (modsListView.SelectedItems.Count == 0)
             {
-                ClearModSidePanel();
+                _sideBarSelectedModKey = string.Empty;
+                labelModNameOverrides.Text = string.Empty;
+                pictureBoxModImage.Visible = false;
+                panelModInfo.Visible = false;
+                richTextBoxManifestOverridden.Clear();
+                listBoxOverriddenBy.Items.Clear();
+                listBoxOverriding.Items.Clear();
                 return;
             }
 
-            string SelectedMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
-            string SelectedModDisplayName = modsListView.SelectedItems[0].SubItems[displayHeader.Index].Text;
+            string selectedModPath = (string)modsListView.SelectedItems[0].Tag;
 
-            string modPath = (string)modsListView.SelectedItems[0].Tag;
-            ModObject modDetails = ModsManager.Instance.ModDetails[modPath];
+            if (!forceUpdate && _sideBarSelectedModKey == selectedModPath)
+                return;
+
+            _sideBarSelectedModKey = selectedModPath;
+
+            string selectedModFolder = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
+            // Make sure displayed label doesn't convert & to underscore
+            string selectedModLabelDisplayName = modsListView.SelectedItems[0].SubItems[displayHeader.Index].Text;
+            selectedModLabelDisplayName = selectedModLabelDisplayName.Replace("&", "&&");
+
+            ModObject modDetails = ModsManager.Instance.ModDetails[selectedModPath];
 
             panelModInfo.Visible = true;
-            labelModName.Text = SelectedModDisplayName;
-            labelModNameOverrides.Text = SelectedModDisplayName;
+            labelModName.Text = selectedModLabelDisplayName;
+            labelModNameOverrides.Text = selectedModLabelDisplayName;
             labelModAuthor.Text = @"Author: " + modDetails.author;
             linkLabelModAuthorUrl.Text = modDetails.authorURL;
             labelModVersion.Text = @"Version: " + modDetails.version;
@@ -1199,7 +1215,7 @@ namespace MW5_Mod_Manager
                 linkLabelSteamId.Visible = false;
             }
 
-            string nexusModsId = ModsManager.Instance.Mods[modPath].NexusModsId;
+            string nexusModsId = ModsManager.Instance.Mods[selectedModPath].NexusModsId;
             if (nexusModsId != "")
             {
                 pictureBoxNexusmodsIcon.Visible = true;
@@ -1216,9 +1232,9 @@ namespace MW5_Mod_Manager
 
             richTextBoxModDescription.Text = modDetails.description;
 
-            HandleOverriding(SelectedMod);
+            HandleOverriding(selectedModFolder);
 
-            string imagePath = Path.Combine(modPath, "Resources", "Icon128.png");
+            string imagePath = Path.Combine(selectedModPath, "Resources", "Icon128.png");
 
             bool imageLoadSuccess = false;
             if (File.Exists(imagePath))
@@ -1246,25 +1262,7 @@ namespace MW5_Mod_Manager
             if (_movingItems)
                 return;
 
-            if (modsListView.SelectedItems.Count == 0)
-            {
-                ClearModSidePanel();
-                return;
-            }
-
-            string SelectedMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
-            string SelectedModDisplayName = modsListView.SelectedItems[0].SubItems[displayHeader.Index].Text;
-
-            if (Utils.StringNullEmptyOrWhiteSpace(SelectedMod) ||
-                Utils.StringNullEmptyOrWhiteSpace(SelectedModDisplayName)
-               )
-            {
-                ClearModSidePanel();
-                return;
-            }
-
-            timerOverviewUpdateDelay.Stop();
-            timerOverviewUpdateDelay.Start();
+            QueueSidePanelUpdate(false);
         }
 
         //Handles the showing of overriding data on select
@@ -1616,8 +1614,7 @@ namespace MW5_Mod_Manager
             DoDragDrop(modsListView.SelectedItems, DragDropEffects.Move);
             _movingItems = false;
 
-            timerOverviewUpdateDelay.Stop();
-            timerOverviewUpdateDelay.Start();
+            QueueSidePanelUpdate(true);
         }
 
         private void modsListView_DragEnter(object sender, DragEventArgs e)
@@ -2456,7 +2453,8 @@ namespace MW5_Mod_Manager
 
         private void timerOverviewUpdateDelay_Tick(object sender, EventArgs e)
         {
-            UpdateSidePanelData();
+            UpdateSidePanelData(_forceSidePanelUpdate);
+            _forceSidePanelUpdate = false;
             timerOverviewUpdateDelay.Stop();
         }
 
