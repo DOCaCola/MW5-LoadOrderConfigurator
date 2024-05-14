@@ -1641,12 +1641,6 @@ namespace MW5_Mod_Manager
             {
                 string modName = item.SubItems[MainForm.Instance.folderHeader.Index].Text;
 
-                //marked for removal so don't color.
-                if (item.SubItems[MainForm.Instance.displayHeader.Index].ForeColor == Color.Red)
-                {
-                    continue;
-                }
-
                 bool modEnabled = ModEnabledList[item.Tag.ToString()];
 
                 /*if (modEnabled)
@@ -1682,7 +1676,7 @@ namespace MW5_Mod_Manager
 
                 foreach (ListViewItem.ListViewSubItem curItem in item.SubItems)
                 {
-                    curItem.ForeColor = modEnabled ? SystemColors.WindowText : Color.Gray;
+                    curItem.ForeColor = modEnabled ? SystemColors.WindowText : Color.FromArgb(142, 140, 142);
                 }
 
                 if (!modEnabled)
