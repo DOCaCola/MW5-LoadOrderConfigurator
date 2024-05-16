@@ -1359,6 +1359,68 @@ namespace MW5_Mod_Manager
             this.Presets = temp;
         }
 
+                //Used to update the override data when a new item is added or removed to/from the mod list instead of checking all items agains each other again.
+        public void UpdateNewModOverrideData(ModItem newModItem)
+        {
+            string modA = newModItem.FolderName;
+
+            if (!newModItem.Enabled)
+            {
+                if (this.OverridingData.ContainsKey(modA))
+                    this.OverridingData.Remove(modA);
+
+                foreach (string key in this.OverridingData.Keys)
+                {
+                    if (OverridingData[key].overriddenBy.ContainsKey(modA))
+                        OverridingData[key].overriddenBy.Remove(modA);
+
+                    if (OverridingData[key].overrides.ContainsKey(modA))
+                        OverridingData[key].overrides.Remove(modA);
+
+                    if (OverridingData[key].overrides.Count == 0)
+                        OverridingData[key].isOverriding = false;
+
+                    if (OverridingData[key].overriddenBy.Count == 0)
+                        OverridingData[key].isOverridden = false;
+                }
+            }
+            else
+            {
+                if (!this.OverridingData.ContainsKey(modA))
+                {
+                    this.OverridingData[modA] = new OverridingData
+                    {
+                        mod = modA,
+                        overrides = new Dictionary<string, List<string>>(),
+                        overriddenBy = new Dictionary<string, List<string>>()
+                    };
+                }
+
+                // check each mod for changes
+                foreach (ModItem item in ModItemList.Instance.ModList)
+                {
+                    string modB = item.FolderName;
+
+                    // Don't compare the same mod
+                    if (modA == modB)
+                        continue;
+
+                    if (!this.OverridingData.ContainsKey(modB))
+                    {
+                        this.OverridingData[modB] = new OverridingData
+                        {
+                            mod = modB,
+                            overrides = new Dictionary<string, List<string>>(),
+                            overriddenBy = new Dictionary<string, List<string>>()
+                        };
+                    }
+                    GetModOverridingData(newModItem, item, this.OverridingData[modA], this.OverridingData[modB]);
+                }
+            }
+
+            //ColorizeListViewItems(items);
+        }
+
         //Used to update the override data when a new item is added or removed to/from the mod list instead of checking all items agains each other again.
         public void UpdateNewModOverrideData(List<ListViewItem> items, ListViewItem newListItem)
         {
@@ -1470,6 +1532,58 @@ namespace MW5_Mod_Manager
             OverridingData B = OverridingData[modB];
 
             ColorizeListViewItems(items);
+        }
+
+        //See if items A and B are interacting in terms of manifest and return the intersect
+        public void GetModOverridingData(ModItem listItemA, ModItem listItemB, OverridingData A, OverridingData B)
+        {
+            if (listItemA == listItemB)
+                return;
+
+            string modA = listItemA.FolderName;
+            string modB = listItemB.FolderName;
+
+            float loadOrderA = Mods[listItemA.Path].NewLoadOrder;
+            float loadOrderB = Mods[listItemB.Path].NewLoadOrder;
+
+            //Now we have a mod that is not the mod we are looking at is enabled.
+            //Lets compare the manifest!
+            List<string> manifestA = this.ModDetails[this.DirNameToPathDict[modA]].manifest;
+            List<string> manifestB = this.ModDetails[this.DirNameToPathDict[modB]].manifest;
+            List<string> intersect = manifestA.Intersect(manifestB).ToList();
+
+            if (!intersect.Any())
+                return;
+
+            //If we are loaded after the mod we are looking at we are overriding it.
+            if (loadOrderA > loadOrderB)
+            {
+                if (A.mod != modB)
+                {
+                    A.isOverriding = true;
+                    A.overrides[modB] = intersect;
+                }
+                if (B.mod != modA)
+                {
+                    B.isOverridden = true;
+                    B.overriddenBy[modA] = intersect;
+                }
+            }
+            else
+            {
+                if (A.mod != modB)
+                {
+                    A.isOverridden = true;
+                    A.overriddenBy[modB] = intersect;
+                }
+                if (B.mod != modA)
+                {
+                    B.isOverriding = true;
+                    B.overrides[modA] = intersect;
+                }
+            }
+            this.OverridingData[modA] = A;
+            this.OverridingData[modB] = B;
         }
 
         //See if items A and B are interacting in terms of manifest and return the intersect

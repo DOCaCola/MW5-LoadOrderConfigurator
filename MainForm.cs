@@ -126,6 +126,18 @@ namespace MW5_Mod_Manager
                     this.isEmergencyColumn, SortOrder.Descending, column, order);
             };*/
 
+            modObjectListView.BooleanCheckStatePutter = delegate(Object rowObject, bool newValue) {
+                ModItem curMod = (ModItem)rowObject;
+                curMod.Enabled = newValue;
+                ModsManager.Instance.ModEnabledList[curMod.Path] = newValue;
+                ModsManager.Instance.UpdateNewModOverrideData(curMod);
+                UpdateModCountDisplay();
+                RecolorObjectListViewRows();
+                modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
+                SetModConfigTainted(true);
+                return newValue; // return the value that you want the control to use
+            };
+
             modsListView.SetDoubleBuffered();
 
             panelColorOverridden.BackColor = ModsManager.OverriddenColor;
@@ -506,6 +518,7 @@ namespace MW5_Mod_Manager
             labelModNameOverrides.Text = "";
             this.ModListData.Clear();
             this.modsListView.Items.Clear();
+            this.modObjectListView.ClearObjects();
             ModsManager.Instance.ClearAll();
             UpdateSidePanelData(true);
         }

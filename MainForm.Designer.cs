@@ -1022,6 +1022,7 @@ namespace MW5_Mod_Manager
             modObjectListView.AllColumns.Add(olvColumnModName);
             modObjectListView.AllColumns.Add(olvColumnModOrgLoadOrder);
             modObjectListView.AllColumns.Add(olvColumnModVersion);
+            modObjectListView.AllowColumnReorder = true;
             modObjectListView.CheckBoxes = true;
             modObjectListView.CheckedAspectName = "Enabled";
             modObjectListView.Columns.AddRange(new ColumnHeader[] { olvColumnModName, olvColumnModAuthor, olvColumnModVersion, olvColumnModCurLoadOrder, olvColumnModOrgLoadOrder, olvColumnModFileSize, olvColumnModFolder });
