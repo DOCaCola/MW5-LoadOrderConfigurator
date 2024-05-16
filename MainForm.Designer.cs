@@ -1077,7 +1077,7 @@ namespace MW5_Mod_Manager
             // 
             olvColumnModName.AspectName = "Name";
             olvColumnModName.Groupable = false;
-            olvColumnModName.Text = "Name";
+            olvColumnModName.Text = "Mod";
             olvColumnModName.Width = 300;
             // 
             // olvColumnModOrgLoadOrder

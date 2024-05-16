@@ -657,7 +657,6 @@ namespace MW5_Mod_Manager
                     modObjectListView.AddObject(newItem);
                 }
                 RecolorObjectListViewRows();
-                modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
 
                 modObjectListView.EndUpdate();
 
@@ -679,6 +678,7 @@ namespace MW5_Mod_Manager
             RecomputeLoadOrdersAndUpdateList();
             ModsManager.Instance.GetOverridingData(ModListData);
             UpdateModCountDisplay();
+            modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
         }
 
         public object ModImageGetter(object rowObject)
@@ -2831,18 +2831,44 @@ namespace MW5_Mod_Manager
             foreach (OLVListSubItem subItem in e.Item.SubItems)
             {
                 //subItem.BackColor = Color.BlueViolet;
+                break;
             }
-
-            e.Item.GetSubItem(olvColumnModName.Index).ForeColor = Color.Brown;
-            //e.UseCellFormatEvents = true;
+            
+            //e.Item.GetSubItem(olvColumnModName.Index).ForeColor = Color.Brown;
+            e.UseCellFormatEvents = true;
         }
 
         private void modObjectListView_FormatCell(object sender, FormatCellEventArgs e)
         {
-            if (e.ColumnIndex == this.olvColumnModName.Index) {
-                ModItem customer = (ModItem)e.Model;
-                if (!customer.Enabled)
-                    e.SubItem.ForeColor = Color.Red;
+            ModItem modItem = (ModItem)e.Model;
+            if (!modItem.Enabled)
+            {
+                e.SubItem.ForeColor = Color.FromArgb(142, 140, 142);
+                return;
+            }
+
+            if (e.ColumnIndex == this.olvColumnModName.Index) 
+            {
+                if (ModsManager.Instance.OverridingData.ContainsKey(modItem.FolderName))
+                {
+                    OverridingData a = ModsManager.Instance.OverridingData[modItem.FolderName];
+                    Color newItemColor = SystemColors.WindowText;
+                    if (a.isOverridden)
+                    {
+                        newItemColor = OverriddenColor;
+                    }
+                    if (a.isOverriding)
+                    {
+                        newItemColor = OverridingColor;
+                    }
+                    if (a.isOverriding && a.isOverridden)
+                    {
+                        newItemColor = OverriddenOveridingColor;
+                    }
+
+                    e.SubItem.ForeColor = newItemColor;
+                }
+
             }
         }
 
