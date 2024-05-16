@@ -14,6 +14,7 @@ using File = System.IO.File;
 using ListView = System.Windows.Forms.ListView;
 using System.Net.Http;
 using System.Text;
+using BrightIdeasSoftware;
 using Newtonsoft.Json.Linq;
 
 namespace MW5_Mod_Manager
@@ -46,7 +47,10 @@ namespace MW5_Mod_Manager
         public static Color _OverriddenBackColorAlternate = Color.FromArgb(247, 234, 196);
         public static Color _OverridingBackColor = Color.FromArgb(235, 225, 255);
         public static Color _OverridingBackColorAlternate = Color.FromArgb(226, 217, 245);
-        
+
+        private TypedObjectListView<ModItem> _modList = null;
+        private TypedColumn<ModItem> _modNameColumn = null;
+
         public bool LoadingAndFilling { get; private set; }
 
         public MainForm()
@@ -68,12 +72,37 @@ namespace MW5_Mod_Manager
 
             this.Text += @" " + GetVersion();
 
+            _modList = new TypedObjectListView<ModItem>(this.modObjectListView);
+            _modNameColumn = new TypedColumn<ModItem>(this.olvColumnModName);
+
             imageListIcons.Images.Add("Steam", UiIcons.Steam);
             imageListIcons.Images.Add("SteamDis", UiIcons.SteamDis);
             imageListIcons.Images.Add("Nexusmods", UiIcons.Nexusmods);
             imageListIcons.Images.Add("NexusmodsDis", UiIcons.NexusmodsDis);
             imageListIcons.Images.Add("Folder", UiIcons.Folder);
             imageListIcons.Images.Add("FolderDis", UiIcons.FolderDis);
+
+            olvColumnModName.ImageGetter = this.ModImageGetter;
+            olvColumnModFileSize.AspectToStringConverter = FileSizeAspectConverter;
+
+            var dragSource = new SimpleDragSource();
+            dragSource.RefreshAfterDrop = false;
+            this.modObjectListView.DragSource = dragSource;
+            var dropSink = new SimpleDropSink();
+            dropSink.AcceptExternal = false;
+            dropSink.CanDropBetween = true;
+            dropSink.CanDropOnBackground = false;
+            dropSink.CanDropOnItem = false;
+            dropSink.CanDropOnSubItem = false;
+            dropSink.FeedbackColor = Color.Black;
+            dropSink.CanDrop += (o, args) => { args.Effect = DragDropEffects.Move; };
+            this.modObjectListView.DropSink = dropSink;
+
+            /*
+            this.modObjectListView.CustomSorter = delegate(OLVColumn column, SortOrder order) {
+                this.modObjectListView.ListViewItemSorter = new ColumnComparer(
+                    this.isEmergencyColumn, SortOrder.Descending, column, order);
+            };*/
 
             modsListView.SetDoubleBuffered();
 
@@ -90,6 +119,13 @@ namespace MW5_Mod_Manager
             {
                 richTextBoxManifestOverridden.Font = monospaceFont;
             }*/
+        }
+
+
+        private string FileSizeAspectConverter(object value)
+        {
+            long size = (long)value;
+            return Utils.BytesToHumanReadableString(size);
         }
 
         private void ProcessUpdateCheckData(string updateJson)
@@ -576,6 +612,30 @@ namespace MW5_Mod_Manager
                 }
                 ReloadListViewFromData();
                 modsListView.EndUpdate();
+
+                modObjectListView.BeginUpdate();
+                foreach (KeyValuePair<string, bool> entry in orderedModList.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
+                {
+                    if (entry.Equals(new KeyValuePair<string, bool>(null, false)))
+                        continue;
+                    if (entry.Key == null)
+                        continue;
+
+                    ModItem newItem = new ModItem();
+                    newItem.Enabled = ModsManager.Instance.ModEnabledList[entry.Key];
+                    newItem.Path = entry.Key;
+                    newItem.Name = ModsManager.Instance.ModDetails[entry.Key].displayName;
+                    newItem.FolderName = ModsManager.Instance.PathToDirNameDict[entry.Key];
+                    newItem.FileSize = ModsManager.Instance.Mods[entry.Key].ModFileSize;
+                    newItem.Author = ModsManager.Instance.ModDetails[entry.Key].author;
+                    newItem.CurrentLoadOrder = (int)ModsManager.Instance.Mods[entry.Key].NewLoadOrder;
+                    newItem.OriginalLoadOrder = (int)ModsManager.Instance.Mods[entry.Key].OriginalLoadOrder;
+                    newItem.Origin = ModsManager.Instance.Mods[entry.Key].Origin;
+
+                    modObjectListView.AddObject(newItem);
+                }
+                modObjectListView.EndUpdate();
+
                 ModsManager.Instance.SaveSettings();
             }
             /*catch (Exception e)
@@ -594,6 +654,34 @@ namespace MW5_Mod_Manager
             RecomputeLoadOrdersAndUpdateList();
             ModsManager.Instance.GetOverridingData(ModListData);
             UpdateModCountDisplay();
+        }
+
+        public object ModImageGetter(object rowObject)
+        {
+            ModItem s = (ModItem)rowObject;
+
+            switch (s.Origin)
+            {
+                case ModsManager.ModData.ModOrigin.Steam:
+                    if (s.Enabled)
+                        return "Steam";
+                    else
+                        return "SteamDis";
+
+                case ModsManager.ModData.ModOrigin.Nexusmods:
+                    if (s.Enabled)
+                        return "Nexusmods";
+                    else
+                        return "NexusmodsDis";
+
+                default:
+                    if (s.Enabled)
+                        return "Folder";
+                    else
+                        return "FolderDis";
+
+
+            }
         }
 
         private void AddEntryToListViewAndData(KeyValuePair<string, bool> entry)
@@ -1799,6 +1887,99 @@ namespace MW5_Mod_Manager
             }
         }
 
+        public void RecolorObjectListViewRows()
+        {
+            bool showModOverrides = modObjectListView.SelectedItems.Count == 1 && _filterMode == eFilterMode.None;
+
+            bool anyUpdated = false;
+            for (int i = 0; i <= modObjectListView.Items.Count - 1; ++i)
+            {
+                OLVListItem curItem = (OLVListItem)modObjectListView.Items[i];
+                ModItem curModItem = (ModItem)curItem.RowObject;
+
+                bool alternateColor = i % 2 == 1;
+                Color newBackColor = SystemColors.Window;
+                if (alternateColor)
+                {
+                    newBackColor = Color.FromArgb(246, 245, 246);
+                }
+
+                if (_filterMode == eFilterMode.ItemHighlight)
+                {
+                    string filtertext = toolStripTextFilterBox.Text.ToLower();
+                    if (!string.IsNullOrWhiteSpace(filtertext) && MatchItemToText(filtertext, curItem))
+                    {
+                        if (!alternateColor)
+                            newBackColor = _highlightColor;
+                        else
+                            newBackColor = _highlightColorAlternate;
+                    }
+                }
+
+                // Color mod overrides following the currently selected mod
+                if (showModOverrides)
+                {
+                    OLVListItem firstSelected = (OLVListItem)modObjectListView.SelectedItems[0];
+                    ModItem firstSelectedItem = (ModItem)firstSelected.RowObject;
+                    string selectedModPath = firstSelectedItem.Path;
+                    string selectedModFolder = ModsManager.Instance.PathToDirNameDict[selectedModPath];
+                    if (ModsManager.Instance.OverridingData.ContainsKey(selectedModFolder))
+                    {
+                        OverridingData modData = ModsManager.Instance.OverridingData[selectedModFolder];
+                        bool foundMatch = false;
+                        foreach (string overriding in modData.overriddenBy.Keys)
+                        {
+                            string modKey = ModsManager.Instance.DirNameToPathDict[overriding];
+                            if (modKey == curModItem.Path)
+                            {
+                                if (!alternateColor)
+                                    newBackColor = _OverridingBackColor;
+                                else
+                                    newBackColor = _OverridingBackColorAlternate;
+                                foundMatch = true;
+                                break;
+                            }
+                        }
+
+                        if (!foundMatch)
+                        {
+                            foreach (string overrides in modData.overrides.Keys)
+                            {
+                                string modKey = ModsManager.Instance.DirNameToPathDict[overrides];
+                                if (modKey == curModItem.Path)
+                                {
+                                    if (!alternateColor)
+                                        newBackColor = _OverriddenBackColor;
+                                    else
+                                        newBackColor = _OverriddenBackColorAlternate;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                curModItem.ProcessedRowBackColor = newBackColor;
+
+                foreach (OLVListSubItem subItem in curItem.SubItems)
+                {
+                    if (subItem.BackColor != newBackColor)
+                    {
+                        if (!anyUpdated)
+                        {
+                            anyUpdated = true;
+                            this.modObjectListView.BeginUpdate();
+                        }
+                        subItem.BackColor = newBackColor;
+                    }
+
+                }
+            }
+
+            if (anyUpdated)
+                this.modObjectListView.EndUpdate();
+        }
+
         public void RecolorListViewRows()
         {
             bool showModOverrides = modsListView.SelectedItems.Count == 1 && _filterMode == eFilterMode.None;
@@ -2314,7 +2495,7 @@ namespace MW5_Mod_Manager
             var page = new TaskDialogPage()
             {
                 Caption = "Remove mod",
-                Heading = "Remove "+ ModsManager.Instance.ModDetails[modKey].displayName + "?",
+                Heading = "Remove " + ModsManager.Instance.ModDetails[modKey].displayName + "?",
                 Text = "This will delete the directory\r\n" + modKey,
                 Icon = TaskDialogIcon.Warning,
                 Buttons =
@@ -2574,6 +2755,75 @@ namespace MW5_Mod_Manager
         private void disableModsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SetSelectedModEnabledState(false);
+        }
+
+        private void modObjectListView_FormatRow(object sender, FormatRowEventArgs e)
+        {
+            ModItem curModItem = (ModItem)e.Item.RowObject;
+            e.Item.BackColor = curModItem.ProcessedRowBackColor;
+        }
+
+        private void modObjectListView_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (_movingItems)
+                return;
+
+            RecolorObjectListViewRows();
+
+            //modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
+
+            /*foreach (OLVListItem curItem in modObjectListView.Items)
+            {
+                
+                curItem.BackColor = Color.Red;
+            }*/
+        }
+
+        private void modObjectListView_ModelDropped(object sender, ModelDropEventArgs e)
+        {
+            ModItem firstMod = e.SourceModels[0] as ModItem;
+            int firstModIndex = modObjectListView.IndexOf(firstMod);
+
+            if (firstModIndex == e.DropTargetIndex)
+                return;
+
+            int normalizedIndex = e.DropTargetIndex;
+            if (e.DropTargetLocation == DropTargetLocation.BelowItem)
+            {
+                normalizedIndex++;
+            }
+            if (firstModIndex == normalizedIndex)
+                return;
+
+            foreach (ModItem droppedMod in e.SourceModels)
+            {
+                //ModItemList.Instance.ModList.Remove(droppedMod);
+                //ModItemList.Instance.ModList.Insert(e.DropTargetIndex, droppedMod);
+            }
+            modObjectListView.BeginUpdate();
+            _movingItems = true;
+            modObjectListView.MoveObjects(normalizedIndex, e.SourceModels);
+
+            modObjectListView.SelectObjects(e.SourceModels);
+
+            ModItemList.Instance.RecomputeLoadOrders();
+            modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
+            modObjectListView.Sort();
+            _movingItems = false;
+            RecolorObjectListViewRows();
+            modObjectListView.EndUpdate();
+        }
+
+        private void modObjectListView_BeforeSorting(object sender, BeforeSortingEventArgs e)
+        {
+            // Disable sorting
+            e.Canceled = true;
+        }
+
+        private void modObjectListView_DragOver(object sender, DragEventArgs e)
+        {
+            // Simpledropsource sets this to false..
+            modObjectListView.FullRowSelect = true;
         }
     }
 }

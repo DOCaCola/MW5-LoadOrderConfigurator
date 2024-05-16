@@ -63,6 +63,34 @@ namespace MW5_Mod_Manager
 
     }
 
+    [SupportedOSPlatform("windows")]
+    public class ModsObjectsListView : BrightIdeasSoftware.ObjectListView
+    {
+
+        public ModsObjectsListView()
+        {
+            // Hide selection dotted line
+            SendMessage(Handle, 0x127, 0x10001, 0);
+        }
+  
+        [DllImport("uxtheme.dll", CharSet = CharSet.Unicode)]
+        private extern static int SetWindowTheme(IntPtr hWnd, string pszSubAppName,
+            string pszSubIdList);
+
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+
+        protected override void CreateHandle()
+        {
+            base.CreateHandle();
+
+            // For whatever reason the explorer theme is broken on ObjectListView
+            //if (!this.DesignMode && this.UseExplorerTheme)
+            //    SetWindowTheme(this.Handle, "explorer", null);
+        }
+    }
+
     //The rotating label for priority indication.
     [SupportedOSPlatform("windows")]
     public class RotatingLabel : System.Windows.Forms.Label

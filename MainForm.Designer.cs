@@ -135,6 +135,14 @@ namespace MW5_Mod_Manager
             panelColorOverriding = new Panel();
             panelColorOverridden = new Panel();
             splitContainerMain = new SplitContainer();
+            modObjectListView = new ModsObjectsListView();
+            olvColumnModAuthor = new BrightIdeasSoftware.OLVColumn();
+            olvColumnModFileSize = new BrightIdeasSoftware.OLVColumn();
+            olvColumnModCurLoadOrder = new BrightIdeasSoftware.OLVColumn();
+            olvColumnModFolder = new BrightIdeasSoftware.OLVColumn();
+            olvColumnModName = new BrightIdeasSoftware.OLVColumn();
+            olvColumnModOrgLoadOrder = new BrightIdeasSoftware.OLVColumn();
+            olvColumnModVersion = new BrightIdeasSoftware.OLVColumn();
             toolStrip2 = new ToolStrip();
             toTopToolStripButton = new ToolStripButton();
             upToolStripButton = new ToolStripButton();
@@ -172,6 +180,7 @@ namespace MW5_Mod_Manager
             splitContainerMain.Panel1.SuspendLayout();
             splitContainerMain.Panel2.SuspendLayout();
             splitContainerMain.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)modObjectListView).BeginInit();
             toolStrip2.SuspendLayout();
             toolStrip1.SuspendLayout();
             SuspendLayout();
@@ -609,10 +618,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(splitContainer2);
             tabPage1.Controls.Add(labelModNameOverrides);
             tabPage1.Controls.Add(label7);
-            tabPage1.Location = new Point(4, 22);
+            tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(326, 457);
+            tabPage1.Size = new Size(326, 455);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Conflicts";
             tabPage1.UseVisualStyleBackColor = true;
@@ -988,6 +997,7 @@ namespace MW5_Mod_Manager
             // 
             // splitContainerMain.Panel1
             // 
+            splitContainerMain.Panel1.Controls.Add(modObjectListView);
             splitContainerMain.Panel1.Controls.Add(toolStrip2);
             splitContainerMain.Panel1.Controls.Add(rotatingLabelBottom);
             splitContainerMain.Panel1.Controls.Add(modsListView);
@@ -1002,6 +1012,84 @@ namespace MW5_Mod_Manager
             splitContainerMain.SplitterDistance = 828;
             splitContainerMain.SplitterWidth = 5;
             splitContainerMain.TabIndex = 40;
+            // 
+            // modObjectListView
+            // 
+            modObjectListView.AllColumns.Add(olvColumnModAuthor);
+            modObjectListView.AllColumns.Add(olvColumnModFileSize);
+            modObjectListView.AllColumns.Add(olvColumnModCurLoadOrder);
+            modObjectListView.AllColumns.Add(olvColumnModFolder);
+            modObjectListView.AllColumns.Add(olvColumnModName);
+            modObjectListView.AllColumns.Add(olvColumnModOrgLoadOrder);
+            modObjectListView.AllColumns.Add(olvColumnModVersion);
+            modObjectListView.CheckBoxes = true;
+            modObjectListView.CheckedAspectName = "Enabled";
+            modObjectListView.Columns.AddRange(new ColumnHeader[] { olvColumnModName, olvColumnModAuthor, olvColumnModVersion, olvColumnModCurLoadOrder, olvColumnModOrgLoadOrder, olvColumnModFileSize, olvColumnModFolder });
+            modObjectListView.FullRowSelect = true;
+            modObjectListView.HeaderStyle = ColumnHeaderStyle.Nonclickable;
+            modObjectListView.Location = new Point(30, 86);
+            modObjectListView.Name = "modObjectListView";
+            modObjectListView.OwnerDraw = false;
+            modObjectListView.ShowImagesOnSubItems = true;
+            modObjectListView.Size = new Size(795, 247);
+            modObjectListView.SmallImageList = imageListIcons;
+            modObjectListView.TabIndex = 41;
+            modObjectListView.UseExplorerTheme = true;
+            modObjectListView.UseHotControls = false;
+            modObjectListView.View = View.Details;
+            modObjectListView.BeforeSorting += modObjectListView_BeforeSorting;
+            modObjectListView.FormatRow += modObjectListView_FormatRow;
+            modObjectListView.ModelDropped += modObjectListView_ModelDropped;
+            modObjectListView.SelectedIndexChanged += modObjectListView_SelectedIndexChanged;
+            modObjectListView.DragOver += modObjectListView_DragOver;
+            // 
+            // olvColumnModAuthor
+            // 
+            olvColumnModAuthor.AspectName = "Author";
+            olvColumnModAuthor.Groupable = false;
+            olvColumnModAuthor.Text = "Author";
+            olvColumnModAuthor.Width = 100;
+            // 
+            // olvColumnModFileSize
+            // 
+            olvColumnModFileSize.AspectName = "FileSize";
+            olvColumnModFileSize.Groupable = false;
+            olvColumnModFileSize.Text = "File size";
+            // 
+            // olvColumnModCurLoadOrder
+            // 
+            olvColumnModCurLoadOrder.AspectName = "CurrentLoadOrder";
+            olvColumnModCurLoadOrder.Groupable = false;
+            olvColumnModCurLoadOrder.Text = "Current load order";
+            olvColumnModCurLoadOrder.Width = 40;
+            // 
+            // olvColumnModFolder
+            // 
+            olvColumnModFolder.AspectName = "FolderName";
+            olvColumnModFolder.Groupable = false;
+            olvColumnModFolder.Text = "Mod Folder";
+            olvColumnModFolder.Width = 100;
+            // 
+            // olvColumnModName
+            // 
+            olvColumnModName.AspectName = "Name";
+            olvColumnModName.Groupable = false;
+            olvColumnModName.Text = "Name";
+            olvColumnModName.Width = 300;
+            // 
+            // olvColumnModOrgLoadOrder
+            // 
+            olvColumnModOrgLoadOrder.AspectName = "OriginalLoadOrder";
+            olvColumnModOrgLoadOrder.Groupable = false;
+            olvColumnModOrgLoadOrder.Text = "Default load order";
+            olvColumnModOrgLoadOrder.Width = 40;
+            // 
+            // olvColumnModVersion
+            // 
+            olvColumnModVersion.AspectName = "Version";
+            olvColumnModVersion.Groupable = false;
+            olvColumnModVersion.Text = "Version";
+            olvColumnModVersion.Width = 80;
             // 
             // toolStrip2
             // 
@@ -1222,6 +1310,7 @@ namespace MW5_Mod_Manager
             splitContainerMain.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainerMain).EndInit();
             splitContainerMain.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)modObjectListView).EndInit();
             toolStrip2.ResumeLayout(false);
             toolStrip2.PerformLayout();
             toolStrip1.ResumeLayout(false);
@@ -1237,6 +1326,13 @@ namespace MW5_Mod_Manager
         public System.Windows.Forms.ColumnHeader authorHeader;
         public System.Windows.Forms.ColumnHeader enabledHeader;
         public System.Windows.Forms.ColumnHeader versionHeader;
+        private BrightIdeasSoftware.OLVColumn olvColumnModName;
+        private BrightIdeasSoftware.OLVColumn olvColumnModFolder;
+        private BrightIdeasSoftware.OLVColumn olvColumnModAuthor;
+        private BrightIdeasSoftware.OLVColumn olvColumnModFileSize;
+        private BrightIdeasSoftware.OLVColumn olvColumnModVersion;
+        private BrightIdeasSoftware.OLVColumn olvColumnModCurLoadOrder;
+        private BrightIdeasSoftware.OLVColumn olvColumnModOrgLoadOrder;
         public System.Windows.Forms.ToolStripLabel toolStripVendorLabeltoolStripLabel1;
         private BindingSource textProgressBarBindingSource;
         private MenuStrip menuStrip1;
@@ -1350,6 +1446,7 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem enableModsToolStripMenuItem;
         private ToolStripMenuItem disableModsToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator7;
+        private ModsObjectsListView modObjectListView;
     }
 }
 
