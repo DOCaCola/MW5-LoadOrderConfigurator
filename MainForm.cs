@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -97,6 +98,27 @@ namespace MW5_Mod_Manager
             dropSink.FeedbackColor = Color.Black;
             dropSink.CanDrop += (o, args) => { args.Effect = DragDropEffects.Move; };
             this.modObjectListView.DropSink = dropSink;
+
+            // Selection
+            RowBorderDecoration rbd = new RowBorderDecoration();
+            rbd.BorderPen = new Pen(Color.FromArgb(0, 154, 223, 51));
+            rbd.FillBrush = new SolidBrush(Color.FromArgb(65, 0, 143, 255));
+            rbd.BoundsPadding = new Size(0, 0);
+            rbd.CornerRounding = 0;
+            modObjectListView.SelectedRowDecoration = rbd;
+
+            // Hot item
+            RowBorderDecoration rbdhot = new RowBorderDecoration();
+            rbdhot.BorderPen = new Pen(Color.FromArgb(50, 0, 143, 255));
+            rbdhot.BoundsPadding = new Size(0, 0);
+            rbdhot.CornerRounding = 0;
+            //rbd.FillBrush = new SolidBrush(Color.FromArgb(64, 0, 143, 255));
+            rbdhot.FillGradientFrom = Color.FromArgb(16, 0, 143, 255);
+            rbdhot.FillGradientTo = Color.FromArgb(16, 0, 143, 255);
+            HotItemStyle his = new HotItemStyle();
+            his.Decoration = rbdhot;
+            modObjectListView.HotItemStyle = his;
+            modObjectListView.UseHotItem = true;
 
             /*
             this.modObjectListView.CustomSorter = delegate(OLVColumn column, SortOrder order) {
@@ -634,6 +656,9 @@ namespace MW5_Mod_Manager
 
                     modObjectListView.AddObject(newItem);
                 }
+                RecolorObjectListViewRows();
+                modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
+
                 modObjectListView.EndUpdate();
 
                 ModsManager.Instance.SaveSettings();
@@ -1773,6 +1798,47 @@ namespace MW5_Mod_Manager
             modsListView.InsertionMark.Index = -1;
         }
 
+        private void DragDropObjectRows(int insertIndex, IList draggedItems)
+        {
+            // More or less a copy of OLVs Move function with a fix when moving multiple item (originalInsertIndex comparison)
+            modObjectListView.BeginUpdate();
+            List<int> intList = new List<int>();
+            int originalInsertIndex = insertIndex;
+            foreach (object modelObject in draggedItems)
+            {
+                if (modelObject != null)
+                {
+                    int num = modObjectListView.IndexOf(modelObject);
+                    if (num >= 0)
+                    {
+                        intList.Add(num);
+                        if (num <= originalInsertIndex)
+                            --insertIndex;
+                    }
+                }
+            }
+            intList.Sort();
+            intList.Reverse();
+            try
+            {
+                modObjectListView.BeginUpdate();
+                foreach (int index1 in intList)
+                    modObjectListView.Items.RemoveAt(index1);
+                modObjectListView.InsertObjects(insertIndex, draggedItems);
+            }
+            finally
+            {
+                modObjectListView.EndUpdate();
+            }
+
+            RecomputeLoadOrdersAndUpdateList();
+            ModsManager.Instance.GetOverridingData(this.ModListData);
+
+            modObjectListView.EndUpdate();
+
+            SetModConfigTainted(true);
+        }
+
         private void DragDropRows(int insertIndex, ListView.SelectedListViewItemCollection draggedItems)
         {
             modsListView.BeginUpdate();
@@ -2761,6 +2827,23 @@ namespace MW5_Mod_Manager
         {
             ModItem curModItem = (ModItem)e.Item.RowObject;
             e.Item.BackColor = curModItem.ProcessedRowBackColor;
+
+            foreach (OLVListSubItem subItem in e.Item.SubItems)
+            {
+                //subItem.BackColor = Color.BlueViolet;
+            }
+
+            e.Item.GetSubItem(olvColumnModName.Index).ForeColor = Color.Brown;
+            //e.UseCellFormatEvents = true;
+        }
+
+        private void modObjectListView_FormatCell(object sender, FormatCellEventArgs e)
+        {
+            if (e.ColumnIndex == this.olvColumnModName.Index) {
+                ModItem customer = (ModItem)e.Model;
+                if (!customer.Enabled)
+                    e.SubItem.ForeColor = Color.Red;
+            }
         }
 
         private void modObjectListView_SelectedIndexChanged(object sender, EventArgs e)
@@ -2782,18 +2865,40 @@ namespace MW5_Mod_Manager
         private void modObjectListView_ModelDropped(object sender, ModelDropEventArgs e)
         {
             ModItem firstMod = e.SourceModels[0] as ModItem;
-            int firstModIndex = modObjectListView.IndexOf(firstMod);
+            this.Text = modObjectListView.IndexOf(firstMod).ToString();
+            foreach (ModItem curSourceModItem in e.SourceModels)
+            {
+                int sourceItemIndex = modObjectListView.IndexOf(curSourceModItem);
+                if (e.DropTargetLocation == DropTargetLocation.BelowItem)
+                {
+                    if (sourceItemIndex == e.DropTargetIndex)
+                        return;
 
-            if (firstModIndex == e.DropTargetIndex)
-                return;
+                    if (sourceItemIndex - 1 == e.DropTargetIndex)
+                        return;
+                }
+                else if (e.DropTargetLocation == DropTargetLocation.AboveItem)
+                {
+                    if (sourceItemIndex == e.DropTargetIndex)
+                        return;
+
+                    // Next item after last selected
+                    if (sourceItemIndex + 1 == e.DropTargetIndex)
+                        return;
+                }
+                else
+                {
+                    return;
+                }
+            }
+            /*if (firstModIndex == e.DropTargetIndex)
+                return;*/
 
             int normalizedIndex = e.DropTargetIndex;
             if (e.DropTargetLocation == DropTargetLocation.BelowItem)
             {
                 normalizedIndex++;
             }
-            if (firstModIndex == normalizedIndex)
-                return;
 
             foreach (ModItem droppedMod in e.SourceModels)
             {
@@ -2802,13 +2907,15 @@ namespace MW5_Mod_Manager
             }
             modObjectListView.BeginUpdate();
             _movingItems = true;
-            modObjectListView.MoveObjects(normalizedIndex, e.SourceModels);
+            //modObjectListView.MoveObjects(normalizedIndex, e.SourceModels);
+
+            DragDropObjectRows(normalizedIndex, e.SourceModels);
 
             modObjectListView.SelectObjects(e.SourceModels);
-
+            /*
             ModItemList.Instance.RecomputeLoadOrders();
             modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
-            modObjectListView.Sort();
+            modObjectListView.Sort();*/
             _movingItems = false;
             RecolorObjectListViewRows();
             modObjectListView.EndUpdate();
