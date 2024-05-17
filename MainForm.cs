@@ -519,6 +519,7 @@ namespace MW5_Mod_Manager
             this.ModListData.Clear();
             this.modsListView.Items.Clear();
             this.modObjectListView.ClearObjects();
+            this.modObjectListView.ClearCachedInfo();
             ModsManager.Instance.ClearAll();
             UpdateSidePanelData(true);
         }
@@ -667,6 +668,7 @@ namespace MW5_Mod_Manager
                     newItem.OriginalLoadOrder = (int)ModsManager.Instance.Mods[entry.Key].OriginalLoadOrder;
                     newItem.Origin = ModsManager.Instance.Mods[entry.Key].Origin;
 
+                    ModItemList.Instance.ModList.Add(newItem);
                     modObjectListView.AddObject(newItem);
                 }
                 RecolorObjectListViewRows();
@@ -1562,6 +1564,27 @@ namespace MW5_Mod_Manager
             if (AreAllModsEnabled())
                 return;
 
+            modObjectListView.BeginUpdate();
+            try
+            {
+                foreach (ModItem curModItem in ModItemList.Instance.ModList)
+                {
+                    curModItem.Enabled = true;
+                }
+
+                modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
+            }
+            finally
+            {
+                modObjectListView.EndUpdate();
+            }
+
+            ModsManager.Instance.GetOverridingData();
+            UpdateModCountDisplay();
+            RecolorObjectListViewRows();
+            modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
+            SetModConfigTainted(true);
+
             modsListView.BeginUpdate();
 
             this._movingItems = true;
@@ -1591,6 +1614,27 @@ namespace MW5_Mod_Manager
 
             if (AreAllModsDisabled())
                 return;
+
+            modObjectListView.BeginUpdate();
+            try
+            {
+                foreach (ModItem curModItem in ModItemList.Instance.ModList)
+                {
+                    curModItem.Enabled = false;
+                }
+
+                modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
+            }
+            finally
+            {
+                modObjectListView.EndUpdate();
+            }
+
+            ModsManager.Instance.GetOverridingData();
+            UpdateModCountDisplay();
+            RecolorObjectListViewRows();
+            modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
+            SetModConfigTainted(true);
 
             modsListView.BeginUpdate();
 

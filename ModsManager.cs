@@ -1405,6 +1405,9 @@ namespace MW5_Mod_Manager
                     if (modA == modB)
                         continue;
 
+                    if (!item.Enabled)
+                        continue;
+
                     if (!this.OverridingData.ContainsKey(modB))
                     {
                         this.OverridingData[modB] = new OverridingData
@@ -1639,6 +1642,104 @@ namespace MW5_Mod_Manager
             }
             this.OverridingData[modA] = A;
             this.OverridingData[modB] = B;
+        }
+
+        public void GetOverridingData()
+        {
+            ////Console.WriteLine(Environment.StackTrace);
+            ////Console.WriteLine("Starting Overriding data check");
+            this.OverridingData.Clear();
+
+            foreach (ModItem itemA in ModItemList.Instance.ModList)
+            {
+                // Skip disabled items
+                if (!itemA.Enabled)
+                    continue;
+
+                string modA = itemA.FolderName;
+                int priorityA = itemA.CurrentLoadOrder;
+
+                //Check if we already have this mod in the dict if not create an entry for it.
+                if (!this.OverridingData.ContainsKey(modA))
+                {
+                    this.OverridingData[modA] = new OverridingData
+                    {
+                        mod = modA,
+                        overrides = new Dictionary<string, List<string>>(),
+                        overriddenBy = new Dictionary<string, List<string>>()
+                    };
+                }
+                OverridingData A = this.OverridingData[modA];
+
+                //Console.WriteLine("Checking: " + modA + " : " + priorityA.ToString());
+                foreach (ModItem itemB in ModItemList.Instance.ModList)
+                {
+                    string modB = itemB.FolderName;
+
+                    if (modA == modB)
+                        continue;
+
+                    if (!itemB.Enabled)
+                        continue;
+
+                    //If we have already seen modB in comparison to modA we don't need to compare because the comparison is bi-directionary.
+                    if (
+                        A.overriddenBy.ContainsKey(modB) ||
+                        A.overrides.ContainsKey(modB)
+                        )
+                    {
+                        ////Console.WriteLine("--" + modA + "has allready been compared to: " + modB);
+                        continue;
+                    }
+
+                    //Check if we have already seen modB before.
+                    if (this.OverridingData.ContainsKey(modB))
+                    {
+                        //If we have allready seen modB and we have allready compared modB and modA we don't need to compare because the comparison is bi-directionary.
+                        if (
+                            this.OverridingData[modB].overriddenBy.ContainsKey(modA) ||
+                            this.OverridingData[modB].overrides.ContainsKey(modA)
+                            )
+                        {
+                            ////Console.WriteLine("--" + modB + "has allready been compared to: " + modA);
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        //If we have not make a new modB overridingDatas
+                        this.OverridingData[modB] = new OverridingData
+                        {
+                            mod = modB,
+                            overrides = new Dictionary<string, List<string>>(),
+                            overriddenBy = new Dictionary<string, List<string>>()
+                        };
+                    }
+                    GetModOverridingData(itemA, itemB, this.OverridingData[modA], this.OverridingData[modB]);
+                }
+            }
+
+            #region debug output
+
+            //Debug output
+            //foreach(string key in this.OverrridingData.Keys)
+            //{
+            //    //Console.WriteLine("MOD: " + key);
+            //    //Console.WriteLine("--Overriden:");
+            //    foreach (string mod in OverrridingData[key].overriddenBy.Keys)
+            //    {
+            //        //Console.WriteLine("----" + OverrridingData[key].isOverriden);
+            //    }
+            //    //Console.WriteLine("--Overrides:");
+            //    foreach (string mod in OverrridingData[key].overrides.Keys)
+            //    {
+            //        //Console.WriteLine("----" + OverrridingData[key].isOverriding);
+            //    }
+            //}
+
+            #endregion debug output
+
+            //ColorizeListViewItems(items);
         }
 
         //Return a dict of all overriden mods with a list of overriden files as values.

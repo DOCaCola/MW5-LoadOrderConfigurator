@@ -103,16 +103,6 @@ namespace MW5_Mod_Manager
 
     public class ModItem
     {
-        public ModItem()
-        {
-            ModItemList.Instance.ModList.Add(this);
-        }
-
-        ~ModItem()
-        {
-            ModItemList.Instance.ModList.Remove(this);
-        }
-
         public bool Enabled;
         public string Path;
         public string Name;
