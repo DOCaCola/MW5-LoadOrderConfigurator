@@ -368,16 +368,17 @@ namespace MW5_Mod_Manager
 
         public void MoveListItems(ListView.SelectedListViewItemCollection moveItems, MoveDirection direction)
         {
-            /*
-            var selectedItems = moveItems.Cast<ListViewItem>().ToList();
+            var selectedItems = moveItems.Cast<OLVListItem>().ToList();
             bool anyMoved = false;
-            selectedItems = selectedItems.OrderBy(i => this.modsListView.Items.IndexOf(i)).ToList();
+            selectedItems = selectedItems.OrderBy(i => this.modObjectListView.Items.IndexOf(i)).ToList();
 
-            modsListView.BeginUpdate();
+            modObjectListView.BeginUpdate();
             _movingItems = true;
 
             if (direction == MoveDirection.Up)
             {
+                List<ModItem> newList = new List<ModItem>();
+                newList.Capacity = 1;
                 for (int selectedItemIndex = 0; selectedItemIndex < selectedItems.Count; selectedItemIndex++)
                 {
                     int currentIndex = selectedItems[selectedItemIndex].Index;
@@ -386,12 +387,11 @@ namespace MW5_Mod_Manager
                     if (currentIndex == selectedItemIndex)
                         continue;
 
-                    ListViewItem listItem = ModListData[currentIndex];
-                    modsListView.Items.RemoveAt(currentIndex);
-                    ModListData.RemoveAt(currentIndex);
-
-                    modsListView.Items.Insert(newIndex, listItem);
-                    ModListData.Insert(newIndex, listItem);
+                    OLVListItem listItem = (OLVListItem)modObjectListView.Items[currentIndex];
+                    modObjectListView.RemoveObject(listItem.RowObject);
+                    newList.Clear();
+                    newList.Add((ModItem)listItem.RowObject);
+                    modObjectListView.InsertObjects(newIndex, newList);
 
                     anyMoved = true;
                 }
@@ -399,20 +399,22 @@ namespace MW5_Mod_Manager
             else
             {
                 int endOffset = 1;
+                List<ModItem> newList = new List<ModItem>();
+                newList.Capacity = 1;
+
                 for (int selectedItemIndex = selectedItems.Count - 1; selectedItemIndex >= 0; selectedItemIndex--)
                 {
                     int currentIndex = selectedItems[selectedItemIndex].Index;
                     int newIndex = currentIndex + 1;
 
-                    if (currentIndex == modsListView.Items.Count - endOffset++)
+                    if (currentIndex == modObjectListView.Items.Count - endOffset++)
                         continue;
 
-                    ListViewItem listItem = ModListData[currentIndex];
-                    modsListView.Items.RemoveAt(currentIndex);
-                    ModListData.RemoveAt(currentIndex);
-
-                    modsListView.Items.Insert(newIndex, listItem);
-                    ModListData.Insert(newIndex, listItem);
+                    OLVListItem listItem = (OLVListItem)modObjectListView.Items[currentIndex];
+                    modObjectListView.RemoveObject(listItem.RowObject);
+                    newList.Clear();
+                    newList.Add((ModItem)listItem.RowObject);
+                    modObjectListView.InsertObjects(newIndex, newList);
 
                     anyMoved = true;
                 }
@@ -421,9 +423,9 @@ namespace MW5_Mod_Manager
             if (anyMoved)
             {
                 RecomputeLoadOrdersAndUpdateList();
-                ModsManager.Instance.GetOverridingData(this.ModListData);
+                ModsManager.Instance.RecomputeOverridingData();
 
-                modListView_SelectedIndexChanged(null, null);
+                QueueSidePanelUpdate(true);
 
                 SetModConfigTainted(true);
             }
@@ -431,33 +433,32 @@ namespace MW5_Mod_Manager
             _movingItems = false;
 
             QueueSidePanelUpdate(true);
-            modsListView.EndUpdate();
-            */
+            modObjectListView.EndUpdate();
         }
 
         public enum MovePosition { Top, Bottom };
 
         public void MoveListItems(ListView.SelectedListViewItemCollection moveItems, MovePosition position)
         {
-            /*
-            modsListView.BeginUpdate();
+            modObjectListView.BeginUpdate();
             _movingItems = true;
             bool anyMoved = false;
-            var selectedItems = moveItems.Cast<ListViewItem>().ToList();
-            selectedItems = selectedItems.OrderBy(i => this.modsListView.Items.IndexOf(i)).ToList();
+            var selectedItems = moveItems.Cast<OLVListItem>().ToList();
+            selectedItems = selectedItems.OrderBy(i => this.modObjectListView.Items.IndexOf(i)).ToList();
 
             if (position == MovePosition.Top)
             {
                 int listOffset = 0;
+                List<ModItem> newList = new List<ModItem>();
+                newList.Capacity = 1;
                 foreach (var item in selectedItems)
                 {
                     if (item.Index != listOffset)
                     {
-                        modsListView.Items.Remove(item);
-                        ModListData.Remove(item);
-
-                        modsListView.Items.Insert(listOffset, item);
-                        ModListData.Insert(listOffset, item);
+                        modObjectListView.RemoveObject(item.RowObject);
+                        newList.Clear();
+                        newList.Add((ModItem)item.RowObject);
+                        modObjectListView.InsertObjects(listOffset, newList);
 
                         anyMoved = true;
                     }
@@ -469,14 +470,17 @@ namespace MW5_Mod_Manager
                 int endOffset = selectedItems.Count;
                 foreach (var item in selectedItems)
                 {
-                    if (item.Index == modsListView.Items.Count - endOffset--)
+                    if (item.Index == modObjectListView.Items.Count - endOffset--)
                         continue;
 
+                    modObjectListView.RemoveObject(item.RowObject);
+                    modObjectListView.AddObject(item.RowObject);
+                    /*
                     modsListView.Items.Remove(item);
                     ModListData.Remove(item);
 
                     modsListView.Items.Add(item);
-                    ModListData.Add(item);
+                    ModListData.Add(item);*/
 
                     anyMoved = true;
                 }
@@ -485,17 +489,16 @@ namespace MW5_Mod_Manager
             if (anyMoved)
             {
                 RecomputeLoadOrdersAndUpdateList();
-                ModsManager.Instance.GetOverridingData(this.ModListData);
+                ModsManager.Instance.RecomputeOverridingData();
 
-                modListView_SelectedIndexChanged(null, null);
+                QueueSidePanelUpdate(true);
                 SetModConfigTainted(true);
             }
 
             _movingItems = false;
 
             QueueSidePanelUpdate(true);
-            modsListView.EndUpdate();
-            */
+            modObjectListView.EndUpdate();
         }
 
         public void ApplyModSettings()
@@ -1957,23 +1960,29 @@ namespace MW5_Mod_Manager
 
         private void contextMenuItemMoveToTop_Click(object sender, EventArgs e)
         {
-            //MoveListItems(modsListView.SelectedItems, MovePosition.Top);
+            var selectedItems = modObjectListView.SelectedObjects;
+            MoveListItems(modObjectListView.SelectedItems, MovePosition.Top);
+            modObjectListView.SelectedObjects = selectedItems;
+            modObjectListView.EnsureModelVisible(selectedItems[0]);
         }
 
         private void contextMenuItemMoveToBottom_Click(object sender, EventArgs e)
         {
-            //MoveListItems(modsListView.SelectedItems, MovePosition.Bottom);
+            var selectedItems = modObjectListView.SelectedObjects;
+            MoveListItems(modObjectListView.SelectedItems, MovePosition.Bottom);
+            modObjectListView.SelectedObjects = selectedItems;
+            modObjectListView.EnsureModelVisible(selectedItems[^1]);
         }
 
         private void moveupToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //MoveListItems(modsListView.SelectedItems, MoveDirection.Up);
+            MoveListItems(modObjectListView.SelectedItems, MoveDirection.Up);
         }
 
         private void movedownToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
-            //MoveListItems(modsListView.SelectedItems, MoveDirection.Down);
+            MoveListItems(modObjectListView.SelectedItems, MoveDirection.Down);
         }
 
         public void ColorListViewNumbers(int subItemIndex, Color fromColor, Color toColor)
@@ -2350,38 +2359,34 @@ namespace MW5_Mod_Manager
 
         private void toTopToolStripButton_Click(object sender, EventArgs e)
         {
-            /*
-            MoveListItems(modsListView.SelectedItems, MovePosition.Top);
-
-            if (modsListView.SelectedItems.Count > 0)
-                modsListView.SelectedItems[0].EnsureVisible();
-            */
+            var selectedItems = modObjectListView.SelectedObjects;
+            MoveListItems(modObjectListView.SelectedItems, MovePosition.Top);
+            modObjectListView.SelectedObjects = selectedItems;
+            modObjectListView.EnsureModelVisible(selectedItems[0]);
         }
 
         private void toBottomToolStripButton_Click(object sender, EventArgs e)
         {
-            /*MoveListItems(modsListView.SelectedItems, MovePosition.Bottom);
-            if (modsListView.SelectedItems.Count > 0)
-                modsListView.SelectedItems[^1].EnsureVisible();
-            */
+            var selectedItems = modObjectListView.SelectedObjects;
+            MoveListItems(modObjectListView.SelectedItems, MovePosition.Bottom);
+            modObjectListView.SelectedObjects = selectedItems;
+            modObjectListView.EnsureModelVisible(selectedItems[^1]);
         }
 
         private void upToolStripButton_Click(object sender, EventArgs e)
         {
-            /*
-            MoveListItems(modsListView.SelectedItems, MoveDirection.Up);
-            if (modsListView.SelectedItems.Count > 0)
-                modsListView.SelectedItems[0].EnsureVisible();
-            */
+            var selectedItems = modObjectListView.SelectedObjects;
+            MoveListItems(modObjectListView.SelectedItems, MoveDirection.Up);
+            modObjectListView.SelectedObjects = selectedItems;
+            modObjectListView.EnsureModelVisible(selectedItems[0]);
         }
 
         private void downToolStripButton_Click(object sender, EventArgs e)
         {
-            /*
-            MoveListItems(modsListView.SelectedItems, MoveDirection.Down);
-            if (modsListView.SelectedItems.Count > 0)
-                modsListView.SelectedItems[^1].EnsureVisible();
-            */
+            var selectedItems = modObjectListView.SelectedObjects;
+            MoveListItems(modObjectListView.SelectedItems, MoveDirection.Down);
+            modObjectListView.SelectedObjects = selectedItems;
+            modObjectListView.EnsureModelVisible(selectedItems[^1]);
         }
 
         private void timerOverviewUpdateDelay_Tick(object sender, EventArgs e)
