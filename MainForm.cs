@@ -2053,9 +2053,7 @@ namespace MW5_Mod_Manager
                 return;
 
             // This sorting follows the way MW5 orders its list
-            /*
-            modsListView.BeginUpdate();
-            ModListData.Sort((x, y) =>
+            ModItemList.Instance.ModList.Sort((x, y) =>
             {
                 if (LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow)
                 {
@@ -2063,12 +2061,12 @@ namespace MW5_Mod_Manager
                 }
 
                 // Compare Original load order
-                int priorityComparison = int.Parse(x.SubItems[originalLoadOrderHeader.Index].Text).CompareTo(int.Parse(y.SubItems[originalLoadOrderHeader.Index].Text));
+                int priorityComparison = x.OriginalLoadOrder.CompareTo(y.OriginalLoadOrder);
 
                 // If Priority is equal, compare Folder name
                 if (priorityComparison == 0)
                 {
-                    return x.SubItems[folderHeader.Index].Text.CompareTo(y.SubItems[folderHeader.Index].Text);
+                    return String.Compare(x.FolderName, y.FolderName, StringComparison.InvariantCulture);
                 }
                 else
                 {
@@ -2076,19 +2074,24 @@ namespace MW5_Mod_Manager
                 }
             });
 
-            ReloadListViewFromData();
+            modObjectListView.BeginUpdate();
+            IList prevSelected = modObjectListView.SelectedObjects;
+            modObjectListView.ClearObjects();
+            modObjectListView.AddObjects(ModItemList.Instance.ModList);
+            modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
+
             RecomputeLoadOrdersAndUpdateList();
-            ModsManager.Instance.GetOverridingData(this.ModListData);
+            ModsManager.Instance.RecomputeOverridingData();
             FilterTextChanged();
-            modListView_SelectedIndexChanged(null, null);
             SetModConfigTainted(true);
-            int selectedItemIndex = SelectedItemIndex();
-            if (selectedItemIndex != -1)
+
+            modObjectListView.SelectedObjects = prevSelected;
+            if (prevSelected.Count > 0)
             {
-                modsListView.EnsureVisible(selectedItemIndex);
+                modObjectListView.EnsureModelVisible(prevSelected[0]);
             }
 
-            modsListView.EndUpdate();*/
+            modObjectListView.EndUpdate();
         }
 
         public bool AreAllModsEnabled()
