@@ -668,6 +668,13 @@ namespace MW5_Mod_Manager
                     newItem.OriginalLoadOrder = (int)ModsManager.Instance.Mods[entry.Key].OriginalLoadOrder;
                     newItem.Origin = ModsManager.Instance.Mods[entry.Key].Origin;
 
+                    newItem.Version = ModsManager.Instance.ModDetails[entry.Key].version;
+                    newItem.BuildNumber = ModsManager.Instance.ModDetails[entry.Key].buildNumber;
+                    string versionString = (ModsManager.Instance.ModDetails[entry.Key].version + " (" +
+                                            ModsManager.Instance.ModDetails[entry.Key].buildNumber.ToString() + ")").Trim();
+
+                    newItem.VersionCombined = versionString;
+
                     ModItemList.Instance.ModList.Add(newItem);
                     modObjectListView.AddObject(newItem);
                 }

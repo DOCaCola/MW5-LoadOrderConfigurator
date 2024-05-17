@@ -109,6 +109,8 @@ namespace MW5_Mod_Manager
         public string FolderName;
         public string Author;
         public string Version;
+        public int BuildNumber;
+        public string VersionCombined;
         public long FileSize;
         public int CurrentLoadOrder;
         public int OriginalLoadOrder;

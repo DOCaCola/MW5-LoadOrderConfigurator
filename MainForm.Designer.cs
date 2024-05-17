@@ -618,10 +618,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(splitContainer2);
             tabPage1.Controls.Add(labelModNameOverrides);
             tabPage1.Controls.Add(label7);
-            tabPage1.Location = new Point(4, 22);
+            tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(326, 457);
+            tabPage1.Size = new Size(326, 455);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Conflicts";
             tabPage1.UseVisualStyleBackColor = true;
@@ -1090,7 +1090,7 @@ namespace MW5_Mod_Manager
             // 
             // olvColumnModVersion
             // 
-            olvColumnModVersion.AspectName = "Version";
+            olvColumnModVersion.AspectName = "VersionCombined";
             olvColumnModVersion.Groupable = false;
             olvColumnModVersion.Text = "Version";
             olvColumnModVersion.Width = 80;
