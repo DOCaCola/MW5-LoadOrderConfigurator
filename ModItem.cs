@@ -94,16 +94,18 @@ namespace MW5_Mod_Manager
             {
                 ModItem curModItem = ModList[i];
                 string modKey = curModItem.Path;
-                bool modEnabled = ModsManager.Instance.ModEnabledList[modKey];
+                bool modEnabled = curModItem.Enabled;
                 newModList[modKey] = modEnabled;
                 if (!isDefaultSorted && (!restoreLoadOrdersOfDisabled || modEnabled))
                 {
                     ModList[i].CurrentLoadOrder = curLoadOrder;
+                    ModsManager.Instance.Mods[modKey].NewLoadOrder = curLoadOrder;
                     --curLoadOrder;
                 }
                 else
                 {
                     ModList[i].CurrentLoadOrder = ModList[i].OriginalLoadOrder;
+                    ModsManager.Instance.Mods[modKey].NewLoadOrder = ModList[i].OriginalLoadOrder;
                 }
             }
 

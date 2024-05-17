@@ -1986,7 +1986,7 @@ namespace MW5_Mod_Manager
                 ModItem curModItem = (ModItem)item.RowObject;
 
                 // Skip disabled mods
-                if (!ModsManager.Instance.ModEnabledList[curModItem.Path])
+                if (!curModItem.Enabled)
                     continue;
 
                 if (int.TryParse(item.SubItems[subItemIndex].Text, out var number))
