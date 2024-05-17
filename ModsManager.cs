@@ -263,7 +263,7 @@ namespace MW5_Mod_Manager
             {
                 // Force refresh of the modlist so the user can see the progress so far.
                 // A bit hacky putting this here
-                MainForm.Instance.modsListView.ForceRedraw();
+                MainForm.Instance.modObjectListView.ForceRedraw();
 
                 var page = new TaskDialogPage()
                 {
@@ -309,7 +309,7 @@ namespace MW5_Mod_Manager
             {
                 // Force refresh of the modlist so the user can see the progress so far.
                 // A bit hacky putting this here
-                MainForm.Instance.modsListView.ForceRedraw();
+                MainForm.Instance.modObjectListView.ForceRedraw();
 
                 var page = new TaskDialogPage()
                 {
@@ -1249,38 +1249,6 @@ namespace MW5_Mod_Manager
             }
         }
 
-        //Reset the overriding data between two mods and check if after mods are still overriding/being overriden
-        public void ResetOverrdingBetweenMods(ListViewItem listItemA, ListViewItem listItemB)
-        {
-            string modA = listItemA.SubItems[MainForm.Instance.folderHeader.Index].Text;
-            string modB = listItemB.SubItems[MainForm.Instance.folderHeader.Index].Text;
-
-            if (this.OverridingData.ContainsKey(modA))
-            {
-                if (this.OverridingData[modA].overriddenBy.ContainsKey(modB))
-                    this.OverridingData[modA].overriddenBy.Remove(modB);
-                if (this.OverridingData[modA].overrides.ContainsKey(modB))
-                    this.OverridingData[modA].overrides.Remove(modB);
-                if (this.OverridingData[modA].overrides.Count == 0)
-                    this.OverridingData[modA].isOverriding = false;
-                if (this.OverridingData[modA].overriddenBy.Count == 0)
-                    this.OverridingData[modA].isOverridden = false;
-            }
-            if (this.OverridingData.ContainsKey(modA))
-            {
-                if (this.OverridingData[modB].overriddenBy.ContainsKey(modA))
-                    this.OverridingData[modB].overriddenBy.Remove(modA);
-                if (this.OverridingData[modB].overrides.ContainsKey(modA))
-                    this.OverridingData[modB].overrides.Remove(modA);
-                if (this.OverridingData[modB].overrides.Count == 0)
-                    this.OverridingData[modB].isOverriding = false;
-                if (this.OverridingData[modB].overriddenBy.Count == 0)
-                    this.OverridingData[modB].isOverridden = false;
-            }
-            //Console.WriteLine("ResetOverrdingBetweenMods modA: " + modA + " " + this.OverrridingData[modA].isOverriding + " " + this.OverrridingData[modA].isOverriden);
-            //Console.WriteLine("ResetOverrdingBetweenMods modB: " + modB + " " + this.OverrridingData[modB].isOverriding + " " + this.OverrridingData[modB].isOverriden);
-        }
-
         internal void SaveLastAppliedModOrder()
         {
             string lastAppliedJsonFile = GetSettingsDirectory() + Path.DirectorySeparatorChar + LastAppliedOrderFileName;
@@ -1424,119 +1392,6 @@ namespace MW5_Mod_Manager
             //ColorizeListViewItems(items);
         }
 
-        //Used to update the override data when a new item is added or removed to/from the mod list instead of checking all items agains each other again.
-        public void UpdateNewModOverrideData(List<ListViewItem> items, ListViewItem newListItem)
-        {
-            string modA = newListItem.SubItems[MainForm.Instance.folderHeader.Index].Text;
-            ////Console.WriteLine("UpdateNewModOverrideData");
-            ////Console.WriteLine("Mod checked or unchecked: " + modA);
-
-            if (!newListItem.Checked)
-            {
-                ////Console.WriteLine("--Unchecked");
-                if (this.OverridingData.ContainsKey(modA))
-                    this.OverridingData.Remove(modA);
-
-                foreach (string key in this.OverridingData.Keys)
-                {
-                    if (OverridingData[key].overriddenBy.ContainsKey(modA))
-                        OverridingData[key].overriddenBy.Remove(modA);
-
-                    if (OverridingData[key].overrides.ContainsKey(modA))
-                        OverridingData[key].overrides.Remove(modA);
-
-                    if (OverridingData[key].overrides.Count == 0)
-                        OverridingData[key].isOverriding = false;
-
-                    if (OverridingData[key].overriddenBy.Count == 0)
-                        OverridingData[key].isOverridden = false;
-                }
-            }
-            else
-            {
-                ////Console.WriteLine("--Unchecked");
-                if (!this.OverridingData.ContainsKey(modA))
-                {
-                    this.OverridingData[modA] = new OverridingData
-                    {
-                        mod = modA,
-                        overrides = new Dictionary<string, List<string>>(),
-                        overriddenBy = new Dictionary<string, List<string>>()
-                    };
-                }
-
-                // check each mod for changes
-                foreach (ListViewItem item in items)
-                {
-                    string modB = item.SubItems[MainForm.Instance.folderHeader.Index].Text;
-
-                    // Don't compare the same mod
-                    if (modA == modB)
-                        continue;
-
-                    if (!this.OverridingData.ContainsKey(modB))
-                    {
-                        this.OverridingData[modB] = new OverridingData
-                        {
-                            mod = modB,
-                            overrides = new Dictionary<string, List<string>>(),
-                            overriddenBy = new Dictionary<string, List<string>>()
-                        };
-                    }
-                    GetModOverridingData(newListItem, item, items.Count, this.OverridingData[modA], this.OverridingData[modB]);
-                }
-            }
-
-            ColorizeListViewItems(items);
-        }
-
-        //used to update the overriding data when a mod is moved ONE up or ONE down.
-        public void UpdateModOverridingdata(List<ListViewItem> items, ListViewItem movedModItem, bool movedUp)
-        {
-            string modA = movedModItem.SubItems[MainForm.Instance.folderHeader.Index].Text;
-
-            //Console.WriteLine("UpdateModOverridingdata");
-            //Console.WriteLine("--" + modA);
-
-            int indexToCheck = 0;
-            if (movedUp)
-                indexToCheck = movedModItem.Index + 1;
-            else
-                indexToCheck = movedModItem.Index - 1;
-
-            ListViewItem listItemB = items[indexToCheck];
-            string modB = listItemB.SubItems[MainForm.Instance.folderHeader.Index].Text;
-            //Console.WriteLine("++" + modB);
-
-            if (!this.OverridingData.ContainsKey(modA))
-            {
-                this.OverridingData[modA] = new OverridingData
-                {
-                    mod = modA,
-                    overrides = new Dictionary<string, List<string>>(),
-                    overriddenBy = new Dictionary<string, List<string>>()
-                };
-            }
-            if (!this.OverridingData.ContainsKey(modB))
-            {
-                this.OverridingData[modB] = new OverridingData
-                {
-                    mod = modB,
-                    overrides = new Dictionary<string, List<string>>(),
-                    overriddenBy = new Dictionary<string, List<string>>()
-                };
-            }
-
-            ResetOverrdingBetweenMods(movedModItem, listItemB);
-
-            GetModOverridingData(movedModItem, items[indexToCheck], items.Count, OverridingData[modA], OverridingData[modA]);
-
-            OverridingData A = OverridingData[modA];
-            OverridingData B = OverridingData[modB];
-
-            ColorizeListViewItems(items);
-        }
-
         //See if items A and B are interacting in terms of manifest and return the intersect
         public void GetModOverridingData(ModItem listItemA, ModItem listItemB, OverridingData A, OverridingData B)
         {
@@ -1557,61 +1412,6 @@ namespace MW5_Mod_Manager
 
             if (!intersect.Any())
                 return;
-
-            //If we are loaded after the mod we are looking at we are overriding it.
-            if (loadOrderA > loadOrderB)
-            {
-                if (A.mod != modB)
-                {
-                    A.isOverriding = true;
-                    A.overrides[modB] = intersect;
-                }
-                if (B.mod != modA)
-                {
-                    B.isOverridden = true;
-                    B.overriddenBy[modA] = intersect;
-                }
-            }
-            else
-            {
-                if (A.mod != modB)
-                {
-                    A.isOverridden = true;
-                    A.overriddenBy[modB] = intersect;
-                }
-                if (B.mod != modA)
-                {
-                    B.isOverriding = true;
-                    B.overrides[modA] = intersect;
-                }
-            }
-            this.OverridingData[modA] = A;
-            this.OverridingData[modB] = B;
-        }
-
-        //See if items A and B are interacting in terms of manifest and return the intersect
-        public void GetModOverridingData(ListViewItem listItemA, ListViewItem listItemB, int itemCount, OverridingData A, OverridingData B)
-        {
-            if (listItemA.Index == listItemB.Index)
-                return;
-
-            string modA = listItemA.SubItems[MainForm.Instance.folderHeader.Index].Text;
-            string modB = listItemB.SubItems[MainForm.Instance.folderHeader.Index].Text;
-
-            float loadOrderA = Mods[listItemA.Tag.ToString()].NewLoadOrder;
-            float loadOrderB = Mods[listItemB.Tag.ToString()].NewLoadOrder;
-
-            //Now we have a mod that is not the mod we are looking at is enabled.
-            //Lets compare the manifest!
-            List<string> manifestA = this.ModDetails[this.DirNameToPathDict[modA]].manifest;
-            List<string> manifestB = this.ModDetails[this.DirNameToPathDict[modB]].manifest;
-            List<string> intersect = manifestA.Intersect(manifestB).ToList();
-
-            //If the intersects elements are greater then zero we have shared parts of the manifest
-            if (intersect.Count() == 0)
-                return;
-
-            ////Console.WriteLine("---Intersection: " + modB + " : " + priorityB.ToString());
 
             //If we are loaded after the mod we are looking at we are overriding it.
             if (loadOrderA > loadOrderB)
@@ -1742,190 +1542,13 @@ namespace MW5_Mod_Manager
             //ColorizeListViewItems(items);
         }
 
-        //Return a dict of all overriden mods with a list of overriden files as values.
-        //else returns an empty string.
-        public void GetOverridingData(List<ListViewItem> items)
-        {
-            ////Console.WriteLine(Environment.StackTrace);
-            ////Console.WriteLine("Starting Overriding data check");
-            this.OverridingData.Clear();
-
-            foreach (ListViewItem itemA in items)
-            {
-                // Skip disabled items
-                if (!itemA.Checked)
-                    continue;
-
-                string modA = itemA.SubItems[MainForm.Instance.folderHeader.Index].Text;
-                int priorityA = items.Count - items.IndexOf(itemA);
-
-                //Check if we already have this mod in the dict if not create an entry for it.
-                if (!this.OverridingData.ContainsKey(modA))
-                {
-                    this.OverridingData[modA] = new OverridingData
-                    {
-                        mod = modA,
-                        overrides = new Dictionary<string, List<string>>(),
-                        overriddenBy = new Dictionary<string, List<string>>()
-                    };
-                }
-                OverridingData A = this.OverridingData[modA];
-
-                //Console.WriteLine("Checking: " + modA + " : " + priorityA.ToString());
-                foreach (ListViewItem itemB in items)
-                {
-                    string modB = itemB.SubItems[MainForm.Instance.folderHeader.Index].Text;
-
-                    if (modA == modB)
-                        continue;
-
-                    if (!itemB.Checked)
-                        continue;
-
-                    //If we have already seen modB in comparison to modA we don't need to compare because the comparison is bi-directionary.
-                    if (
-                        A.overriddenBy.ContainsKey(modB) ||
-                        A.overrides.ContainsKey(modB)
-                        )
-                    {
-                        ////Console.WriteLine("--" + modA + "has allready been compared to: " + modB);
-                        continue;
-                    }
-
-                    //Check if we have already seen modB before.
-                    if (this.OverridingData.ContainsKey(modB))
-                    {
-                        //If we have allready seen modB and we have allready compared modB and modA we don't need to compare because the comparison is bi-directionary.
-                        if (
-                            this.OverridingData[modB].overriddenBy.ContainsKey(modA) ||
-                            this.OverridingData[modB].overrides.ContainsKey(modA)
-                            )
-                        {
-                            ////Console.WriteLine("--" + modB + "has allready been compared to: " + modA);
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        //If we have not make a new modB overridingDatas
-                        this.OverridingData[modB] = new OverridingData
-                        {
-                            mod = modB,
-                            overrides = new Dictionary<string, List<string>>(),
-                            overriddenBy = new Dictionary<string, List<string>>()
-                        };
-                    }
-                    GetModOverridingData(itemA, itemB, items.Count, this.OverridingData[modA], this.OverridingData[modB]);
-                }
-            }
-
-            #region debug output
-
-            //Debug output
-            //foreach(string key in this.OverrridingData.Keys)
-            //{
-            //    //Console.WriteLine("MOD: " + key);
-            //    //Console.WriteLine("--Overriden:");
-            //    foreach (string mod in OverrridingData[key].overriddenBy.Keys)
-            //    {
-            //        //Console.WriteLine("----" + OverrridingData[key].isOverriden);
-            //    }
-            //    //Console.WriteLine("--Overrides:");
-            //    foreach (string mod in OverrridingData[key].overrides.Keys)
-            //    {
-            //        //Console.WriteLine("----" + OverrridingData[key].isOverriding);
-            //    }
-            //}
-
-            #endregion debug output
-
-            ColorizeListViewItems(items);
-        }
-
-        //Check color of a single mod.
-        public void ColorItemOnOverrdingData(ListViewItem listItem)
-        {
-            ColorizeListViewItems(new List<ListViewItem>() { listItem });
-        }
-
         //Color the list view items based on data
         public void ColorizeListViewItems(List<ListViewItem> items)
         {
-            MainForm.Instance.modsListView.BeginUpdate();
-            foreach (ListViewItem item in items)
-            {
-                string modName = item.SubItems[MainForm.Instance.folderHeader.Index].Text;
-
-                bool modEnabled = ModEnabledList[item.Tag.ToString()];
-
-                /*if (modEnabled)
-                {
-                    item.SubItems[MainForm.Instance.displayHeader.Index].Font = new Font(MainForm.Instance.modsListView.Font, MainForm.Instance.modsListView.Font.Style | FontStyle.Bold);  
-                }
-                else
-                {
-                    item.SubItems[MainForm.Instance.displayHeader.Index].Font = new Font(MainForm.Instance.modsListView.Font, MainForm.Instance.modsListView.Font.Style);  
-                }*/
-
-                switch (ModsManager.Instance.Mods[item.Tag.ToString()].Origin)
-                {
-                    case ModsManager.ModData.ModOrigin.Steam:
-                        if (modEnabled)
-                            item.ImageKey = "Steam";
-                        else
-                            item.ImageKey = "SteamDis";
-                        break;
-                    case ModsManager.ModData.ModOrigin.Nexusmods:
-                        if (modEnabled)
-                            item.ImageKey = "Nexusmods";
-                        else
-                            item.ImageKey = "NexusmodsDis";
-                        break;
-                    default:
-                        if (modEnabled)
-                            item.ImageKey = "Folder";
-                        else
-                            item.ImageKey = "FolderDis";
-                        break;
-                }
-
-                foreach (ListViewItem.ListViewSubItem curItem in item.SubItems)
-                {
-                    curItem.ForeColor = modEnabled ? SystemColors.WindowText : Color.FromArgb(142, 140, 142);
-                }
-
-                if (!modEnabled)
-                {
-                    continue;
-                }
-
-                if (!this.OverridingData.ContainsKey(modName))
-                {
-                    item.SubItems[MainForm.Instance.displayHeader.Index].ForeColor = SystemColors.WindowText;
-
-                    continue;
-                }
-                OverridingData A = OverridingData[modName];
-                Color newItemColor = SystemColors.WindowText;
-                if (A.isOverridden)
-                {
-                    newItemColor = OverriddenColor;
-                }
-                if (A.isOverriding)
-                {
-                    newItemColor = OverridingColor;
-                }
-                if (A.isOverriding && A.isOverridden)
-                {
-                    newItemColor = OverriddenOveridingColor;
-                }
-
-                item.SubItems[MainForm.Instance.displayHeader.Index].ForeColor = newItemColor;
-            }
-
+            MainForm.Instance.modObjectListView.BeginUpdate();
             MainForm.Instance.ColorListViewNumbers(MainForm.Instance.olvColumnModCurLoadOrder.Index, LowPriorityColor, HighPriorityColor);
             MainForm.Instance.ColorListViewNumbers(MainForm.Instance.olvColumnModOrgLoadOrder.Index, LowPriorityColor, HighPriorityColor);
-            MainForm.Instance.modsListView.EndUpdate();
+            MainForm.Instance.modObjectListView.EndUpdate();
         }
 
         //Monitor the size of a given zip file

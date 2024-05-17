@@ -36,15 +36,6 @@ namespace MW5_Mod_Manager
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             openFileDialog1 = new OpenFileDialog();
             toolStripPlatformLabel = new ToolStripStatusLabel();
-            modsListView = new ModsListView();
-            enabledHeader = new ColumnHeader();
-            displayHeader = new ColumnHeader();
-            authorHeader = new ColumnHeader();
-            versionHeader = new ColumnHeader();
-            currentLoadOrderHeader = new ColumnHeader();
-            originalLoadOrderHeader = new ColumnHeader();
-            fileSizeHeader = new ColumnHeader();
-            folderHeader = new ColumnHeader();
             imageListIcons = new ImageList(components);
             textProgressBarBindingSource = new BindingSource(components);
             menuStrip1 = new MenuStrip();
@@ -191,76 +182,6 @@ namespace MW5_Mod_Manager
             toolStripPlatformLabel.Name = "toolStripPlatformLabel";
             toolStripPlatformLabel.Size = new Size(16, 19);
             toolStripPlatformLabel.Text = "-";
-            // 
-            // modsListView
-            // 
-            modsListView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            modsListView.CheckBoxes = true;
-            modsListView.Columns.AddRange(new ColumnHeader[] { enabledHeader, displayHeader, authorHeader, versionHeader, currentLoadOrderHeader, originalLoadOrderHeader, fileSizeHeader, folderHeader });
-            modsListView.EmptyText = "No mods available.";
-            modsListView.FullRowSelect = true;
-            modsListView.LabelWrap = false;
-            modsListView.Location = new Point(30, 3);
-            modsListView.Name = "modsListView";
-            modsListView.RightToLeft = RightToLeft.No;
-            modsListView.Size = new Size(795, 454);
-            modsListView.SmallImageList = imageListIcons;
-            modsListView.TabIndex = 10;
-            modsListView.UseCompatibleStateImageBehavior = false;
-            modsListView.View = View.Details;
-            modsListView.ColumnWidthChanging += modsListView_ColumnWidthChanging;
-            modsListView.ItemChecked += modListView_ItemChecked;
-            modsListView.ItemDrag += modsListView_ItemDrag;
-            modsListView.SelectedIndexChanged += modListView_SelectedIndexChanged;
-            modsListView.DragDrop += modsListView_DragDrop;
-            modsListView.DragEnter += modsListView_DragEnter;
-            modsListView.DragOver += modsListView_DragOver;
-            modsListView.DragLeave += modsListView_DragLeave;
-            modsListView.MouseClick += modsListView_MouseClick;
-            // 
-            // enabledHeader
-            // 
-            enabledHeader.Tag = "";
-            enabledHeader.Text = "";
-            enabledHeader.Width = 38;
-            // 
-            // displayHeader
-            // 
-            displayHeader.Tag = "";
-            displayHeader.Text = "Name";
-            displayHeader.Width = 260;
-            // 
-            // authorHeader
-            // 
-            authorHeader.Tag = "";
-            authorHeader.Text = "Author";
-            authorHeader.Width = 100;
-            // 
-            // versionHeader
-            // 
-            versionHeader.Tag = "";
-            versionHeader.Text = "Version";
-            versionHeader.Width = 72;
-            // 
-            // currentLoadOrderHeader
-            // 
-            currentLoadOrderHeader.Text = "Current Load Order";
-            currentLoadOrderHeader.Width = 40;
-            // 
-            // originalLoadOrderHeader
-            // 
-            originalLoadOrderHeader.Text = "Default Load Order";
-            originalLoadOrderHeader.Width = 40;
-            // 
-            // fileSizeHeader
-            // 
-            fileSizeHeader.Text = "Size";
-            // 
-            // folderHeader
-            // 
-            folderHeader.Tag = "";
-            folderHeader.Text = "Mod Folder";
-            folderHeader.Width = 110;
             // 
             // imageListIcons
             // 
@@ -1000,7 +921,6 @@ namespace MW5_Mod_Manager
             splitContainerMain.Panel1.Controls.Add(modObjectListView);
             splitContainerMain.Panel1.Controls.Add(toolStrip2);
             splitContainerMain.Panel1.Controls.Add(rotatingLabelBottom);
-            splitContainerMain.Panel1.Controls.Add(modsListView);
             splitContainerMain.Panel1.Controls.Add(rotatingLabelTop);
             splitContainerMain.Panel1.Controls.Add(panelColorLegend);
             // 
@@ -1029,11 +949,11 @@ namespace MW5_Mod_Manager
             modObjectListView.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             modObjectListView.FullRowSelect = true;
             modObjectListView.HeaderStyle = ColumnHeaderStyle.Nonclickable;
-            modObjectListView.Location = new Point(30, 86);
+            modObjectListView.Location = new Point(30, 3);
             modObjectListView.Name = "modObjectListView";
             modObjectListView.ShowImagesOnSubItems = true;
             modObjectListView.ShowItemToolTips = true;
-            modObjectListView.Size = new Size(795, 247);
+            modObjectListView.Size = new Size(795, 454);
             modObjectListView.SmallImageList = imageListIcons;
             modObjectListView.TabIndex = 41;
             modObjectListView.UseHotControls = false;
@@ -1327,11 +1247,6 @@ namespace MW5_Mod_Manager
 
         #endregion
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
-        public System.Windows.Forms.ColumnHeader displayHeader;
-        public System.Windows.Forms.ColumnHeader folderHeader;
-        public System.Windows.Forms.ColumnHeader authorHeader;
-        public System.Windows.Forms.ColumnHeader enabledHeader;
-        public System.Windows.Forms.ColumnHeader versionHeader;
         public BrightIdeasSoftware.OLVColumn olvColumnModName;
         public BrightIdeasSoftware.OLVColumn olvColumnModFolder;
         public BrightIdeasSoftware.OLVColumn olvColumnModAuthor;
@@ -1362,7 +1277,6 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem toolStripMenuItemSettings;
         private ToolStripSeparator toolStripSeparator3;
         public ToolStripMenuItem toolStripMenuItemOpenModFolderSteam;
-        public ColumnHeader originalLoadOrderHeader;
         private TabPage tabPage1;
         private Label label6;
         private Label labelModNameOverrides;
@@ -1393,7 +1307,6 @@ namespace MW5_Mod_Manager
         private PictureBox pictureBoxNexusmodsIcon;
         private Label labelNexusmods;
         private LinkLabel linkLabelNexusmods;
-        public ColumnHeader currentLoadOrderHeader;
         private ToolTip toolTip1;
         private ToolStripStatusLabel toolStripStatusLabel1;
         private ToolStripStatusLabel toolStripStatusLabelModCountTotal;
@@ -1414,7 +1327,6 @@ namespace MW5_Mod_Manager
         private RotatingLabel rotatingLabelTop;
         private RotatingLabel rotatingLabelBottom;
         private SplitContainer splitContainerMain;
-        private ColumnHeader fileSizeHeader;
         private ToolStripMenuItem toolStripMenuItemSortDefaultLoadOrder;
         private ToolStripSeparator toolStripSeparator8;
         private ToolStripMenuItem openUserModsFolderToolStripMenuItem;
@@ -1435,7 +1347,6 @@ namespace MW5_Mod_Manager
         private RichTextBox richTextBoxManifestOverridden;
         private ToolStripMenuItem toolStripMenuItemNexusmodsLink;
         private ToolStripStatusLabel toolStripStatusLabelUpdate;
-        public ModsListView modsListView;
         private ToolStrip toolStrip2;
         private ToolStripButton toTopToolStripButton;
         private ToolStripButton upToolStripButton;
@@ -1452,7 +1363,7 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem enableModsToolStripMenuItem;
         private ToolStripMenuItem disableModsToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator7;
-        private ModsObjectsListView modObjectListView;
+        public ModsObjectsListView modObjectListView;
     }
 }
 
