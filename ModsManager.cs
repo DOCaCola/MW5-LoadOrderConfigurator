@@ -1923,8 +1923,8 @@ namespace MW5_Mod_Manager
                 item.SubItems[MainForm.Instance.displayHeader.Index].ForeColor = newItemColor;
             }
 
-            MainForm.Instance.ColorListViewNumbers(MainForm.Instance.ModListData, MainForm.Instance.currentLoadOrderHeader.Index, LowPriorityColor, HighPriorityColor);
-            MainForm.Instance.ColorListViewNumbers(MainForm.Instance.ModListData, MainForm.Instance.originalLoadOrderHeader.Index, LowPriorityColor, HighPriorityColor);
+            MainForm.Instance.ColorListViewNumbers(MainForm.Instance.olvColumnModCurLoadOrder.Index, LowPriorityColor, HighPriorityColor);
+            MainForm.Instance.ColorListViewNumbers(MainForm.Instance.olvColumnModOrgLoadOrder.Index, LowPriorityColor, HighPriorityColor);
             MainForm.Instance.modsListView.EndUpdate();
         }
 

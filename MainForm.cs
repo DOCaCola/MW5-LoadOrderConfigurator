@@ -2273,7 +2273,7 @@ namespace MW5_Mod_Manager
                         ModsManager.Instance.Mods[modListItem.Tag.ToString()].NewLoadOrder.ToString();
             }
 
-            ColorListViewNumbers(ModListData, MainForm.Instance.currentLoadOrderHeader.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
+            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
             RecolorListViewRows();
             modsListView.EndUpdate();
         }
@@ -2396,19 +2396,20 @@ namespace MW5_Mod_Manager
             MoveListItems(modsListView.SelectedItems, MoveDirection.Down);
         }
 
-        public void ColorListViewNumbers(List<ListViewItem> listViewItems, int subItemIndex, Color fromColor, Color toColor)
+        public void ColorListViewNumbers(int subItemIndex, Color fromColor, Color toColor)
         {
             List<int> numbers = new List<int>();
 
             // Extract numbers from ListView column and find unique ones
-            foreach (ListViewItem item in listViewItems)
+            foreach (OLVListItem item in modObjectListView.Items)
             {
+                ModItem curModItem = (ModItem)item.RowObject;
+
                 // Skip disabled mods
-                if (!ModsManager.Instance.ModEnabledList[item.Tag.ToString()])
+                if (!ModsManager.Instance.ModEnabledList[curModItem.Path])
                     continue;
 
-                int number;
-                if (int.TryParse(item.SubItems[subItemIndex].Text, out number))
+                if (int.TryParse(item.SubItems[subItemIndex].Text, out var number))
                 {
                     if (!numbers.Contains(number))
                     {
@@ -2423,15 +2424,18 @@ namespace MW5_Mod_Manager
             numbers.Sort();
 
             // Color the ListView items based on sorted unique numbers
-            modsListView.BeginUpdate();
-            for (int i = 0; i < listViewItems.Count; i++)
+            modObjectListView.BeginUpdate();
+            for (int i = 0; i < modObjectListView.Items.Count; i++)
             {
+                OLVListItem curListItem = (OLVListItem)modObjectListView.Items[i];
+                ModItem curModItem = (ModItem)curListItem.RowObject;
+
                 // Skip disabled mods
-                if (!ModsManager.Instance.ModEnabledList[listViewItems[i].Tag.ToString()])
+                if (!curModItem.Enabled)
                     continue;
 
                 int number;
-                if (int.TryParse(listViewItems[i].SubItems[subItemIndex].Text, out number))
+                if (int.TryParse(curListItem.SubItems[subItemIndex].Text, out number))
                 {
                     Color newColor;
                     if (numbers.Count == 1)
@@ -2444,10 +2448,20 @@ namespace MW5_Mod_Manager
                         double ratio = (double)index / (numbers.Count - 1);
                         newColor = Utils.InterpolateColor(fromColor, toColor, ratio);
                     }
-                    listViewItems[i].SubItems[subItemIndex].ForeColor = newColor;
+                    curListItem.SubItems[subItemIndex].ForeColor = newColor;
+
+                    // A bit backwards. Have to refactor the function
+                    if (subItemIndex == olvColumnModOrgLoadOrder.Index)
+                    {
+                        curModItem.ProcessedOrgLoForeColor = newColor;
+                    }
+                    else if (subItemIndex == olvColumnModCurLoadOrder.Index)
+                    {
+                        curModItem.ProcessedCurLoForeColor = newColor;
+                    }
                 }
             }
-            modsListView.EndUpdate();
+            modObjectListView.EndUpdate();
         }
 
         private void toolStripMenuItemSortDefaultLoadOrder_Click(object sender, EventArgs e)
@@ -2946,7 +2960,14 @@ namespace MW5_Mod_Manager
 
                     e.SubItem.ForeColor = newItemColor;
                 }
-
+            }
+            else if (e.ColumnIndex == this.olvColumnModCurLoadOrder.Index)
+            {
+                e.SubItem.ForeColor = modItem.ProcessedCurLoForeColor;
+            }
+            else if (e.ColumnIndex == this.olvColumnModOrgLoadOrder.Index)
+            {
+                e.SubItem.ForeColor = modItem.ProcessedOrgLoForeColor;
             }
         }
 
@@ -3003,8 +3024,8 @@ namespace MW5_Mod_Manager
 
             foreach (ModItem droppedMod in e.SourceModels)
             {
-                //ModItemList.Instance.ModList.Remove(droppedMod);
-                //ModItemList.Instance.ModList.Insert(e.DropTargetIndex, droppedMod);
+                ModItemList.Instance.ModList.Remove(droppedMod);
+                ModItemList.Instance.ModList.Insert(e.DropTargetIndex, droppedMod);
             }
             modObjectListView.BeginUpdate();
             _movingItems = true;

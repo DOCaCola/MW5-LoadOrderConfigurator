@@ -116,5 +116,7 @@ namespace MW5_Mod_Manager
         public ModsManager.ModData.ModOrigin Origin;
 
         public Color ProcessedRowBackColor = SystemColors.Window;
+        public Color ProcessedCurLoForeColor = SystemColors.WindowText;
+        public Color ProcessedOrgLoForeColor = SystemColors.WindowText;
     }
 }
