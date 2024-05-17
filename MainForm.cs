@@ -1051,7 +1051,7 @@ namespace MW5_Mod_Manager
 
         private void UpdateMoveControlEnabledState()
         {
-            bool anySelected = modsListView.SelectedItems.Count > 0;
+            bool anySelected = modObjectListView.SelectedItems.Count > 0;
             bool enabled = anySelected && _filterMode == eFilterMode.None;
             toTopToolStripButton.Enabled = enabled;
             toBottomToolStripButton.Enabled = enabled;
@@ -1177,8 +1177,8 @@ namespace MW5_Mod_Manager
                 {
                     startedListUpdate = true;
                     richTextBoxManifestOverridden.SuspendDrawing();
-                    modsListView.BeginUpdate();
-                    RecolorListViewRows();
+                    modObjectListView.BeginUpdate();
+                    RecolorObjectListViewRows();
                 }
 
                 if (listBoxOverriddenBy.SelectedIndex == -1)
@@ -1186,7 +1186,7 @@ namespace MW5_Mod_Manager
 
                 richTextBoxManifestOverridden.Clear();
                 listBoxOverriding.SelectedIndex = -1;
-                if (listBoxOverriddenBy.Items.Count == 0 || modsListView.Items.Count == 0)
+                if (listBoxOverriddenBy.Items.Count == 0 || modObjectListView.Items.Count == 0)
                     return;
 
                 if (listBoxOverriddenBy.SelectedItem == null)
@@ -1199,12 +1199,7 @@ namespace MW5_Mod_Manager
                     HighlightModInList(selectedMod.ModKey);
                 }
 
-                if (startedListUpdate)
-                {
-                    modsListView.EndUpdate();
-                }
-
-                string superMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
+                string superMod = ModsManager.Instance.PathToDirNameDict[_sideBarSelectedModKey];
 
                 if (!ModsManager.Instance.OverridingData.ContainsKey(superMod))
                     return;
@@ -1228,7 +1223,7 @@ namespace MW5_Mod_Manager
                 if (startedListUpdate)
                 {
                     richTextBoxManifestOverridden.ResumeDrawing();
-                    modsListView.EndUpdate();
+                    modObjectListView.EndUpdate();
                 }
             }
         }
@@ -1242,9 +1237,9 @@ namespace MW5_Mod_Manager
                 if (_filterMode == eFilterMode.None)
                 {
                     startedListUpdate = true;
-                    modsListView.BeginUpdate();
+                    modObjectListView.BeginUpdate();
                     richTextBoxManifestOverridden.SuspendDrawing();
-                    RecolorListViewRows();
+                    RecolorObjectListViewRows();
                 }
 
                 if (listBoxOverriding.SelectedIndex == -1)
@@ -1265,7 +1260,7 @@ namespace MW5_Mod_Manager
                     HighlightModInList(selectedMod.ModKey);
                 }
 
-                string superMod = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
+                string superMod = ModsManager.Instance.PathToDirNameDict[_sideBarSelectedModKey];
 
                 if (!ModsManager.Instance.OverridingData.ContainsKey(superMod))
                     return;
@@ -1286,14 +1281,14 @@ namespace MW5_Mod_Manager
                 if (startedListUpdate)
                 {
                     richTextBoxManifestOverridden.ResumeDrawing();
-                    modsListView.EndUpdate();
+                    modObjectListView.EndUpdate();
                 }
             }
         }
 
         private void UpdateSidePanelData(bool forceUpdate)
         {
-            if (modsListView.SelectedItems.Count == 0)
+            if (modObjectListView.SelectedItems.Count == 0)
             {
                 _sideBarSelectedModKey = string.Empty;
                 labelModNameOverrides.Text = string.Empty;
@@ -1305,16 +1300,18 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-            string selectedModPath = (string)modsListView.SelectedItems[0].Tag;
+            OLVListItem firstSelected = (OLVListItem)modObjectListView.SelectedItems[0];
+            ModItem firstSelectedMod = (ModItem)firstSelected.RowObject;
+            string selectedModPath = firstSelectedMod.Path;
 
             if (!forceUpdate && _sideBarSelectedModKey == selectedModPath)
                 return;
 
             _sideBarSelectedModKey = selectedModPath;
 
-            string selectedModFolder = modsListView.SelectedItems[0].SubItems[folderHeader.Index].Text;
+            string selectedModFolder = firstSelectedMod.FolderName;
             // Make sure displayed label doesn't convert & to underscore
-            string selectedModLabelDisplayName = modsListView.SelectedItems[0].SubItems[displayHeader.Index].Text;
+            string selectedModLabelDisplayName = firstSelectedMod.Name;
             selectedModLabelDisplayName = selectedModLabelDisplayName.Replace("&", "&&");
 
             ModObject modDetails = ModsManager.Instance.ModDetails[selectedModPath];
@@ -1977,12 +1974,15 @@ namespace MW5_Mod_Manager
 
         public void SelectModInList(string modKey)
         {
-            foreach (ListViewItem modListItem in ModListData)
+            modObjectListView.DeselectAll();
+            foreach (OLVListItem modListItem in modObjectListView.Items)
             {
-                if (modListItem.Tag.ToString() == modKey)
+                ModItem curModItem = (ModItem)modListItem.RowObject;
+
+                if (curModItem.Path == modKey)
                 {
                     modListItem.Selected = true;
-                    modsListView.EnsureVisible(modListItem.Index);
+                    modObjectListView.EnsureVisible(modListItem.Index);
                     break;
                 }
             }
@@ -1990,6 +1990,27 @@ namespace MW5_Mod_Manager
 
         public void HighlightModInList(string modKey)
         {
+            foreach (OLVListItem modListItem in modObjectListView.Items)
+            {
+                ModItem curModItem = (ModItem)modListItem.RowObject;
+
+                if (curModItem.Path == modKey)
+                {
+                    foreach (ListViewItem.ListViewSubItem subItem in modListItem.SubItems)
+                    {
+                        if (modListItem.Index % 2 == 1)
+                        {
+                            subItem.BackColor = _highlightColorAlternate;
+                        }
+                        else
+                        {
+                            subItem.BackColor = _highlightColor;
+                        }
+                    }
+                    break;
+                }
+            }
+
             foreach (ListViewItem modListItem in ModListData)
             {
                 if (modListItem.Tag.ToString() == modKey)
@@ -2931,18 +2952,15 @@ namespace MW5_Mod_Manager
 
         private void modObjectListView_SelectedIndexChanged(object sender, EventArgs e)
         {
+            UpdateMoveControlEnabledState();
+
             if (_movingItems)
                 return;
 
-            RecolorObjectListViewRows();
+            QueueSidePanelUpdate(false);
 
-            //modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
-
-            /*foreach (OLVListItem curItem in modObjectListView.Items)
-            {
-                
-                curItem.BackColor = Color.Red;
-            }*/
+            if (_filterMode == eFilterMode.None)
+                RecolorObjectListViewRows();
         }
 
         private void modObjectListView_ModelDropped(object sender, ModelDropEventArgs e)
