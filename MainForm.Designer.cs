@@ -327,57 +327,57 @@ namespace MW5_Mod_Manager
             // 
             reloadModDataToolStripMenuItem.Name = "reloadModDataToolStripMenuItem";
             reloadModDataToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+R";
-            reloadModDataToolStripMenuItem.Size = new Size(208, 22);
+            reloadModDataToolStripMenuItem.Size = new Size(210, 22);
             reloadModDataToolStripMenuItem.Text = "&Reload mod data";
             reloadModDataToolStripMenuItem.Click += reloadModDataToolStripMenuItem_Click;
             // 
             // toolStripSeparator13
             // 
             toolStripSeparator13.Name = "toolStripSeparator13";
-            toolStripSeparator13.Size = new Size(205, 6);
+            toolStripSeparator13.Size = new Size(207, 6);
             // 
             // enableAllModsToolStripMenuItem
             // 
             enableAllModsToolStripMenuItem.Name = "enableAllModsToolStripMenuItem";
-            enableAllModsToolStripMenuItem.Size = new Size(208, 22);
+            enableAllModsToolStripMenuItem.Size = new Size(210, 22);
             enableAllModsToolStripMenuItem.Text = "&Enable all";
             enableAllModsToolStripMenuItem.Click += enableAllModsToolStripMenuItem_Click;
             // 
             // disableAllModsToolStripMenuItem
             // 
             disableAllModsToolStripMenuItem.Name = "disableAllModsToolStripMenuItem";
-            disableAllModsToolStripMenuItem.Size = new Size(208, 22);
+            disableAllModsToolStripMenuItem.Size = new Size(210, 22);
             disableAllModsToolStripMenuItem.Text = "&Disable all";
             disableAllModsToolStripMenuItem.Click += disableAllModsToolStripMenuItem_Click;
             // 
             // toolStripSeparator3
             // 
             toolStripSeparator3.Name = "toolStripSeparator3";
-            toolStripSeparator3.Size = new Size(205, 6);
+            toolStripSeparator3.Size = new Size(207, 6);
             // 
             // toolStripMenuItemSortDefaultLoadOrder
             // 
             toolStripMenuItemSortDefaultLoadOrder.Name = "toolStripMenuItemSortDefaultLoadOrder";
-            toolStripMenuItemSortDefaultLoadOrder.Size = new Size(208, 22);
-            toolStripMenuItemSortDefaultLoadOrder.Text = "&Sort by default load order";
+            toolStripMenuItemSortDefaultLoadOrder.Size = new Size(210, 22);
+            toolStripMenuItemSortDefaultLoadOrder.Text = "Re&store default load order";
             toolStripMenuItemSortDefaultLoadOrder.Click += toolStripMenuItemSortDefaultLoadOrder_Click;
             // 
             // toolStripSeparator8
             // 
             toolStripSeparator8.Name = "toolStripSeparator8";
-            toolStripSeparator8.Size = new Size(205, 6);
+            toolStripSeparator8.Size = new Size(207, 6);
             // 
             // openModsFolderToolStripMenuItem
             // 
             openModsFolderToolStripMenuItem.Name = "openModsFolderToolStripMenuItem";
-            openModsFolderToolStripMenuItem.Size = new Size(208, 22);
+            openModsFolderToolStripMenuItem.Size = new Size(210, 22);
             openModsFolderToolStripMenuItem.Text = "&Open Mods Folder";
             openModsFolderToolStripMenuItem.Click += openModsFolderToolStripMenuItem_Click;
             // 
             // toolStripMenuItemOpenModFolderSteam
             // 
             toolStripMenuItemOpenModFolderSteam.Name = "toolStripMenuItemOpenModFolderSteam";
-            toolStripMenuItemOpenModFolderSteam.Size = new Size(208, 22);
+            toolStripMenuItemOpenModFolderSteam.Size = new Size(210, 22);
             toolStripMenuItemOpenModFolderSteam.Text = "Open S&team Mods folder";
             toolStripMenuItemOpenModFolderSteam.Visible = false;
             toolStripMenuItemOpenModFolderSteam.Click += toolStripMenuItemOpenModFolderSteam_Click;
@@ -385,7 +385,7 @@ namespace MW5_Mod_Manager
             // openUserModsFolderToolStripMenuItem
             // 
             openUserModsFolderToolStripMenuItem.Name = "openUserModsFolderToolStripMenuItem";
-            openUserModsFolderToolStripMenuItem.Size = new Size(208, 22);
+            openUserModsFolderToolStripMenuItem.Size = new Size(210, 22);
             openUserModsFolderToolStripMenuItem.Text = "Open &User Mods folder";
             openUserModsFolderToolStripMenuItem.Click += openUserModsFolderToolStripMenuItem_Click;
             // 

@@ -388,10 +388,15 @@ namespace MW5_Mod_Manager
                         continue;
 
                     OLVListItem listItem = (OLVListItem)modObjectListView.Items[currentIndex];
-                    modObjectListView.RemoveObject(listItem.RowObject);
+
+                    ModItem curModItem = (ModItem)listItem.RowObject;
+                    modObjectListView.RemoveObject(curModItem);
                     newList.Clear();
-                    newList.Add((ModItem)listItem.RowObject);
+                    newList.Add(curModItem);
                     modObjectListView.InsertObjects(newIndex, newList);
+
+                    ModItemList.Instance.ModList.Remove(curModItem);
+                    ModItemList.Instance.ModList.Insert(newIndex, curModItem);
 
                     anyMoved = true;
                 }
@@ -411,10 +416,15 @@ namespace MW5_Mod_Manager
                         continue;
 
                     OLVListItem listItem = (OLVListItem)modObjectListView.Items[currentIndex];
-                    modObjectListView.RemoveObject(listItem.RowObject);
+
+                    ModItem curModItem = (ModItem)listItem.RowObject;
+                    modObjectListView.RemoveObject(curModItem);
                     newList.Clear();
-                    newList.Add((ModItem)listItem.RowObject);
+                    newList.Add(curModItem);
                     modObjectListView.InsertObjects(newIndex, newList);
+
+                    ModItemList.Instance.ModList.Remove(curModItem);
+                    ModItemList.Instance.ModList.Insert(newIndex, curModItem);
 
                     anyMoved = true;
                 }
@@ -425,6 +435,9 @@ namespace MW5_Mod_Manager
                 RecomputeLoadOrdersAndUpdateList();
                 ModsManager.Instance.RecomputeOverridingData();
 
+                modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
+
+                RecolorObjectListViewRows();
                 QueueSidePanelUpdate(true);
 
                 SetModConfigTainted(true);
@@ -455,10 +468,15 @@ namespace MW5_Mod_Manager
                 {
                     if (item.Index != listOffset)
                     {
-                        modObjectListView.RemoveObject(item.RowObject);
+                        ModItem curModItem = (ModItem)item.RowObject;
+
+                        modObjectListView.RemoveObject(curModItem);
                         newList.Clear();
-                        newList.Add((ModItem)item.RowObject);
+                        newList.Add(curModItem);
                         modObjectListView.InsertObjects(listOffset, newList);
+
+                        ModItemList.Instance.ModList.Remove(curModItem);
+                        ModItemList.Instance.ModList.Insert(listOffset, curModItem);
 
                         anyMoved = true;
                     }
@@ -473,14 +491,12 @@ namespace MW5_Mod_Manager
                     if (item.Index == modObjectListView.Items.Count - endOffset--)
                         continue;
 
-                    modObjectListView.RemoveObject(item.RowObject);
-                    modObjectListView.AddObject(item.RowObject);
-                    /*
-                    modsListView.Items.Remove(item);
-                    ModListData.Remove(item);
-
-                    modsListView.Items.Add(item);
-                    ModListData.Add(item);*/
+                    ModItem curModItem = (ModItem)item.RowObject;
+                    modObjectListView.RemoveObject(curModItem);
+                    modObjectListView.AddObject(curModItem);
+                    
+                    ModItemList.Instance.ModList.Remove(curModItem);
+                    ModItemList.Instance.ModList.Add(curModItem);
 
                     anyMoved = true;
                 }
@@ -725,6 +741,13 @@ namespace MW5_Mod_Manager
             Cursor tempCursor = Cursor.Current;
             Cursor.Current = Cursors.WaitCursor;
             modObjectListView.BeginUpdate();
+            List<string> prevSelected = new List<string>(modObjectListView.SelectedItems.Count);
+
+            foreach (ModItem selected in modObjectListView.SelectedObjects)
+            {
+                prevSelected.Add(selected.Path);
+            }
+
             ClearAll();
             bool modConfigTainted = false;
             if (ModsManager.Instance.TryLoadProgramSettings())
@@ -765,6 +788,17 @@ namespace MW5_Mod_Manager
             }
             LoadPresets();
             SetModConfigTainted(modConfigTainted);
+
+            foreach (OLVListItem curListItem in modObjectListView.Items)
+            {
+                ModItem curModItem = (ModItem)curListItem.RowObject;
+
+                if (prevSelected.Contains(curModItem.Path))
+                {
+                    curListItem.Selected = true;
+                }
+            }
+
             modObjectListView.EndUpdate();
             Cursor.Current = tempCursor;
         }
@@ -2589,6 +2623,7 @@ namespace MW5_Mod_Manager
             modObjectListView.SelectObjects(e.SourceModels);
             ModItemList.Instance.RecomputeLoadOrders();
             modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
+            QueueSidePanelUpdate(true);
             /*
             ModItemList.Instance.RecomputeLoadOrders();
             modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
