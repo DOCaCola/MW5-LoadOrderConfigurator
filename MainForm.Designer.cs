@@ -980,12 +980,14 @@ namespace MW5_Mod_Manager
             // 
             olvColumnModFileSize.AspectName = "FileSize";
             olvColumnModFileSize.Groupable = false;
+            olvColumnModFileSize.Searchable = false;
             olvColumnModFileSize.Text = "File size";
             // 
             // olvColumnModCurLoadOrder
             // 
             olvColumnModCurLoadOrder.AspectName = "CurrentLoadOrder";
             olvColumnModCurLoadOrder.Groupable = false;
+            olvColumnModCurLoadOrder.Searchable = false;
             olvColumnModCurLoadOrder.Text = "Current load order";
             olvColumnModCurLoadOrder.Width = 40;
             // 
@@ -1007,6 +1009,7 @@ namespace MW5_Mod_Manager
             // 
             olvColumnModOrgLoadOrder.AspectName = "OriginalLoadOrder";
             olvColumnModOrgLoadOrder.Groupable = false;
+            olvColumnModOrgLoadOrder.Searchable = false;
             olvColumnModOrgLoadOrder.Text = "Default load order";
             olvColumnModOrgLoadOrder.Width = 40;
             // 
@@ -1014,6 +1017,7 @@ namespace MW5_Mod_Manager
             // 
             olvColumnModVersion.AspectName = "VersionCombined";
             olvColumnModVersion.Groupable = false;
+            olvColumnModVersion.Searchable = false;
             olvColumnModVersion.Text = "Version";
             olvColumnModVersion.Width = 80;
             // 

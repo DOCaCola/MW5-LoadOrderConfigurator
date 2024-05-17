@@ -17,6 +17,8 @@ using System.Net.Http;
 using System.Text;
 using BrightIdeasSoftware;
 using Newtonsoft.Json.Linq;
+using SharpCompress;
+using static System.Net.WebRequestMethods;
 
 namespace MW5_Mod_Manager
 {
@@ -95,7 +97,7 @@ namespace MW5_Mod_Manager
             dropSink.CanDropOnItem = false;
             dropSink.CanDropOnSubItem = false;
             dropSink.FeedbackColor = Color.Black;
-            dropSink.CanDrop += (o, args) => { args.Effect = DragDropEffects.Move; };
+            dropSink.CanDrop += OnDropSinkOnCanDrop;
             this.modObjectListView.DropSink = dropSink;
 
             // Selection
@@ -151,6 +153,16 @@ namespace MW5_Mod_Manager
             {
                 richTextBoxManifestOverridden.Font = monospaceFont;
             }*/
+        }
+
+        private void OnDropSinkOnCanDrop(object o, OlvDropEventArgs args)
+        {
+            if (_filterMode == eFilterMode.ItemFilter)
+            {
+                args.Effect = DragDropEffects.None;
+                return;
+            }
+            args.Effect = DragDropEffects.Move;
         }
 
 
@@ -494,7 +506,7 @@ namespace MW5_Mod_Manager
                     ModItem curModItem = (ModItem)item.RowObject;
                     modObjectListView.RemoveObject(curModItem);
                     modObjectListView.AddObject(curModItem);
-                    
+
                     ModItemList.Instance.ModList.Remove(curModItem);
                     ModItemList.Instance.ModList.Add(curModItem);
 
@@ -1023,7 +1035,7 @@ namespace MW5_Mod_Manager
         private void UpdateMoveControlEnabledState()
         {
             bool anySelected = modObjectListView.SelectedItems.Count > 0;
-            bool enabled = anySelected && _filterMode == eFilterMode.None;
+            bool enabled = anySelected && _filterMode != eFilterMode.ItemFilter;
             toTopToolStripButton.Enabled = enabled;
             toBottomToolStripButton.Enabled = enabled;
             upToolStripButton.Enabled = enabled;
@@ -1037,7 +1049,6 @@ namespace MW5_Mod_Manager
 
         private void FilterTextChanged()
         {
-            /*
             bool searchFailed = true;
             string filtertext = toolStripTextFilterBox.Text.ToLower();
             if (Utils.StringNullEmptyOrWhiteSpace(filtertext))
@@ -1045,12 +1056,8 @@ namespace MW5_Mod_Manager
                 if (this._filterMode != eFilterMode.None)
                 {
                     // end filtering
-                    modsListView.BeginUpdate();
-                    if (this._filterMode == eFilterMode.ItemFilter)
-                        ReloadListViewFromData();
-                    RecolorListViewRows();
-                    modsListView.EndUpdate();
-                    UpdateMoveControlEnabledState();
+                    modObjectListView.ModelFilter = null;
+
                     this._filterMode = eFilterMode.None;
                 }
 
@@ -1058,43 +1065,41 @@ namespace MW5_Mod_Manager
             }
             else
             {
+                modObjectListView.ModelFilter = TextMatchFilter.Contains(modObjectListView, filtertext);
                 if (!Instance.toolStripButtonFilterToggle.Checked)
                 {
                     // ensure that first found item is visible
-                    foreach (ListViewItem item in this.ModListData)
+                    if (modObjectListView.ModelFilter != null)
                     {
-                        if (MatchItemToText(filtertext, item))
+                        foreach (object originalObject in modObjectListView.Objects)
                         {
-                            item.EnsureVisible();
-                            searchFailed = false;
-                            break;
+                            if (modObjectListView.ModelFilter.Filter(originalObject))
+                            {
+                                modObjectListView.EnsureModelVisible(originalObject);
+                                searchFailed = false;
+                                break;
+                            }
                         }
                     }
 
                     _filterMode = eFilterMode.ItemHighlight;
-                    RecolorListViewRows();
                 }
                 //We are filtering by selected adding.
                 else
                 {
-                    _filterMode = eFilterMode.ItemFilter;
-                    //Clear the list view
-                    this.modsListView.Items.Clear();
-                    Instance.modsListView.BeginUpdate();
-                    RecolorListViewRows();
-                    foreach (ListViewItem item in this.ModListData)
+                    if (modObjectListView.ModelFilter != null)
                     {
-                        bool prevLoadingAndFilling = LoadingAndFilling;
-                        LoadingAndFilling = true;
-                        if (MatchItemToText(filtertext, item))
+                        foreach (object originalObject in modObjectListView.Objects)
                         {
-                            searchFailed = false;
-                            Instance.modsListView.Items.Add(item);
+                            if (modObjectListView.ModelFilter.Filter(originalObject))
+                            {
+                                searchFailed = false;
+                                break;
+                            }
                         }
-
-                        LoadingAndFilling = prevLoadingAndFilling;
                     }
-                    Instance.modsListView.EndUpdate();
+
+                    _filterMode = eFilterMode.ItemFilter;
                 }
             }
             toolStripButtonClearFilter.Enabled = toolStripTextFilterBox.Text.Length > 0;
@@ -1110,9 +1115,15 @@ namespace MW5_Mod_Manager
                 toolStripTextFilterBox.BackColor = SystemColors.Window;
             }
 
+            modObjectListView.BeginUpdate();
+            modObjectListView.Invalidate();
+            RecolorObjectListViewRows();
+            modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
+            modObjectListView.EndUpdate();
+            UpdateMoveControlEnabledState();
+
             //While filtering disable the up/down buttons (tough this should no longer be needed).
             UpdateMoveControlEnabledState();
-            */
         }
 
         //Check if given listviewitem can be matched to a string.
@@ -1774,7 +1785,7 @@ namespace MW5_Mod_Manager
 
         public void RecolorObjectListViewRows()
         {
-            bool showModOverrides = modObjectListView.SelectedItems.Count == 1 && _filterMode == eFilterMode.None;
+            bool showModOverrides = modObjectListView.SelectedItems.Count == 1 && _filterMode != eFilterMode.ItemFilter;
 
             bool anyUpdated = false;
             for (int i = 0; i <= modObjectListView.Items.Count - 1; ++i)
@@ -1789,7 +1800,7 @@ namespace MW5_Mod_Manager
                     newBackColor = Color.FromArgb(246, 245, 246);
                 }
 
-                if (_filterMode == eFilterMode.ItemHighlight)
+                /*if (_filterMode == eFilterMode.ItemHighlight)
                 {
                     string filtertext = toolStripTextFilterBox.Text.ToLower();
                     if (!string.IsNullOrWhiteSpace(filtertext) && MatchItemToText(filtertext, curItem))
@@ -1799,7 +1810,7 @@ namespace MW5_Mod_Manager
                         else
                             newBackColor = _highlightColorAlternate;
                     }
-                }
+                }*/
 
                 // Color mod overrides following the currently selected mod
                 if (showModOverrides)
@@ -2215,10 +2226,7 @@ namespace MW5_Mod_Manager
 
         private void toolStripButtonFilterToggle_CheckedChanged(object sender, EventArgs e)
         {
-            if (!toolStripButtonFilterToggle.Checked)
-            {
-                //ReloadListViewFromData();
-            }
+            modObjectListView.UseFiltering = toolStripButtonFilterToggle.Checked;
             FilterTextChanged();
         }
 
@@ -2571,8 +2579,7 @@ namespace MW5_Mod_Manager
 
             QueueSidePanelUpdate(false);
 
-            if (_filterMode == eFilterMode.None)
-                RecolorObjectListViewRows();
+            RecolorObjectListViewRows();
         }
 
         private void modObjectListView_ModelDropped(object sender, ModelDropEventArgs e)
