@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.Versioning;
 using MW5_Mod_Manager;
 
 // Current (unapplied) state of the mod list
@@ -11,6 +9,7 @@ using MW5_Mod_Manager;
 namespace MW5_Mod_Manager
 {
 
+    [SupportedOSPlatform("windows")]
     public class ModItemList
     {
         public static ModItemList Instance = new ModItemList();
@@ -21,20 +20,23 @@ namespace MW5_Mod_Manager
         {
             for (int i = 1; i < ModList.Count; i++)
             {
+                ModItem curModItem = ModList[i];
+                ModItem prevModItem = ModList[i-1];
+
                 if (LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow)
                 {
-                    if ((ModList[i].OriginalLoadOrder > ModList[i - 1].OriginalLoadOrder) ||
-                        (ModList[i].OriginalLoadOrder == ModList[i - 1].OriginalLoadOrder) &&
-                        (String.CompareOrdinal(ModList[i].FolderName, ModList[i - 1].FolderName) > 0))
+                    if ((curModItem.OriginalLoadOrder > prevModItem.OriginalLoadOrder ||
+                        (curModItem.OriginalLoadOrder == prevModItem.OriginalLoadOrder)) &&
+                        string.Compare(curModItem.FolderName, prevModItem.FolderName, StringComparison.InvariantCulture) > 0)
                     {
                         return false;
                     }
                 }
                 else
                 {
-                    if ((ModList[i-1].OriginalLoadOrder > ModList[i].OriginalLoadOrder) ||
-                        (ModList[i-1].OriginalLoadOrder == ModList[i].OriginalLoadOrder) &&
-                        (String.CompareOrdinal(ModList[i-1].FolderName, ModList[i].FolderName) > 0))                   
+                    if ((prevModItem.OriginalLoadOrder > curModItem.OriginalLoadOrder ||
+                        (prevModItem.OriginalLoadOrder == curModItem.OriginalLoadOrder)) &&
+                        string.Compare(prevModItem.FolderName, curModItem.FolderName, StringComparison.InvariantCulture) > 0)                   
                     {
                         return false;
                     }
@@ -85,18 +87,27 @@ namespace MW5_Mod_Manager
 
             int curLoadOrder = GetModCount(restoreLoadOrdersOfDisabled);
 
+            // Reorder modlist by recreating it...
+            Dictionary<string, bool> newModList = new Dictionary<string, bool>();
+
             for (int i = 0; i < ModList.Count; i++)
             {
-                if (isDefaultSorted)
-                {
-                    ModList[i].CurrentLoadOrder = ModList[i].OriginalLoadOrder;
-                }
-                else
+                ModItem curModItem = ModList[i];
+                string modKey = curModItem.Path;
+                bool modEnabled = ModsManager.Instance.ModEnabledList[modKey];
+                newModList[modKey] = modEnabled;
+                if (!isDefaultSorted && (!restoreLoadOrdersOfDisabled || modEnabled))
                 {
                     ModList[i].CurrentLoadOrder = curLoadOrder;
                     --curLoadOrder;
                 }
+                else
+                {
+                    ModList[i].CurrentLoadOrder = ModList[i].OriginalLoadOrder;
+                }
             }
+
+            ModsManager.Instance.ModEnabledList = newModList;
         }
 
     }

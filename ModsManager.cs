@@ -1327,7 +1327,7 @@ namespace MW5_Mod_Manager
             this.Presets = temp;
         }
 
-                //Used to update the override data when a new item is added or removed to/from the mod list instead of checking all items agains each other again.
+        //Used to update the override data when a new item is added or removed to/from the mod list instead of checking all items agains each other again.
         public void UpdateNewModOverrideData(ModItem newModItem)
         {
             string modA = newModItem.FolderName;
@@ -1385,15 +1385,15 @@ namespace MW5_Mod_Manager
                             overriddenBy = new Dictionary<string, List<string>>()
                         };
                     }
-                    GetModOverridingData(newModItem, item, this.OverridingData[modA], this.OverridingData[modB]);
+                    RecomputeModOverridingData(newModItem, item, this.OverridingData[modA], this.OverridingData[modB]);
                 }
             }
 
-            //ColorizeListViewItems(items);
+            ColorizeListViewItems();
         }
 
         //See if items A and B are interacting in terms of manifest and return the intersect
-        public void GetModOverridingData(ModItem listItemA, ModItem listItemB, OverridingData A, OverridingData B)
+        public void RecomputeModOverridingData(ModItem listItemA, ModItem listItemB, OverridingData A, OverridingData B)
         {
             if (listItemA == listItemB)
                 return;
@@ -1444,7 +1444,7 @@ namespace MW5_Mod_Manager
             this.OverridingData[modB] = B;
         }
 
-        public void GetOverridingData()
+        public void RecomputeOverridingData()
         {
             ////Console.WriteLine(Environment.StackTrace);
             ////Console.WriteLine("Starting Overriding data check");
@@ -1515,35 +1515,15 @@ namespace MW5_Mod_Manager
                             overriddenBy = new Dictionary<string, List<string>>()
                         };
                     }
-                    GetModOverridingData(itemA, itemB, this.OverridingData[modA], this.OverridingData[modB]);
+                    RecomputeModOverridingData(itemA, itemB, this.OverridingData[modA], this.OverridingData[modB]);
                 }
             }
 
-            #region debug output
-
-            //Debug output
-            //foreach(string key in this.OverrridingData.Keys)
-            //{
-            //    //Console.WriteLine("MOD: " + key);
-            //    //Console.WriteLine("--Overriden:");
-            //    foreach (string mod in OverrridingData[key].overriddenBy.Keys)
-            //    {
-            //        //Console.WriteLine("----" + OverrridingData[key].isOverriden);
-            //    }
-            //    //Console.WriteLine("--Overrides:");
-            //    foreach (string mod in OverrridingData[key].overrides.Keys)
-            //    {
-            //        //Console.WriteLine("----" + OverrridingData[key].isOverriding);
-            //    }
-            //}
-
-            #endregion debug output
-
-            //ColorizeListViewItems(items);
+            ColorizeListViewItems();
         }
 
         //Color the list view items based on data
-        public void ColorizeListViewItems(List<ListViewItem> items)
+        public void ColorizeListViewItems()
         {
             MainForm.Instance.modObjectListView.BeginUpdate();
             MainForm.Instance.ColorListViewNumbers(MainForm.Instance.olvColumnModCurLoadOrder.Index, LowPriorityColor, HighPriorityColor);
