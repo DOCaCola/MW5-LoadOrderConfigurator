@@ -126,7 +126,8 @@ namespace MW5_Mod_Manager
                     this.isEmergencyColumn, SortOrder.Descending, column, order);
             };*/
 
-            modObjectListView.BooleanCheckStatePutter = delegate(Object rowObject, bool newValue) {
+            modObjectListView.BooleanCheckStatePutter = delegate (Object rowObject, bool newValue)
+            {
                 ModItem curMod = (ModItem)rowObject;
                 curMod.Enabled = newValue;
                 ModsManager.Instance.ModEnabledList[curMod.Path] = newValue;
@@ -1676,14 +1677,14 @@ namespace MW5_Mod_Manager
 
         private void openFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem selectedItem in modsListView.SelectedItems)
+            foreach (OLVListItem selectedItem in modObjectListView.SelectedItems)
             {
-                string path = (string)selectedItem.Tag;
+                ModItem curModItem = (ModItem)selectedItem.RowObject;
                 try
                 {
                     var psi = new System.Diagnostics.ProcessStartInfo()
                     {
-                        FileName = path,
+                        FileName = curModItem.Path,
                         UseShellExecute = true
                     };
                     System.Diagnostics.Process.Start(psi);
@@ -2685,9 +2686,10 @@ namespace MW5_Mod_Manager
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem selectedItem in modsListView.SelectedItems)
+            foreach (OLVListItem selectedItem in modObjectListView.SelectedItems)
             {
-                DeleteMod(selectedItem.Tag.ToString());
+                ModItem curModItem = (ModItem)selectedItem.RowObject;
+                DeleteMod(curModItem.Path);
             }
         }
 
@@ -2887,9 +2889,9 @@ namespace MW5_Mod_Manager
         public void SetSelectedModEnabledState(bool newState)
         {
             bool tainted = false;
-            modsListView.BeginUpdate();
+            modObjectListView.BeginUpdate();
             this._movingItems = true;
-            foreach (ListViewItem selectedItem in modsListView.SelectedItems)
+            foreach (ListViewItem selectedItem in modObjectListView.SelectedItems)
             {
                 if (newState == selectedItem.Checked)
                     continue;
@@ -2903,13 +2905,13 @@ namespace MW5_Mod_Manager
 
             if (tainted)
             {
-                ModsManager.Instance.GetOverridingData(this.ModListData);
+                ModsManager.Instance.GetOverridingData();
                 UpdateModCountDisplay();
                 RecomputeLoadOrdersAndUpdateList();
                 SetModConfigTainted(true);
             }
 
-            modsListView.EndUpdate();
+            modObjectListView.EndUpdate();
         }
 
         private void enableModsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2932,7 +2934,7 @@ namespace MW5_Mod_Manager
                 //subItem.BackColor = Color.BlueViolet;
                 break;
             }
-            
+
             //e.Item.GetSubItem(olvColumnModName.Index).ForeColor = Color.Brown;
             e.UseCellFormatEvents = true;
         }
@@ -2946,7 +2948,7 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-            if (e.ColumnIndex == this.olvColumnModName.Index) 
+            if (e.ColumnIndex == this.olvColumnModName.Index)
             {
                 if (ModsManager.Instance.OverridingData.ContainsKey(modItem.FolderName))
                 {
@@ -3060,6 +3062,18 @@ namespace MW5_Mod_Manager
         {
             // Simpledropsource sets this to false..
             modObjectListView.FullRowSelect = true;
+        }
+
+        private void modObjectListView_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                var focusedItem = modObjectListView.FocusedItem;
+                if (focusedItem != null && focusedItem.Bounds.Contains(e.Location))
+                {
+                    contextMenuStripMod.Show(Cursor.Position);
+                }
+            }
         }
     }
 }

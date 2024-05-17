@@ -1032,6 +1032,7 @@ namespace MW5_Mod_Manager
             modObjectListView.Location = new Point(30, 86);
             modObjectListView.Name = "modObjectListView";
             modObjectListView.ShowImagesOnSubItems = true;
+            modObjectListView.ShowItemToolTips = true;
             modObjectListView.Size = new Size(795, 247);
             modObjectListView.SmallImageList = imageListIcons;
             modObjectListView.TabIndex = 41;
@@ -1046,6 +1047,7 @@ namespace MW5_Mod_Manager
             modObjectListView.ModelDropped += modObjectListView_ModelDropped;
             modObjectListView.SelectedIndexChanged += modObjectListView_SelectedIndexChanged;
             modObjectListView.DragOver += modObjectListView_DragOver;
+            modObjectListView.MouseClick += modObjectListView_MouseClick;
             // 
             // olvColumnModAuthor
             // 
