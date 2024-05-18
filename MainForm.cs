@@ -41,7 +41,6 @@ namespace MW5_Mod_Manager
         private static string _sideBarSelectedModKey = string.Empty;
         // Force next sidepanel update to execute
         private bool _forceSidePanelUpdate = false;
-        public byte[] _defaultListViewState = null;
 
         static Color _highlightColor = Color.FromArgb(200, 253, 213);
         static Color _highlightColorAlternate = Color.FromArgb(189, 240, 202);
@@ -145,16 +144,10 @@ namespace MW5_Mod_Manager
                 return newValue; // return the value that you want the control to use
             };
 
-            _defaultListViewState = modObjectListView.SaveState();
-            try
-            {
-                string viewFile = Path.Combine(GetSettingsDirectory(), "ViewState.json");
-                byte[] state = File.ReadAllBytes(viewFile);
-                modObjectListView.RestoreState(state);
-            }
-            catch (Exception exception)
-            {
-            }
+            LocViewState._defaultViewState.WindowPosition = this.DesktopBounds;
+            LocViewState._defaultViewState.listState = LocViewState.GetCurrentListViewState();
+            LocViewState.LoadViewStateFromFile();
+            LocViewState.RestoreViewState();
 
             UpdateColumnVisiblityMenu();
 
@@ -172,7 +165,6 @@ namespace MW5_Mod_Manager
                 richTextBoxManifestOverridden.Font = monospaceFont;
             }*/
         }
-
         private object GroupKeyGetter(object rowobject)
         {
             return 1;
@@ -807,9 +799,10 @@ namespace MW5_Mod_Manager
         public void RefreshAll(bool forceLoadLastApplied = false)
         {
             Cursor tempCursor = Cursor.Current;
-            Cursor.Current = Cursors.WaitCursor;
+            Cursor.Current = Cursors.AppStarting;
             modObjectListView.BeginUpdate();
             List<string> prevSelected = new List<string>(modObjectListView.SelectedItems.Count);
+            Point prevPosition = modObjectListView.LowLevelScrollPosition;
 
             foreach (ModItem selected in modObjectListView.SelectedObjects)
             {
@@ -869,6 +862,7 @@ namespace MW5_Mod_Manager
             }
 
             modObjectListView.EndUpdate();
+            modObjectListView.LowLevelScroll(prevPosition.X, prevPosition.Y);
             Cursor.Current = tempCursor;
         }
 
@@ -2066,10 +2060,7 @@ namespace MW5_Mod_Manager
                 }
             }
 
-            byte[] state = modObjectListView.SaveState();
-            string viewFile = Path.Combine(GetSettingsDirectory(), "ViewState.json");
-            File.WriteAllBytes(viewFile, state);
-
+            LocViewState.SaveCurrentState();
         }
 
         private void contextMenuItemMoveToTop_Click(object sender, EventArgs e)
@@ -2779,7 +2770,7 @@ namespace MW5_Mod_Manager
 
         private void restoreDefaultColumnsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            modObjectListView.RestoreState(_defaultListViewState);
+            LocViewState.RestoreListViewState(LocViewState._defaultViewState.listState);
             UpdateColumnVisiblityMenu();
 
             QueueListRecolor();
