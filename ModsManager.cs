@@ -614,7 +614,7 @@ namespace MW5_Mod_Manager
             newNamesEnabledList = newModListDict;
         }
 
-        public string GetSettingsDirectory()
+        public static string GetSettingsDirectory()
         {
             string appDataDir = System.Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             return Path.Combine(appDataDir, @"MW5LoadOrderConfigurator");

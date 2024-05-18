@@ -41,6 +41,7 @@ namespace MW5_Mod_Manager
         private static string _sideBarSelectedModKey = string.Empty;
         // Force next sidepanel update to execute
         private bool _forceSidePanelUpdate = false;
+        public byte[] _defaultListViewState = null;
 
         static Color _highlightColor = Color.FromArgb(200, 253, 213);
         static Color _highlightColorAlternate = Color.FromArgb(189, 240, 202);
@@ -142,6 +143,19 @@ namespace MW5_Mod_Manager
                 return newValue; // return the value that you want the control to use
             };
 
+            _defaultListViewState = modObjectListView.SaveState();
+            try
+            {
+                string viewFile = Path.Combine(GetSettingsDirectory(), "ViewState.json");
+                byte[] state = File.ReadAllBytes(viewFile);
+                modObjectListView.RestoreState(state);
+            }
+            catch (Exception exception)
+            {
+            }
+
+            UpdateColumnVisiblityMenu();
+
             panelColorOverridden.BackColor = ModsManager.OverriddenColor;
             panelColorOverriding.BackColor = ModsManager.OverridingColor;
             panelColorOverridingOverridden.BackColor = ModsManager.OverriddenOveridingColor;
@@ -159,7 +173,7 @@ namespace MW5_Mod_Manager
 
         private bool _delayedRecolorStarted = false;
 
-        private void OlvColumnVisibilityChanged(object sender, EventArgs e)
+        void QueueListRecolor()
         {
             // We need to recolor the rows after column visibility has changed,
             // however we need to do that through a timer as otherwise the listview
@@ -175,6 +189,20 @@ namespace MW5_Mod_Manager
             timerDelayedListRecolor.Start();
         }
 
+        private void OlvColumnVisibilityChanged(object sender, EventArgs e)
+        {
+            QueueListRecolor();
+        }
+
+        private void UpdateColumnVisiblityMenu()
+        {
+            authorColumnVisibilityToolStripMenuItem.Checked = olvColumnModAuthor.IsVisible;
+            versionColumnVisibilityToolStripMenuItem.Checked = olvColumnModVersion.IsVisible;
+            currentLoadOrderColumnVisibilityToolStripMenuItem.Checked = olvColumnModCurLoadOrder.IsVisible;
+            originalLoadOrderColumnVisibilityToolStripMenuItem.Checked = olvColumnModOrgLoadOrder.IsVisible;
+            fileSizeColumnVisibilityToolStripMenuItem.Checked = olvColumnModFileSize.IsVisible;
+            modFolderColumnVisibilityToolStripMenuItem.Checked = olvColumnModFolder.IsVisible;
+        }
         private void OnDropSinkOnCanDrop(object o, OlvDropEventArgs args)
         {
             if (_filterMode == eFilterMode.ItemFilter)
@@ -2016,19 +2044,25 @@ namespace MW5_Mod_Manager
 
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (!ModsManager.Instance.ModSettingsTainted)
-                return;
-
-            var result = ShowUnappliedChangesDialog();
-
-            if (result == eUnappliedChangesDialogResult.Apply)
+            if (ModsManager.Instance.ModSettingsTainted)
             {
-                ApplyModSettings();
+                var result = ShowUnappliedChangesDialog();
+
+                if (result == eUnappliedChangesDialogResult.Apply)
+                {
+                    ApplyModSettings();
+                }
+                else if (result == eUnappliedChangesDialogResult.Cancel)
+                {
+                    e.Cancel = true;
+                    return;
+                }
             }
-            else if (result == eUnappliedChangesDialogResult.Cancel)
-            {
-                e.Cancel = true;
-            }
+
+            byte[] state = modObjectListView.SaveState();
+            string viewFile = Path.Combine(GetSettingsDirectory(), "ViewState.json");
+            File.WriteAllBytes(viewFile, state);
+
         }
 
         private void contextMenuItemMoveToTop_Click(object sender, EventArgs e)
@@ -2712,6 +2746,36 @@ namespace MW5_Mod_Manager
             modObjectListView.EndUpdate();
             modObjectListView.ResumeDrawing();
             _delayedRecolorStarted = false;
+        }
+
+        private void columnVisibilityToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem menuItem = (ToolStripMenuItem)sender;
+            menuItem.Checked = !menuItem.Checked;
+
+            olvColumnModAuthor.IsVisible = authorColumnVisibilityToolStripMenuItem.Checked;
+            olvColumnModVersion.IsVisible = versionColumnVisibilityToolStripMenuItem.Checked;
+            olvColumnModCurLoadOrder.IsVisible = currentLoadOrderColumnVisibilityToolStripMenuItem.Checked;
+            olvColumnModOrgLoadOrder.IsVisible = originalLoadOrderColumnVisibilityToolStripMenuItem.Checked;
+            olvColumnModFileSize.IsVisible = fileSizeColumnVisibilityToolStripMenuItem.Checked;
+            olvColumnModFolder.IsVisible = modFolderColumnVisibilityToolStripMenuItem.Checked;
+
+            modObjectListView.RebuildColumns();
+
+            UpdateColumnVisiblityMenu();
+        }
+
+        private void modObjectListView_ColumnRightClick(object sender, ColumnClickEventArgs e)
+        {
+            contextMenuStripColumnOptions.Show(Cursor.Position);
+        }
+
+        private void restoreDefaultColumnsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            modObjectListView.RestoreState(_defaultListViewState);
+            UpdateColumnVisiblityMenu();
+
+            QueueListRecolor();
         }
     }
 }
