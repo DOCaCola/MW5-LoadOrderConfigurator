@@ -121,12 +121,6 @@ namespace MW5_Mod_Manager
             modObjectListView.HotItemStyle = his;
             modObjectListView.UseHotItem = true;
 
-            /*
-            this.modObjectListView.CustomSorter = delegate(OLVColumn column, SortOrder order) {
-                this.modObjectListView.ListViewItemSorter = new ColumnComparer(
-                    this.isEmergencyColumn, SortOrder.Descending, column, order);
-            };*/
-
             modObjectListView.BooleanCheckStatePutter = delegate (Object rowObject, bool newValue)
             {
                 ModItem curMod = (ModItem)rowObject;
@@ -684,8 +678,8 @@ namespace MW5_Mod_Manager
                     newItem.FolderName = ModsManager.Instance.PathToDirNameDict[entry.Key];
                     newItem.FileSize = ModsManager.Instance.Mods[entry.Key].ModFileSize;
                     newItem.Author = ModsManager.Instance.ModDetails[entry.Key].author;
-                    newItem.CurrentLoadOrder = (int)ModsManager.Instance.Mods[entry.Key].NewLoadOrder;
-                    newItem.OriginalLoadOrder = (int)ModsManager.Instance.Mods[entry.Key].OriginalLoadOrder;
+                    newItem.CurrentLoadOrder = ModsManager.Instance.Mods[entry.Key].NewLoadOrder;
+                    newItem.OriginalLoadOrder = ModsManager.Instance.Mods[entry.Key].OriginalLoadOrder;
                     newItem.Origin = ModsManager.Instance.Mods[entry.Key].Origin;
 
                     newItem.Version = ModsManager.Instance.ModDetails[entry.Key].version;

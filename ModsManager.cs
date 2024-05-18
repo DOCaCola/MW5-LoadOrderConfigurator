@@ -614,21 +614,6 @@ namespace MW5_Mod_Manager
             newNamesEnabledList = newModListDict;
         }
 
-        /// <summary>
-        /// Matches each folder name in the modlist to a folder on system.
-        /// Then replaces the old modlist with a new one keyed by full folder path.
-        /// </summary>
-        private void AddPathsToModList()
-        {
-            Dictionary<string, bool> newModList = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-            foreach (string key in this.ModEnabledList.Keys)
-            {
-                string fullPath = DirNameToPathDict[key];
-                newModList[fullPath] = ModEnabledList[key];
-            }
-            this.ModEnabledList = newModList;
-        }
-
         public string GetSettingsDirectory()
         {
             string appDataDir = System.Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -713,13 +698,6 @@ namespace MW5_Mod_Manager
             string steamAppsParentDirectory = FindSteamAppsParentDirectory(LocSettings.Instance.Data.InstallPath);
             string workshopPath = Path.Combine(steamAppsParentDirectory, "workshop", "content", "784080");
             this.ModsPaths[ModsManager.eModPathType.Steam] = workshopPath;
-        }
-
-        //Delete a mod dir from system.
-        internal void DeleteMod(string modDir)
-        {
-            string directory = modDir;
-            Directory.Delete(directory, true);
         }
 
         public void ParseDirectories()
@@ -1167,9 +1145,28 @@ namespace MW5_Mod_Manager
                 string modJsonExisting = File.ReadAllText(modJsonPath);
                 JObject modDetailsNew = JObject.Parse(modJsonExisting);
 
-                //JObject modDetailsUpdate = JObject.FromObject(entry.Value);
-                modDetailsNew["locOriginalLoadOrder"] = Mods[entry.Key].OriginalLoadOrder;
-                modDetailsNew["defaultLoadOrder"] = Mods[entry.Key].NewLoadOrder;
+                
+                float originalLoadOrder = Mods[entry.Key].OriginalLoadOrder;
+                if (float.IsInteger(originalLoadOrder))
+                {
+                    int oloInteger = (int)originalLoadOrder;
+                    modDetailsNew["locOriginalLoadOrder"] = oloInteger;
+                }
+                else
+                {
+                    modDetailsNew["locOriginalLoadOrder"] = originalLoadOrder;
+                }
+
+                float newLoadOrder = Mods[entry.Key].NewLoadOrder;
+                if (float.IsInteger(newLoadOrder))
+                {
+                    int nloInteger = (int)newLoadOrder;
+                    modDetailsNew["defaultLoadOrder"] = nloInteger;
+                }
+                else
+                {
+                    modDetailsNew["defaultLoadOrder"] = newLoadOrder;
+                }
 
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Formatting = Formatting.Indented;
@@ -1457,7 +1454,6 @@ namespace MW5_Mod_Manager
                     continue;
 
                 string modA = itemA.FolderName;
-                int priorityA = itemA.CurrentLoadOrder;
 
                 //Check if we already have this mod in the dict if not create an entry for it.
                 if (!this.OverridingData.ContainsKey(modA))
@@ -1529,29 +1525,6 @@ namespace MW5_Mod_Manager
             MainForm.Instance.ColorListViewNumbers(MainForm.Instance.olvColumnModCurLoadOrder.Index, LowPriorityColor, HighPriorityColor);
             MainForm.Instance.ColorListViewNumbers(MainForm.Instance.olvColumnModOrgLoadOrder.Index, LowPriorityColor, HighPriorityColor);
             MainForm.Instance.modObjectListView.EndUpdate();
-        }
-
-        //Monitor the size of a given zip file
-        public void MonitorZipSize(BackgroundWorker worker, DoWorkEventArgs e)
-        {
-            string zipFile = Directory.GetParent(this.ModsPaths[eModPathType.Program]).ToString() + "\\Mods.zip";
-            long folderSize = Utils.DirSize(new DirectoryInfo(ModsPaths[eModPathType.Program]));
-            //zip usually does about 60 percent but we dont wanna complete at like 85 or 90 lets overestimate
-            long compressedFolderSize = (long)Math.Round(folderSize * 0.35);
-            //Console.WriteLine("Starting file size monitor, FolderSize: " + compressedFolderSize.ToString());
-            while (!e.Cancel && !worker.CancellationPending)
-            {
-                while (!File.Exists(zipFile))
-                {
-                    System.Threading.Thread.Sleep(1000);
-                }
-                long zipFileSize = new FileInfo(zipFile).Length;
-                int progress = Math.Min((int)((zipFileSize * (long)100) / compressedFolderSize), 100);
-                //Console.WriteLine("--" + zipFileSize.ToString());
-                //Console.WriteLine("--" + progress.ToString());
-                worker.ReportProgress(progress);
-                System.Threading.Thread.Sleep(500);
-            }
         }
     }
 }

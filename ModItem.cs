@@ -125,9 +125,8 @@ namespace MW5_Mod_Manager
         public int BuildNumber;
         public string VersionCombined;
         public long FileSize;
-        public int CurrentLoadOrder;
-        public int OriginalLoadOrder;
-        public int OriginalLoadOrderNormalized;
+        public float CurrentLoadOrder;
+        public float OriginalLoadOrder;
         public ModsManager.ModData.ModOrigin Origin;
 
         public Color ProcessedRowBackColor = SystemColors.Window;
