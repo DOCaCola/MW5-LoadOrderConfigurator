@@ -127,11 +127,11 @@ namespace MW5_Mod_Manager
             panelColorOverridden = new Panel();
             splitContainerMain = new SplitContainer();
             modObjectListView = new ModsObjectsListView();
+            olvColumnModName = new BrightIdeasSoftware.OLVColumn();
             olvColumnModAuthor = new BrightIdeasSoftware.OLVColumn();
             olvColumnModFileSize = new BrightIdeasSoftware.OLVColumn();
             olvColumnModCurLoadOrder = new BrightIdeasSoftware.OLVColumn();
             olvColumnModFolder = new BrightIdeasSoftware.OLVColumn();
-            olvColumnModName = new BrightIdeasSoftware.OLVColumn();
             olvColumnModOrgLoadOrder = new BrightIdeasSoftware.OLVColumn();
             olvColumnModVersion = new BrightIdeasSoftware.OLVColumn();
             toolStrip2 = new ToolStrip();
@@ -151,6 +151,7 @@ namespace MW5_Mod_Manager
             toolStripButtonClearFilter = new ToolStripButton();
             toolStripSeparator11 = new ToolStripSeparator();
             timerOverviewUpdateDelay = new Timer(components);
+            timerDelayedListRecolor = new Timer(components);
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -935,11 +936,11 @@ namespace MW5_Mod_Manager
             // 
             // modObjectListView
             // 
+            modObjectListView.AllColumns.Add(olvColumnModName);
             modObjectListView.AllColumns.Add(olvColumnModAuthor);
             modObjectListView.AllColumns.Add(olvColumnModFileSize);
             modObjectListView.AllColumns.Add(olvColumnModCurLoadOrder);
             modObjectListView.AllColumns.Add(olvColumnModFolder);
-            modObjectListView.AllColumns.Add(olvColumnModName);
             modObjectListView.AllColumns.Add(olvColumnModOrgLoadOrder);
             modObjectListView.AllColumns.Add(olvColumnModVersion);
             modObjectListView.AllowColumnReorder = true;
@@ -969,6 +970,14 @@ namespace MW5_Mod_Manager
             modObjectListView.DragOver += modObjectListView_DragOver;
             modObjectListView.MouseClick += modObjectListView_MouseClick;
             // 
+            // olvColumnModName
+            // 
+            olvColumnModName.AspectName = "Name";
+            olvColumnModName.Groupable = false;
+            olvColumnModName.Hideable = false;
+            olvColumnModName.Text = "Mod";
+            olvColumnModName.Width = 300;
+            // 
             // olvColumnModAuthor
             // 
             olvColumnModAuthor.AspectName = "Author";
@@ -988,8 +997,9 @@ namespace MW5_Mod_Manager
             olvColumnModCurLoadOrder.AspectName = "CurrentLoadOrder";
             olvColumnModCurLoadOrder.Groupable = false;
             olvColumnModCurLoadOrder.Searchable = false;
-            olvColumnModCurLoadOrder.Text = "Current load order";
-            olvColumnModCurLoadOrder.TextAlign = HorizontalAlignment.Center;
+            olvColumnModCurLoadOrder.Text = "CLO";
+            olvColumnModCurLoadOrder.TextAlign = HorizontalAlignment.Right;
+            olvColumnModCurLoadOrder.ToolTipText = "Load order set";
             olvColumnModCurLoadOrder.Width = 40;
             // 
             // olvColumnModFolder
@@ -997,22 +1007,17 @@ namespace MW5_Mod_Manager
             olvColumnModFolder.AspectName = "FolderName";
             olvColumnModFolder.Groupable = false;
             olvColumnModFolder.Text = "Mod Folder";
+            olvColumnModFolder.ToolTipText = "Mod directory name";
             olvColumnModFolder.Width = 100;
-            // 
-            // olvColumnModName
-            // 
-            olvColumnModName.AspectName = "Name";
-            olvColumnModName.Groupable = false;
-            olvColumnModName.Text = "Mod";
-            olvColumnModName.Width = 300;
             // 
             // olvColumnModOrgLoadOrder
             // 
             olvColumnModOrgLoadOrder.AspectName = "OriginalLoadOrder";
             olvColumnModOrgLoadOrder.Groupable = false;
             olvColumnModOrgLoadOrder.Searchable = false;
-            olvColumnModOrgLoadOrder.Text = "Default load order";
-            olvColumnModOrgLoadOrder.TextAlign = HorizontalAlignment.Center;
+            olvColumnModOrgLoadOrder.Text = "DLO";
+            olvColumnModOrgLoadOrder.TextAlign = HorizontalAlignment.Right;
+            olvColumnModOrgLoadOrder.ToolTipText = "Mod's default load order";
             olvColumnModOrgLoadOrder.Width = 40;
             // 
             // olvColumnModVersion
@@ -1021,6 +1026,7 @@ namespace MW5_Mod_Manager
             olvColumnModVersion.Groupable = false;
             olvColumnModVersion.Searchable = false;
             olvColumnModVersion.Text = "Version";
+            olvColumnModVersion.ToolTipText = "Version with build number";
             olvColumnModVersion.Width = 80;
             // 
             // toolStrip2
@@ -1192,6 +1198,11 @@ namespace MW5_Mod_Manager
             // 
             timerOverviewUpdateDelay.Interval = 75;
             timerOverviewUpdateDelay.Tick += timerOverviewUpdateDelay_Tick;
+            // 
+            // timerDelayedListRecolor
+            // 
+            timerDelayedListRecolor.Interval = 10;
+            timerDelayedListRecolor.Tick += timerDelayedListRecolor_Tick;
             // 
             // MainForm
             // 
@@ -1370,6 +1381,7 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem disableModsToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator7;
         public ModsObjectsListView modObjectListView;
+        private Timer timerDelayedListRecolor;
     }
 }
 

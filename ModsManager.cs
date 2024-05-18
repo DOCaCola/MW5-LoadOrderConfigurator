@@ -1386,7 +1386,7 @@ namespace MW5_Mod_Manager
                 }
             }
 
-            ColorizeListViewItems();
+            MainForm.Instance.ColorizeListViewItems();
         }
 
         //See if items A and B are interacting in terms of manifest and return the intersect
@@ -1515,16 +1515,7 @@ namespace MW5_Mod_Manager
                 }
             }
 
-            ColorizeListViewItems();
-        }
-
-        //Color the list view items based on data
-        public void ColorizeListViewItems()
-        {
-            MainForm.Instance.modObjectListView.BeginUpdate();
-            MainForm.Instance.ColorListViewNumbers(MainForm.Instance.olvColumnModCurLoadOrder.Index, LowPriorityColor, HighPriorityColor);
-            MainForm.Instance.ColorListViewNumbers(MainForm.Instance.olvColumnModOrgLoadOrder.Index, LowPriorityColor, HighPriorityColor);
-            MainForm.Instance.modObjectListView.EndUpdate();
+            MainForm.Instance.ColorizeListViewItems();
         }
     }
 }

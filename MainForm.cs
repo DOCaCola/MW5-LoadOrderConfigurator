@@ -87,6 +87,14 @@ namespace MW5_Mod_Manager
             olvColumnModName.ImageGetter = this.ModImageGetter;
             olvColumnModFileSize.AspectToStringConverter = FileSizeAspectConverter;
 
+            olvColumnModName.VisibilityChanged += OlvColumnVisibilityChanged;
+            olvColumnModAuthor.VisibilityChanged += OlvColumnVisibilityChanged;
+            olvColumnModVersion.VisibilityChanged += OlvColumnVisibilityChanged;
+            olvColumnModCurLoadOrder.VisibilityChanged += OlvColumnVisibilityChanged;
+            olvColumnModOrgLoadOrder.VisibilityChanged += OlvColumnVisibilityChanged;
+            olvColumnModFileSize.VisibilityChanged += OlvColumnVisibilityChanged;
+            olvColumnModFolder.VisibilityChanged += OlvColumnVisibilityChanged;
+
             var dragSource = new SimpleDragSource();
             dragSource.RefreshAfterDrop = false;
             this.modObjectListView.DragSource = dragSource;
@@ -147,6 +155,24 @@ namespace MW5_Mod_Manager
             {
                 richTextBoxManifestOverridden.Font = monospaceFont;
             }*/
+        }
+
+        private bool _delayedRecolorStarted = false;
+
+        private void OlvColumnVisibilityChanged(object sender, EventArgs e)
+        {
+            // We need to recolor the rows after column visibility has changed,
+            // however we need to do that through a timer as otherwise the listview
+            // gets redrawn to early
+            if (!_delayedRecolorStarted)
+            {
+                _delayedRecolorStarted = true;
+                modObjectListView.BeginUpdate();
+                modObjectListView.SuspendDrawing();
+            }
+
+            timerDelayedListRecolor.Stop();
+            timerDelayedListRecolor.Start();
         }
 
         private void OnDropSinkOnCanDrop(object o, OlvDropEventArgs args)
@@ -2032,8 +2058,20 @@ namespace MW5_Mod_Manager
             MoveListItems(modObjectListView.SelectedItems, MoveDirection.Down);
         }
 
+        //Color the list view items based on data
+        public void ColorizeListViewItems()
+        {
+            modObjectListView.BeginUpdate();
+            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LowPriorityColor, HighPriorityColor);
+            ColorListViewNumbers(olvColumnModOrgLoadOrder.Index, LowPriorityColor, HighPriorityColor);
+            modObjectListView.EndUpdate();
+        }
+
         public void ColorListViewNumbers(int subItemIndex, Color fromColor, Color toColor)
         {
+            if (subItemIndex == -1)
+                return;
+
             List<float> numbers = new List<float>();
 
             // Extract numbers from ListView column and find unique ones
@@ -2481,15 +2519,15 @@ namespace MW5_Mod_Manager
             bool tainted = false;
             modObjectListView.BeginUpdate();
             this._movingItems = true;
-            foreach (ListViewItem selectedItem in modObjectListView.SelectedItems)
+            foreach (OLVListItem selectedItem in modObjectListView.SelectedItems)
             {
                 if (newState == selectedItem.Checked)
                     continue;
 
                 tainted = true;
                 selectedItem.Checked = newState;
-                string key = selectedItem.Tag as string;
-                ModsManager.Instance.ModEnabledList[key] = newState;
+                /*string key = selectedItem.Tag as string;
+                ModsManager.Instance.ModEnabledList[key] = newState;*/
             }
             this._movingItems = false;
 
@@ -2662,6 +2700,18 @@ namespace MW5_Mod_Manager
                     contextMenuStripMod.Show(Cursor.Position);
                 }
             }
+        }
+
+        private void timerDelayedListRecolor_Tick(object sender, EventArgs e)
+        {
+
+            ColorizeListViewItems();
+            modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
+            RecolorObjectListViewRows();
+            timerDelayedListRecolor.Stop();
+            modObjectListView.EndUpdate();
+            modObjectListView.ResumeDrawing();
+            _delayedRecolorStarted = false;
         }
     }
 }
