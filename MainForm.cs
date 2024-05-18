@@ -96,6 +96,8 @@ namespace MW5_Mod_Manager
             olvColumnModFileSize.VisibilityChanged += OlvColumnVisibilityChanged;
             olvColumnModFolder.VisibilityChanged += OlvColumnVisibilityChanged;
 
+            olvColumnModName.GroupKeyGetter += GroupKeyGetter;
+
             var dragSource = new SimpleDragSource();
             dragSource.RefreshAfterDrop = false;
             this.modObjectListView.DragSource = dragSource;
@@ -169,6 +171,11 @@ namespace MW5_Mod_Manager
             {
                 richTextBoxManifestOverridden.Font = monospaceFont;
             }*/
+        }
+
+        private object GroupKeyGetter(object rowobject)
+        {
+            return 1;
         }
 
         private bool _delayedRecolorStarted = false;
@@ -2715,7 +2722,7 @@ namespace MW5_Mod_Manager
         private void modObjectListView_BeforeSorting(object sender, BeforeSortingEventArgs e)
         {
             // Disable sorting
-            e.Canceled = true;
+            //e.Canceled = true;
         }
 
         private void modObjectListView_DragOver(object sender, DragEventArgs e)
@@ -2776,6 +2783,22 @@ namespace MW5_Mod_Manager
             UpdateColumnVisiblityMenu();
 
             QueueListRecolor();
+        }
+
+        private void modObjectListView_AboutToCreateGroups(object sender, CreateGroupsEventArgs e)
+        {
+            // With this trick we have group without header.
+            // Point being that the list is smoothly scrollable when groups are used
+            foreach (OLVGroup group in e.Groups)
+            {
+                group.State ^= GroupState.LVGS_NOHEADER;
+                group.StateMask ^= GroupState.LVGS_NOHEADER;
+            }
+        }
+
+        private void modObjectListView_BeforeCreatingGroups(object sender, CreateGroupsEventArgs e)
+        {
+            e.Parameters.PrimarySortOrder = SortOrder.None;
         }
     }
 }

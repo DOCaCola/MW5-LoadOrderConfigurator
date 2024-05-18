@@ -977,6 +977,8 @@ namespace MW5_Mod_Manager
             modObjectListView.UseTranslucentSelection = true;
             modObjectListView.View = View.Details;
             modObjectListView.BeforeSorting += modObjectListView_BeforeSorting;
+            modObjectListView.BeforeCreatingGroups += modObjectListView_BeforeCreatingGroups;
+            modObjectListView.AboutToCreateGroups += modObjectListView_AboutToCreateGroups;
             modObjectListView.ColumnRightClick += modObjectListView_ColumnRightClick;
             modObjectListView.FormatCell += modObjectListView_FormatCell;
             modObjectListView.FormatRow += modObjectListView_FormatRow;
@@ -988,7 +990,6 @@ namespace MW5_Mod_Manager
             // olvColumnModName
             // 
             olvColumnModName.AspectName = "Name";
-            olvColumnModName.Groupable = false;
             olvColumnModName.Hideable = false;
             olvColumnModName.Text = "Mod";
             olvColumnModName.Width = 300;
@@ -997,6 +998,7 @@ namespace MW5_Mod_Manager
             // 
             olvColumnModAuthor.AspectName = "Author";
             olvColumnModAuthor.Groupable = false;
+            olvColumnModAuthor.Sortable = false;
             olvColumnModAuthor.Text = "Author";
             olvColumnModAuthor.Width = 100;
             // 
@@ -1005,6 +1007,7 @@ namespace MW5_Mod_Manager
             olvColumnModVersion.AspectName = "VersionCombined";
             olvColumnModVersion.Groupable = false;
             olvColumnModVersion.Searchable = false;
+            olvColumnModVersion.Sortable = false;
             olvColumnModVersion.Text = "Version";
             olvColumnModVersion.ToolTipText = "Version with build number";
             olvColumnModVersion.Width = 80;
@@ -1014,6 +1017,7 @@ namespace MW5_Mod_Manager
             olvColumnModCurLoadOrder.AspectName = "CurrentLoadOrder";
             olvColumnModCurLoadOrder.Groupable = false;
             olvColumnModCurLoadOrder.Searchable = false;
+            olvColumnModCurLoadOrder.Sortable = false;
             olvColumnModCurLoadOrder.Text = "LO";
             olvColumnModCurLoadOrder.TextAlign = HorizontalAlignment.Right;
             olvColumnModCurLoadOrder.ToolTipText = "Load order set";
@@ -1024,6 +1028,7 @@ namespace MW5_Mod_Manager
             olvColumnModOrgLoadOrder.AspectName = "OriginalLoadOrder";
             olvColumnModOrgLoadOrder.Groupable = false;
             olvColumnModOrgLoadOrder.Searchable = false;
+            olvColumnModOrgLoadOrder.Sortable = false;
             olvColumnModOrgLoadOrder.Text = "oLO";
             olvColumnModOrgLoadOrder.TextAlign = HorizontalAlignment.Right;
             olvColumnModOrgLoadOrder.ToolTipText = "Mod's default load order";
@@ -1034,12 +1039,14 @@ namespace MW5_Mod_Manager
             olvColumnModFileSize.AspectName = "FileSize";
             olvColumnModFileSize.Groupable = false;
             olvColumnModFileSize.Searchable = false;
+            olvColumnModFileSize.Sortable = false;
             olvColumnModFileSize.Text = "File size";
             // 
             // olvColumnModFolder
             // 
             olvColumnModFolder.AspectName = "FolderName";
             olvColumnModFolder.Groupable = false;
+            olvColumnModFolder.Sortable = false;
             olvColumnModFolder.Text = "Mod Folder";
             olvColumnModFolder.ToolTipText = "Mod directory name";
             olvColumnModFolder.Width = 100;
@@ -1223,59 +1230,59 @@ namespace MW5_Mod_Manager
             // 
             contextMenuStripColumnOptions.Items.AddRange(new ToolStripItem[] { authorColumnVisibilityToolStripMenuItem, versionColumnVisibilityToolStripMenuItem, currentLoadOrderColumnVisibilityToolStripMenuItem, originalLoadOrderColumnVisibilityToolStripMenuItem, fileSizeColumnVisibilityToolStripMenuItem, modFolderColumnVisibilityToolStripMenuItem, toolStripSeparator15, restoreDefaultColumnsToolStripMenuItem });
             contextMenuStripColumnOptions.Name = "contextMenuStrip1";
-            contextMenuStripColumnOptions.Size = new Size(181, 186);
+            contextMenuStripColumnOptions.Size = new Size(174, 164);
             // 
             // authorColumnVisibilityToolStripMenuItem
             // 
             authorColumnVisibilityToolStripMenuItem.Name = "authorColumnVisibilityToolStripMenuItem";
-            authorColumnVisibilityToolStripMenuItem.Size = new Size(180, 22);
+            authorColumnVisibilityToolStripMenuItem.Size = new Size(173, 22);
             authorColumnVisibilityToolStripMenuItem.Text = "&Author";
             authorColumnVisibilityToolStripMenuItem.Click += columnVisibilityToolStripMenuItem_Click;
             // 
             // versionColumnVisibilityToolStripMenuItem
             // 
             versionColumnVisibilityToolStripMenuItem.Name = "versionColumnVisibilityToolStripMenuItem";
-            versionColumnVisibilityToolStripMenuItem.Size = new Size(180, 22);
+            versionColumnVisibilityToolStripMenuItem.Size = new Size(173, 22);
             versionColumnVisibilityToolStripMenuItem.Text = "&Version";
             versionColumnVisibilityToolStripMenuItem.Click += columnVisibilityToolStripMenuItem_Click;
             // 
             // currentLoadOrderColumnVisibilityToolStripMenuItem
             // 
             currentLoadOrderColumnVisibilityToolStripMenuItem.Name = "currentLoadOrderColumnVisibilityToolStripMenuItem";
-            currentLoadOrderColumnVisibilityToolStripMenuItem.Size = new Size(180, 22);
+            currentLoadOrderColumnVisibilityToolStripMenuItem.Size = new Size(173, 22);
             currentLoadOrderColumnVisibilityToolStripMenuItem.Text = "&Current load order";
             currentLoadOrderColumnVisibilityToolStripMenuItem.Click += columnVisibilityToolStripMenuItem_Click;
             // 
             // originalLoadOrderColumnVisibilityToolStripMenuItem
             // 
             originalLoadOrderColumnVisibilityToolStripMenuItem.Name = "originalLoadOrderColumnVisibilityToolStripMenuItem";
-            originalLoadOrderColumnVisibilityToolStripMenuItem.Size = new Size(180, 22);
+            originalLoadOrderColumnVisibilityToolStripMenuItem.Size = new Size(173, 22);
             originalLoadOrderColumnVisibilityToolStripMenuItem.Text = "&Original load order";
             originalLoadOrderColumnVisibilityToolStripMenuItem.Click += columnVisibilityToolStripMenuItem_Click;
             // 
             // fileSizeColumnVisibilityToolStripMenuItem
             // 
             fileSizeColumnVisibilityToolStripMenuItem.Name = "fileSizeColumnVisibilityToolStripMenuItem";
-            fileSizeColumnVisibilityToolStripMenuItem.Size = new Size(180, 22);
+            fileSizeColumnVisibilityToolStripMenuItem.Size = new Size(173, 22);
             fileSizeColumnVisibilityToolStripMenuItem.Text = "&File size";
             fileSizeColumnVisibilityToolStripMenuItem.Click += columnVisibilityToolStripMenuItem_Click;
             // 
             // modFolderColumnVisibilityToolStripMenuItem
             // 
             modFolderColumnVisibilityToolStripMenuItem.Name = "modFolderColumnVisibilityToolStripMenuItem";
-            modFolderColumnVisibilityToolStripMenuItem.Size = new Size(180, 22);
+            modFolderColumnVisibilityToolStripMenuItem.Size = new Size(173, 22);
             modFolderColumnVisibilityToolStripMenuItem.Text = "&Mod folder";
             modFolderColumnVisibilityToolStripMenuItem.Click += columnVisibilityToolStripMenuItem_Click;
             // 
             // toolStripSeparator15
             // 
             toolStripSeparator15.Name = "toolStripSeparator15";
-            toolStripSeparator15.Size = new Size(177, 6);
+            toolStripSeparator15.Size = new Size(170, 6);
             // 
             // restoreDefaultColumnsToolStripMenuItem
             // 
             restoreDefaultColumnsToolStripMenuItem.Name = "restoreDefaultColumnsToolStripMenuItem";
-            restoreDefaultColumnsToolStripMenuItem.Size = new Size(180, 22);
+            restoreDefaultColumnsToolStripMenuItem.Size = new Size(173, 22);
             restoreDefaultColumnsToolStripMenuItem.Text = "&Restore defaults";
             restoreDefaultColumnsToolStripMenuItem.Click += restoreDefaultColumnsToolStripMenuItem_Click;
             // 
