@@ -1052,9 +1052,14 @@ namespace MW5_Mod_Manager
                 if (this._filterMode != eFilterMode.None)
                 {
                     // end filtering
+                    modObjectListView.UseFiltering = false;
                     modObjectListView.ModelFilter = null;
 
                     this._filterMode = eFilterMode.None;
+                }
+                else
+                {
+                    return;
                 }
 
                 searchFailed = false;
@@ -1064,6 +1069,7 @@ namespace MW5_Mod_Manager
                 modObjectListView.ModelFilter = TextMatchFilter.Contains(modObjectListView, filtertext);
                 if (!Instance.toolStripButtonFilterToggle.Checked)
                 {
+                    modObjectListView.UseFiltering = false;
                     // ensure that first found item is visible
                     if (modObjectListView.ModelFilter != null)
                     {
@@ -1083,6 +1089,7 @@ namespace MW5_Mod_Manager
                 //We are filtering by selected adding.
                 else
                 {
+                    modObjectListView.UseFiltering = true;
                     if (modObjectListView.ModelFilter != null)
                     {
                         foreach (object originalObject in modObjectListView.Objects)
@@ -1116,7 +1123,6 @@ namespace MW5_Mod_Manager
             RecolorObjectListViewRows();
             modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
             modObjectListView.EndUpdate();
-            UpdateMoveControlEnabledState();
 
             //While filtering disable the up/down buttons (tough this should no longer be needed).
             UpdateMoveControlEnabledState();
@@ -2028,7 +2034,7 @@ namespace MW5_Mod_Manager
 
         public void ColorListViewNumbers(int subItemIndex, Color fromColor, Color toColor)
         {
-            List<int> numbers = new List<int>();
+            List<float> numbers = new List<float>();
 
             // Extract numbers from ListView column and find unique ones
             foreach (OLVListItem item in modObjectListView.Items)
@@ -2039,7 +2045,7 @@ namespace MW5_Mod_Manager
                 if (!curModItem.Enabled)
                     continue;
 
-                if (int.TryParse(item.SubItems[subItemIndex].Text, out var number))
+                if (float.TryParse(item.SubItems[subItemIndex].Text, out var number))
                 {
                     if (!numbers.Contains(number))
                     {
@@ -2064,8 +2070,7 @@ namespace MW5_Mod_Manager
                 if (!curModItem.Enabled)
                     continue;
 
-                int number;
-                if (int.TryParse(curListItem.SubItems[subItemIndex].Text, out number))
+                if (float.TryParse(curListItem.SubItems[subItemIndex].Text, out var number))
                 {
                     Color newColor;
                     if (numbers.Count == 1)
@@ -2222,7 +2227,6 @@ namespace MW5_Mod_Manager
 
         private void toolStripButtonFilterToggle_CheckedChanged(object sender, EventArgs e)
         {
-            modObjectListView.UseFiltering = toolStripButtonFilterToggle.Checked;
             FilterTextChanged();
         }
 
