@@ -989,6 +989,7 @@ namespace MW5_Mod_Manager
             olvColumnModCurLoadOrder.Groupable = false;
             olvColumnModCurLoadOrder.Searchable = false;
             olvColumnModCurLoadOrder.Text = "Current load order";
+            olvColumnModCurLoadOrder.TextAlign = HorizontalAlignment.Center;
             olvColumnModCurLoadOrder.Width = 40;
             // 
             // olvColumnModFolder
@@ -1011,6 +1012,7 @@ namespace MW5_Mod_Manager
             olvColumnModOrgLoadOrder.Groupable = false;
             olvColumnModOrgLoadOrder.Searchable = false;
             olvColumnModOrgLoadOrder.Text = "Default load order";
+            olvColumnModOrgLoadOrder.TextAlign = HorizontalAlignment.Center;
             olvColumnModOrgLoadOrder.Width = 40;
             // 
             // olvColumnModVersion

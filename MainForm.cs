@@ -668,6 +668,8 @@ namespace MW5_Mod_Manager
                 }
 
                 modObjectListView.BeginUpdate();
+                modObjectListView.ClearObjects();
+                ModItemList.Instance.ModList.Clear();
                 foreach (KeyValuePair<string, bool> entry in orderedModList.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
                 {
                     if (entry.Equals(new KeyValuePair<string, bool>(null, false)))
@@ -676,7 +678,7 @@ namespace MW5_Mod_Manager
                         continue;
 
                     ModItem newItem = new ModItem();
-                    newItem.Enabled = ModsManager.Instance.ModEnabledList[entry.Key];
+                    newItem.Enabled = entry.Value;
                     newItem.Path = entry.Key;
                     newItem.Name = ModsManager.Instance.ModDetails[entry.Key].displayName;
                     newItem.FolderName = ModsManager.Instance.PathToDirNameDict[entry.Key];
@@ -697,7 +699,6 @@ namespace MW5_Mod_Manager
                     modObjectListView.AddObject(newItem);
                 }
                 RecolorObjectListViewRows();
-
                 modObjectListView.EndUpdate();
 
                 ModsManager.Instance.SaveSettings();
@@ -782,7 +783,8 @@ namespace MW5_Mod_Manager
                 // Check if we want to load the last applied mod list
                 Dictionary<string, bool> loadModlist = modlist;
 
-                LoadAndFill(loadModlist, false);
+                if (!forceLoadLastApplied)
+                    LoadAndFill(loadModlist, false);
 
                 ModsManager.Instance.LoadLastAppliedPresetData();
 

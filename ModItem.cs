@@ -86,26 +86,26 @@ namespace MW5_Mod_Manager
             });*/
 
             int curLoadOrder = GetModCount(restoreLoadOrdersOfDisabled);
-
+            
             // Reorder modlist by recreating it...
             Dictionary<string, bool> newModList = new Dictionary<string, bool>();
 
-            for (int i = 0; i < ModList.Count; i++)
+            foreach (ModItem curModItem in ModList.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
             {
-                ModItem curModItem = ModList[i];
                 string modKey = curModItem.Path;
                 bool modEnabled = curModItem.Enabled;
                 newModList[modKey] = modEnabled;
                 if (!isDefaultSorted && (!restoreLoadOrdersOfDisabled || modEnabled))
                 {
-                    ModList[i].CurrentLoadOrder = curLoadOrder;
+                    curModItem.CurrentLoadOrder = curLoadOrder;
                     ModsManager.Instance.Mods[modKey].NewLoadOrder = curLoadOrder;
+
                     --curLoadOrder;
                 }
                 else
                 {
-                    ModList[i].CurrentLoadOrder = ModList[i].OriginalLoadOrder;
-                    ModsManager.Instance.Mods[modKey].NewLoadOrder = ModList[i].OriginalLoadOrder;
+                    curModItem.CurrentLoadOrder = curModItem.OriginalLoadOrder;
+                    ModsManager.Instance.Mods[modKey].NewLoadOrder = curModItem.OriginalLoadOrder;
                 }
             }
 
