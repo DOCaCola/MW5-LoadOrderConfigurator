@@ -35,11 +35,25 @@ namespace MW5_Mod_Manager
         public static ViewStateData _defaultViewState = new ViewStateData();
         static ViewStateData _viewStateData = null;
 
-        static public void LoadViewStateFromFile()
+        static public bool LoadViewStateFromFile()
         {
             string viewFile = Path.Combine(ModsManager.GetSettingsDirectory(), "ViewState.json");
-            string listViewStateDataJson = File.ReadAllText(viewFile);
-            _viewStateData = JObject.Parse(listViewStateDataJson).ToObject<ViewStateData>();
+
+            if (!File.Exists(viewFile))
+                return false;
+
+            try
+            {
+                string listViewStateDataJson = File.ReadAllText(viewFile);
+                _viewStateData = JObject.Parse(listViewStateDataJson).ToObject<ViewStateData>();
+                return true;
+            }
+            catch (Exception e)
+            {
+
+            }
+
+            return false;
         }
 
         static public List<ListViewState> GetCurrentListViewState()

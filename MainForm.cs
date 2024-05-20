@@ -146,8 +146,8 @@ namespace MW5_Mod_Manager
 
             LocViewState._defaultViewState.WindowPosition = this.DesktopBounds;
             LocViewState._defaultViewState.listState = LocViewState.GetCurrentListViewState();
-            LocViewState.LoadViewStateFromFile();
-            LocViewState.RestoreViewState();
+            if (LocViewState.LoadViewStateFromFile())
+                LocViewState.RestoreViewState();
 
             UpdateColumnVisiblityMenu();
 
@@ -2790,6 +2790,12 @@ namespace MW5_Mod_Manager
         private void modObjectListView_BeforeCreatingGroups(object sender, CreateGroupsEventArgs e)
         {
             e.Parameters.PrimarySortOrder = SortOrder.None;
+        }
+
+        private void checkModFilesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ModCheckForm checkDialog = new ModCheckForm();
+            checkDialog.ShowDialog();
         }
     }
 }

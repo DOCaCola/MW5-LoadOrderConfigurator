@@ -68,6 +68,7 @@ namespace MW5_Mod_Manager
             openModsFolderToolStripMenuItem = new ToolStripMenuItem();
             toolStripMenuItemOpenModFolderSteam = new ToolStripMenuItem();
             openUserModsFolderToolStripMenuItem = new ToolStripMenuItem();
+            checkModFilesToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
             toolStripMenuItemNexusmodsLink = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
@@ -329,7 +330,7 @@ namespace MW5_Mod_Manager
             // 
             // modsToolStripMenuItem
             // 
-            modsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { reloadModDataToolStripMenuItem, toolStripSeparator13, enableAllModsToolStripMenuItem, disableAllModsToolStripMenuItem, toolStripSeparator3, toolStripMenuItemSortDefaultLoadOrder, toolStripSeparator8, openModsFolderToolStripMenuItem, toolStripMenuItemOpenModFolderSteam, openUserModsFolderToolStripMenuItem });
+            modsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { reloadModDataToolStripMenuItem, toolStripSeparator13, enableAllModsToolStripMenuItem, disableAllModsToolStripMenuItem, toolStripSeparator3, toolStripMenuItemSortDefaultLoadOrder, toolStripSeparator8, openModsFolderToolStripMenuItem, toolStripMenuItemOpenModFolderSteam, openUserModsFolderToolStripMenuItem, checkModFilesToolStripMenuItem });
             modsToolStripMenuItem.Name = "modsToolStripMenuItem";
             modsToolStripMenuItem.Size = new Size(49, 20);
             modsToolStripMenuItem.Text = "&Mods";
@@ -399,6 +400,13 @@ namespace MW5_Mod_Manager
             openUserModsFolderToolStripMenuItem.Size = new Size(210, 22);
             openUserModsFolderToolStripMenuItem.Text = "Open &User Mods folder";
             openUserModsFolderToolStripMenuItem.Click += openUserModsFolderToolStripMenuItem_Click;
+            // 
+            // checkModFilesToolStripMenuItem
+            // 
+            checkModFilesToolStripMenuItem.Name = "checkModFilesToolStripMenuItem";
+            checkModFilesToolStripMenuItem.Size = new Size(210, 22);
+            checkModFilesToolStripMenuItem.Text = "&Check Mod Files...";
+            checkModFilesToolStripMenuItem.Click += checkModFilesToolStripMenuItem_Click;
             // 
             // helpToolStripMenuItem
             // 
@@ -992,6 +1000,7 @@ namespace MW5_Mod_Manager
             // 
             olvColumnModName.AspectName = "Name";
             olvColumnModName.Hideable = false;
+            olvColumnModName.MinimumWidth = 40;
             olvColumnModName.Text = "Mod";
             olvColumnModName.Width = 300;
             // 
@@ -999,6 +1008,7 @@ namespace MW5_Mod_Manager
             // 
             olvColumnModAuthor.AspectName = "Author";
             olvColumnModAuthor.Groupable = false;
+            olvColumnModAuthor.MinimumWidth = 10;
             olvColumnModAuthor.Sortable = false;
             olvColumnModAuthor.Text = "Author";
             olvColumnModAuthor.Width = 100;
@@ -1007,6 +1017,7 @@ namespace MW5_Mod_Manager
             // 
             olvColumnModVersion.AspectName = "VersionCombined";
             olvColumnModVersion.Groupable = false;
+            olvColumnModVersion.MinimumWidth = 10;
             olvColumnModVersion.Searchable = false;
             olvColumnModVersion.Sortable = false;
             olvColumnModVersion.Text = "Version";
@@ -1017,6 +1028,7 @@ namespace MW5_Mod_Manager
             // 
             olvColumnModCurLoadOrder.AspectName = "CurrentLoadOrder";
             olvColumnModCurLoadOrder.Groupable = false;
+            olvColumnModCurLoadOrder.MinimumWidth = 10;
             olvColumnModCurLoadOrder.Searchable = false;
             olvColumnModCurLoadOrder.Sortable = false;
             olvColumnModCurLoadOrder.Text = "LO";
@@ -1028,6 +1040,7 @@ namespace MW5_Mod_Manager
             // 
             olvColumnModOrgLoadOrder.AspectName = "OriginalLoadOrder";
             olvColumnModOrgLoadOrder.Groupable = false;
+            olvColumnModOrgLoadOrder.MinimumWidth = 10;
             olvColumnModOrgLoadOrder.Searchable = false;
             olvColumnModOrgLoadOrder.Sortable = false;
             olvColumnModOrgLoadOrder.Text = "oLO";
@@ -1039,6 +1052,7 @@ namespace MW5_Mod_Manager
             // 
             olvColumnModFileSize.AspectName = "FileSize";
             olvColumnModFileSize.Groupable = false;
+            olvColumnModFileSize.MinimumWidth = 10;
             olvColumnModFileSize.Searchable = false;
             olvColumnModFileSize.Sortable = false;
             olvColumnModFileSize.Text = "File size";
@@ -1047,6 +1061,7 @@ namespace MW5_Mod_Manager
             // 
             olvColumnModFolder.AspectName = "FolderName";
             olvColumnModFolder.Groupable = false;
+            olvColumnModFolder.MinimumWidth = 10;
             olvColumnModFolder.Sortable = false;
             olvColumnModFolder.Text = "Mod Folder";
             olvColumnModFolder.ToolTipText = "Mod directory name";
@@ -1475,6 +1490,7 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem modFolderColumnVisibilityToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator15;
         private ToolStripMenuItem restoreDefaultColumnsToolStripMenuItem;
+        private ToolStripMenuItem checkModFilesToolStripMenuItem;
     }
 }
 
