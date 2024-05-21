@@ -26,18 +26,18 @@ namespace MW5_Mod_Manager
 
                 if (LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow)
                 {
-                    if ((curModItem.OriginalLoadOrder > prevModItem.OriginalLoadOrder ||
-                        (curModItem.OriginalLoadOrder == prevModItem.OriginalLoadOrder)) &&
-                        string.Compare(curModItem.FolderName, prevModItem.FolderName, StringComparison.InvariantCulture) > 0)
+                    if (curModItem.OriginalLoadOrder > prevModItem.OriginalLoadOrder ||
+                        (curModItem.OriginalLoadOrder == prevModItem.OriginalLoadOrder &&
+                        string.Compare(curModItem.FolderName, prevModItem.FolderName, StringComparison.InvariantCultureIgnoreCase) > 0))
                     {
                         return false;
                     }
                 }
                 else
                 {
-                    if ((prevModItem.OriginalLoadOrder > curModItem.OriginalLoadOrder ||
-                        (prevModItem.OriginalLoadOrder == curModItem.OriginalLoadOrder)) &&
-                        string.Compare(prevModItem.FolderName, curModItem.FolderName, StringComparison.InvariantCulture) > 0)                   
+                    if (prevModItem.OriginalLoadOrder > curModItem.OriginalLoadOrder ||
+                        (prevModItem.OriginalLoadOrder == curModItem.OriginalLoadOrder &&
+                        string.Compare(prevModItem.FolderName, curModItem.FolderName, StringComparison.InvariantCultureIgnoreCase) > 0))                 
                     {
                         return false;
                     }

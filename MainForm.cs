@@ -548,12 +548,14 @@ namespace MW5_Mod_Manager
 
             if (anyMoved)
             {
-                RecomputeLoadOrdersAndUpdateList();
+                ModItemList.Instance.RecomputeLoadOrders();
+
                 ModsManager.Instance.RecomputeOverridingData();
 
-                modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
-
+                ColorListViewNumbers(olvColumnModCurLoadOrder.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
                 RecolorObjectListViewRows();
+                modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
+
                 QueueSidePanelUpdate(true);
 
                 CheckModConfigTainted();
@@ -561,7 +563,6 @@ namespace MW5_Mod_Manager
 
             _movingItems = false;
 
-            QueueSidePanelUpdate(true);
             modObjectListView.EndUpdate();
         }
 
@@ -620,8 +621,12 @@ namespace MW5_Mod_Manager
 
             if (anyMoved)
             {
-                RecomputeLoadOrdersAndUpdateList();
+                ModItemList.Instance.RecomputeLoadOrders();
+
                 ModsManager.Instance.RecomputeOverridingData();
+                ColorListViewNumbers(olvColumnModCurLoadOrder.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
+                RecolorObjectListViewRows();
+                modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
 
                 QueueSidePanelUpdate(true);
                 CheckModConfigTainted();
@@ -629,7 +634,6 @@ namespace MW5_Mod_Manager
 
             _movingItems = false;
 
-            QueueSidePanelUpdate(true);
             modObjectListView.EndUpdate();
         }
 
@@ -739,8 +743,8 @@ namespace MW5_Mod_Manager
                         // If Priority is equal, compare Folder name
                         if (priorityComparison == 0)
                         {
-                            return ModsManager.Instance.PathToDirNameDict[y.Key].ToString()
-                                .CompareTo(ModsManager.Instance.PathToDirNameDict[x.Key]);
+                            return String
+                                .Compare(ModsManager.Instance.PathToDirNameDict[y.Key].ToString(), ModsManager.Instance.PathToDirNameDict[x.Key], StringComparison.InvariantCultureIgnoreCase);
                         }
 
                         return priorityComparison;
@@ -2285,7 +2289,7 @@ namespace MW5_Mod_Manager
                 // If Priority is equal, compare Folder name
                 if (priorityComparison == 0)
                 {
-                    return String.Compare(x.FolderName, y.FolderName, StringComparison.InvariantCulture);
+                    return String.Compare(x.FolderName, y.FolderName, StringComparison.InvariantCultureIgnoreCase);
                 }
                 else
                 {
@@ -2796,10 +2800,6 @@ namespace MW5_Mod_Manager
             ModItemList.Instance.RecomputeLoadOrders();
             modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
             QueueSidePanelUpdate(true);
-            /*
-            ModItemList.Instance.RecomputeLoadOrders();
-            modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
-            modObjectListView.Sort();*/
             _movingItems = false;
             RecolorObjectListViewRows();
             modObjectListView.EndUpdate();

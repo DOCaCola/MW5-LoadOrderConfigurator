@@ -559,10 +559,10 @@ namespace MW5_Mod_Manager
             tabPage1.Controls.Add(splitContainer2);
             tabPage1.Controls.Add(labelModNameOverrides);
             tabPage1.Controls.Add(label7);
-            tabPage1.Location = new Point(4, 22);
+            tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(326, 457);
+            tabPage1.Size = new Size(326, 455);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Conflicts";
             tabPage1.UseVisualStyleBackColor = true;
@@ -1092,7 +1092,7 @@ namespace MW5_Mod_Manager
             toTopToolStripButton.Name = "toTopToolStripButton";
             toTopToolStripButton.Size = new Size(23, 20);
             toTopToolStripButton.Text = "To top";
-            toTopToolStripButton.ToolTipText = "Move mods to top";
+            toTopToolStripButton.ToolTipText = "Move selected mod(s) to top";
             toTopToolStripButton.Click += toTopToolStripButton_Click;
             // 
             // upToolStripButton
@@ -1103,7 +1103,7 @@ namespace MW5_Mod_Manager
             upToolStripButton.Name = "upToolStripButton";
             upToolStripButton.Size = new Size(23, 20);
             upToolStripButton.Text = "Up";
-            upToolStripButton.ToolTipText = "Move mods up";
+            upToolStripButton.ToolTipText = "Move selected mod(s) up";
             upToolStripButton.Click += upToolStripButton_Click;
             // 
             // toolStripLabel2
@@ -1120,7 +1120,7 @@ namespace MW5_Mod_Manager
             downToolStripButton.Name = "downToolStripButton";
             downToolStripButton.Size = new Size(23, 20);
             downToolStripButton.Text = "Down";
-            downToolStripButton.ToolTipText = "Move mods down";
+            downToolStripButton.ToolTipText = "Move selected mod(s) down";
             downToolStripButton.Click += downToolStripButton_Click;
             // 
             // toBottomToolStripButton
@@ -1131,7 +1131,7 @@ namespace MW5_Mod_Manager
             toBottomToolStripButton.Name = "toBottomToolStripButton";
             toBottomToolStripButton.Size = new Size(23, 20);
             toBottomToolStripButton.Text = "To bottom";
-            toBottomToolStripButton.ToolTipText = "Move mods to bottom";
+            toBottomToolStripButton.ToolTipText = "Move selected mod(s) to bottom";
             toBottomToolStripButton.Click += toBottomToolStripButton_Click;
             // 
             // toolStrip1
