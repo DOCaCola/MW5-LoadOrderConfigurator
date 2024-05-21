@@ -1589,6 +1589,11 @@ namespace MW5_Mod_Manager
 
             modObjectListView.BeginUpdate();
             //this.ClearAll();
+            List<string> prevSelected = new List<string>(modObjectListView.SelectedItems.Count);
+            foreach (ModItem selected in modObjectListView.SelectedObjects)
+            {
+                prevSelected.Add(selected.Path);
+            }
             modObjectListView.ClearObjects();
             modObjectListView.ClearCachedInfo();
             ModItemList.Instance.ModList.Clear();
@@ -1602,6 +1607,16 @@ namespace MW5_Mod_Manager
             this.LoadAndFill(newData, true);
             FilterTextChanged();
             CheckModConfigTainted();
+            foreach (OLVListItem curListItem in modObjectListView.Items)
+            {
+                ModItem curModItem = (ModItem)curListItem.RowObject;
+
+                if (prevSelected.Contains(curModItem.Path))
+                {
+                    curListItem.Selected = true;
+                }
+            }
+            QueueSidePanelUpdate(true);
             modObjectListView.EndUpdate();
         }
 
@@ -2315,6 +2330,7 @@ namespace MW5_Mod_Manager
             }
 
             modObjectListView.EndUpdate();
+            QueueSidePanelUpdate(true);
         }
 
         public bool AreAllModsEnabled()
