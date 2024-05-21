@@ -1410,8 +1410,11 @@ namespace MW5_Mod_Manager
             if (!intersect.Any())
                 return;
 
-            //If we are loaded after the mod we are looking at we are overriding it.
-            if (loadOrderA > loadOrderB)
+            bool isOverriding = loadOrderA > loadOrderB ||
+                                (loadOrderA == loadOrderB &&
+                                 string.Compare(modA, modB, StringComparison.InvariantCultureIgnoreCase) > 0);
+
+            if (isOverriding)
             {
                 if (A.mod != modB)
                 {
@@ -1443,8 +1446,6 @@ namespace MW5_Mod_Manager
 
         public void RecomputeOverridingData()
         {
-            ////Console.WriteLine(Environment.StackTrace);
-            ////Console.WriteLine("Starting Overriding data check");
             this.OverridingData.Clear();
 
             foreach (ModItem itemA in ModItemList.Instance.ModList)
@@ -1455,7 +1456,7 @@ namespace MW5_Mod_Manager
 
                 string modA = itemA.FolderName;
 
-                //Check if we already have this mod in the dict if not create an entry for it.
+                // Check if we already have this mod in the dict, if not create an entry for it.
                 if (!this.OverridingData.ContainsKey(modA))
                 {
                     this.OverridingData[modA] = new OverridingData
