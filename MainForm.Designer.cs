@@ -406,6 +406,7 @@ namespace MW5_Mod_Manager
             checkModFilesToolStripMenuItem.Name = "checkModFilesToolStripMenuItem";
             checkModFilesToolStripMenuItem.Size = new Size(210, 22);
             checkModFilesToolStripMenuItem.Text = "&Check Mod Files...";
+            checkModFilesToolStripMenuItem.Visible = false;
             checkModFilesToolStripMenuItem.Click += checkModFilesToolStripMenuItem_Click;
             // 
             // helpToolStripMenuItem
@@ -1033,7 +1034,7 @@ namespace MW5_Mod_Manager
             olvColumnModCurLoadOrder.Sortable = false;
             olvColumnModCurLoadOrder.Text = "LO";
             olvColumnModCurLoadOrder.TextAlign = HorizontalAlignment.Right;
-            olvColumnModCurLoadOrder.ToolTipText = "Load order set";
+            olvColumnModCurLoadOrder.ToolTipText = "Current load order";
             olvColumnModCurLoadOrder.Width = 40;
             // 
             // olvColumnModOrgLoadOrder
@@ -1045,7 +1046,7 @@ namespace MW5_Mod_Manager
             olvColumnModOrgLoadOrder.Sortable = false;
             olvColumnModOrgLoadOrder.Text = "oLO";
             olvColumnModOrgLoadOrder.TextAlign = HorizontalAlignment.Right;
-            olvColumnModOrgLoadOrder.ToolTipText = "Mod's default load order";
+            olvColumnModOrgLoadOrder.ToolTipText = "Default load order";
             olvColumnModOrgLoadOrder.Width = 40;
             // 
             // olvColumnModFileSize

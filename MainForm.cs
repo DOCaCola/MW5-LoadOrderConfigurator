@@ -17,8 +17,6 @@ using System.Net.Http;
 using System.Text;
 using BrightIdeasSoftware;
 using Newtonsoft.Json.Linq;
-using SharpCompress;
-using static System.Net.WebRequestMethods;
 
 namespace MW5_Mod_Manager
 {
@@ -49,6 +47,9 @@ namespace MW5_Mod_Manager
         public static Color _OverriddenBackColorAlternate = Color.FromArgb(247, 234, 196);
         public static Color _OverridingBackColor = Color.FromArgb(235, 225, 255);
         public static Color _OverridingBackColorAlternate = Color.FromArgb(226, 217, 245);
+
+        // Hash of the mod list currently applied to mechwarrior
+        public int _ActiveModListHash = 0;
 
         private TypedObjectListView<ModItem> _modList = null;
         private TypedColumn<ModItem> _modNameColumn = null;
@@ -140,7 +141,7 @@ namespace MW5_Mod_Manager
                 UpdateModCountDisplay();
                 RecolorObjectListViewRows();
                 modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
-                SetModConfigTainted(true);
+                CheckModConfigTainted();
                 return newValue; // return the value that you want the control to use
             };
 
@@ -405,9 +406,9 @@ namespace MW5_Mod_Manager
             {
                 string fileExtension = Path.GetExtension(filePath).ToLower();
 
-                if (fileExtension != "zip" || fileExtension != "rar" || fileExtension != "7z")
+                if (fileExtension != ".zip" && fileExtension != ".rar" && fileExtension != ".7z")
                 {
-                    string message = "Archive format not supported. Supported formats are: .zip, rar, .7z" +
+                    string message = "Archive format not supported. Supported formats are: .zip, rar, .7z\r\n" +
                                      "Please extract the mod first and drag the mod folder into the application.";
                     string caption = "Unsupported Archive Type";
                     MessageBoxButtons buttons = MessageBoxButtons.OK;
@@ -499,7 +500,7 @@ namespace MW5_Mod_Manager
                 RecolorObjectListViewRows();
                 QueueSidePanelUpdate(true);
 
-                SetModConfigTainted(true);
+                CheckModConfigTainted();
             }
 
             _movingItems = false;
@@ -567,7 +568,7 @@ namespace MW5_Mod_Manager
                 ModsManager.Instance.RecomputeOverridingData();
 
                 QueueSidePanelUpdate(true);
-                SetModConfigTainted(true);
+                CheckModConfigTainted();
             }
 
             _movingItems = false;
@@ -585,12 +586,14 @@ namespace MW5_Mod_Manager
             ModsManager.Instance.SaveToFiles();
             ModsManager.Instance.SaveLastAppliedModOrder();
             SetModConfigTainted(false);
+            _ActiveModListHash = ModItemList.Instance.ModList.ComputeModListHashCode();
         }
 
 
         //For clearing the entire applications data
         public void ClearAll()
         {
+            _ActiveModListHash = 0;
             listBoxOverriding.Items.Clear();
             listBoxOverriddenBy.Items.Clear();
             richTextBoxManifestOverridden.Clear();
@@ -801,9 +804,9 @@ namespace MW5_Mod_Manager
             Cursor tempCursor = Cursor.Current;
             Cursor.Current = Cursors.AppStarting;
             modObjectListView.BeginUpdate();
-            List<string> prevSelected = new List<string>(modObjectListView.SelectedItems.Count);
+            
             Point prevPosition = modObjectListView.LowLevelScrollPosition;
-
+            List<string> prevSelected = new List<string>(modObjectListView.SelectedItems.Count);
             foreach (ModItem selected in modObjectListView.SelectedObjects)
             {
                 prevSelected.Add(selected.Path);
@@ -834,6 +837,8 @@ namespace MW5_Mod_Manager
                 if (!forceLoadLastApplied)
                     LoadAndFill(loadModlist, false);
 
+                _ActiveModListHash = ModItemList.Instance.ModList.ComputeModListHashCode();
+
                 ModsManager.Instance.LoadLastAppliedPresetData();
 
                 if (forceLoadLastApplied || ModsManager.Instance.ShouldLoadLastApplied())
@@ -842,7 +847,9 @@ namespace MW5_Mod_Manager
                     loadModlist = ModsManager.Instance.LastAppliedPresetModList;
 
                     LoadAndFill(loadModlist, true);
-                    modConfigTainted = true;
+
+                    if (_ActiveModListHash != ModItemList.Instance.ModList.ComputeModListHashCode())
+                        modConfigTainted = true;
                 }
 
                 FilterTextChanged();
@@ -880,7 +887,7 @@ namespace MW5_Mod_Manager
         }
 
         //Sets up the load order from a preset.
-        private void LoadPreset(string name)
+        private void LoadFromPreset(string name)
         {
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
@@ -902,6 +909,12 @@ namespace MW5_Mod_Manager
 
             presetData.ReverseIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh);
 
+            List<string> prevSelected = new List<string>(modObjectListView.SelectedItems.Count);
+            foreach (ModItem selected in modObjectListView.SelectedObjects)
+            {
+                prevSelected.Add(selected.Path);
+            }
+
             modObjectListView.BeginUpdate();
             modObjectListView.ClearObjects();
             modObjectListView.ClearCachedInfo();
@@ -916,8 +929,26 @@ namespace MW5_Mod_Manager
             ModsManager.Instance.ProcessModFolderEnabledList(ref presetData, true);
             this.LoadAndFill(presetData, true);
             FilterTextChanged();
-            SetModConfigTainted(true);
+            CheckModConfigTainted();
             modObjectListView.EndUpdate();
+
+            bool firstSelected = true;
+
+            foreach (OLVListItem curListItem in modObjectListView.Items)
+            {
+                ModItem curModItem = (ModItem)curListItem.RowObject;
+
+                if (prevSelected.Contains(curModItem.Path))
+                {
+                    curListItem.Selected = true;
+                    if (firstSelected)
+                    {
+                        firstSelected = false;
+                        curListItem.EnsureVisible();
+                    }
+                }
+            }
+            UpdateSidePanelData(true);
         }
 
         //Load all presets from file and fill the listbox.
@@ -988,13 +1019,6 @@ namespace MW5_Mod_Manager
                     LaunchGameMicrosoftStore();
                     break;
             }
-        }
-
-        //Launch game button
-        private void buttonStartGame_Click(object sender, EventArgs e)
-        {
-
-
         }
 
         #region Launch Game
@@ -1507,7 +1531,7 @@ namespace MW5_Mod_Manager
             ModsManager.Instance.DetermineBestAvailableGameVersion();
             this.LoadAndFill(newData, true);
             FilterTextChanged();
-            SetModConfigTainted(true);
+            CheckModConfigTainted();
             modObjectListView.EndUpdate();
         }
 
@@ -1584,7 +1608,7 @@ namespace MW5_Mod_Manager
             UpdateModCountDisplay();
             RecolorObjectListViewRows();
             modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
-            SetModConfigTainted(true);
+            CheckModConfigTainted();
         }
 
         private void disableAllModsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1614,7 +1638,7 @@ namespace MW5_Mod_Manager
             UpdateModCountDisplay();
             RecolorObjectListViewRows();
             modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
-            SetModConfigTainted(true);
+            CheckModConfigTainted();
         }
 
         private void openFolderToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1755,13 +1779,13 @@ namespace MW5_Mod_Manager
 
             modObjectListView.EndUpdate();
 
-            SetModConfigTainted(true);
+            CheckModConfigTainted();
         }
 
         private void presetMenuItem_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem presetMenuItem = sender as ToolStripMenuItem;
-            this.LoadPreset(presetMenuItem.Tag.ToString());
+            this.LoadFromPreset(presetMenuItem.Tag.ToString());
         }
 
         private void savePresetToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1989,8 +2013,17 @@ namespace MW5_Mod_Manager
             toolStripStatusLabelModsActive.Text = @"Active: " + GetModCount(true);
         }
 
+        // Taint config if current mod list differs from the config on the disk
+        public void CheckModConfigTainted()
+        {
+            SetModConfigTainted(_ActiveModListHash != ModItemList.Instance.ModList.ComputeModListHashCode());
+        }
+
         public void SetModConfigTainted(bool modSettingsTainted)
         {
+            if (ModsManager.Instance.ModSettingsTainted == modSettingsTainted)
+                return;
+
             ModsManager.Instance.ModSettingsTainted = modSettingsTainted;
             if (modSettingsTainted)
             {
@@ -2208,7 +2241,7 @@ namespace MW5_Mod_Manager
             RecomputeLoadOrdersAndUpdateList();
             ModsManager.Instance.RecomputeOverridingData();
             FilterTextChanged();
-            SetModConfigTainted(true);
+            CheckModConfigTainted();
 
             modObjectListView.SelectedObjects = prevSelected;
             if (prevSelected.Count > 0)
@@ -2298,6 +2331,15 @@ namespace MW5_Mod_Manager
         private void toolStripButtonFilterToggle_CheckedChanged(object sender, EventArgs e)
         {
             FilterTextChanged();
+
+            if (toolStripButtonFilterToggle.Checked)
+            {
+                toolStripTextFilterBox.CueBanner = "Filter";
+            }
+            else
+            {
+                toolStripTextFilterBox.CueBanner = "Search";
+            }
         }
 
         private void MainWindow_Shown(object sender, EventArgs e)
@@ -2568,7 +2610,7 @@ namespace MW5_Mod_Manager
                 ModsManager.Instance.RecomputeOverridingData();
                 UpdateModCountDisplay();
                 RecomputeLoadOrdersAndUpdateList();
-                SetModConfigTainted(true);
+                CheckModConfigTainted();
             }
 
             modObjectListView.EndUpdate();
@@ -2588,14 +2630,6 @@ namespace MW5_Mod_Manager
         {
             ModItem curModItem = (ModItem)e.Item.RowObject;
             e.Item.BackColor = curModItem.ProcessedRowBackColor;
-
-            foreach (OLVListSubItem subItem in e.Item.SubItems)
-            {
-                //subItem.BackColor = Color.BlueViolet;
-                break;
-            }
-
-            //e.Item.GetSubItem(olvColumnModName.Index).ForeColor = Color.Brown;
             e.UseCellFormatEvents = true;
         }
 
@@ -2736,7 +2770,6 @@ namespace MW5_Mod_Manager
 
         private void timerDelayedListRecolor_Tick(object sender, EventArgs e)
         {
-
             ColorizeListViewItems();
             modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
             RecolorObjectListViewRows();

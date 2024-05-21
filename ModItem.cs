@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.Versioning;
+using System.Text;
 using MW5_Mod_Manager;
 
 // Current (unapplied) state of the mod list
@@ -132,5 +133,23 @@ namespace MW5_Mod_Manager
         public Color ProcessedRowBackColor = SystemColors.Window;
         public Color ProcessedCurLoForeColor = SystemColors.WindowText;
         public Color ProcessedOrgLoForeColor = SystemColors.WindowText;
+    }
+}
+
+public static class ModListExtensions
+{
+    public static int ComputeModListHashCode(this List<ModItem> list)
+    {
+        if (list == null)
+            throw new ArgumentNullException(nameof(list));
+
+        var stringBuilder = new StringBuilder();
+        foreach (var item in list)
+        {
+            stringBuilder.Append(item.Enabled);
+            stringBuilder.Append(item.Path ?? string.Empty);
+            stringBuilder.Append(item.CurrentLoadOrder);
+        }
+        return stringBuilder.ToString().GetHashCode();
     }
 }
