@@ -826,10 +826,15 @@ namespace MW5_Mod_Manager
                 MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
             }*/
             this.LoadingAndFilling = prevLoadingAndFilling;
-            RecomputeLoadOrdersAndUpdateList();
+            ModItemList.Instance.RecomputeLoadOrders();
+
+            modObjectListView.BeginUpdate();
             ModsManager.Instance.RecomputeOverridingData();
+            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
+            RecolorObjectListViewRows();
+            modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
+            modObjectListView.EndUpdate();
             UpdateModCountDisplay();
-            modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
         }
 
         public object ModImageGetter(object rowObject)
@@ -1839,9 +1844,13 @@ namespace MW5_Mod_Manager
                 modObjectListView.EndUpdate();
             }
 
-            RecomputeLoadOrdersAndUpdateList();
+            ModItemList.Instance.RecomputeLoadOrders();
+
             ModsManager.Instance.RecomputeOverridingData();
 
+            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
+            RecolorObjectListViewRows();
+            modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
             modObjectListView.EndUpdate();
 
             CheckModConfigTainted();
@@ -2038,18 +2047,6 @@ namespace MW5_Mod_Manager
             }
 
             return count;
-        }
-
-        public void RecomputeLoadOrdersAndUpdateList()
-        {
-            ModItemList.Instance.RecomputeLoadOrders();
-
-            modObjectListView.BeginUpdate();
-
-            modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
-            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
-            RecolorObjectListViewRows();
-            modObjectListView.EndUpdate();
         }
 
         private void listBoxOverriding_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -2301,10 +2298,13 @@ namespace MW5_Mod_Manager
             IList prevSelected = modObjectListView.SelectedObjects;
             modObjectListView.ClearObjects();
             modObjectListView.AddObjects(ModItemList.Instance.ModList);
-            modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
 
-            RecomputeLoadOrdersAndUpdateList();
+            ModItemList.Instance.RecomputeLoadOrders();
+
+            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
+            RecolorObjectListViewRows();
             ModsManager.Instance.RecomputeOverridingData();
+            modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
             FilterTextChanged();
             CheckModConfigTainted();
 
@@ -2655,7 +2655,6 @@ namespace MW5_Mod_Manager
 
         public void SetSelectedModEnabledState(bool newState)
         {
-            bool tainted = false;
             modObjectListView.BeginUpdate();
             this._movingItems = true;
             foreach (OLVListItem selectedItem in modObjectListView.SelectedItems)
@@ -2663,20 +2662,9 @@ namespace MW5_Mod_Manager
                 if (newState == selectedItem.Checked)
                     continue;
 
-                tainted = true;
                 selectedItem.Checked = newState;
-                /*string key = selectedItem.Tag as string;
-                ModsManager.Instance.ModEnabledList[key] = newState;*/
             }
             this._movingItems = false;
-
-            if (tainted)
-            {
-                ModsManager.Instance.RecomputeOverridingData();
-                UpdateModCountDisplay();
-                RecomputeLoadOrdersAndUpdateList();
-                CheckModConfigTainted();
-            }
 
             modObjectListView.EndUpdate();
         }
