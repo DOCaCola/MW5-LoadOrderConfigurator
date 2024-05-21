@@ -25,6 +25,33 @@ namespace MW5_Mod_Manager
     {
         static public MainForm Instance;
 
+        public class ModDragSource : IDragSource
+        {
+            public ModDragSource()
+            {
+            }
+
+            public virtual object StartDrag(ObjectListView olv, MouseButtons button, OLVListItem item)
+            {
+                MainForm.Instance.EnableModListDrop(true);
+                return button != MouseButtons.Left ? (object)null : this.CreateDataObject(olv);
+            }
+
+            public virtual DragDropEffects GetAllowedEffects(object data)
+            {
+                return DragDropEffects.All | DragDropEffects.Link;
+            }
+
+            public virtual void EndDrag(object dragObject, DragDropEffects effect)
+            {
+                Instance.EnableModListDrop(false);
+            }
+            protected virtual object CreateDataObject(ObjectListView olv)
+            {
+                return (object)new OLVDataObject(olv);
+            }
+        }
+
         enum eFilterMode
         {
             None,
@@ -98,18 +125,8 @@ namespace MW5_Mod_Manager
 
             olvColumnModName.GroupKeyGetter += GroupKeyGetter;
 
-            var dragSource = new SimpleDragSource();
-            dragSource.RefreshAfterDrop = false;
+            var dragSource = new ModDragSource();
             this.modObjectListView.DragSource = dragSource;
-            var dropSink = new SimpleDropSink();
-            dropSink.AcceptExternal = false;
-            dropSink.CanDropBetween = true;
-            dropSink.CanDropOnBackground = false;
-            dropSink.CanDropOnItem = false;
-            dropSink.CanDropOnSubItem = false;
-            dropSink.FeedbackColor = Color.Black;
-            dropSink.CanDrop += OnDropSinkOnCanDrop;
-            this.modObjectListView.DropSink = dropSink;
 
             // Selection
             RowBorderDecoration rbd = new RowBorderDecoration();
@@ -142,6 +159,7 @@ namespace MW5_Mod_Manager
                 RecolorObjectListViewRows();
                 modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
                 CheckModConfigTainted();
+                QueueSidePanelUpdate(true);
                 return newValue; // return the value that you want the control to use
             };
 
@@ -172,6 +190,32 @@ namespace MW5_Mod_Manager
         }
 
         private bool _delayedRecolorStarted = false;
+
+        public void EnableModListDrop(bool enable)
+        {
+            if (enable)
+            {
+                if (modObjectListView.DropSink == null)
+                {
+                    modObjectListView.FullRowSelect = true;
+                    var dropSink = new SimpleDropSink();
+                    dropSink.AcceptExternal = false;
+                    dropSink.CanDropBetween = true;
+                    dropSink.CanDropOnBackground = false;
+                    dropSink.CanDropOnItem = false;
+                    dropSink.CanDropOnSubItem = false;
+                    dropSink.FeedbackColor = Color.Black;
+                    dropSink.CanDrop += OnDropSinkOnCanDrop;
+                    this.modObjectListView.DropSink = dropSink;
+                }
+            }
+            else
+            {
+                modObjectListView.DropSink = null;
+                modObjectListView.FullRowSelect = true;
+            }
+
+        }
 
         void QueueListRecolor()
         {
@@ -297,7 +341,16 @@ namespace MW5_Mod_Manager
         void MainForm_DragEnter(object sender, DragEventArgs e)
         {
             if (!ModsManager.Instance.GameIsConfigured())
+            {
+                e.Effect = DragDropEffects.None;
                 return;
+            }
+
+            if (e.Data is OLVDataObject)
+            {
+                e.Effect = DragDropEffects.None;
+                return;
+            }
 
             if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy;
         }
@@ -377,9 +430,12 @@ namespace MW5_Mod_Manager
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
+            if (e.Data is DataObject == false)
+                return;
+
             //We only support single file drops!
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            if (files.Length != 1)
+            if (files == null || files.Length != 1)
             {
                 return;
             }
@@ -804,7 +860,7 @@ namespace MW5_Mod_Manager
             Cursor tempCursor = Cursor.Current;
             Cursor.Current = Cursors.AppStarting;
             modObjectListView.BeginUpdate();
-            
+
             Point prevPosition = modObjectListView.LowLevelScrollPosition;
             List<string> prevSelected = new List<string>(modObjectListView.SelectedItems.Count);
             foreach (ModItem selected in modObjectListView.SelectedObjects)
@@ -1429,6 +1485,11 @@ namespace MW5_Mod_Manager
             {
                 try
                 {
+                    if (pictureBoxModImage.Image != null)
+                    {
+                        pictureBoxModImage.Image.Dispose();
+                        pictureBoxModImage.Image = null;
+                    }
                     pictureBoxModImage.Image = Image.FromStream(new MemoryStream(File.ReadAllBytes(imagePath)));
                     imageLoadSuccess = true;
                 }
