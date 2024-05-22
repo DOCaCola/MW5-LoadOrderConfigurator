@@ -83,6 +83,7 @@ namespace MW5_Mod_Manager
 
             viewStateData.listState = GetCurrentListViewState();
 
+            Directory.CreateDirectory(ModsManager.GetSettingsDirectory());
             JObject settingsFile = JObject.FromObject(viewStateData);
             string viewFile = Path.Combine(ModsManager.GetSettingsDirectory(), "ViewState.json");
 
