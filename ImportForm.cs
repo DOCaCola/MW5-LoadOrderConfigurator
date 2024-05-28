@@ -19,7 +19,7 @@ namespace MW5_Mod_Manager
         public enum eResultDataType { DirNames, ModNames }
 
         public eResultDataType ResultDataType { get; set; } = eResultDataType.DirNames;
-        public Dictionary<string, bool> ResultData;
+        public List<ModImportData> ResultData;
 
         public ImportForm()
         {
@@ -39,7 +39,7 @@ namespace MW5_Mod_Manager
 
             }
 
-            Dictionary<string, bool> resultData = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+            List<ModImportData> resultData = new List<ModImportData>();
             if (jsonImportObject != null)
             {
                 bool isLegacyJson = jsonImportObject.Count > 0;
@@ -48,7 +48,11 @@ namespace MW5_Mod_Manager
                 {
                     if (property.Value.Type == JTokenType.Boolean)
                     {
-                        resultData[property.Name] = (bool)property.Value;
+                        ModImportData newImportData = new ModImportData();
+                        newImportData.ModFolder = property.Name;
+                        newImportData.Enabled = (bool)property.Value;
+
+                        resultData.Add(newImportData);
                     }
                     else
                     {
@@ -59,18 +63,23 @@ namespace MW5_Mod_Manager
 
                 if (isLegacyJson)
                 {
+                    // Create load order
+                    for (int i = 0; i < resultData.Count; i++)
+                    {
+                        resultData[i].LoadOrder = resultData.Count - i;
+                    }
+
                     ResultDataType = eResultDataType.DirNames;
                     ResultData = resultData;
                     this.DialogResult = DialogResult.OK;
                     return;
                 }
             }
-
+            resultData.Clear();
             // At this point, it is not JSON anymore
 
             // Is LOC Human readable string
             bool isLocHumanReadable = false;
-            Dictionary<int, string> resultModNames = new Dictionary<int, string>();
             try
             {
                 // Check for strings in format
@@ -85,30 +94,29 @@ namespace MW5_Mod_Manager
                     // unescape mod names
                     string modName = matchResult.Groups[3].ToString().Replace("\"\"", "\"");
 
-                    resultModNames.Add(int.Parse(matchResult.Groups[1].ToString()), modName);
+                    ModImportData newImportData = new ModImportData();
+                    newImportData.Enabled = true;
+                    newImportData.ModName = modName;
+                    newImportData.LoadOrder = float.Parse(matchResult.Groups[1].ToString());
+
+                    resultData.Add(newImportData);
 
                     matchResult = matchResult.NextMatch();
                 }
             }
             catch (ArgumentException ex)
             {
-
+                isLocHumanReadable = false;
             }
 
             if (isLocHumanReadable)
             {
-                var sortedDict = resultModNames.OrderByDescending(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
-
-                foreach (var kvp in sortedDict)
-                {
-                    resultData.Add(kvp.Value, true);
-                }
-
+                ResultData = resultData.OrderByDescending(x => x.LoadOrder).ToList();
                 ResultDataType = eResultDataType.ModNames;
-                ResultData = resultData;
                 this.DialogResult = DialogResult.OK;
                 return;
             }
+            resultData.Clear();
 
             // We also can check for a MW5MO loadorder, though these are not particularly hardened for parsing
             bool isMw5MoLoadorder = false;
@@ -125,27 +133,26 @@ namespace MW5_Mod_Manager
 
                     string modName = matchResult.Groups[3].ToString().Replace("\"\"", "\"");
 
-                    resultModNames.Add(int.Parse(matchResult.Groups[1].ToString()), modName);
+                    ModImportData newImportData = new ModImportData();
+                    newImportData.Enabled = true;
+                    newImportData.ModName = modName;
+                    newImportData.LoadOrder = float.Parse(matchResult.Groups[1].ToString());
+
+                    resultData.Add(newImportData);
 
                     matchResult = matchResult.NextMatch();
                 }
             }
             catch (ArgumentException ex)
             {
-
+                isMw5MoLoadorder = false;
             }
 
             if (isMw5MoLoadorder)
             {
-                var sortedDict = resultModNames.OrderByDescending(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
-
-                foreach (var kvp in sortedDict)
-                {
-                    resultData.Add(kvp.Value, true);
-                }
+                ResultData = resultData.OrderByDescending(x => x.LoadOrder).ToList();
 
                 ResultDataType = eResultDataType.ModNames;
-                ResultData = resultData;
                 this.DialogResult = DialogResult.OK;
                 return;
             }
@@ -199,5 +206,17 @@ namespace MW5_Mod_Manager
                 textBoxData.Text = fileContents;
             }
         }
+    }
+
+    public class ModImportData
+    {
+        public string ModPath;
+        public string ModFolder;
+        public string ModName;
+        public string Version;
+        public int Build = -1;
+        public float LoadOrder = Single.NaN;
+        public bool Enabled = false;
+        public bool Available = false;
     }
 }

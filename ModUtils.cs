@@ -30,7 +30,7 @@ namespace MW5_Mod_Manager
             }
         }
 
-        public static void SwapModsToMatchFilter(List<string> targetList, List<string> filterList)
+        public static void SwapModsToMatchFilter(ref List<string> targetList, List<string> filterList)
         {
             int filterIndex = 0;
             for (int i = 0; i < targetList.Count && filterIndex < filterList.Count; i++)
@@ -42,6 +42,30 @@ namespace MW5_Mod_Manager
                     {
                         // Swap the items
                         int filterItemIndex = targetList.FindIndex(t => t == filterList[filterIndex]);
+                        targetList[filterItemIndex] = currentItem;
+                        targetList[i] = filterList[filterIndex];
+                    }
+                    filterIndex++;
+                }
+            }
+        }
+
+        public static void SwapModsToMatchFilter(ref List<ModImportData> targetList, List<ModImportData> filterList)
+        {
+            int filterIndex = 0;
+            for (int i = 0; i < targetList.Count && filterIndex < filterList.Count; i++)
+            {
+                ModImportData currentItem = targetList[i];
+
+                var itemExists = filterList.FirstOrDefault(x => 
+                    x.ModPath.Equals(currentItem.ModPath, StringComparison.InvariantCultureIgnoreCase));
+                
+                if (itemExists != null)
+                {
+                    if (currentItem.ModPath != filterList[filterIndex].ModPath)
+                    {
+                        // Swap the items
+                        int filterItemIndex = targetList.FindIndex(t => t.ModPath == filterList[filterIndex].ModPath);
                         targetList[filterItemIndex] = currentItem;
                         targetList[i] = filterList[filterIndex];
                     }

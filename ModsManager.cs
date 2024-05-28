@@ -48,9 +48,10 @@ namespace MW5_Mod_Manager
         public Dictionary<string, ModObject> ModDetails = new Dictionary<string, ModObject>(StringComparer.OrdinalIgnoreCase);
         // Valid mod directories
         public List<string> ModDirectories = new();
-        public Dictionary<string, bool> ModEnabledList = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+
+        public List<ModImportData> ModEnabledList = new List<ModImportData>();
         // As it was last loaded from file
-        public Dictionary<string, bool> ModEnabledListLastState;
+        public List<ModImportData> ModEnabledListLastState;
         public Dictionary<string, OverridingData> OverridingData = new Dictionary<string, OverridingData>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, string> Presets = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
@@ -70,7 +71,7 @@ namespace MW5_Mod_Manager
 
         public LastAppliedPresetData LastAppliedPreset = null;
         // Last applied preset in ready-to-load form
-        public Dictionary<string, bool> LastAppliedPresetModList = null;
+        public List<ModImportData> LastAppliedPresetModList = null;
 
         public static Color OverriddenColor = Color.FromArgb(131, 101, 0);
         public static Color OverridingColor = Color.FromArgb(80, 37, 192);
@@ -188,12 +189,16 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-            Dictionary<string, bool> lastAppliedValid = new Dictionary<string, bool>();
+            List<ModImportData> lastAppliedValid = new();
             foreach (var curMod in LastAppliedPreset.mods)
             {
-                lastAppliedValid[curMod.Key] = curMod.Value.state;
+                ModImportData newImportData = new();
+                newImportData.ModFolder = curMod.Key;
+                newImportData.Enabled = curMod.Value.state;
+
+                lastAppliedValid.Add(newImportData);
             }
-            ProcessModFolderEnabledList(ref lastAppliedValid, false);
+            ProcessModImportList(ref lastAppliedValid, false);
             LastAppliedPresetModList = lastAppliedValid;
         }
 
@@ -203,25 +208,29 @@ namespace MW5_Mod_Manager
                 return false;
 
             // Remove invalid mods from last loaded list.
-            Dictionary<string, bool> lastMods = new();
+            List<ModImportData> lastMods = new();
             foreach (var curModItem in LastAppliedPreset.mods)
             {
-                lastMods.Add(curModItem.Key, curModItem.Value.state);
+                ModImportData newImportData = new ModImportData();
+                newImportData.ModFolder = curModItem.Key;
+                newImportData.Enabled = curModItem.Value.state;
+
+                lastMods.Add(newImportData);
             }
-            ProcessModFolderEnabledList(ref lastMods, false);
+            ProcessModImportList(ref lastMods, false);
 
             // Filter to enabled only mods
             List<string> lastEnabledModList = lastMods
-                .Where(kv => kv.Value)
-                .Select(kv => kv.Key)
+                .Where(kv => kv.Enabled && kv.Available)
+                .Select(kv => kv.ModPath)
                 .ToList();
 
             List<string> curEnabledModList = new();
             if (ModEnabledListLastState != null)
             {
                 curEnabledModList = ModEnabledList
-                    .Where(kv => kv.Value)
-                    .Select(kv => kv.Key)
+                    .Where(kv => kv.Enabled && kv.Available)
+                    .Select(kv => kv.ModPath)
                     .ToList();
             }
 
@@ -251,7 +260,11 @@ namespace MW5_Mod_Manager
                     loadOrderChangedModNames.Add(ModDetails[curCandidate].displayName);
                 }
 
-                bool enabledStateChanged = ModEnabledListLastState == null || !ModEnabledListLastState.ContainsKey(curCandidate) || !ModEnabledListLastState[curCandidate];
+                ModImportData enabledListItem = ModEnabledListLastState.FirstOrDefault(x => 
+                    x.ModPath.Equals(curCandidate, StringComparison.InvariantCultureIgnoreCase));
+
+
+                bool enabledStateChanged = ModEnabledListLastState == null || enabledListItem == null || !enabledListItem.Enabled;
 
                 if (enabledStateChanged)
                 {
@@ -347,7 +360,11 @@ namespace MW5_Mod_Manager
             ModEnabledList.Clear();
             foreach (string modDir in this.ModDirectories)
             {
-                ModEnabledList[modDir] = false;
+                ModImportData newImportData = new ModImportData();
+                newImportData.ModPath = modDir;
+                newImportData.ModFolder = Path.GetFileName(modDir);
+                newImportData.Available = true;
+                ModEnabledList.Add(newImportData);
             }
         }
 
@@ -463,136 +480,95 @@ namespace MW5_Mod_Manager
         /// <summary>
         /// Checks for all items in the modlist if they have a possible folder on system they can point to.
         /// If not removes them from the modlist and informs user.
-        /// newFoldernamesEnabledList has only foldernames as key, not full paths
+        /// newFoldernamesEnabledList has only foldernames, doesn't contain full paths yet
         /// </summary>
-        public void ProcessModFolderEnabledList(ref Dictionary<string, bool> newFolderNamesEnabledList, bool warnMissing)
+        public void ProcessModImportList(ref List<ModImportData> modImportList, bool warnMissing)
         {
-            Dictionary<string, bool> MissingModDirs = new();
-            foreach (var item in newFolderNamesEnabledList)
+            List<string> missingMods = new List<string>();
+            foreach (var curImportItem in modImportList)
             {
-                if (Utils.StringNullEmptyOrWhiteSpace(item.Key))
-                {
-                    newFolderNamesEnabledList.Remove(item.Key);
-                    continue;
-                }
+                // We either have the name of the mod or the name of the mod folder, so let's try to complete the missing one
+                bool hasFolder = !Utils.StringNullEmptyOrWhiteSpace(curImportItem.ModFolder);
+                bool hasName = !Utils.StringNullEmptyOrWhiteSpace(curImportItem.ModName);
 
-                // Collect listed mods that are unavailable locally
-                if (!DirNameToPathDict.ContainsKey(item.Key))
-                { 
-                    MissingModDirs.Add(item.Key, item.Value);
-                }
-            }
-            foreach (var missingModDir in MissingModDirs)
-            {
-                newFolderNamesEnabledList.Remove(missingModDir.Key);
-
-                // We will silently ignore missing mods that are not enabled
-                if (!missingModDir.Value)
+                bool foundMod = false;
+                if (hasFolder)
                 {
-                    MissingModDirs.Remove(missingModDir.Key);
-                }
-            }
-            if (warnMissing && MissingModDirs.Count > 0)
-            {
-                var missingMods = string.Join(MissingModDirs.Count > 5 ? ", " : "\r\n", MissingModDirs.Keys);
-
-                TaskDialog.ShowDialog(MainForm.Instance.Handle, new TaskDialogPage()
-                {
-                    Text = "The mod list includes the following enabled mods which are unavailable locally:\r\n\r\n"
-                           + missingMods
-                           + "\r\n\r\nThese mods will be ignored.",
-                    Heading = "Invalid mods in preset.",
-                    Caption = "Warning",
-                    Buttons =
+                    if (DirNameToPathDict.ContainsKey(curImportItem.ModFolder))
                     {
-                        TaskDialogButton.OK,
-                    },
-                    Icon = TaskDialogIcon.Warning,
-                    DefaultButton = TaskDialogButton.OK,
-                    AllowCancel = true
-                });
-            }
-
-            Dictionary<string, bool> newModListDict = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-            foreach (var curFolderItem in newFolderNamesEnabledList)
-            {
-                string fullPath = DirNameToPathDict[curFolderItem.Key];
-                newModListDict[fullPath] = curFolderItem.Value;
-            }
-            newFolderNamesEnabledList = newModListDict;
-        }
-
-        public void ProcessModNameEnabledList(ref Dictionary<string, bool> newNamesEnabledList, bool warnMissing)
-        {
-            Dictionary<string, bool> newModListDict = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-            Dictionary<string, bool> missingMods = new();
-            foreach (var curItem in newNamesEnabledList)
-            {
-                if (Utils.StringNullEmptyOrWhiteSpace(curItem.Key))
-                {
-                    newNamesEnabledList.Remove(curItem.Key);
-                    continue;
+                        string modPath = DirNameToPathDict[curImportItem.ModFolder];
+                        if (!string.IsNullOrWhiteSpace(modPath))
+                        {
+                            curImportItem.Available = true;
+                            curImportItem.ModPath = modPath;
+                            curImportItem.ModFolder = Path.GetFileName(modPath);
+                            foundMod = true;
+                        }
+                    }
                 }
-
-                bool foundMatch = false;
-
-                // find all mods that match the name. There might be duplicates
-                List<string> foundMods = new List<string>();
-                foreach (var curModDetail in ModDetails)
+                
+                if (hasName)
                 {
-                    if (curModDetail.Value.displayName == curItem.Key)
+                    
+                    // find all mods that match the name. There might be duplicates
+                    List<string> foundLocalMods = new List<string>();
+                    foreach (var curModDetail in ModDetails)
                     {
-                        foundMods.Add(curModDetail.Key);
+                        if (curModDetail.Value.displayName == curImportItem.ModName)
+                        {
+                            foundLocalMods.Add(curModDetail.Key);
+                        }
+                    }
+
+                    if (foundLocalMods.Count > 0)
+                    {
+                        // Sort available version, so that newest is on top of the list
+                        foundLocalMods.Sort((x, y) =>
+                        {
+                            int compResult = string.IsNullOrWhiteSpace(ModDetails[x].version)
+                                .CompareTo(string.IsNullOrWhiteSpace(ModDetails[y].version));
+
+                            if (compResult == 0 && 
+                                (!string.IsNullOrWhiteSpace(ModDetails[y].version) &&
+                                 !string.IsNullOrWhiteSpace(ModDetails[x].version))
+                               )
+                            {
+                                compResult = Utils.CompareVersionStrings(ModDetails[y].version, ModDetails[x].version);
+                            }
+
+                            if (compResult == 0)
+                            {
+                                compResult = ModDetails[y].buildNumber.CompareTo(ModDetails[x].buildNumber);
+                            }
+
+                            return compResult;
+                        });
+
+                        foundMod = true;
+                        curImportItem.ModPath = foundLocalMods[0];
+                        curImportItem.ModFolder = ModsManager.Instance.PathToDirNameDict[foundLocalMods[0]];
+                        curImportItem.Available = true;
                     }
                 }
 
-                if (foundMods.Count > 0)
+                if (!foundMod)
                 {
-                    // Sort available version, so that newest is on top of the list
-                    foundMods.Sort((x, y) =>
+                    if (curImportItem.Enabled)
                     {
-                        int compResult = string.IsNullOrWhiteSpace(ModDetails[x].version)
-                            .CompareTo(string.IsNullOrWhiteSpace(ModDetails[y].version));
+                        string modName = String.Empty;
+                        if (!string.IsNullOrWhiteSpace(curImportItem.ModName))
+                            modName = curImportItem.ModName;
+                        else if (!string.IsNullOrWhiteSpace(curImportItem.ModFolder))
+                            modName = curImportItem.ModFolder;
 
-                        if (compResult == 0 && 
-                            (!string.IsNullOrWhiteSpace(ModDetails[y].version) &&
-                            !string.IsNullOrWhiteSpace(ModDetails[x].version))
-                            )
-                        {
-                            compResult = Utils.CompareVersionStrings(ModDetails[y].version, ModDetails[x].version);
-                        }
-
-                        if (compResult == 0)
-                        {
-                            compResult = ModDetails[y].buildNumber.CompareTo(ModDetails[x].buildNumber);
-                        }
-
-                        return compResult;
-                    });
-
-                    foundMatch = true;
-                    newModListDict.Add(foundMods[0], curItem.Value);
-                }
-
-                // Collect mods that are unavailable locally
-                if (!foundMatch)
-                {
-                    missingMods.Add(curItem.Key, curItem.Value);
-                }
-            }
-            foreach (var curMissingMod in missingMods)
-            {
-                newNamesEnabledList.Remove(curMissingMod.Key);
-
-                // We will silently ignore missing mods that are not enabled
-                if (!curMissingMod.Value)
-                {
-                    missingMods.Remove(curMissingMod.Key);
+                        missingMods.Add(modName);
+                    }
+                    continue;
                 }
             }
             if (warnMissing && missingMods.Count > 0)
             {
-                var missingModsString = string.Join(missingMods.Count > 5 ? ", " : "\r\n", missingMods.Keys);
+                var missingModsString = string.Join(missingMods.Count > 5 ? ", " : "\r\n", missingMods);
 
                 TaskDialog.ShowDialog(MainForm.Instance.Handle, new TaskDialogPage()
                 {
@@ -611,8 +587,9 @@ namespace MW5_Mod_Manager
                 });
             }
 
-            newNamesEnabledList = newModListDict;
+            modImportList.RemoveAll(x => !x.Available);
         }
+
 
         public static string GetSettingsDirectory()
         {
@@ -767,7 +744,7 @@ namespace MW5_Mod_Manager
             });
         }
 
-        public Dictionary<string, bool> LoadModList()
+        public List<ModImportData> LoadModList()
         {
             string modlistPath = GetModListJsonFilePath();
 
@@ -798,14 +775,17 @@ namespace MW5_Mod_Manager
             JObject modStatus = modListObjectObject.Value<JObject>("modStatus");
             if (modStatus != null)
             {
-                Dictionary<string, bool> modList = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-                int modListIndex = 0;
+                List<ModImportData> modList = new List<ModImportData>(modStatus.Properties().Count());
                 foreach (JProperty curMOD in modStatus.Properties())
 
                 {
                     bool enabled = (bool)modStatus[curMOD.Name]?["bEnabled"];
-                    modList.Add(curMOD.Name, enabled);
-                    ++modListIndex;
+
+                    ModImportData newImportData = new ModImportData();
+                    newImportData.ModFolder = curMOD.Name;
+                    newImportData.Enabled = enabled;
+
+                    modList.Add(newImportData);
                 }
 
                 return modList;
@@ -854,19 +834,6 @@ namespace MW5_Mod_Manager
 
                 return priorityComparison;
             });
-
-            // There are sometimes "ghost" entries in the modlist.json for which there are no directories left, lets remove those.
-            List<string> toRemove = new List<string>();
-            foreach (KeyValuePair<string, bool> entry in this.ModEnabledList)
-            {
-                if (this.ModDirectories.Contains<string>(entry.Key))
-                    continue;
-                toRemove.Add(entry.Key);
-            }
-            foreach (string key in toRemove)
-            {
-                this.ModEnabledList.Remove(key);
-            }
         }
 
         public static bool IsSteamWorkshopID(string input)
@@ -1115,8 +1082,13 @@ namespace MW5_Mod_Manager
             {
                 if (!loadModSuccess)
                 {
-                    if (ModEnabledList.ContainsKey(modPath))
-                        ModEnabledList.Remove(modPath);
+                    var itemToRemove = ModEnabledList.FirstOrDefault(x => 
+                        x.ModPath.Equals(modPath, StringComparison.InvariantCultureIgnoreCase));
+
+                    if (itemToRemove != null)
+                    {
+                        ModEnabledList.Remove(itemToRemove);
+                    }
                 }
             }
  
@@ -1226,15 +1198,12 @@ namespace MW5_Mod_Manager
                 modListObject.Add("modStatus", modStatusObject);
             }
 
-            foreach (KeyValuePair<string, bool> entry in this.ModEnabledList)
+            foreach (var entry in this.ModEnabledList)
             {
-                string[] temp = entry.Key.Split('\\');
-                string modFolderName = temp[temp.Length - 1];
-
                 JObject newStatus = new JObject(
-                    new JProperty("bEnabled", entry.Value)
+                    new JProperty("bEnabled", entry.Enabled)
                 );
-                modStatusObject.Add(modFolderName, newStatus);
+                modStatusObject.Add(entry.ModFolder, newStatus);
             }
 
             JsonSerializer serializer = new JsonSerializer();
@@ -1251,15 +1220,15 @@ namespace MW5_Mod_Manager
             string lastAppliedJsonFile = GetSettingsDirectory() + Path.DirectorySeparatorChar + LastAppliedOrderFileName;
 
             Dictionary<string, LastAppliedPresetModData> lastAppliedModList = new Dictionary<string, LastAppliedPresetModData>();
-            foreach (KeyValuePair<string, bool> entry in ModEnabledList)
+            foreach (var entry in ModEnabledList)
             {
-                string folderName = ModsManager.Instance.PathToDirNameDict[entry.Key];
+                string folderName = entry.ModFolder;
 
                 LastAppliedPresetModData lastAppliedModData = new LastAppliedPresetModData();
-                lastAppliedModData.state = entry.Value;
-                lastAppliedModData.lastLoadOrder = Mods[entry.Key].NewLoadOrder;
-                lastAppliedModData.version = ModDetails[entry.Key].version;
-                lastAppliedModData.buildNumber = ModDetails[entry.Key].buildNumber;
+                lastAppliedModData.state = entry.Enabled;
+                lastAppliedModData.lastLoadOrder = Mods[entry.ModPath].NewLoadOrder;
+                lastAppliedModData.version = ModDetails[entry.ModPath].version;
+                lastAppliedModData.buildNumber = ModDetails[entry.ModPath].buildNumber;
                 lastAppliedModList[folderName] = lastAppliedModData;
             }
 

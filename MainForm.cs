@@ -153,7 +153,11 @@ namespace MW5_Mod_Manager
             {
                 ModItem curMod = (ModItem)rowObject;
                 curMod.Enabled = newValue;
-                ModsManager.Instance.ModEnabledList[curMod.Path] = newValue;
+
+                var modItem = ModsManager.Instance.ModEnabledList.FirstOrDefault(x => 
+                    x.ModPath.Equals(curMod.Path, StringComparison.InvariantCultureIgnoreCase));
+                modItem.Enabled = newValue;
+
                 ModsManager.Instance.UpdateNewModOverrideData(curMod);
                 UpdateModCountDisplay();
                 RecolorObjectListViewRows();
@@ -715,7 +719,7 @@ namespace MW5_Mod_Manager
         }
 
         //Load mod data and fill in the list box...
-        public void LoadAndFill(Dictionary<string, bool> desiredMods, bool orderByDesired)
+        public void LoadAndFill(List<ModImportData> desiredMods, bool orderByDesired)
         {
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
@@ -729,22 +733,22 @@ namespace MW5_Mod_Manager
 
                 ModsManager.Instance.InitModEnabledList();
 
-                List<KeyValuePair<string, bool>> orderedModList;
+                List<ModImportData> orderedModList;
                 // Sort by mechwarrior load order
                 if (!orderByDesired)
                 {
-                    orderedModList = ModsManager.Instance.ModEnabledList.ToList();
+                    orderedModList = ModsManager.Instance.ModEnabledList;
                     orderedModList.Sort((x, y) =>
                     {
                         // Compare load order
-                        int priorityComparison = ModsManager.Instance.ModDetails[y.Key].defaultLoadOrder
-                            .CompareTo(ModsManager.Instance.ModDetails[x.Key].defaultLoadOrder);
+                        int priorityComparison = ModsManager.Instance.ModDetails[y.ModPath].defaultLoadOrder
+                            .CompareTo(ModsManager.Instance.ModDetails[x.ModPath].defaultLoadOrder);
 
                         // If Priority is equal, compare Folder name
                         if (priorityComparison == 0)
                         {
                             return String
-                                .Compare(ModsManager.Instance.PathToDirNameDict[y.Key].ToString(), ModsManager.Instance.PathToDirNameDict[x.Key], StringComparison.InvariantCultureIgnoreCase);
+                                .Compare(ModsManager.Instance.PathToDirNameDict[y.ModPath].ToString(), ModsManager.Instance.PathToDirNameDict[x.ModPath], StringComparison.InvariantCultureIgnoreCase);
                         }
 
                         return priorityComparison;
@@ -753,7 +757,7 @@ namespace MW5_Mod_Manager
                 else
                 {
                     orderedModList = ModsManager.Instance.ModEnabledList.ToList();
-                    ModUtils.SwapModsToMatchFilter(ref orderedModList, desiredMods.ToList());
+                    ModUtils.SwapModsToMatchFilter(ref orderedModList, desiredMods);
                 }
 
                 // set all mods to desired enabled states
@@ -761,47 +765,61 @@ namespace MW5_Mod_Manager
                 {
                     foreach (var curDesiredMod in desiredMods)
                     {
-                        ModsManager.Instance.ModEnabledList[curDesiredMod.Key] = curDesiredMod.Value;
+                        var curTargetItem = ModsManager.Instance.ModEnabledList.FirstOrDefault(x => 
+                            x.ModPath.Equals(curDesiredMod.ModPath, StringComparison.InvariantCultureIgnoreCase));
+        
+                        if (curTargetItem != null)
+                        {
+                            curTargetItem.Enabled = curDesiredMod.Enabled;
+                        }
                     }
                 }
 
+                // Get enabled mods from desired list
                 for (int i = 0; i < orderedModList.Count; i++)
                 {
                     bool newState = false;
                     var curModListItem = orderedModList[i];
-                    if (desiredMods != null && desiredMods.ContainsKey(curModListItem.Key))
+
+                    var curTargetItem = ModsManager.Instance.ModEnabledList.FirstOrDefault(x => 
+                        x.ModPath.Equals(curModListItem.ModPath, StringComparison.InvariantCultureIgnoreCase));
+
+                    if (desiredMods != null && curTargetItem != null)
                     {
-                        newState = desiredMods[curModListItem.Key];
+                        var curDesiredItem = desiredMods.FirstOrDefault(x => 
+                            x.ModPath.Equals(curModListItem.ModPath, StringComparison.InvariantCultureIgnoreCase));
+
+                        if (curDesiredItem == null)
+                        {
+                            continue;
+                        }
+
+                        newState = curDesiredItem.Enabled;
                     }
 
-                    orderedModList[i] = new KeyValuePair<string, bool>(curModListItem.Key, newState);
+                    orderedModList[i].Enabled = newState;
                 }
 
                 modObjectListView.BeginUpdate();
                 modObjectListView.ClearObjects();
                 ModItemList.Instance.ModList.Clear();
-                foreach (KeyValuePair<string, bool> entry in orderedModList.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
+                foreach (var entry in orderedModList.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
                 {
-                    if (entry.Equals(new KeyValuePair<string, bool>(null, false)))
-                        continue;
-                    if (entry.Key == null)
-                        continue;
-
                     ModItem newItem = new ModItem();
-                    newItem.Enabled = entry.Value;
-                    newItem.Path = entry.Key;
-                    newItem.Name = ModsManager.Instance.ModDetails[entry.Key].displayName;
-                    newItem.FolderName = ModsManager.Instance.PathToDirNameDict[entry.Key];
-                    newItem.FileSize = ModsManager.Instance.Mods[entry.Key].ModFileSize;
-                    newItem.Author = ModsManager.Instance.ModDetails[entry.Key].author;
-                    newItem.CurrentLoadOrder = ModsManager.Instance.Mods[entry.Key].NewLoadOrder;
-                    newItem.OriginalLoadOrder = ModsManager.Instance.Mods[entry.Key].OriginalLoadOrder;
-                    newItem.Origin = ModsManager.Instance.Mods[entry.Key].Origin;
+                    newItem.Enabled = entry.Enabled;
+                    newItem.Path = entry.ModPath;
+                    newItem.Name = ModsManager.Instance.ModDetails[entry.ModPath].displayName;
+                    newItem.FolderName = ModsManager.Instance.PathToDirNameDict[entry.ModPath];
+                    newItem.FileSize = ModsManager.Instance.Mods[entry.ModPath].ModFileSize;
+                    newItem.Author = ModsManager.Instance.ModDetails[entry.ModPath].author;
+                    newItem.CurrentLoadOrder = ModsManager.Instance.Mods[entry.ModPath].NewLoadOrder;
+                    newItem.OriginalLoadOrder = ModsManager.Instance.Mods[entry.ModPath].OriginalLoadOrder;
+                    newItem.Origin = ModsManager.Instance.Mods[entry.ModPath].Origin;
 
-                    newItem.Version = ModsManager.Instance.ModDetails[entry.Key].version;
-                    newItem.BuildNumber = ModsManager.Instance.ModDetails[entry.Key].buildNumber;
-                    string versionString = (ModsManager.Instance.ModDetails[entry.Key].version + " (" +
-                                            ModsManager.Instance.ModDetails[entry.Key].buildNumber.ToString() + ")").Trim();
+                    newItem.Version = ModsManager.Instance.ModDetails[entry.ModPath].version;
+                    newItem.BuildNumber = ModsManager.Instance.ModDetails[entry.ModPath].buildNumber;
+                    string versionString = (ModsManager.Instance.ModDetails[entry.ModPath].version + " (" +
+                                            ModsManager.Instance.ModDetails[entry.ModPath].buildNumber.ToString() + ")").Trim();
 
                     newItem.VersionCombined = versionString;
 
@@ -888,19 +906,18 @@ namespace MW5_Mod_Manager
                 ModsManager.Instance.ReloadModData();
 
                 // load modlist.json
-                Dictionary<string, bool> modlist = ModsManager.Instance.LoadModList();
+                List<ModImportData> modlist = ModsManager.Instance.LoadModList();
                 if (modlist != null)
                 {
-                    ModsManager.Instance.ProcessModFolderEnabledList(ref modlist, false);
+                    ModsManager.Instance.ProcessModImportList(ref modlist, false);
                     ModsManager.Instance.ModEnabledListLastState = modlist;
                 }
                 ModsManager.Instance.DetermineBestAvailableGameVersion();
 
                 // Check if we want to load the last applied mod list
-                Dictionary<string, bool> loadModlist = modlist;
 
                 if (!forceLoadLastApplied)
-                    LoadAndFill(loadModlist, false);
+                    LoadAndFill(modlist, false);
 
                 _ActiveModListHash = ModItemList.Instance.ModList.ComputeModListHashCode();
 
@@ -909,9 +926,9 @@ namespace MW5_Mod_Manager
                 if (forceLoadLastApplied || ModsManager.Instance.ShouldLoadLastApplied())
                 {
                     // Load last saved preset
-                    loadModlist = ModsManager.Instance.LastAppliedPresetModList;
+                    modlist = ModsManager.Instance.LastAppliedPresetModList;
 
-                    LoadAndFill(loadModlist, true);
+                    LoadAndFill(modlist, true);
 
                     if (_ActiveModListHash != ModItemList.Instance.ModList.ComputeModListHashCode())
                         modConfigTainted = true;
@@ -942,10 +959,9 @@ namespace MW5_Mod_Manager
         public void SavePreset(string name)
         {
             Dictionary<string, bool> NoPathModlist = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-            foreach (KeyValuePair<string, bool> entry in ModsManager.Instance.ModEnabledList)
+            foreach (var entry in ModsManager.Instance.ModEnabledList)
             {
-                string folderName = ModsManager.Instance.PathToDirNameDict[entry.Key];
-                NoPathModlist[folderName] = entry.Value;
+                NoPathModlist[entry.ModFolder] = entry.Enabled;
             }
             ModsManager.Instance.Presets[name] = JsonConvert.SerializeObject(NoPathModlist, Formatting.Indented);
             ModsManager.Instance.SavePresets();
@@ -991,8 +1007,18 @@ namespace MW5_Mod_Manager
 
             ModsManager.Instance.ParseDirectories();
             ModsManager.Instance.ReloadModData();
-            ModsManager.Instance.ProcessModFolderEnabledList(ref presetData, true);
-            this.LoadAndFill(presetData, true);
+            List<ModImportData> newPresetData = new List<ModImportData>();
+            foreach (var curPresetEntry in presetData)
+            {
+                ModImportData newImportData = new ModImportData();
+                newImportData.ModFolder = curPresetEntry.Key;
+                newImportData.Enabled = curPresetEntry.Value;
+
+                newPresetData.Add(newImportData);
+            }
+
+            ModsManager.Instance.ProcessModImportList(ref newPresetData, true);
+            this.LoadAndFill(newPresetData, true);
             FilterTextChanged();
             CheckModConfigTainted();
             modObjectListView.EndUpdate();
@@ -1572,15 +1598,8 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-            Dictionary<string, bool> newData = importDialog.ResultData;
-            if (importDialog.ResultDataType == ImportForm.eResultDataType.DirNames)
-            {
-                ModsManager.Instance.ProcessModFolderEnabledList(ref newData, true);
-            }
-            else if (importDialog.ResultDataType == ImportForm.eResultDataType.ModNames)
-            {
-                ModsManager.Instance.ProcessModNameEnabledList(ref newData, true);
-            }
+            List<ModImportData> newData = importDialog.ResultData;
+            ModsManager.Instance.ProcessModImportList(ref newData, true);
 
             importDialog.Dispose();
 
@@ -2051,9 +2070,9 @@ namespace MW5_Mod_Manager
             int count = 0;
             if (enabledOnly)
             {
-                foreach (bool curModState in ModsManager.Instance.ModEnabledList.Values)
+                foreach (var curMod in ModsManager.Instance.ModEnabledList)
                 {
-                    if (curModState) { count++; }
+                    if (curMod.Enabled) { count++; }
                 }
             }
             else

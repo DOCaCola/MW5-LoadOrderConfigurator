@@ -41,12 +41,12 @@ namespace MW5_Mod_Manager
             Dictionary<string, bool> FolderNameModList = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 
             //Get the folder names from the paths in modlist
-            foreach (string key in ModsManager.Instance.ModEnabledList.Keys)
+            foreach (var curEnabledItem in ModsManager.Instance.ModEnabledList)
             {
-                bool isEnabled = ModsManager.Instance.ModEnabledList[key];
+                bool isEnabled = curEnabledItem.Enabled;
                 if (!isEnabled)
                     continue;
-                string folderName = ModsManager.Instance.PathToDirNameDict[key];
+                string folderName = ModsManager.Instance.PathToDirNameDict[curEnabledItem.ModPath];
                 FolderNameModList[folderName] = isEnabled;
             }
 
@@ -61,13 +61,13 @@ namespace MW5_Mod_Manager
             List<string> modNameList = new List<string>();
 
             //Get the folder names from the paths in modlist
-            foreach (string key in ModsManager.Instance.ModEnabledList.Keys)
+            foreach (var curEnabledItem in ModsManager.Instance.ModEnabledList)
             {
-                bool isEnabled = ModsManager.Instance.ModEnabledList[key];
+                bool isEnabled = curEnabledItem.Enabled;
                 if (!isEnabled)
                     continue;
 
-                modNameList.Add(ModsManager.Instance.ModDetails[key].displayName);
+                modNameList.Add(ModsManager.Instance.ModDetails[curEnabledItem.ModPath].displayName);
             }
 
             JObject jsonObject = new JObject();
@@ -85,21 +85,21 @@ namespace MW5_Mod_Manager
             int maxDigitsOlo = 0;
             int maxDigitsClo = 0;
             bool anyEnabled = false;
-            foreach (string key in ModsManager.Instance.ModEnabledList.Keys)
+            foreach (var key in ModsManager.Instance.ModEnabledList)
 
             {
-                bool isEnabled = ModsManager.Instance.ModEnabledList[key];
+                bool isEnabled = key.Enabled;
                 if (!isEnabled)
                     continue;
 
                 anyEnabled = true;
 
-                int currentLoadOrder = (int)ModsManager.Instance.Mods[key].NewLoadOrder;
+                int currentLoadOrder = (int)ModsManager.Instance.Mods[key.ModPath].NewLoadOrder;
                 int cloDigits = currentLoadOrder.Digits();
                 if (cloDigits > maxDigitsClo)
                     maxDigitsClo = cloDigits;
 
-                int newLoadOrder = (int)ModsManager.Instance.Mods[key].OriginalLoadOrder;
+                int newLoadOrder = (int)ModsManager.Instance.Mods[key.ModPath].OriginalLoadOrder;
                 int oloDigits = newLoadOrder.Digits();
                 if (oloDigits > maxDigitsOlo)
                     maxDigitsOlo = oloDigits;
@@ -127,18 +127,18 @@ namespace MW5_Mod_Manager
             sb.Append(titleOlo.PadLeft(maxDigitsOlo));
             sb.Append("   Mod\r\n");
 
-            foreach (string key in ModsManager.Instance.ModEnabledList.Keys.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
+            foreach (var curModItem in ModsManager.Instance.ModEnabledList.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
             {
                 // Create a human readable string in the format
                 // 58   420   "Super Test Mod" 3.1.2(357) by The Modder
-                bool isEnabled = ModsManager.Instance.ModEnabledList[key];
+                bool isEnabled = curModItem.Enabled;
                 if (!isEnabled)
                     continue;
 
-                int originalLoadOrder = (int)ModsManager.Instance.Mods[key].OriginalLoadOrder;
-                int currentLoadOrder = (int)ModsManager.Instance.Mods[key].NewLoadOrder;
+                int originalLoadOrder = (int)ModsManager.Instance.Mods[curModItem.ModPath].OriginalLoadOrder;
+                int currentLoadOrder = (int)ModsManager.Instance.Mods[curModItem.ModPath].NewLoadOrder;
 
-                var modDetails = ModsManager.Instance.ModDetails[key];
+                var modDetails = ModsManager.Instance.ModDetails[curModItem.ModPath];
 
                 sb.Append(currentLoadOrder.ToString().PadLeft(maxDigitsClo));
                 sb.Append("   ");
