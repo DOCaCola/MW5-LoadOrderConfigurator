@@ -201,7 +201,8 @@ namespace MW5_Mod_Manager
             {
                 if (modObjectListView.DropSink == null)
                 {
-                    modObjectListView.FullRowSelect = true;
+                    if (!modObjectListView.FullRowSelect)
+                        modObjectListView.FullRowSelect = true;
                     var dropSink = new SimpleDropSink();
                     dropSink.AcceptExternal = false;
                     dropSink.CanDropBetween = true;
@@ -216,7 +217,8 @@ namespace MW5_Mod_Manager
             else
             {
                 modObjectListView.DropSink = null;
-                modObjectListView.FullRowSelect = true;
+                if (!modObjectListView.FullRowSelect)
+                    modObjectListView.FullRowSelect = true;
             }
 
         }
@@ -1882,9 +1884,9 @@ namespace MW5_Mod_Manager
 
             ModsManager.Instance.RecomputeOverridingData();
 
-            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
-            RecolorObjectListViewRows();
             modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
+            RecolorObjectListViewRows();
+            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
             modObjectListView.EndUpdate();
 
             CheckModConfigTainted();
@@ -2837,7 +2839,8 @@ namespace MW5_Mod_Manager
         private void modObjectListView_DragOver(object sender, DragEventArgs e)
         {
             // Simpledropsource sets this to false..
-            modObjectListView.FullRowSelect = true;
+            if (!modObjectListView.FullRowSelect)
+                modObjectListView.FullRowSelect = true;
         }
 
         private void modObjectListView_MouseClick(object sender, MouseEventArgs e)
