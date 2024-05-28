@@ -25,33 +25,6 @@ namespace MW5_Mod_Manager
     {
         static public MainForm Instance;
 
-        public class ModDragSource : IDragSource
-        {
-            public ModDragSource()
-            {
-            }
-
-            public virtual object StartDrag(ObjectListView olv, MouseButtons button, OLVListItem item)
-            {
-                MainForm.Instance.EnableModListDrop(true);
-                return button != MouseButtons.Left ? (object)null : this.CreateDataObject(olv);
-            }
-
-            public virtual DragDropEffects GetAllowedEffects(object data)
-            {
-                return DragDropEffects.All | DragDropEffects.Link;
-            }
-
-            public virtual void EndDrag(object dragObject, DragDropEffects effect)
-            {
-                Instance.EnableModListDrop(false);
-            }
-            protected virtual object CreateDataObject(ObjectListView olv)
-            {
-                return (object)new OLVDataObject(olv);
-            }
-        }
-
         enum eFilterMode
         {
             None,
@@ -203,7 +176,7 @@ namespace MW5_Mod_Manager
                 {
                     if (!modObjectListView.FullRowSelect)
                         modObjectListView.FullRowSelect = true;
-                    var dropSink = new SimpleDropSink();
+                    var dropSink = new ModDropSink();
                     dropSink.AcceptExternal = false;
                     dropSink.CanDropBetween = true;
                     dropSink.CanDropOnBackground = false;
