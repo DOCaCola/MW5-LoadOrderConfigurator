@@ -86,7 +86,14 @@ namespace MW5_Mod_Manager
             imageListIcons.Images.Add("FolderDis", UiIcons.FolderDis);
 
             olvColumnModName.ImageGetter = this.ModImageGetter;
+            olvColumnModName.AspectGetter = this.ModNameGetter;
+            olvColumnModAuthor.AspectGetter = this.ModAuthorGetter;
+            olvColumnModVersion.AspectGetter = this.ModVersionGetter;
+            olvColumnModCurLoadOrder.AspectGetter = this.ModCurLoadOrderGetter;
+            olvColumnModOrgLoadOrder.AspectGetter = this.ModOrgLoadOrderGetter;
+            olvColumnModFileSize.AspectGetter = this.ModFileSizeGetter;
             olvColumnModFileSize.AspectToStringConverter = FileSizeAspectConverter;
+            olvColumnModFolder.AspectGetter = this.ModFolderGetter;
 
             olvColumnModName.VisibilityChanged += OlvColumnVisibilityChanged;
             olvColumnModAuthor.VisibilityChanged += OlvColumnVisibilityChanged;
@@ -121,6 +128,14 @@ namespace MW5_Mod_Manager
             his.Decoration = rbdhot;
             modObjectListView.HotItemStyle = his;
             modObjectListView.UseHotItem = true;
+
+            modObjectListView.BooleanCheckStateGetter = BooleanCheckStateGetter;
+
+            bool BooleanCheckStateGetter(object rowobject)
+            {
+                ModItem curMod = (ModItem)rowobject;
+                return curMod.Enabled;
+            }
 
             modObjectListView.BooleanCheckStatePutter = delegate (Object rowObject, bool newValue)
             {
@@ -161,6 +176,43 @@ namespace MW5_Mod_Manager
                 richTextBoxManifestOverridden.Font = monospaceFont;
             }*/
         }
+
+        private object ModFolderGetter(object rowobject)
+        {
+            ModItem s = (ModItem)rowobject;
+            return s.FolderName;
+        }
+
+        private object ModFileSizeGetter(object rowobject)
+        {
+            ModItem s = (ModItem)rowobject;
+            return s.FileSize;
+        }
+
+        private object ModOrgLoadOrderGetter(object rowobject)
+        {
+            ModItem s = (ModItem)rowobject;
+            return s.OriginalLoadOrder;
+        }
+
+        private object ModCurLoadOrderGetter(object rowobject)
+        {
+            ModItem s = (ModItem)rowobject;
+            return s.CurrentLoadOrder;
+        }
+
+        private object ModVersionGetter(object rowobject)
+        {
+            ModItem s = (ModItem)rowobject;
+            return s.VersionCombined;
+        }
+
+        private object ModAuthorGetter(object rowobject)
+        {
+            ModItem s = (ModItem)rowobject;
+            return s.Author;
+        }
+
         private object GroupKeyGetter(object rowobject)
         {
             return 1;
@@ -828,6 +880,12 @@ namespace MW5_Mod_Manager
             modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
             modObjectListView.EndUpdate();
             UpdateModCountDisplay();
+        }
+
+        public object ModNameGetter(object rowObject)
+        {
+            ModItem s = (ModItem)rowObject;
+            return s.Name;
         }
 
         public object ModImageGetter(object rowObject)

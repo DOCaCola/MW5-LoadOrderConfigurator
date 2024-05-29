@@ -965,7 +965,6 @@ namespace MW5_Mod_Manager
             modObjectListView.AllowColumnReorder = true;
             modObjectListView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             modObjectListView.CheckBoxes = true;
-            modObjectListView.CheckedAspectName = "Enabled";
             modObjectListView.Columns.AddRange(new ColumnHeader[] { olvColumnModName, olvColumnModAuthor, olvColumnModVersion, olvColumnModCurLoadOrder, olvColumnModOrgLoadOrder, olvColumnModFileSize, olvColumnModFolder });
             modObjectListView.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             modObjectListView.FullRowSelect = true;
@@ -999,7 +998,6 @@ namespace MW5_Mod_Manager
             // 
             // olvColumnModName
             // 
-            olvColumnModName.AspectName = "Name";
             olvColumnModName.Hideable = false;
             olvColumnModName.MinimumWidth = 40;
             olvColumnModName.Text = "Mod";
@@ -1007,7 +1005,6 @@ namespace MW5_Mod_Manager
             // 
             // olvColumnModAuthor
             // 
-            olvColumnModAuthor.AspectName = "Author";
             olvColumnModAuthor.Groupable = false;
             olvColumnModAuthor.MinimumWidth = 10;
             olvColumnModAuthor.Sortable = false;
@@ -1016,7 +1013,6 @@ namespace MW5_Mod_Manager
             // 
             // olvColumnModVersion
             // 
-            olvColumnModVersion.AspectName = "VersionCombined";
             olvColumnModVersion.Groupable = false;
             olvColumnModVersion.MinimumWidth = 10;
             olvColumnModVersion.Searchable = false;
@@ -1027,7 +1023,6 @@ namespace MW5_Mod_Manager
             // 
             // olvColumnModCurLoadOrder
             // 
-            olvColumnModCurLoadOrder.AspectName = "CurrentLoadOrder";
             olvColumnModCurLoadOrder.Groupable = false;
             olvColumnModCurLoadOrder.MinimumWidth = 10;
             olvColumnModCurLoadOrder.Searchable = false;
@@ -1039,7 +1034,6 @@ namespace MW5_Mod_Manager
             // 
             // olvColumnModOrgLoadOrder
             // 
-            olvColumnModOrgLoadOrder.AspectName = "OriginalLoadOrder";
             olvColumnModOrgLoadOrder.Groupable = false;
             olvColumnModOrgLoadOrder.MinimumWidth = 10;
             olvColumnModOrgLoadOrder.Searchable = false;
@@ -1051,7 +1045,6 @@ namespace MW5_Mod_Manager
             // 
             // olvColumnModFileSize
             // 
-            olvColumnModFileSize.AspectName = "FileSize";
             olvColumnModFileSize.Groupable = false;
             olvColumnModFileSize.MinimumWidth = 10;
             olvColumnModFileSize.Searchable = false;
@@ -1060,7 +1053,6 @@ namespace MW5_Mod_Manager
             // 
             // olvColumnModFolder
             // 
-            olvColumnModFolder.AspectName = "FolderName";
             olvColumnModFolder.Groupable = false;
             olvColumnModFolder.MinimumWidth = 10;
             olvColumnModFolder.Sortable = false;
