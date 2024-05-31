@@ -982,6 +982,7 @@ namespace MW5_Mod_Manager
             modObjectListView.TabIndex = 41;
             modObjectListView.UseHotControls = false;
             modObjectListView.UseHotItem = true;
+            modObjectListView.UseOverlays = false;
             modObjectListView.UseTranslucentHotItem = true;
             modObjectListView.UseTranslucentSelection = true;
             modObjectListView.View = View.Details;

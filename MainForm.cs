@@ -50,6 +50,7 @@ namespace MW5_Mod_Manager
 
         // Hash of the mod list currently applied to mechwarrior
         public int _ActiveModListHash = 0;
+        public AsyncFileLoader _ModImageLoader = null;
 
         private TypedObjectListView<ModItem> _modList = null;
         private TypedColumn<ModItem> _modNameColumn = null;
@@ -106,7 +107,7 @@ namespace MW5_Mod_Manager
             olvColumnModName.GroupKeyGetter += GroupKeyGetter;
 
             var dragSource = new ModDragSource();
-            this.modObjectListView.DragSource = dragSource;
+            modObjectListView.DragSource = dragSource;
 
             // Selection
             RowBorderDecoration rbd = new RowBorderDecoration();
@@ -922,7 +923,7 @@ namespace MW5_Mod_Manager
             modObjectListView.BeginUpdate();
 
             Point prevPosition = modObjectListView.LowLevelScrollPosition;
-            List<string> prevSelected = new List<string>(modObjectListView.SelectedItems.Count);
+            List<string> prevSelected = new List<string>(modObjectListView.SelectedObjects.Count);
             foreach (ModItem selected in modObjectListView.SelectedObjects)
             {
                 prevSelected.Add(selected.Path);
@@ -1233,7 +1234,7 @@ namespace MW5_Mod_Manager
 
         private void UpdateMoveControlEnabledState()
         {
-            bool anySelected = modObjectListView.SelectedItems.Count > 0;
+            bool anySelected = modObjectListView.SelectedObjects.Count > 0;
             bool enabled = anySelected && _filterMode != eFilterMode.ItemFilter;
             toTopToolStripButton.Enabled = enabled;
             toBottomToolStripButton.Enabled = enabled;
@@ -1477,7 +1478,7 @@ namespace MW5_Mod_Manager
 
         private void UpdateSidePanelData(bool forceUpdate)
         {
-            if (modObjectListView.SelectedItems.Count == 0)
+            if (modObjectListView.SelectedObjects.Count == 0)
             {
                 _sideBarSelectedModKey = string.Empty;
                 labelModNameOverrides.Text = string.Empty;
@@ -1489,8 +1490,7 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-            OLVListItem firstSelected = (OLVListItem)modObjectListView.SelectedItems[0];
-            ModItem firstSelectedMod = (ModItem)firstSelected.RowObject;
+            ModItem firstSelectedMod = (ModItem)modObjectListView.SelectedObjects[0];
             string selectedModPath = firstSelectedMod.Path;
 
             if (!forceUpdate && _sideBarSelectedModKey == selectedModPath)
@@ -1548,25 +1548,40 @@ namespace MW5_Mod_Manager
 
             string imagePath = Path.Combine(selectedModPath, "Resources", "Icon128.png");
 
-            bool imageLoadSuccess = false;
+            if (_ModImageLoader != null)
+            {
+                _ModImageLoader.CancelLoad();
+                _ModImageLoader = null;
+            }
+
+            pictureBoxModImage.Visible = false;
+
             if (File.Exists(imagePath))
             {
-                try
+                _ModImageLoader = new AsyncFileLoader();
+                //_ModImageLoader.ToggleDebugMode(true);
+
+                Action<MemoryStream> onFileLoaded = (memoryStream) =>
                 {
                     if (pictureBoxModImage.Image != null)
                     {
                         pictureBoxModImage.Image.Dispose();
                         pictureBoxModImage.Image = null;
                     }
-                    pictureBoxModImage.Image = Image.FromStream(new MemoryStream(File.ReadAllBytes(imagePath)));
-                    imageLoadSuccess = true;
-                }
-                catch
-                {
-                    // Fail image load silently
-                }
+
+                    try
+                    {
+                        pictureBoxModImage.Image = Image.FromStream(memoryStream);
+                        pictureBoxModImage.Visible = true;
+                    }
+                    catch (Exception e)
+                    {
+                        
+                    }
+                };
+
+                _ModImageLoader.LoadFileAsync(imagePath, onFileLoaded);
             }
-            pictureBoxModImage.Visible = imageLoadSuccess;
         }
 
         //Handles the showing of overriding data on select
@@ -2007,7 +2022,7 @@ namespace MW5_Mod_Manager
 
         public void RecolorObjectListViewRows()
         {
-            bool showModOverrides = modObjectListView.SelectedItems.Count == 1 && _filterMode != eFilterMode.ItemFilter;
+            bool showModOverrides = modObjectListView.SelectedObjects.Count == 1 && _filterMode != eFilterMode.ItemFilter;
 
             bool anyUpdated = false;
             for (int i = 0; i <= modObjectListView.Items.Count - 1; ++i)
@@ -2037,8 +2052,7 @@ namespace MW5_Mod_Manager
                 // Color mod overrides following the currently selected mod
                 if (showModOverrides)
                 {
-                    OLVListItem firstSelected = (OLVListItem)modObjectListView.SelectedItems[0];
-                    ModItem firstSelectedItem = (ModItem)firstSelected.RowObject;
+                    ModItem firstSelectedItem = (ModItem)modObjectListView.SelectedObjects[0];
                     string selectedModPath = firstSelectedItem.Path;
                     string selectedModFolder = ModsManager.Instance.PathToDirNameDict[selectedModPath];
                     if (ModsManager.Instance.OverridingData.ContainsKey(selectedModFolder))
