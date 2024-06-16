@@ -202,7 +202,7 @@ namespace MW5_Mod_Manager
             LastAppliedPresetModList = lastAppliedValid;
         }
 
-        public bool ShouldLoadLastApplied()
+        public bool ShouldLoadLastApplied(Action listRefreshCallback)
         {
             if (LastAppliedPreset == null || LastAppliedPreset.mods == null)
                 return false;
@@ -260,9 +260,8 @@ namespace MW5_Mod_Manager
                     loadOrderChangedModNames.Add(ModDetails[curCandidate].displayName);
                 }
 
-                ModImportData enabledListItem = ModEnabledListLastState.FirstOrDefault(x => 
+                ModImportData enabledListItem = ModEnabledListLastState?.FirstOrDefault(x => 
                     x.ModPath.Equals(curCandidate, StringComparison.InvariantCultureIgnoreCase));
-
 
                 bool enabledStateChanged = ModEnabledListLastState == null || enabledListItem == null || !enabledListItem.Enabled;
 
@@ -274,9 +273,7 @@ namespace MW5_Mod_Manager
             
             if (loadOrderChangedModNames.Count > 0)
             {
-                // Force refresh of the modlist so the user can see the progress so far.
-                // A bit hacky putting this here
-                MainForm.Instance.modObjectListView.ForceRedraw();
+                listRefreshCallback();
 
                 var page = new TaskDialogPage()
                 {
@@ -320,9 +317,7 @@ namespace MW5_Mod_Manager
             }
             else if (modsWereDisabled && enabledStateChangedModNames.Count > 0)
             {
-                // Force refresh of the modlist so the user can see the progress so far.
-                // A bit hacky putting this here
-                MainForm.Instance.modObjectListView.ForceRedraw();
+                listRefreshCallback();
 
                 var page = new TaskDialogPage()
                 {

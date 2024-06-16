@@ -957,12 +957,18 @@ namespace MW5_Mod_Manager
 
                 ModsManager.Instance.LoadLastAppliedPresetData();
 
-                if (forceLoadLastApplied || ModsManager.Instance.ShouldLoadLastApplied())
+                Action redrawCallback = () =>
+                {
+                    modObjectListView.ForceRedraw();
+                };
+
+                if (forceLoadLastApplied || ModsManager.Instance.ShouldLoadLastApplied(redrawCallback))
                 {
                     // Load last saved preset
                     modlist = ModsManager.Instance.LastAppliedPresetModList;
-
+                    modObjectListView.SuspendDrawing();
                     LoadAndFill(modlist, true);
+                    modObjectListView.ResumeDrawing();
 
                     if (_ActiveModListHash != ModItemList.Instance.ModList.ComputeModListHashCode())
                         modConfigTainted = true;
@@ -1580,7 +1586,9 @@ namespace MW5_Mod_Manager
                     }
                 };
 
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 _ModImageLoader.LoadFileAsync(imagePath, onFileLoaded);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
         }
 
