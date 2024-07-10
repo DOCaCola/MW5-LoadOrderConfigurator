@@ -39,6 +39,8 @@ namespace MW5_Mod_Manager
         private static string _sideBarSelectedModKey = string.Empty;
         // Force next sidepanel update to execute
         private bool _forceSidePanelUpdate = false;
+        // Mod files differ from the state displayed in the UI
+        private bool _modFileStateMismatch = false;
 
         static Color _highlightColor = Color.FromArgb(200, 253, 213);
         static Color _highlightColorAlternate = Color.FromArgb(189, 240, 202);
@@ -143,7 +145,7 @@ namespace MW5_Mod_Manager
                 ModItem curMod = (ModItem)rowObject;
                 curMod.Enabled = newValue;
 
-                var modItem = ModsManager.Instance.ModEnabledList.FirstOrDefault(x => 
+                var modItem = ModsManager.Instance.ModEnabledList.FirstOrDefault(x =>
                     x.ModPath.Equals(curMod.Path, StringComparison.InvariantCultureIgnoreCase));
                 modItem.Enabled = newValue;
 
@@ -176,6 +178,24 @@ namespace MW5_Mod_Manager
             {
                 richTextBoxManifestOverridden.Font = monospaceFont;
             }*/
+
+            ModsManager.Instance.ModFilesChangedEvent += InstanceOnModFilesChangedEvent;
+        }
+
+        private void InstanceOnModFilesChangedEvent(object sender, EventArgs e)
+        {
+            _modFileStateMismatch = true;
+            StartModFilesChangedUiFeedback();
+        }
+
+        private void StartModFilesChangedUiFeedback()
+        {
+            toolStripButtonReload.Image = UiIcons.ReloadNotification;
+        }
+
+        private void StopModFileChangedUiFeedback()
+        {
+            toolStripButtonReload.Image = UiIcons.Reload;
         }
 
         private object ModFolderGetter(object rowobject)
@@ -674,11 +694,13 @@ namespace MW5_Mod_Manager
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
+            ModsManager.Instance.StopModFileWatches();
             ModItemList.Instance.RecomputeLoadOrders();
             ModsManager.Instance.SaveToFiles();
             ModsManager.Instance.SaveLastAppliedModOrder();
             SetModConfigTainted(false);
             _ActiveModListHash = ModItemList.Instance.ModList.ComputeModListHashCode();
+            ModsManager.Instance.StartModFileWatches();
         }
 
 
@@ -696,6 +718,7 @@ namespace MW5_Mod_Manager
             ModItemList.Instance.ModList.Clear();
             ModsManager.Instance.ClearAll();
             UpdateSidePanelData(true);
+            StopModFileChangedUiFeedback();
         }
 
         //For processing internals and updating ui after setting a vendor
@@ -793,9 +816,9 @@ namespace MW5_Mod_Manager
                 {
                     foreach (var curDesiredMod in desiredMods)
                     {
-                        var curTargetItem = ModsManager.Instance.ModEnabledList.FirstOrDefault(x => 
+                        var curTargetItem = ModsManager.Instance.ModEnabledList.FirstOrDefault(x =>
                             x.ModPath.Equals(curDesiredMod.ModPath, StringComparison.InvariantCultureIgnoreCase));
-        
+
                         if (curTargetItem != null)
                         {
                             curTargetItem.Enabled = curDesiredMod.Enabled;
@@ -809,12 +832,12 @@ namespace MW5_Mod_Manager
                     bool newState = false;
                     var curModListItem = orderedModList[i];
 
-                    var curTargetItem = ModsManager.Instance.ModEnabledList.FirstOrDefault(x => 
+                    var curTargetItem = ModsManager.Instance.ModEnabledList.FirstOrDefault(x =>
                         x.ModPath.Equals(curModListItem.ModPath, StringComparison.InvariantCultureIgnoreCase));
 
                     if (desiredMods != null && curTargetItem != null)
                     {
-                        var curDesiredItem = desiredMods.FirstOrDefault(x => 
+                        var curDesiredItem = desiredMods.FirstOrDefault(x =>
                             x.ModPath.Equals(curModListItem.ModPath, StringComparison.InvariantCultureIgnoreCase));
 
                         if (curDesiredItem == null)
@@ -920,6 +943,8 @@ namespace MW5_Mod_Manager
         {
             Cursor tempCursor = Cursor.Current;
             Cursor.Current = Cursors.AppStarting;
+            StopModFileChangedUiFeedback();
+            _modFileStateMismatch = false;
             modObjectListView.BeginUpdate();
 
             Point prevPosition = modObjectListView.LowLevelScrollPosition;
@@ -1582,7 +1607,7 @@ namespace MW5_Mod_Manager
                     }
                     catch (Exception e)
                     {
-                        
+
                     }
                 };
 
@@ -1705,14 +1730,14 @@ namespace MW5_Mod_Manager
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
-            if (Utils.StringNullEmptyOrWhiteSpace(ModsManager.Instance.ModsPaths[eModPathType.Program]))
+            if (ModsManager.Instance.ModsPaths[eModPathType.Program] == null || Utils.StringNullEmptyOrWhiteSpace(ModsManager.Instance.ModsPaths[eModPathType.Program].FullPath))
                 return;
 
             try
             {
                 var psi = new System.Diagnostics.ProcessStartInfo()
                 {
-                    FileName = ModsManager.Instance.ModsPaths[eModPathType.Program],
+                    FileName = ModsManager.Instance.ModsPaths[eModPathType.Program].FullPath,
                     UseShellExecute = true
                 };
                 System.Diagnostics.Process.Start(psi);
@@ -1878,14 +1903,14 @@ namespace MW5_Mod_Manager
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
-            if (Utils.StringNullEmptyOrWhiteSpace(ModsManager.Instance.ModsPaths[eModPathType.Steam]))
+            if (ModsManager.Instance.ModsPaths[eModPathType.Steam] == null || Utils.StringNullEmptyOrWhiteSpace(ModsManager.Instance.ModsPaths[eModPathType.Steam].FullPath))
                 return;
 
             try
             {
                 var psi = new System.Diagnostics.ProcessStartInfo()
                 {
-                    FileName = ModsManager.Instance.ModsPaths[eModPathType.Steam],
+                    FileName = ModsManager.Instance.ModsPaths[eModPathType.Steam].FullPath,
                     UseShellExecute = true
                 };
                 System.Diagnostics.Process.Start(psi);
@@ -2434,14 +2459,14 @@ namespace MW5_Mod_Manager
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
-            if (Utils.StringNullEmptyOrWhiteSpace(ModsManager.Instance.ModsPaths[eModPathType.AppData]))
+            if (ModsManager.Instance.ModsPaths[eModPathType.AppData] == null || Utils.StringNullEmptyOrWhiteSpace(ModsManager.Instance.ModsPaths[eModPathType.AppData].FullPath))
                 return;
 
             try
             {
                 var psi = new System.Diagnostics.ProcessStartInfo()
                 {
-                    FileName = ModsManager.Instance.ModsPaths[eModPathType.AppData],
+                    FileName = ModsManager.Instance.ModsPaths[eModPathType.AppData].FullPath,
                     UseShellExecute = true
                 };
                 System.Diagnostics.Process.Start(psi);
@@ -2969,6 +2994,22 @@ namespace MW5_Mod_Manager
         {
             ModCheckForm checkDialog = new ModCheckForm();
             checkDialog.ShowDialog();
+        }
+
+
+        private bool ReloadButtonBlinkState = false;
+        private void timerReloadButtonBlink_Tick(object sender, EventArgs e)
+        {
+            if (ReloadButtonBlinkState)
+            {
+                toolStripButtonReload.ForeColor = Color.OrangeRed;
+            }
+            else
+            {
+                toolStripButtonReload.ForeColor = SystemColors.ControlText;
+            }
+
+            ReloadButtonBlinkState = !ReloadButtonBlinkState;
         }
     }
 }

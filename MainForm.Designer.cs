@@ -1172,7 +1172,7 @@ namespace MW5_Mod_Manager
             // toolStripButtonReload
             // 
             toolStripButtonReload.AutoSize = false;
-            toolStripButtonReload.Image = (Image)resources.GetObject("toolStripButtonReload.Image");
+            toolStripButtonReload.Image = UiIcons.Reload;
             toolStripButtonReload.ImageTransparentColor = Color.Magenta;
             toolStripButtonReload.Name = "toolStripButtonReload";
             toolStripButtonReload.Size = new Size(70, 45);

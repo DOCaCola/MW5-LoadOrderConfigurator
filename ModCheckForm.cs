@@ -51,12 +51,12 @@ namespace MW5_Mod_Manager
 
         private void buttonValidate_Click(object sender, EventArgs e)
         {
-            foreach (string curPath in ModsManager.Instance.ModsPaths)
+            foreach (ModsManager.ModPathInfo curModInfo in ModsManager.Instance.ModsPaths)
             {
-                if (string.IsNullOrEmpty(curPath))
+                if (curModInfo == null || string.IsNullOrEmpty(curModInfo.FullPath))
                     continue;
 
-                CheckModDirectory(curPath);
+                CheckModDirectory(curModInfo.FullPath);
             }
         }
     }

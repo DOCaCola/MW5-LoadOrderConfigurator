@@ -33,7 +33,14 @@ namespace MW5_Mod_Manager
             // The Microsoft Store version stores their mods in AppData
             AppData
         }
-        public ArrayByEnum<string,eModPathType> ModsPaths = new();
+
+        // General info about a specific mod directory
+        public class ModPathInfo
+        {
+            public string FullPath = null;
+            public FileSystemWatcherAsync<eModPathType> FolderWatcher = null;
+        }
+        public ArrayByEnum<ModPathInfo,eModPathType> ModsPaths = new();
 
         public LocSettings ProgramSettings;
 
@@ -55,6 +62,9 @@ namespace MW5_Mod_Manager
         public List<ModImportData> ModEnabledListLastState;
         public Dictionary<string, OverridingData> OverridingData = new Dictionary<string, OverridingData>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, string> Presets = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        // Triggered when critical mod files were changed that would require a file reload
+        public event EventHandler ModFilesChangedEvent;
 
         public class LastAppliedPresetModData
         {
@@ -145,10 +155,10 @@ namespace MW5_Mod_Manager
             switch (LocSettings.Instance.Data.platform)
             {
                 case eGamePlatform.WindowsStore:
-                    path = ModsPaths[eModPathType.AppData];
+                    path = ModsPaths[eModPathType.AppData].FullPath;
                     break;
                 default:
-                    path = ModsPaths[eModPathType.Program];
+                    path = ModsPaths[eModPathType.Program].FullPath;
                     break;
             }
 
@@ -160,9 +170,9 @@ namespace MW5_Mod_Manager
             switch (LocSettings.Instance.Data.platform)
             {
                 case eGamePlatform.WindowsStore:
-                    return ModsPaths[eModPathType.AppData];
+                    return ModsPaths[eModPathType.AppData].FullPath;
                 default:
-                    return ModsPaths[eModPathType.Program];
+                    return ModsPaths[eModPathType.Program].FullPath;
             }
         }
 
@@ -374,12 +384,12 @@ namespace MW5_Mod_Manager
         private void ReadVortexDeploymentData()
         {
             // Check for vortex (nexus mods) manager vortex.deployment.json
-            foreach (string curModPath in this.ModsPaths)
+            foreach (ModPathInfo curModInfo in this.ModsPaths)
             {
-                if (Utils.StringNullEmptyOrWhiteSpace(curModPath))
+                if (curModInfo == null || Utils.StringNullEmptyOrWhiteSpace(curModInfo.FullPath))
                     continue;
 
-                string vortexDeploymentFile = Path.Combine(curModPath, @"vortex.deployment.json");
+                string vortexDeploymentFile = Path.Combine(curModInfo.FullPath, @"vortex.deployment.json");
 
                 if (File.Exists(vortexDeploymentFile))
                 {
@@ -435,7 +445,7 @@ namespace MW5_Mod_Manager
 
                         VortexDeploymentModData newVortexData = new();
                         newVortexData.nexusModsId = nexusModsId;
-                        newVortexData.fullpath = Path.Combine(curModPath, modFolderName);
+                        newVortexData.fullpath = Path.Combine(curModInfo.FullPath, modFolderName);
 
                         VortexDeploymentData[modFolderName] = newVortexData;
                     }
@@ -623,6 +633,78 @@ namespace MW5_Mod_Manager
             return Path.Combine(AppDataRoaming, "MW5Mercs", "Saved", "Mods");
         }
 
+        enum ModFileAction
+        {
+            Changed,
+            Created,
+            Deleted,
+            Renamed
+        }
+
+        public void StartModFileWatches()
+        {
+            foreach (ModPathInfo curModInfo in this.ModsPaths)
+            {
+                curModInfo?.FolderWatcher?.StartWatching();
+            }
+        }
+
+        public void StopModFileWatches()
+        {
+            foreach (ModPathInfo curModInfo in this.ModsPaths)
+            {
+                curModInfo?.FolderWatcher?.StopWatching();
+            }
+        }
+
+        private void ModFilesChanged(ModFileAction action, string path, string oldPath, eModPathType modPathType)
+        {
+            bool IsPathOfInterest(string pathOfInterest, bool fileMissing)
+            {
+                if (string.IsNullOrWhiteSpace(pathOfInterest))
+                    return false;
+
+                if (string.Compare(Path.GetFileName(pathOfInterest), "mod.json", StringComparison.Ordinal) == 0)
+                {
+                    if (fileMissing || File.Exists(pathOfInterest))
+                    {
+                        if (LocFileUtils.IsDirectSubdirectory(ModsPaths[modPathType].FullPath, Path.GetDirectoryName(pathOfInterest)))
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                // Check directory types
+                if (LocFileUtils.IsDirectSubdirectory(ModsPaths[modPathType].FullPath, pathOfInterest))
+                {
+                    if (action == ModFileAction.Deleted)
+                    {
+                        // We are only interested in tracked mod directories
+                        foreach (string curModDirectory in this.ModDirectories)
+                        {
+                            if (string.Compare(pathOfInterest, curModDirectory,
+                                    StringComparison.Ordinal) == 0)
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    else if (action == ModFileAction.Created || (action == ModFileAction.Renamed && !fileMissing))
+                    {
+                        // Check if there is a newly created mod directory which contains a mod.json
+                        return File.Exists(Path.Combine(pathOfInterest, "mod.json"));
+                    }
+                }
+
+                return false;
+            }
+
+            if (!IsPathOfInterest(path, action == ModFileAction.Deleted) && !IsPathOfInterest(oldPath, true))
+                return;
+
+            ModFilesChangedEvent?.Invoke(this, EventArgs.Empty);
+        }
         // Deduces mod directory locations
         public void UpdateGamePaths()
         {
@@ -632,18 +714,47 @@ namespace MW5_Mod_Manager
 
             if (LocSettings.Instance.Data.platform != eGamePlatform.WindowsStore)
             {
-                this.ModsPaths[ModsManager.eModPathType.Program] = Path.Combine(LocSettings.Instance.Data.InstallPath, "MW5Mercs", "Mods");
+                string modPath = Path.Combine(LocSettings.Instance.Data.InstallPath, "MW5Mercs", "Mods");
+                this.ModsPaths[ModsManager.eModPathType.Program] = CreateModPathInfo(modPath, eModPathType.Program);
             }
 
             switch (LocSettings.Instance.Data.platform)
             {
                 case eGamePlatform.Steam:
-                    SetSteamWorkshopPath();
+                    string steamAppsParentDirectory = FindSteamAppsParentDirectory(LocSettings.Instance.Data.InstallPath);
+                    string workshopPath = Path.Combine(steamAppsParentDirectory, "workshop", "content", "784080");
+                    this.ModsPaths[ModsManager.eModPathType.Steam] = CreateModPathInfo(workshopPath, eModPathType.Steam);
                     break;
                 case eGamePlatform.WindowsStore:
-                    this.ModsPaths[ModsManager.eModPathType.AppData] = GetLocalAppDataModPath();
+                    string appDataPath = GetLocalAppDataModPath();
+                    this.ModsPaths[ModsManager.eModPathType.AppData] = CreateModPathInfo(appDataPath, eModPathType.AppData);
                     break;
             }
+        }
+
+        private ModPathInfo CreateModPathInfo(string path, eModPathType pathType)
+        {
+            NotifyFilters notifyFilters = NotifyFilters.CreationTime
+                                          | NotifyFilters.DirectoryName
+                                          | NotifyFilters.FileName
+                                          | NotifyFilters.LastWrite
+                                          | NotifyFilters.Size;
+
+            var modPathInfo = new ModPathInfo
+            {
+                FullPath = path,
+                FolderWatcher = new FileSystemWatcherAsync<eModPathType>(path, pathType, true, notifyFilters),
+            };
+
+            var folderWatcher = modPathInfo.FolderWatcher;
+            var customObject = folderWatcher.CustomObject;
+
+            folderWatcher.Changed += (sender, e) => ModFilesChanged(ModFileAction.Changed, e.FullPath, null, customObject);
+            folderWatcher.Created += (sender, e) => ModFilesChanged(ModFileAction.Created, e.FullPath, null, customObject);
+            folderWatcher.Deleted += (sender, e) => ModFilesChanged(ModFileAction.Deleted, e.FullPath, null, customObject);
+            folderWatcher.Renamed += (sender, e) => ModFilesChanged(ModFileAction.Renamed, e.FullPath, e.OldFullPath, customObject);
+
+            return modPathInfo;
         }
 
         public static string FindSteamAppsParentDirectory(string path)
@@ -662,47 +773,30 @@ namespace MW5_Mod_Manager
             return null;
         }
 
-        public void SetSteamWorkshopPath()
-        {
-            string steamAppsParentDirectory = FindSteamAppsParentDirectory(LocSettings.Instance.Data.InstallPath);
-            string workshopPath = Path.Combine(steamAppsParentDirectory, "workshop", "content", "784080");
-            this.ModsPaths[ModsManager.eModPathType.Steam] = workshopPath;
-        }
-
         public void ParseDirectories()
         {
             this.FoundDirectories.Clear();
 
             if (LocSettings.Instance.Data.platform != eGamePlatform.WindowsStore
-                && !Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.Program])
-                && Directory.Exists(ModsPaths[eModPathType.Program]))
+                && !Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.Program]?.FullPath)
+                && Directory.Exists(ModsPaths[eModPathType.Program]?.FullPath))
             {
-                this.FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.Program]));
+                this.FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.Program]?.FullPath));
             }
 
-            if (!Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.Steam])
-                && Directory.Exists(ModsPaths[eModPathType.Steam]))
+            if (!Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.Steam]?.FullPath)
+                && Directory.Exists(ModsPaths[eModPathType.Steam]?.FullPath))
             {
-                this.FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.Steam]));
+                this.FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.Steam]?.FullPath));
             }
 
             if (LocSettings.Instance.Data.platform == eGamePlatform.WindowsStore
-                && !Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.AppData])
-                && Directory.Exists(ModsPaths[eModPathType.AppData]))
+                && !Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.AppData]?.FullPath)
+                && Directory.Exists(ModsPaths[eModPathType.AppData]?.FullPath))
             {
-                this.FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.AppData]));
+                this.FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.AppData]?.FullPath));
             }
             //AddDirectoryPathsToDict();
-        }
-
-        private void AddDirectoryPathsToDict()
-        {
-            foreach (string curDirectory in FoundDirectories)
-            {
-                string directoryName = Path.GetFileName(curDirectory);
-                this.DirNameToPathDict[directoryName] = curDirectory;
-                this.PathToDirNameDict[curDirectory] = directoryName;
-            }
         }
 
         public void SaveSettings()
@@ -961,7 +1055,7 @@ namespace MW5_Mod_Manager
                         // it's certain that this is a steam mod
                         if (modData.Origin == ModData.ModOrigin.Unknown)
                         {
-                            if (modPath.StartsWith(ModsPaths[eModPathType.Steam]))
+                            if (modPath.StartsWith(ModsPaths[eModPathType.Steam]?.FullPath))
                             {
                                 modData.Origin = ModData.ModOrigin.Steam;
                             }
