@@ -124,31 +124,31 @@
   <data name="toolStripButtonSaveToFile.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHYSURBVDhPnZPLTttAFIb9KKhqFgQSQ/sQLFupm0pVBQJV
-        VCqbihcgbS4jiMqCDQskaLkIpO7KK1CpmxZETOzUCRbEuVDCLXfH9t85TizZkEqFkT555vg/v8/MHAs0
-        xCQmRGb+DEYN/fVa4yqXkeyUlLZcpKO0rciSGftWjToJ3hFO2pMiA4hgDHjzpYYzPQdN03yU8zm83agi
-        uGAt9lK7I8Q6ktdgev3fBu82qxjkmpFPYL10XgFrnbsGw3FgbMnAdVFFRc+iUuhyzuf18m+8WG5iiGtI
-        O7poJRyDEGsXXAOCBIGPQDhh4em8jScceorMcir0asUFe0YQo+2iL8gJJ7qEPND6tm44Zqb6Gvw/HcW3
-        BfoKbYFKpcO6DcX9lXTSQpAZeTc58AF4udLA1Ocav7Ia3m/fYHany8xWFeOr9d75eAzEqHFKC3rxda+E
-        q1LWuUa6NqLUg+aXxSx2fxTwmGvvGAxEwEVZfufHd3rAS0VXMTDnNWDGiWPAg+VTMuif6HLGe8Jv4FbA
-        g/SyX5IXn0G8I/NONPcfasBzv/M/0X7lGvy5bwVJPHfamUweRcxf+onUzKjHxoGqtRwOtWYqlW4QsizX
-        FVWt5RXlIhAx90bm7WeCIAh/Aenv3yS+0h7oAAAAAElFTkSuQmCC
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHXSURBVDhPnZPLTttAFIb9KKgiiwYS0/YhWILEBgkhqlao
+        lcoG8QINJGQEESzYsKjUcmnVSuzKK4DEpkTFBBtssCDOBQiX5gaO7Z85TizZkErASJ88c/yf32dmjgUa
+        YgpvRWb9CcdNY/hb7UpTJGdHytge0m7GkfckK/G7HHcT/COact6JDCDCCWB0uYJT4xC6rgcoZg/xcbWM
+        8Kw930ptjghr7PoNPqz83+DT9zJeck3PHFgrnVfAbs49g+5poHfBxHVeRcnQUMo1OefzavEAA4t1dHEN
+        aV/N20nXIMJuc54BQYLQFBBN2ngz4+A1h54is90K/Vpx1hkTxPhtPhDkRJNNIj5ofV/XnbCktgaPp6EE
+        tkBfoS1QqXRY96F4sJLGnhBmZtZLDk0Cg19qeL9U4VdWwfjPf5j41WTsRxkjX6ut8/EZiHHzhBb0Ym2j
+        gKuC5l4jXRtRaEHzy7yG9a0cOrn2gUFHDFyk8Ts/etADfkqGio7PfgNmHrsGPFg8IYP2iR6nvCeCBl4F
+        PEgv2yX5CRhMN2TeiVb6uQY8d5P/ic6QZ3D21ApS6HfbmUxexKxt41iq76tHZlrVb1z+6nVJytQIWZar
+        iqpWsopyEYpZGz0zTp8gCMIdogrfC70m4qAAAAAASUVORK5CYII=
 </value>
   </data>
   <data name="toolStripButtonCopy.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         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
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJXSURBVDhPhZLbaxNBFMbjq08+SxH7F4g+iHipCOKDCkUQ
-        9MEHH0KolFKbW71UNqW2XkjMZVNpRRRbcZOAFqHYUiEhJlSbS0ltlVJpmjQNRJqbCW66EyfHmc1u0sSA
-        Bz6+ZZnzzW/mjEJp/8qonRnQOJOoj0si2W84NvHA++KC4n+ltEcYrStHAmhIVWpHBnpep2F+C8HANL+k
-        ANgjLf+36gQZ6OI2MW3udiXwTUcaPGsF7I4huDPNR1TjvgOXNbb2i8z4Xqm1Ws0EfVwaDLMFYMMIjF8E
-        MBFZQwKwixVgIwCvonyRmdveL7U3EnQ7t7DWlYXB2Z/YGhTgiSeLLYG6PySeLGF4s8oXaiE1AlcGLjxa
-        FtXjSIIthIA27dbj+R1I8BjSiIT84Av6t0ttdQISIEvlimIa0ExgIj6xgmAymMfc9zKMuLeHagRaEnLi
-        XgBOEqkm4+Id0KZR4rvFSmTmACIBKaZGoCM7y7r68htmw2VgfXl8bjQGZ8ZW8fmxuOhn2Q3onUuJhFJA
-        lYA2Htb54IjOD9dfRAlBGWzkIh/4edFlmRd2yGRKYA02EajJ3OkUNFymNgXbpzzufJ4AujuV/G315rCl
-        HtD4DmgQM/OL7CCAPSyAwV1sIKAyfi6JUxIDup6t3e+fKkH/FA/6d7+JeGDIQxID/Hl83LQOHZYV3GFZ
-        h2PGZayciFUaCA519u47de1u++krzEGqo5f0bUMf00Z6RnrbTxfLDaL/qpICWpVhJn7bFvoDw55shS5u
-        6TJBqxr8EL9loWf05tCwN4tauZkEjbhTzF/Io6MTfv54fAAAAABJRU5ErkJggg==
+        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
 </value>
   </data>
 </root>

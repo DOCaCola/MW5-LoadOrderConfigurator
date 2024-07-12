@@ -627,10 +627,8 @@ namespace MW5_Mod_Manager
 
         private static string GetLocalAppDataModPath()
         {
-            string AppDataRoaming = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-
-            //Put string back together
-            return Path.Combine(AppDataRoaming, "MW5Mercs", "Saved", "Mods");
+            string appDataRoaming = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            return Path.Combine(appDataRoaming, "MW5Mercs", "Saved", "Mods");
         }
 
         enum ModFileAction

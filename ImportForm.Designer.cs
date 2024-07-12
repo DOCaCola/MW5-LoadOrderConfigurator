@@ -105,15 +105,14 @@
             // 
             // ImportForm
             // 
-            AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             CancelButton = buttonCancel;
             ClientSize = new System.Drawing.Size(594, 281);
             Controls.Add(toolStrip1);
             Controls.Add(buttonCancel);
             Controls.Add(buttonImport);
             Controls.Add(textBoxData);
-            Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
             MaximizeBox = false;
             MinimizeBox = false;
             MinimumSize = new System.Drawing.Size(388, 259);

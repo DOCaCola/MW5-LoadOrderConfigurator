@@ -122,10 +122,10 @@
             linkLabelGithub.Text = "Github";
             linkLabelGithub.LinkClicked += linkLabelGithub_LinkClicked;
             // 
-            // AboutWindow
+            // AboutForm
             // 
-            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             CancelButton = buttonClose;
             ClientSize = new System.Drawing.Size(287, 344);
             Controls.Add(linkLabelGithub);
@@ -140,7 +140,7 @@
             Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             MaximizeBox = false;
             MinimizeBox = false;
-            Name = "AboutWindow";
+            Name = "AboutForm";
             ShowIcon = false;
             ShowInTaskbar = false;
             Text = "About";

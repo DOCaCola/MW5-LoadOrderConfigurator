@@ -65,10 +65,10 @@
             buttonCancel.UseVisualStyleBackColor = true;
             buttonCancel.Click += buttonCancel_Click;
             // 
-            // PresetDeleteWindow
+            // PresetDeleteForm
             // 
-            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             CancelButton = buttonCancel;
             ClientSize = new System.Drawing.Size(221, 220);
             Controls.Add(buttonCancel);
@@ -77,7 +77,7 @@
             FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             MinimizeBox = false;
-            Name = "PresetDeleteWindow";
+            Name = "PresetDeleteForm";
             ShowIcon = false;
             ShowInTaskbar = false;
             Text = "Delete Preset";

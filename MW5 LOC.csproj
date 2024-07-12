@@ -22,7 +22,8 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWindowsForms>True</UseWindowsForms>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-	<AssemblyName>MW5-LoadOrderConfigurator</AssemblyName>
+    <AssemblyName>MW5-LoadOrderConfigurator</AssemblyName>
+    <ForceDesignerDPIUnaware>true</ForceDesignerDPIUnaware>
   </PropertyGroup>
   <PropertyGroup>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
