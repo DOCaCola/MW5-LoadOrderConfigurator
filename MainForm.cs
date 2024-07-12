@@ -191,11 +191,14 @@ namespace MW5_Mod_Manager
         private void StartModFilesChangedUiFeedback()
         {
             toolStripButtonReload.Image = UiIcons.ReloadNotification;
+            toolStripButtonReload.ToolTipText =
+                "Reload settings from current mod files, reverting unapplied changes\r\n\r\nChanges to local mod files have been detected. It is recommended to reload before continuing.";
         }
 
         private void StopModFileChangedUiFeedback()
         {
             toolStripButtonReload.Image = UiIcons.Reload;
+            toolStripButtonReload.ToolTipText = "Reload settings from current mod files, reverting unapplied changes";
         }
 
         private object ModFolderGetter(object rowobject)
@@ -2042,10 +2045,12 @@ namespace MW5_Mod_Manager
                         if (modListItem.Index % 2 == 1)
                         {
                             subItem.BackColor = _highlightColorAlternate;
+                            curModItem.ProcessedRowBackColor = _highlightColorAlternate;
                         }
                         else
                         {
                             subItem.BackColor = _highlightColor;
+                            curModItem.ProcessedRowBackColor = _highlightColor;
                         }
                     }
                     break;

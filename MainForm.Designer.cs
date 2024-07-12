@@ -1177,7 +1177,6 @@ namespace MW5_Mod_Manager
             toolStripButtonReload.Text = "Reload";
             toolStripButtonReload.TextAlign = ContentAlignment.BottomCenter;
             toolStripButtonReload.TextImageRelation = TextImageRelation.ImageAboveText;
-            toolStripButtonReload.ToolTipText = "Reload settings from files, reverting unapplied changes";
             toolStripButtonReload.Click += toolStripButtonReload_Click;
             // 
             // toolStripSeparator9
