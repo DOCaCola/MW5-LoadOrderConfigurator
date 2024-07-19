@@ -2921,14 +2921,26 @@ namespace MW5_Mod_Manager
                 normalizedIndex++;
             }
 
-            foreach (ModItem droppedMod in e.SourceModels)
+            int adjustedTargetIndex = normalizedIndex;
+            List<ModItem> sourceModItemList = e.SourceModels.Cast<ModItem>().ToList();
+
+            foreach (ModItem curModItem in sourceModItemList)
             {
-                ModItemList.Instance.ModList.Remove(droppedMod);
-                ModItemList.Instance.ModList.Insert(e.DropTargetIndex, droppedMod);
+                int index = ModItemList.Instance.ModList.IndexOf(curModItem);
+                if (index != -1)
+                {
+                    if (index < adjustedTargetIndex)
+                    {
+                        adjustedTargetIndex--;
+                    }
+                    ModItemList.Instance.ModList.RemoveAt(index);
+                }
             }
+
+            ModItemList.Instance.ModList.InsertRange(adjustedTargetIndex, sourceModItemList);
+
             modObjectListView.BeginUpdate();
             _movingItems = true;
-            //modObjectListView.MoveObjects(normalizedIndex, e.SourceModels);
 
             DragDropObjectRows(normalizedIndex, e.SourceModels);
 
