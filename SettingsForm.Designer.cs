@@ -161,7 +161,7 @@
             tabPage2.Padding = new System.Windows.Forms.Padding(3);
             tabPage2.Size = new System.Drawing.Size(563, 109);
             tabPage2.TabIndex = 1;
-            tabPage2.Text = "Display";
+            tabPage2.Text = "Interface";
             tabPage2.UseVisualStyleBackColor = true;
             // 
             // groupBox2

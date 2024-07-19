@@ -698,12 +698,18 @@ namespace MW5_Mod_Manager
                 return;
 
             ModsManager.Instance.StopModFileWatches();
-            ModItemList.Instance.RecomputeLoadOrders();
-            ModsManager.Instance.SaveToFiles();
-            ModsManager.Instance.SaveLastAppliedModOrder();
-            SetModConfigTainted(false);
-            _ActiveModListHash = ModItemList.Instance.ModList.ComputeModListHashCode();
-            ModsManager.Instance.StartModFileWatches();
+            try
+            {
+                ModItemList.Instance.RecomputeLoadOrders();
+                ModsManager.Instance.SaveToFiles();
+                ModsManager.Instance.SaveLastAppliedModOrder();
+                SetModConfigTainted(false);
+                _ActiveModListHash = ModItemList.Instance.ModList.ComputeModListHashCode();
+            }
+            finally
+            {
+                ModsManager.Instance.StartModFileWatches();   
+            }
         }
 
 
@@ -2573,9 +2579,17 @@ namespace MW5_Mod_Manager
 
             if (result == btnDelete)
             {
-                if (FileOperationUtils.DeleteFile(modKey, true, this.Handle))
+                ModsManager.Instance.StopModFileWatches();
+                try
                 {
-                    RefreshAll();
+                    if (FileOperationUtils.DeleteFile(modKey, true, this.Handle))
+                    {
+                        RefreshAll();
+                    }
+                }
+                finally
+                {
+                    ModsManager.Instance.StartModFileWatches();   
                 }
             }
         }
@@ -2617,8 +2631,16 @@ namespace MW5_Mod_Manager
                         return;
                     }
 
-                    CopyModFromFolder(fbd.SelectedPath);
-                    RefreshAll(true);
+                    ModsManager.Instance.StopModFileWatches();
+                    try
+                    {
+                        CopyModFromFolder(fbd.SelectedPath);
+                        RefreshAll(true);
+                    }
+                    finally
+                    {
+                        ModsManager.Instance.StartModFileWatches();   
+                    }
                 }
             }
         }
@@ -2667,11 +2689,17 @@ namespace MW5_Mod_Manager
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 string selectedZipFile = openFileDialog.FileName;
-
-                List<string> extractedModDirNames = ExtractModFromArchive(selectedZipFile);
-                if (extractedModDirNames == null || extractedModDirNames.Count == 0)
-                    return;
-                RefreshAll(true);
+                ModsManager.Instance.StopModFileWatches();
+                try
+                {
+                    List<string> extractedModDirNames = ExtractModFromArchive(selectedZipFile);
+                    if (extractedModDirNames == null || extractedModDirNames.Count == 0)
+                        return;
+                    RefreshAll(true);                }
+                finally
+                {
+                    ModsManager.Instance.StartModFileWatches();   
+                }
             }
         }
 

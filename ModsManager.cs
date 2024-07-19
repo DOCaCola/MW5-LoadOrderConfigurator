@@ -639,19 +639,31 @@ namespace MW5_Mod_Manager
             Renamed
         }
 
+        private int _fileWatchStopCounter = 0;
+
         public void StartModFileWatches()
         {
-            foreach (ModPathInfo curModInfo in this.ModsPaths)
+            if (_fileWatchStopCounter == 0)
             {
-                curModInfo?.FolderWatcher?.StartWatching();
+
+                foreach (ModPathInfo curModInfo in this.ModsPaths)
+                {
+                    curModInfo?.FolderWatcher?.StartWatching();
+                }
             }
         }
-
         public void StopModFileWatches()
         {
-            foreach (ModPathInfo curModInfo in this.ModsPaths)
+            if (_fileWatchStopCounter > 0)
             {
-                curModInfo?.FolderWatcher?.StopWatching();
+                _fileWatchStopCounter--;
+                if (_fileWatchStopCounter == 0)
+                {
+                    foreach (ModPathInfo curModInfo in this.ModsPaths)
+                    {
+                        curModInfo?.FolderWatcher?.StopWatching();
+                    }
+                }
             }
         }
 
@@ -703,12 +715,21 @@ namespace MW5_Mod_Manager
 
             ModFilesChangedEvent?.Invoke(this, EventArgs.Empty);
         }
+
+        public void ClearGamePaths()
+        {
+            ModsPaths[ModsManager.eModPathType.Program]?.FolderWatcher?.Dispose();
+            ModsPaths[ModsManager.eModPathType.Program] = null;
+            ModsPaths[ModsManager.eModPathType.Steam]?.FolderWatcher?.Dispose();
+            ModsPaths[ModsManager.eModPathType.Steam] = null;
+            ModsPaths[ModsManager.eModPathType.AppData]?.FolderWatcher?.Dispose();
+            ModsPaths[ModsManager.eModPathType.AppData] = null;
+        }
+
         // Deduces mod directory locations
         public void UpdateGamePaths()
         {
-            this.ModsPaths[ModsManager.eModPathType.Program] = null;
-            this.ModsPaths[ModsManager.eModPathType.Steam] = null;
-            this.ModsPaths[ModsManager.eModPathType.AppData] = null;
+            ClearGamePaths();
 
             if (LocSettings.Instance.Data.platform != eGamePlatform.WindowsStore)
             {
@@ -741,16 +762,20 @@ namespace MW5_Mod_Manager
             var modPathInfo = new ModPathInfo
             {
                 FullPath = path,
-                FolderWatcher = new FileSystemWatcherAsync<eModPathType>(path, pathType, true, notifyFilters),
             };
 
-            var folderWatcher = modPathInfo.FolderWatcher;
-            var customObject = folderWatcher.CustomObject;
+            if (Directory.Exists(path))
+            {
+                var folderWatcher = new FileSystemWatcherAsync<eModPathType>(path, pathType, true, notifyFilters, _fileWatchStopCounter != 0);
+                var customObject = folderWatcher.CustomObject;
 
-            folderWatcher.Changed += (sender, e) => ModFilesChanged(ModFileAction.Changed, e.FullPath, null, customObject);
-            folderWatcher.Created += (sender, e) => ModFilesChanged(ModFileAction.Created, e.FullPath, null, customObject);
-            folderWatcher.Deleted += (sender, e) => ModFilesChanged(ModFileAction.Deleted, e.FullPath, null, customObject);
-            folderWatcher.Renamed += (sender, e) => ModFilesChanged(ModFileAction.Renamed, e.FullPath, e.OldFullPath, customObject);
+                folderWatcher.Changed += (sender, e) => ModFilesChanged(ModFileAction.Changed, e.FullPath, null, customObject);
+                folderWatcher.Created += (sender, e) => ModFilesChanged(ModFileAction.Created, e.FullPath, null, customObject);
+                folderWatcher.Deleted += (sender, e) => ModFilesChanged(ModFileAction.Deleted, e.FullPath, null, customObject);
+                folderWatcher.Renamed += (sender, e) => ModFilesChanged(ModFileAction.Renamed, e.FullPath, e.OldFullPath, customObject);
+
+                modPathInfo.FolderWatcher = folderWatcher;
+            }
 
             return modPathInfo;
         }
@@ -893,9 +918,7 @@ namespace MW5_Mod_Manager
             this.ModEnabledList.Clear();
             this.DirNameToPathDict.Clear();
             this.OverridingData.Clear();
-            this.ModsPaths[eModPathType.Program] = null;
-            this.ModsPaths[eModPathType.Steam] = null;
-            this.ModsPaths[eModPathType.AppData] = null;
+            ClearGamePaths();
             this.VortexDeploymentData.Clear();
         }
 
