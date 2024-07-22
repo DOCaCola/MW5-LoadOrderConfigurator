@@ -28,9 +28,10 @@ namespace MW5_Mod_Manager
 
         public class SettingsData
         {
-            public eGamePlatform platform { set; get; }
+            public eGamePlatform platform { set; get; } = eGamePlatform.None;
             public string InstallPath { set; get; }
             public eSortOrder ListSortOrder { set; get; } = eSortOrder.HighToLow;
+            public bool EnableFileWatch { set; get; } = false;
         }
 
         public SettingsData Data = new();

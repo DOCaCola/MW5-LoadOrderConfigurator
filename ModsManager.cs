@@ -763,8 +763,8 @@ namespace MW5_Mod_Manager
             {
                 FullPath = path,
             };
-
-            if (Directory.Exists(path))
+            
+            if (ProgramSettings.Data.EnableFileWatch && Directory.Exists(path))
             {
                 var folderWatcher = new FileSystemWatcherAsync<eModPathType>(path, pathType, true, notifyFilters, _fileWatchStopCounter != 0);
                 var customObject = folderWatcher.CustomObject;
