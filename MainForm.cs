@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -14,9 +15,12 @@ using static MW5_Mod_Manager.ModsManager;
 using File = System.IO.File;
 using ListView = System.Windows.Forms.ListView;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Text;
 using BrightIdeasSoftware;
 using Newtonsoft.Json.Linq;
+using DarkModeForms;
+using MW5_Mod_Manager.Controls;
 
 namespace MW5_Mod_Manager
 {
@@ -42,14 +46,6 @@ namespace MW5_Mod_Manager
         // Mod files differ from the state displayed in the UI
         private bool _modFileStateMismatch = false;
 
-        static Color _highlightColor = Color.FromArgb(200, 253, 213);
-        static Color _highlightColorAlternate = Color.FromArgb(189, 240, 202);
-
-        public static Color _OverriddenBackColor = Color.FromArgb(255, 242, 203);
-        public static Color _OverriddenBackColorAlternate = Color.FromArgb(247, 234, 196);
-        public static Color _OverridingBackColor = Color.FromArgb(235, 225, 255);
-        public static Color _OverridingBackColorAlternate = Color.FromArgb(226, 217, 245);
-
         // Hash of the mod list currently applied to mechwarrior
         public int _ActiveModListHash = 0;
         public AsyncFileLoader _ModImageLoader = null;
@@ -62,9 +58,20 @@ namespace MW5_Mod_Manager
         public MainForm()
         {
             InitializeComponent();
+            _ = new DarkModeCS(this, false);
             Instance = this;
-        }
 
+            if (LocWindowColors.DarkMode)
+            {
+                modObjectListView.HeaderUsesThemes = false;
+                var headerstyleb = new HeaderFormatStyle();
+                headerstyleb.SetBackColor(LocWindowColors.ButtonHighlight);
+                headerstyleb.SetForeColor(LocWindowColors.WindowText);
+                modObjectListView.HeaderFormatStyle = headerstyleb;
+
+                olvColumnFreeSpaceDummy.IsVisible = true;
+            }
+        }
 
         public string GetVersion()
         {
@@ -113,8 +120,16 @@ namespace MW5_Mod_Manager
 
             // Selection
             RowBorderDecoration rbd = new RowBorderDecoration();
-            rbd.BorderPen = new Pen(Color.FromArgb(0, 154, 223, 51));
-            rbd.FillBrush = new SolidBrush(Color.FromArgb(65, 0, 143, 255));
+            if (LocWindowColors.DarkMode)
+            {
+                rbd.BorderPen = new Pen(Color.FromArgb(0, 154, 223, 51));
+                rbd.FillBrush = new SolidBrush(Color.FromArgb(65, 91, 173, 255));
+            }
+            else
+            {
+                rbd.BorderPen = new Pen(Color.FromArgb(0, 154, 223, 51));
+                rbd.FillBrush = new SolidBrush(Color.FromArgb(65, 0, 143, 255));
+            }
             rbd.BoundsPadding = new Size(0, 0);
             rbd.CornerRounding = 0;
             modObjectListView.SelectedRowDecoration = rbd;
@@ -125,8 +140,16 @@ namespace MW5_Mod_Manager
             rbdhot.BoundsPadding = new Size(0, 0);
             rbdhot.CornerRounding = 0;
             //rbd.FillBrush = new SolidBrush(Color.FromArgb(64, 0, 143, 255));
-            rbdhot.FillGradientFrom = Color.FromArgb(16, 0, 143, 255);
-            rbdhot.FillGradientTo = Color.FromArgb(16, 0, 143, 255);
+            if (LocWindowColors.DarkMode)
+            {
+                rbdhot.FillGradientFrom = Color.FromArgb(30, 0, 143, 255);
+                rbdhot.FillGradientTo = Color.FromArgb(30, 0, 143, 255);
+            }
+            else
+            {
+                rbdhot.FillGradientFrom = Color.FromArgb(16, 0, 143, 255);
+                rbdhot.FillGradientTo = Color.FromArgb(16, 0, 143, 255);
+            }
             HotItemStyle his = new HotItemStyle();
             his.Decoration = rbdhot;
             modObjectListView.HotItemStyle = his;
@@ -165,9 +188,9 @@ namespace MW5_Mod_Manager
 
             UpdateColumnVisiblityMenu();
 
-            panelColorOverridden.BackColor = ModsManager.OverriddenColor;
-            panelColorOverriding.BackColor = ModsManager.OverridingColor;
-            panelColorOverridingOverridden.BackColor = ModsManager.OverriddenOveridingColor;
+            panelColorOverridden.BackColor = LocWindowColors.ModOverriddenColor;
+            panelColorOverriding.BackColor = LocWindowColors.ModOverridingColor;
+            panelColorOverridingOverridden.BackColor = LocWindowColors.ModOverriddenOveridingColor;
 
             toolStrip2.Renderer = new ToolStripTransparentRenderer();
 
@@ -258,7 +281,7 @@ namespace MW5_Mod_Manager
                     dropSink.CanDropOnBackground = false;
                     dropSink.CanDropOnItem = false;
                     dropSink.CanDropOnSubItem = false;
-                    dropSink.FeedbackColor = Color.Black;
+                    dropSink.FeedbackColor = LocWindowColors.ListFeedBackColor;
                     dropSink.CanDrop += OnDropSinkOnCanDrop;
                     this.modObjectListView.DropSink = dropSink;
                 }
@@ -607,7 +630,7 @@ namespace MW5_Mod_Manager
 
                 ModsManager.Instance.RecomputeOverridingData();
 
-                ColorListViewNumbers(olvColumnModCurLoadOrder.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
+                ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
                 RecolorObjectListViewRows();
                 modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
 
@@ -679,7 +702,7 @@ namespace MW5_Mod_Manager
                 ModItemList.Instance.RecomputeLoadOrders();
 
                 ModsManager.Instance.RecomputeOverridingData();
-                ColorListViewNumbers(olvColumnModCurLoadOrder.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
+                ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
                 RecolorObjectListViewRows();
                 modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
 
@@ -708,7 +731,7 @@ namespace MW5_Mod_Manager
             }
             finally
             {
-                ModsManager.Instance.StartModFileWatches();   
+                ModsManager.Instance.StartModFileWatches();
             }
         }
 
@@ -908,7 +931,7 @@ namespace MW5_Mod_Manager
 
             modObjectListView.BeginUpdate();
             ModsManager.Instance.RecomputeOverridingData();
-            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
+            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
             RecolorObjectListViewRows();
             modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
             modObjectListView.EndUpdate();
@@ -1358,8 +1381,8 @@ namespace MW5_Mod_Manager
             }
             else
             {
-                toolStripTextFilterBox.ForeColor = SystemColors.WindowText;
-                toolStripTextFilterBox.BackColor = SystemColors.Window;
+                toolStripTextFilterBox.ForeColor = LocWindowColors.WindowText;
+                toolStripTextFilterBox.BackColor = LocWindowColors.Window;
             }
 
             modObjectListView.BeginUpdate();
@@ -1974,7 +1997,7 @@ namespace MW5_Mod_Manager
 
             modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
             RecolorObjectListViewRows();
-            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
+            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
             modObjectListView.EndUpdate();
 
             CheckModConfigTainted();
@@ -2050,13 +2073,13 @@ namespace MW5_Mod_Manager
                     {
                         if (modListItem.Index % 2 == 1)
                         {
-                            subItem.BackColor = _highlightColorAlternate;
-                            curModItem.ProcessedRowBackColor = _highlightColorAlternate;
+                            subItem.BackColor = LocWindowColors.ListModHighlightColorAlternate;
+                            curModItem.ProcessedRowBackColor = LocWindowColors.ListModHighlightColorAlternate;
                         }
                         else
                         {
-                            subItem.BackColor = _highlightColor;
-                            curModItem.ProcessedRowBackColor = _highlightColor;
+                            subItem.BackColor = LocWindowColors.ListModHighlightColor;
+                            curModItem.ProcessedRowBackColor = LocWindowColors.ListModHighlightColor;
                         }
                     }
                     break;
@@ -2075,10 +2098,10 @@ namespace MW5_Mod_Manager
                 ModItem curModItem = (ModItem)curItem.RowObject;
 
                 bool alternateColor = i % 2 == 1;
-                Color newBackColor = SystemColors.Window;
+                Color newBackColor = LocWindowColors.Window;
                 if (alternateColor)
                 {
-                    newBackColor = Color.FromArgb(246, 245, 246);
+                    newBackColor = LocWindowColors.ListColorAlternate;
                 }
 
                 /*if (_filterMode == eFilterMode.ItemHighlight)
@@ -2109,9 +2132,9 @@ namespace MW5_Mod_Manager
                             if (modKey == curModItem.Path)
                             {
                                 if (!alternateColor)
-                                    newBackColor = _OverridingBackColor;
+                                    newBackColor = LocWindowColors.ListModOverridingBackColor;
                                 else
-                                    newBackColor = _OverridingBackColorAlternate;
+                                    newBackColor = LocWindowColors.ListModOverridingBackColorAlternate;
                                 foundMatch = true;
                                 break;
                             }
@@ -2125,9 +2148,9 @@ namespace MW5_Mod_Manager
                                 if (modKey == curModItem.Path)
                                 {
                                     if (!alternateColor)
-                                        newBackColor = _OverriddenBackColor;
+                                        newBackColor = LocWindowColors.ListModOverriddenBackColor;
                                     else
-                                        newBackColor = _OverriddenBackColorAlternate;
+                                        newBackColor = LocWindowColors.ListModOverriddenBackColorAlternate;
                                     break;
                                 }
                             }
@@ -2220,7 +2243,7 @@ namespace MW5_Mod_Manager
             }
             else
             {
-                toolStripButtonApply.ForeColor = SystemColors.ControlText;
+                toolStripButtonApply.ForeColor = LocWindowColors.ControlText;
                 toolStripButtonApply.Font = new Font(Instance.toolStrip1.Font, Instance.toolStrip1.Font.Style);
             }
         }
@@ -2314,8 +2337,8 @@ namespace MW5_Mod_Manager
         public void ColorizeListViewItems()
         {
             modObjectListView.BeginUpdate();
-            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LowPriorityColor, HighPriorityColor);
-            ColorListViewNumbers(olvColumnModOrgLoadOrder.Index, LowPriorityColor, HighPriorityColor);
+            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
+            ColorListViewNumbers(olvColumnModOrgLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
             modObjectListView.EndUpdate();
         }
 
@@ -2426,7 +2449,7 @@ namespace MW5_Mod_Manager
 
             ModItemList.Instance.RecomputeLoadOrders();
 
-            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, ModsManager.LowPriorityColor, ModsManager.HighPriorityColor);
+            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
             RecolorObjectListViewRows();
             ModsManager.Instance.RecomputeOverridingData();
             modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
@@ -2589,7 +2612,7 @@ namespace MW5_Mod_Manager
                 }
                 finally
                 {
-                    ModsManager.Instance.StartModFileWatches();   
+                    ModsManager.Instance.StartModFileWatches();
                 }
             }
         }
@@ -2639,7 +2662,7 @@ namespace MW5_Mod_Manager
                     }
                     finally
                     {
-                        ModsManager.Instance.StartModFileWatches();   
+                        ModsManager.Instance.StartModFileWatches();
                     }
                 }
             }
@@ -2695,10 +2718,11 @@ namespace MW5_Mod_Manager
                     List<string> extractedModDirNames = ExtractModFromArchive(selectedZipFile);
                     if (extractedModDirNames == null || extractedModDirNames.Count == 0)
                         return;
-                    RefreshAll(true);                }
+                    RefreshAll(true);
+                }
                 finally
                 {
-                    ModsManager.Instance.StartModFileWatches();   
+                    ModsManager.Instance.StartModFileWatches();
                 }
             }
         }
@@ -2848,18 +2872,18 @@ namespace MW5_Mod_Manager
                 if (ModsManager.Instance.OverridingData.ContainsKey(modItem.FolderName))
                 {
                     OverridingData a = ModsManager.Instance.OverridingData[modItem.FolderName];
-                    Color newItemColor = SystemColors.WindowText;
+                    Color newItemColor = LocWindowColors.WindowText;
                     if (a.isOverridden)
                     {
-                        newItemColor = OverriddenColor;
+                        newItemColor = LocWindowColors.ModOverriddenColor;
                     }
                     if (a.isOverriding)
                     {
-                        newItemColor = OverridingColor;
+                        newItemColor = LocWindowColors.ModOverridingColor;
                     }
                     if (a.isOverriding && a.isOverridden)
                     {
-                        newItemColor = OverriddenOveridingColor;
+                        newItemColor = LocWindowColors.ModOverriddenOveridingColor;
                     }
 
                     e.SubItem.ForeColor = newItemColor;
@@ -3043,6 +3067,7 @@ namespace MW5_Mod_Manager
 
 
         private bool ReloadButtonBlinkState = false;
+
         private void timerReloadButtonBlink_Tick(object sender, EventArgs e)
         {
             if (ReloadButtonBlinkState)
@@ -3051,10 +3076,18 @@ namespace MW5_Mod_Manager
             }
             else
             {
-                toolStripButtonReload.ForeColor = SystemColors.ControlText;
+                toolStripButtonReload.ForeColor = LocWindowColors.ControlText;
             }
 
             ReloadButtonBlinkState = !ReloadButtonBlinkState;
+        }
+
+        private void modObjectListView_ColumnReordered(object sender, ColumnReorderedEventArgs e)
+        {
+            if (e.NewDisplayIndex >= olvColumnFreeSpaceDummy.DisplayIndex)
+            {
+                e.Cancel = true;
+            }
         }
     }
 }

@@ -9,6 +9,8 @@ using System.Runtime.Versioning;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Windows.Forms;
+using DarkModeForms;
+using MW5_Mod_Manager.Controls;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -20,6 +22,7 @@ namespace MW5_Mod_Manager
         public ExportForm()
         {
             InitializeComponent();
+            _ = new DarkModeCS(this, false);
         }
 
         private void ExportWindow_Load(object sender, EventArgs e)

@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Runtime.Versioning;
 using System.Text;
 using MW5_Mod_Manager;
+using MW5_Mod_Manager.Controls;
 
 // Current (unapplied) state of the mod list
 
@@ -137,9 +138,9 @@ namespace MW5_Mod_Manager
         public float OriginalLoadOrder;
         public ModsManager.ModData.ModOrigin Origin;
 
-        public Color ProcessedRowBackColor = SystemColors.Window;
-        public Color ProcessedCurLoForeColor = SystemColors.WindowText;
-        public Color ProcessedOrgLoForeColor = SystemColors.WindowText;
+        public Color ProcessedRowBackColor = LocWindowColors.Window;
+        public Color ProcessedCurLoForeColor = LocWindowColors.WindowText;
+        public Color ProcessedOrgLoForeColor = LocWindowColors.WindowText;
     }
 }
 

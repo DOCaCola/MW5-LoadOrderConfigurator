@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DarkModeForms;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -17,6 +18,7 @@ namespace MW5_Mod_Manager
         public AboutForm()
         {
             InitializeComponent();
+            _ = new DarkModeCS(this, false);
         }
 
         private void button1_Click(object sender, EventArgs e)

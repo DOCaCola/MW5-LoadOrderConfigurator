@@ -24,6 +24,7 @@
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <AssemblyName>MW5-LoadOrderConfigurator</AssemblyName>
     <ForceDesignerDPIUnaware>true</ForceDesignerDPIUnaware>
+	<NoWarn>CA1416</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>

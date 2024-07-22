@@ -7,6 +7,8 @@ using System.Linq;
 using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using DarkModeForms;
+using MW5_Mod_Manager.Controls;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using static MW5_Mod_Manager.ImportForm;
@@ -24,6 +26,7 @@ namespace MW5_Mod_Manager
         public ImportForm()
         {
             InitializeComponent();
+            _ = new DarkModeCS(this, false);
         }
 
         private void buttonImport_Click(object sender, EventArgs e)

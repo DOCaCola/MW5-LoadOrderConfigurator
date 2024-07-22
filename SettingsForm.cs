@@ -11,6 +11,7 @@ using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DarkModeForms;
 using Microsoft.Win32;
 
 namespace MW5_Mod_Manager
@@ -21,6 +22,7 @@ namespace MW5_Mod_Manager
         public SettingsForm()
         {
             InitializeComponent();
+            _ = new DarkModeCS(this, false);
         }
 
         private void SettingsWindow_Load(object sender, EventArgs e)

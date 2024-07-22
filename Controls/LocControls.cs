@@ -4,67 +4,13 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
+using BrightIdeasSoftware;
 using SharpCompress;
 
-namespace MW5_Mod_Manager
+namespace MW5_Mod_Manager.Controls
 {
     [SupportedOSPlatform("windows")]
-    public class ModsListView : System.Windows.Forms.ListView
-    {
-
-        public ModsListView()
-        {
-            // Hide selection dotted line
-            SendMessage(Handle, 0x127, 0x10001, 0);
-
-            EmptyText = "No data available.";
-        }
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                // No sort header
-                var cp = base.CreateParams;
-                cp.Style |= 0x8000; // LVS_NOSORTHEADER
-                return cp;
-            }
-        }
-        [DefaultValue("No data available.")]
-        public string EmptyText { get; set; }
-
-        [DllImport("uxtheme.dll", CharSet = CharSet.Unicode)]
-        private extern static int SetWindowTheme(IntPtr hWnd, string pszSubAppName,
-            string pszSubIdList);
-
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
-
-        protected override void CreateHandle()
-        {
-            base.CreateHandle();
-
-            if (!this.DesignMode)
-                SetWindowTheme(this.Handle, "explorer", null);
-        }
-        
-        protected override void WndProc(ref Message m)
-        {
-            base.WndProc(ref m);
-            if (m.Msg == 0xF) // WM_PAINT
-            {
-                if (this.Items.Count == 0 && !string.IsNullOrWhiteSpace(EmptyText))
-                {
-                    using (var g = Graphics.FromHwnd(this.Handle))
-                        TextRenderer.DrawText(g, EmptyText, Font, ClientRectangle, ForeColor);
-                }
-            }
-        }
-
-    }
-
-    [SupportedOSPlatform("windows")]
-    public class ModsObjectsListView : BrightIdeasSoftware.ObjectListView
+    public class ModsObjectsListView : ObjectListView
     {
 
         public ModsObjectsListView()
@@ -74,12 +20,18 @@ namespace MW5_Mod_Manager
         }
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+        static extern nint SendMessage(nint hWnd, int Msg, int wParam, int lParam);
+
+        protected override bool ProcessLButtonDown(OlvListViewHitTestInfo hti)
+        {
+            //return true;
+            return base.ProcessLButtonDown(hti);
+        }
     }
 
     //The rotating label for priority indication.
     [SupportedOSPlatform("windows")]
-    public class RotatingLabel : System.Windows.Forms.Label
+    public class RotatingLabel : Label
     {
         private int m_RotateAngle = 0;
         private string m_NewText = string.Empty;
@@ -87,25 +39,25 @@ namespace MW5_Mod_Manager
         public int RotateAngle { get { return m_RotateAngle; } set { m_RotateAngle = value; Invalidate(); } }
         public string NewText { get { return m_NewText; } set { m_NewText = value; Invalidate(); } }
 
-        protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
+        protected override void OnPaint(PaintEventArgs e)
         {
             Func<double, double> DegToRad = (angle) => Math.PI * angle / 180.0;
 
-            Brush b = new SolidBrush(this.ForeColor);
-            SizeF size = e.Graphics.MeasureString(this.NewText, this.Font, this.Parent.Width);
+            Brush b = new SolidBrush(ForeColor);
+            SizeF size = e.Graphics.MeasureString(NewText, Font, Parent.Width);
 
-            int normalAngle = ((RotateAngle % 360) + 360) % 360;
+            int normalAngle = (RotateAngle % 360 + 360) % 360;
             double normaleRads = DegToRad(normalAngle);
 
-            int hSinTheta = (int)Math.Ceiling((size.Height * Math.Sin(normaleRads)));
-            int wCosTheta = (int)Math.Ceiling((size.Width * Math.Cos(normaleRads)));
-            int wSinTheta = (int)Math.Ceiling((size.Width * Math.Sin(normaleRads)));
-            int hCosTheta = (int)Math.Ceiling((size.Height * Math.Cos(normaleRads)));
+            int hSinTheta = (int)Math.Ceiling(size.Height * Math.Sin(normaleRads));
+            int wCosTheta = (int)Math.Ceiling(size.Width * Math.Cos(normaleRads));
+            int wSinTheta = (int)Math.Ceiling(size.Width * Math.Sin(normaleRads));
+            int hCosTheta = (int)Math.Ceiling(size.Height * Math.Cos(normaleRads));
 
             int rotatedWidth = Math.Abs(hSinTheta) + Math.Abs(wCosTheta);
             int rotatedHeight = Math.Abs(wSinTheta) + Math.Abs(hCosTheta);
 
-            this.Width = rotatedWidth;
+            Width = rotatedWidth;
             // This is incomplete and only checks if bottom anchor is set
             int oldHeight = Height;
             if (Anchor.HasFlag(AnchorStyles.Bottom))
@@ -113,16 +65,16 @@ namespace MW5_Mod_Manager
                 if (Height != rotatedHeight)
                 {
                     int offset = rotatedHeight - Height;
-                    this.Top -= offset;
+                    Top -= offset;
                 }
             }
-            this.Height = rotatedHeight;
+            Height = rotatedHeight;
 
             int numQuadrants =
-                (normalAngle >= 0 && normalAngle < 90) ? 1 :
-                (normalAngle >= 90 && normalAngle < 180) ? 2 :
-                (normalAngle >= 180 && normalAngle < 270) ? 3 :
-                (normalAngle >= 270 && normalAngle < 360) ? 4 :
+                normalAngle >= 0 && normalAngle < 90 ? 1 :
+                normalAngle >= 90 && normalAngle < 180 ? 2 :
+                normalAngle >= 180 && normalAngle < 270 ? 3 :
+                normalAngle >= 270 && normalAngle < 360 ? 4 :
                 0;
 
             int horizShift = 0;
@@ -148,9 +100,9 @@ namespace MW5_Mod_Manager
             }
 
             e.Graphics.TranslateTransform(horizShift, vertShift);
-            e.Graphics.RotateTransform(this.RotateAngle);
+            e.Graphics.RotateTransform(RotateAngle);
 
-            e.Graphics.DrawString(this.NewText, this.Font, b, 0f, 0f);
+            e.Graphics.DrawString(NewText, Font, b, 0f, 0f);
             base.OnPaint(e);
         }
     }
@@ -243,19 +195,19 @@ namespace MW5_Mod_Manager
 
                 switch (VisualMode)
                 {
-                    case (ProgressBarDisplayMode.Percentage):
+                    case ProgressBarDisplayMode.Percentage:
                         text = _percentageStr;
                         break;
 
-                    case (ProgressBarDisplayMode.CurrProgress):
+                    case ProgressBarDisplayMode.CurrProgress:
                         text = _currProgressStr;
                         break;
 
-                    case (ProgressBarDisplayMode.TextAndCurrProgress):
+                    case ProgressBarDisplayMode.TextAndCurrProgress:
                         text = $"{CustomText}: {_currProgressStr}";
                         break;
 
-                    case (ProgressBarDisplayMode.TextAndPercentage):
+                    case ProgressBarDisplayMode.TextAndPercentage:
                         text = $"{CustomText}: {_percentageStr}";
                         break;
                 }
@@ -265,7 +217,7 @@ namespace MW5_Mod_Manager
             set { }
         }
 
-        private string _percentageStr { get { return $"{(int)((float)Value - Minimum) / ((float)Maximum - Minimum) * 100 } %"; } }
+        private string _percentageStr { get { return $"{(int)((float)Value - Minimum) / ((float)Maximum - Minimum) * 100} %"; } }
 
         private string _currProgressStr
         {
@@ -305,7 +257,7 @@ namespace MW5_Mod_Manager
 
             if (Value > 0)
             {
-                Rectangle clip = new Rectangle(rect.X, rect.Y, (int)Math.Round(((float)Value / Maximum) * rect.Width), rect.Height);
+                Rectangle clip = new Rectangle(rect.X, rect.Y, (int)Math.Round((float)Value / Maximum * rect.Width), rect.Height);
 
                 g.FillRectangle(_progressColourBrush, clip);
             }
@@ -319,9 +271,9 @@ namespace MW5_Mod_Manager
 
                 SizeF len = g.MeasureString(text, TextFont);
 
-                Point location = new Point(((Width / 2) - (int)len.Width / 2), ((Height / 2) - (int)len.Height / 2));
+                Point location = new Point(Width / 2 - (int)len.Width / 2, Height / 2 - (int)len.Height / 2);
 
-                g.DrawString(text, TextFont, (Brush)_textColourBrush, location);
+                g.DrawString(text, TextFont, _textColourBrush, location);
             }
         }
 
@@ -334,7 +286,7 @@ namespace MW5_Mod_Manager
     }
 
     [SupportedOSPlatform("windows")]
-    public class ToolStripTransparentRenderer : System.Windows.Forms.ToolStripProfessionalRenderer
+    public class ToolStripTransparentRenderer : ToolStripProfessionalRenderer
     {
         protected override void OnRenderToolStripBorder(ToolStripRenderEventArgs e)
         {
@@ -347,11 +299,11 @@ namespace MW5_Mod_Manager
     {
         private const int EM_SETCUEBANNER = 0x1501;
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        private static extern Int32 SendMessage(IntPtr hWnd, int msg,
+        private static extern int SendMessage(nint hWnd, int msg,
             int wParam, string lParam);
         public LocToolStripTextBox()
         {
-            this.Control.HandleCreated += Control_HandleCreated;
+            Control.HandleCreated += Control_HandleCreated;
         }
         private void Control_HandleCreated(object sender, EventArgs e)
         {
@@ -373,8 +325,8 @@ namespace MW5_Mod_Manager
             // Otherwise causes the component to resize in design mode on save
             if (DesignMode)
                 return;
-            
-            SendMessage(this.Control.Handle, EM_SETCUEBANNER, 0, cueBanner);
+
+            SendMessage(Control.Handle, EM_SETCUEBANNER, 0, cueBanner);
         }
     }
 }

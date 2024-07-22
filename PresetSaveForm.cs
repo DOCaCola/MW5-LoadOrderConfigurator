@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualBasic.Logging;
+﻿using DarkModeForms;
+using Microsoft.VisualBasic.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,6 +22,7 @@ namespace MW5_Mod_Manager
         public PresetSaveForm()
         {
             InitializeComponent();
+            _ = new DarkModeCS(this, false);
         }
 
         private void buttonCancel_Click(object sender, EventArgs e)

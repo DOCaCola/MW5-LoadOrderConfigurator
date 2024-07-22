@@ -7,6 +7,7 @@ using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DarkModeForms;
 using SharpCompress;
 using SharpCompress.Archives;
 using SharpCompress.Common;
@@ -44,6 +45,7 @@ namespace MW5_Mod_Manager
         public ExtractForm()
         {
             InitializeComponent();
+            _ = new DarkModeCS(this, false);
 
             _cts = new CancellationTokenSource();
         }
@@ -133,15 +135,23 @@ namespace MW5_Mod_Manager
 
                     if (!hasModJson)
                     {
-                        richTextBoxExtractLog.AppendText("\r\nThe archive doesn't contain a mod.json file. Aborting.\r\n");
-                        SetCanceled();
+                        this.Invoke(new Action(() =>
+                        {
+                            richTextBoxExtractLog.AppendText(
+                                "\r\nThe archive doesn't contain a mod.json file. Aborting.\r\n");
+                            SetCanceled();
+                        }));
                         return;
                     }
 
                     if (!modJsonCorrectDirLayout)
                     {
-                        richTextBoxExtractLog.AppendText("\r\nThe archive contains a mod.json file but has an unexpected directory layout.\r\nPlease manually extract the mod following the mod author's instructions. Aborting.\r\n");
-                        SetCanceled();
+                        this.Invoke(new Action(() =>
+                        {
+                            richTextBoxExtractLog.AppendText(
+                                "\r\nThe archive contains a mod.json file but has an unexpected directory layout.\r\nPlease manually extract the mod following the mod author's instructions. Aborting.\r\n");
+                            SetCanceled();
+                        }));
                         return;
                     }
 

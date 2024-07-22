@@ -84,13 +84,6 @@ namespace MW5_Mod_Manager
         // Last applied preset in ready-to-load form
         public List<ModImportData> LastAppliedPresetModList = null;
 
-        public static Color OverriddenColor = Color.FromArgb(131, 101, 0);
-        public static Color OverridingColor = Color.FromArgb(80, 37, 192);
-        public static Color OverriddenOveridingColor = Color.FromArgb(170,73,97);
-
-        public static Color HighPriorityColor = Color.FromArgb(252, 54, 63);
-        public static Color LowPriorityColor = Color.FromArgb(17, 137, 21);
-
         public static string SettingsFileName = @"Settings.json";
         public static string PresetsFileName = @"Presets.json";
         public static string LastAppliedOrderFileName = @"LastApplied.json";

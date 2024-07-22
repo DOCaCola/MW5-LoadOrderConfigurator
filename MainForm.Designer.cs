@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using MW5_Mod_Manager.Controls;
 
 namespace MW5_Mod_Manager
 {
@@ -135,6 +136,7 @@ namespace MW5_Mod_Manager
             olvColumnModOrgLoadOrder = new BrightIdeasSoftware.OLVColumn();
             olvColumnModFileSize = new BrightIdeasSoftware.OLVColumn();
             olvColumnModFolder = new BrightIdeasSoftware.OLVColumn();
+            olvColumnFreeSpaceDummy = new BrightIdeasSoftware.OLVColumn();
             toolStrip2 = new ToolStrip();
             toTopToolStripButton = new ToolStripButton();
             upToolStripButton = new ToolStripButton();
@@ -962,10 +964,11 @@ namespace MW5_Mod_Manager
             modObjectListView.AllColumns.Add(olvColumnModOrgLoadOrder);
             modObjectListView.AllColumns.Add(olvColumnModFileSize);
             modObjectListView.AllColumns.Add(olvColumnModFolder);
+            modObjectListView.AllColumns.Add(olvColumnFreeSpaceDummy);
             modObjectListView.AllowColumnReorder = true;
             modObjectListView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             modObjectListView.CheckBoxes = true;
-            modObjectListView.Columns.AddRange(new ColumnHeader[] { olvColumnModName, olvColumnModAuthor, olvColumnModVersion, olvColumnModCurLoadOrder, olvColumnModOrgLoadOrder, olvColumnModFileSize, olvColumnModFolder });
+            modObjectListView.Columns.AddRange(new ColumnHeader[] { olvColumnModName, olvColumnModAuthor, olvColumnModVersion, olvColumnModCurLoadOrder, olvColumnModOrgLoadOrder, olvColumnModFileSize, olvColumnModFolder, olvColumnFreeSpaceDummy });
             modObjectListView.FullRowSelect = true;
             modObjectListView.HeaderStyle = ColumnHeaderStyle.Nonclickable;
             modObjectListView.Location = new Point(30, 3);
@@ -992,6 +995,7 @@ namespace MW5_Mod_Manager
             modObjectListView.FormatCell += modObjectListView_FormatCell;
             modObjectListView.FormatRow += modObjectListView_FormatRow;
             modObjectListView.ModelDropped += modObjectListView_ModelDropped;
+            modObjectListView.ColumnReordered += modObjectListView_ColumnReordered;
             modObjectListView.SelectedIndexChanged += modObjectListView_SelectedIndexChanged;
             modObjectListView.DragOver += modObjectListView_DragOver;
             modObjectListView.MouseClick += modObjectListView_MouseClick;
@@ -1059,6 +1063,17 @@ namespace MW5_Mod_Manager
             olvColumnModFolder.Text = "Mod Folder";
             olvColumnModFolder.ToolTipText = "Mod directory name";
             olvColumnModFolder.Width = 100;
+            // 
+            // olvColumnFreeSpaceDummy
+            // 
+            olvColumnFreeSpaceDummy.FillsFreeSpace = true;
+            olvColumnFreeSpaceDummy.Hideable = false;
+            olvColumnFreeSpaceDummy.IsEditable = false;
+            olvColumnFreeSpaceDummy.IsVisible = false;
+            olvColumnFreeSpaceDummy.Searchable = false;
+            olvColumnFreeSpaceDummy.ShowTextInHeader = false;
+            olvColumnFreeSpaceDummy.Sortable = false;
+            olvColumnFreeSpaceDummy.Text = "";
             // 
             // toolStrip2
             // 
@@ -1360,6 +1375,7 @@ namespace MW5_Mod_Manager
         public BrightIdeasSoftware.OLVColumn olvColumnModVersion;
         public BrightIdeasSoftware.OLVColumn olvColumnModCurLoadOrder;
         public BrightIdeasSoftware.OLVColumn olvColumnModOrgLoadOrder;
+        public BrightIdeasSoftware.OLVColumn olvColumnFreeSpaceDummy;
         public System.Windows.Forms.ToolStripLabel toolStripVendorLabeltoolStripLabel1;
         private BindingSource textProgressBarBindingSource;
         private MenuStrip menuStrip1;
@@ -1481,7 +1497,6 @@ namespace MW5_Mod_Manager
         private ToolStripSeparator toolStripSeparator15;
         private ToolStripMenuItem restoreDefaultColumnsToolStripMenuItem;
         private ToolStripMenuItem checkModFilesToolStripMenuItem;
-        private Button button1;
     }
 }
 
