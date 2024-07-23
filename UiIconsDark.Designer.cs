@@ -22,14 +22,14 @@ namespace MW5_Mod_Manager {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class UiIcons {
+    internal class UiIconsDark {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal UiIcons() {
+        internal UiIconsDark() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace MW5_Mod_Manager {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MW5_Mod_Manager.UiIcons", typeof(UiIcons).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MW5_Mod_Manager.UiIconsDark", typeof(UiIconsDark).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -83,16 +83,6 @@ namespace MW5_Mod_Manager {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Folder {
-            get {
-                object obj = ResourceManager.GetObject("Folder", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap FolderDis {
             get {
                 object obj = ResourceManager.GetObject("FolderDis", resourceCulture);
@@ -113,49 +103,9 @@ namespace MW5_Mod_Manager {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Nexusmods {
-            get {
-                object obj = ResourceManager.GetObject("Nexusmods", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap NexusmodsDis {
             get {
                 object obj = ResourceManager.GetObject("NexusmodsDis", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap Reload {
-            get {
-                object obj = ResourceManager.GetObject("Reload", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap ReloadNotification {
-            get {
-                object obj = ResourceManager.GetObject("ReloadNotification", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap Steam {
-            get {
-                object obj = ResourceManager.GetObject("Steam", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

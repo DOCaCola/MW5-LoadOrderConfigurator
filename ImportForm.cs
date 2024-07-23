@@ -26,7 +26,8 @@ namespace MW5_Mod_Manager
         public ImportForm()
         {
             InitializeComponent();
-            _ = new DarkModeCS(this, false);
+            if (LocWindowColors.DarkMode)
+                _ = new DarkModeCS(this, false);
         }
 
         private void buttonImport_Click(object sender, EventArgs e)
@@ -182,7 +183,8 @@ namespace MW5_Mod_Manager
 
         private void ImportForm_Load(object sender, EventArgs e)
         {
-            toolStrip1.Renderer = new ToolStripTransparentRenderer();
+            if (!LocWindowColors.DarkMode)
+                toolStrip1.Renderer = new ToolStripTransparentRenderer();
 
             Font monospaceFont = Utils.CreateBestAvailableMonospacePlatformFont(textBoxData.Font.Size);
             if (monospaceFont != null)

@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DarkModeForms;
+using MW5_Mod_Manager.Controls;
 using SharpCompress;
 using SharpCompress.Archives;
 using SharpCompress.Common;
@@ -45,7 +46,8 @@ namespace MW5_Mod_Manager
         public ExtractForm()
         {
             InitializeComponent();
-            _ = new DarkModeCS(this, false);
+            if (LocWindowColors.DarkMode)
+                _ = new DarkModeCS(this, false);
 
             _cts = new CancellationTokenSource();
         }

@@ -1094,7 +1094,7 @@ namespace MW5_Mod_Manager
             // toTopToolStripButton
             // 
             toTopToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            toTopToolStripButton.Image = (Image)resources.GetObject("toTopToolStripButton.Image");
+            toTopToolStripButton.Image = UiIcons.Top;
             toTopToolStripButton.ImageTransparentColor = Color.Magenta;
             toTopToolStripButton.Name = "toTopToolStripButton";
             toTopToolStripButton.Size = new Size(23, 20);
@@ -1105,7 +1105,7 @@ namespace MW5_Mod_Manager
             // upToolStripButton
             // 
             upToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            upToolStripButton.Image = (Image)resources.GetObject("upToolStripButton.Image");
+            upToolStripButton.Image = UiIcons.Up;
             upToolStripButton.ImageTransparentColor = Color.Magenta;
             upToolStripButton.Name = "upToolStripButton";
             upToolStripButton.Size = new Size(23, 20);
@@ -1122,7 +1122,7 @@ namespace MW5_Mod_Manager
             // downToolStripButton
             // 
             downToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            downToolStripButton.Image = (Image)resources.GetObject("downToolStripButton.Image");
+            downToolStripButton.Image = UiIcons.Down;
             downToolStripButton.ImageTransparentColor = Color.Magenta;
             downToolStripButton.Name = "downToolStripButton";
             downToolStripButton.Size = new Size(23, 20);
@@ -1133,7 +1133,7 @@ namespace MW5_Mod_Manager
             // toBottomToolStripButton
             // 
             toBottomToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            toBottomToolStripButton.Image = (Image)resources.GetObject("toBottomToolStripButton.Image");
+            toBottomToolStripButton.Image = UiIcons.Bottom;
             toBottomToolStripButton.ImageTransparentColor = Color.Magenta;
             toBottomToolStripButton.Name = "toBottomToolStripButton";
             toBottomToolStripButton.Size = new Size(23, 20);
@@ -1166,7 +1166,7 @@ namespace MW5_Mod_Manager
             // 
             // toolStripButtonStartGame
             // 
-            toolStripButtonStartGame.Image = (Image)resources.GetObject("toolStripButtonStartGame.Image");
+            toolStripButtonStartGame.Image = UiIcons.MW5MercsLogo;
             toolStripButtonStartGame.ImageTransparentColor = Color.Magenta;
             toolStripButtonStartGame.Name = "toolStripButtonStartGame";
             toolStripButtonStartGame.Padding = new Padding(2, 0, 2, 0);

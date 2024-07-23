@@ -1,4 +1,5 @@
 ﻿using DarkModeForms;
+using MW5_Mod_Manager.Controls;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,7 +20,8 @@ namespace MW5_Mod_Manager
         public ModCheckForm()
         {
             InitializeComponent();
-            _ = new DarkModeCS(this, false);
+            if (LocWindowColors.DarkMode)
+                _ = new DarkModeCS(this, false);
         }
 
         private void AddLogMessage(string message)

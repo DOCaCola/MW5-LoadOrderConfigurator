@@ -22,12 +22,14 @@ namespace MW5_Mod_Manager
         public ExportForm()
         {
             InitializeComponent();
-            _ = new DarkModeCS(this, false);
+            if (LocWindowColors.DarkMode)
+                _ = new DarkModeCS(this, false);
         }
 
         private void ExportWindow_Load(object sender, EventArgs e)
         {
-            toolStrip1.Renderer = new ToolStripTransparentRenderer();
+            if (!LocWindowColors.DarkMode)
+                toolStrip1.Renderer = new ToolStripTransparentRenderer();
 
             Font monospaceFont = Utils.CreateBestAvailableMonospacePlatformFont(textBoxData.Font.Size);
             if (monospaceFont != null)

@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using DarkModeForms;
 using Microsoft.Win32;
+using MW5_Mod_Manager.Controls;
 
 namespace MW5_Mod_Manager
 {
@@ -22,7 +23,8 @@ namespace MW5_Mod_Manager
         public SettingsForm()
         {
             InitializeComponent();
-            _ = new DarkModeCS(this, false);
+            if (LocWindowColors.DarkMode)
+                _ = new DarkModeCS(this, false);
         }
 
         private void SettingsWindow_Load(object sender, EventArgs e)
@@ -53,6 +55,8 @@ namespace MW5_Mod_Manager
 
             radioButtonHighToLow.Checked = LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow;
             radioButtonLowToHigh.Checked = !radioButtonHighToLow.Checked;
+
+            checkBoxDarkMode.Checked = LocSettings.Instance.Data.AllowDarkMode;
         }
 
 
@@ -236,6 +240,8 @@ namespace MW5_Mod_Manager
             // Save trivial settings first
             LocSettings.Instance.Data.ListSortOrder =
                 radioButtonHighToLow.Checked ? eSortOrder.HighToLow : eSortOrder.LowToHigh;
+
+            LocSettings.Instance.Data.AllowDarkMode = checkBoxDarkMode.Checked;
             
             if (comboBoxPlatform.SelectedIndex == -1)
             {

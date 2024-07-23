@@ -89,6 +89,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Update="UiIconsDark.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>UiIconsDark.resx</DependentUpon>
+    </Compile>
     <Compile Update="UiIcons.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -96,6 +101,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Update="UiIconsDark.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>UiIconsDark.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="UiIcons.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>UiIcons.Designer.cs</LastGenOutput>

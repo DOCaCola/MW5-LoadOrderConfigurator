@@ -58,18 +58,31 @@ namespace MW5_Mod_Manager
         public MainForm()
         {
             InitializeComponent();
-            _ = new DarkModeCS(this, false);
+
             Instance = this;
 
             if (LocWindowColors.DarkMode)
             {
+                _ = new DarkModeCS(this, false);
+
                 modObjectListView.HeaderUsesThemes = false;
                 var headerstyleb = new HeaderFormatStyle();
                 headerstyleb.SetBackColor(LocWindowColors.ButtonHighlight);
                 headerstyleb.SetForeColor(LocWindowColors.WindowText);
                 modObjectListView.HeaderFormatStyle = headerstyleb;
 
+                toolStripButtonStartGame.Image = UiIconsDark.MW5MercsLogo;
+
+                toBottomToolStripButton.Image = UiIconsDark.Bottom;
+                toTopToolStripButton.Image = UiIconsDark.Top;
+                downToolStripButton.Image = UiIconsDark.Down;
+                upToolStripButton.Image = UiIconsDark.Up;
+
                 olvColumnFreeSpaceDummy.IsVisible = true;
+            }
+            else
+            {
+                toolStrip2.Renderer = new ToolStripTransparentRenderer();
             }
         }
 
@@ -89,11 +102,22 @@ namespace MW5_Mod_Manager
             _modNameColumn = new TypedColumn<ModItem>(this.olvColumnModName);
 
             imageListIcons.Images.Add("Steam", UiIcons.Steam);
-            imageListIcons.Images.Add("SteamDis", UiIcons.SteamDis);
             imageListIcons.Images.Add("Nexusmods", UiIcons.Nexusmods);
-            imageListIcons.Images.Add("NexusmodsDis", UiIcons.NexusmodsDis);
             imageListIcons.Images.Add("Folder", UiIcons.Folder);
-            imageListIcons.Images.Add("FolderDis", UiIcons.FolderDis);
+            
+
+            if (LocWindowColors.DarkMode)
+            {
+                imageListIcons.Images.Add("SteamDis", UiIconsDark.SteamDis);
+                imageListIcons.Images.Add("NexusmodsDis", UiIconsDark.NexusmodsDis);
+                imageListIcons.Images.Add("FolderDis", UiIconsDark.FolderDis);
+            }
+            else
+            {
+                imageListIcons.Images.Add("SteamDis", UiIcons.SteamDis);
+                imageListIcons.Images.Add("NexusmodsDis", UiIcons.NexusmodsDis);
+                imageListIcons.Images.Add("FolderDis", UiIcons.FolderDis);
+            }
 
             olvColumnModName.ImageGetter = this.ModImageGetter;
             olvColumnModName.AspectGetter = this.ModNameGetter;
@@ -191,8 +215,6 @@ namespace MW5_Mod_Manager
             panelColorOverridden.BackColor = LocWindowColors.ModOverriddenColor;
             panelColorOverriding.BackColor = LocWindowColors.ModOverridingColor;
             panelColorOverridingOverridden.BackColor = LocWindowColors.ModOverriddenOveridingColor;
-
-            toolStrip2.Renderer = new ToolStripTransparentRenderer();
 
             UpdateMoveControlEnabledState();
 

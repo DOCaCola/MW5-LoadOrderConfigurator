@@ -32,6 +32,7 @@ namespace MW5_Mod_Manager
             public string InstallPath { set; get; }
             public eSortOrder ListSortOrder { set; get; } = eSortOrder.HighToLow;
             public bool EnableFileWatch { set; get; } = false;
+            public bool AllowDarkMode { set; get; } = true;
         }
 
         public SettingsData Data = new();

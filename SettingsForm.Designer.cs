@@ -39,6 +39,8 @@
             tabControl1 = new System.Windows.Forms.TabControl();
             tabPage1 = new System.Windows.Forms.TabPage();
             tabPage2 = new System.Windows.Forms.TabPage();
+            groupBox3 = new System.Windows.Forms.GroupBox();
+            checkBoxDarkMode = new System.Windows.Forms.CheckBox();
             groupBox2 = new System.Windows.Forms.GroupBox();
             label3 = new System.Windows.Forms.Label();
             radioButtonLowToHigh = new System.Windows.Forms.RadioButton();
@@ -47,6 +49,7 @@
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
             tabPage2.SuspendLayout();
+            groupBox3.SuspendLayout();
             groupBox2.SuspendLayout();
             SuspendLayout();
             // 
@@ -70,8 +73,8 @@
             label2.Location = new System.Drawing.Point(6, 22);
             label2.Name = "label2";
             label2.Size = new System.Drawing.Size(56, 15);
-            label2.TabIndex = 7;
-            label2.Text = "Platform:";
+            label2.TabIndex = 0;
+            label2.Text = "&Platform:";
             // 
             // comboBoxPlatform
             // 
@@ -89,7 +92,7 @@
             buttonBrowse.Location = new System.Drawing.Point(464, 50);
             buttonBrowse.Name = "buttonBrowse";
             buttonBrowse.Size = new System.Drawing.Size(75, 25);
-            buttonBrowse.TabIndex = 3;
+            buttonBrowse.TabIndex = 4;
             buttonBrowse.Text = "Se&lect...";
             buttonBrowse.UseVisualStyleBackColor = true;
             buttonBrowse.Click += buttonSelect_Click;
@@ -100,20 +103,20 @@
             label1.Location = new System.Drawing.Point(5, 54);
             label1.Name = "label1";
             label1.Size = new System.Drawing.Size(99, 15);
-            label1.TabIndex = 4;
-            label1.Text = "MW5 Install Path:";
+            label1.TabIndex = 2;
+            label1.Text = "MW5 &Install Path:";
             // 
             // textBoxMw5Path
             // 
             textBoxMw5Path.Location = new System.Drawing.Point(110, 51);
             textBoxMw5Path.Name = "textBoxMw5Path";
             textBoxMw5Path.Size = new System.Drawing.Size(348, 23);
-            textBoxMw5Path.TabIndex = 2;
+            textBoxMw5Path.TabIndex = 3;
             // 
             // buttonSave
             // 
             buttonSave.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-            buttonSave.Location = new System.Drawing.Point(12, 167);
+            buttonSave.Location = new System.Drawing.Point(12, 197);
             buttonSave.Name = "buttonSave";
             buttonSave.Size = new System.Drawing.Size(88, 26);
             buttonSave.TabIndex = 4;
@@ -124,7 +127,7 @@
             // buttonCancel
             // 
             buttonCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-            buttonCancel.Location = new System.Drawing.Point(106, 167);
+            buttonCancel.Location = new System.Drawing.Point(106, 197);
             buttonCancel.Name = "buttonCancel";
             buttonCancel.Size = new System.Drawing.Size(88, 26);
             buttonCancel.TabIndex = 5;
@@ -134,12 +137,13 @@
             // 
             // tabControl1
             // 
+            tabControl1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             tabControl1.Controls.Add(tabPage1);
             tabControl1.Controls.Add(tabPage2);
             tabControl1.Location = new System.Drawing.Point(12, 12);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new System.Drawing.Size(571, 137);
+            tabControl1.Size = new System.Drawing.Size(571, 167);
             tabControl1.TabIndex = 6;
             // 
             // tabPage1
@@ -148,30 +152,51 @@
             tabPage1.Location = new System.Drawing.Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            tabPage1.Size = new System.Drawing.Size(563, 109);
+            tabPage1.Size = new System.Drawing.Size(563, 139);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Main";
             tabPage1.UseVisualStyleBackColor = true;
             // 
             // tabPage2
             // 
+            tabPage2.Controls.Add(groupBox3);
             tabPage2.Controls.Add(groupBox2);
             tabPage2.Location = new System.Drawing.Point(4, 24);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            tabPage2.Size = new System.Drawing.Size(563, 109);
+            tabPage2.Size = new System.Drawing.Size(563, 139);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "Interface";
             tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // groupBox3
+            // 
+            groupBox3.Controls.Add(checkBoxDarkMode);
+            groupBox3.Location = new System.Drawing.Point(6, 6);
+            groupBox3.Name = "groupBox3";
+            groupBox3.Size = new System.Drawing.Size(551, 64);
+            groupBox3.TabIndex = 4;
+            groupBox3.TabStop = false;
+            groupBox3.Text = "General";
+            // 
+            // checkBoxDarkMode
+            // 
+            checkBoxDarkMode.AutoSize = true;
+            checkBoxDarkMode.Location = new System.Drawing.Point(17, 22);
+            checkBoxDarkMode.Name = "checkBoxDarkMode";
+            checkBoxDarkMode.Size = new System.Drawing.Size(307, 19);
+            checkBoxDarkMode.TabIndex = 0;
+            checkBoxDarkMode.Text = "Enable Windows &Dark Mode support (requires restart)";
+            checkBoxDarkMode.UseVisualStyleBackColor = true;
             // 
             // groupBox2
             // 
             groupBox2.Controls.Add(label3);
             groupBox2.Controls.Add(radioButtonLowToHigh);
             groupBox2.Controls.Add(radioButtonHighToLow);
-            groupBox2.Location = new System.Drawing.Point(6, 6);
+            groupBox2.Location = new System.Drawing.Point(6, 76);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new System.Drawing.Size(551, 64);
+            groupBox2.Size = new System.Drawing.Size(551, 57);
             groupBox2.TabIndex = 3;
             groupBox2.TabStop = false;
             groupBox2.Text = "Mod list";
@@ -183,7 +208,7 @@
             label3.Name = "label3";
             label3.Size = new System.Drawing.Size(157, 15);
             label3.TabIndex = 0;
-            label3.Text = "Load order display direction:";
+            label3.Text = "Load &order display direction:";
             // 
             // radioButtonLowToHigh
             // 
@@ -213,7 +238,7 @@
             AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             CancelButton = buttonCancel;
-            ClientSize = new System.Drawing.Size(592, 202);
+            ClientSize = new System.Drawing.Size(592, 232);
             Controls.Add(tabControl1);
             Controls.Add(buttonCancel);
             Controls.Add(buttonSave);
@@ -230,6 +255,8 @@
             tabControl1.ResumeLayout(false);
             tabPage1.ResumeLayout(false);
             tabPage2.ResumeLayout(false);
+            groupBox3.ResumeLayout(false);
+            groupBox3.PerformLayout();
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
             ResumeLayout(false);
@@ -252,5 +279,7 @@
         private System.Windows.Forms.RadioButton radioButtonLowToHigh;
         private System.Windows.Forms.RadioButton radioButtonHighToLow;
         private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.CheckBox checkBoxDarkMode;
     }
 }
