@@ -630,9 +630,9 @@ namespace MW5_Mod_Manager
 
                 ModsManager.Instance.RecomputeOverridingData();
 
+                modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
                 ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
                 RecolorObjectListViewRows();
-                modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
 
                 QueueSidePanelUpdate(true);
 
@@ -702,9 +702,9 @@ namespace MW5_Mod_Manager
                 ModItemList.Instance.RecomputeLoadOrders();
 
                 ModsManager.Instance.RecomputeOverridingData();
+                modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
                 ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
                 RecolorObjectListViewRows();
-                modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
 
                 QueueSidePanelUpdate(true);
                 CheckModConfigTainted();
@@ -2449,10 +2449,10 @@ namespace MW5_Mod_Manager
 
             ModItemList.Instance.RecomputeLoadOrders();
 
-            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
-            RecolorObjectListViewRows();
             ModsManager.Instance.RecomputeOverridingData();
             modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
+            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
+            RecolorObjectListViewRows();
             FilterTextChanged();
             CheckModConfigTainted();
 
