@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             groupBox1 = new System.Windows.Forms.GroupBox();
             label2 = new System.Windows.Forms.Label();
             comboBoxPlatform = new System.Windows.Forms.ComboBox();
@@ -45,6 +46,7 @@
             label3 = new System.Windows.Forms.Label();
             radioButtonLowToHigh = new System.Windows.Forms.RadioButton();
             radioButtonHighToLow = new System.Windows.Forms.RadioButton();
+            toolTip1 = new System.Windows.Forms.ToolTip(components);
             groupBox1.SuspendLayout();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
@@ -187,6 +189,7 @@
             checkBoxDarkMode.Size = new System.Drawing.Size(307, 19);
             checkBoxDarkMode.TabIndex = 0;
             checkBoxDarkMode.Text = "Enable Windows &Dark Mode support (requires restart)";
+            toolTip1.SetToolTip(checkBoxDarkMode, "User interface will display in a darker color scheme when Windows is configured to enable Dark Mode.\r\nThis setting has no effect, when Windows Dark mode is not enabled.");
             checkBoxDarkMode.UseVisualStyleBackColor = true;
             // 
             // groupBox2
@@ -209,6 +212,7 @@
             label3.Size = new System.Drawing.Size(157, 15);
             label3.TabIndex = 0;
             label3.Text = "Load &order display direction:";
+            toolTip1.SetToolTip(label3, "\"Highest to lowest\" follows the order the mods are displayed as they are in the MechWarrior 5 Mods menu. (default)\r\n\"Lowest to highest\" reverses the order mods are displayed");
             // 
             // radioButtonLowToHigh
             // 
@@ -281,5 +285,6 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.CheckBox checkBoxDarkMode;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }
