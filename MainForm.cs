@@ -104,7 +104,7 @@ namespace MW5_Mod_Manager
             imageListIcons.Images.Add("Steam", UiIcons.Steam);
             imageListIcons.Images.Add("Nexusmods", UiIcons.Nexusmods);
             imageListIcons.Images.Add("Folder", UiIcons.Folder);
-            
+
 
             if (LocWindowColors.DarkMode)
             {
@@ -3109,6 +3109,63 @@ namespace MW5_Mod_Manager
             if (e.NewDisplayIndex >= olvColumnFreeSpaceDummy.DisplayIndex)
             {
                 e.Cancel = true;
+            }
+        }
+
+        private void toolStripTextFilterBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.Handled = true;
+                if (_filterMode == eFilterMode.ItemHighlight)
+                {
+
+                }
+                if (!Instance.toolStripButtonFilterToggle.Checked)
+                {
+                    modObjectListView.UseFiltering = false;
+                    if (modObjectListView.ModelFilter != null)
+                    {
+                        object foundObject = null;
+                        bool lastObject = true;
+
+                        var objectList = modObjectListView.Objects.Cast<object>().ToList();
+                        foreach (object originalObject in objectList.ReverseIterate())
+                        {
+                            if (!modObjectListView.ModelFilter.Filter(originalObject))
+                                continue;
+
+                            bool currentIsSelected = modObjectListView.IsSelected(originalObject);
+                            if (lastObject)
+                            {
+                                lastObject = false;
+                                if (currentIsSelected)
+                                {
+                                    continue;
+                                }
+                            }
+
+                            if (currentIsSelected)
+                                break;
+
+                            foundObject = originalObject;
+                        }
+
+                        if (foundObject != null)
+                        {
+                            modObjectListView.EnsureModelVisible(foundObject);
+                            modObjectListView.SelectedObject = foundObject;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void toolStripTextFilterBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Enter)
+            {
+                e.Handled = true;
             }
         }
     }
