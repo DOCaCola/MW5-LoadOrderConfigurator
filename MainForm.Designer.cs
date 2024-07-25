@@ -1205,6 +1205,8 @@ namespace MW5_Mod_Manager
             toolStripTextFilterBox.Margin = new Padding(5, 0, 5, 0);
             toolStripTextFilterBox.Name = "toolStripTextFilterBox";
             toolStripTextFilterBox.Size = new Size(170, 45);
+            toolStripTextFilterBox.KeyPress += toolStripTextFilterBox_KeyPress;
+            toolStripTextFilterBox.KeyUp += toolStripTextFilterBox_KeyUp;
             toolStripTextFilterBox.TextChanged += toolStripTextFilterBox_TextChanged;
             // 
             // toolStripButtonFilterToggle
