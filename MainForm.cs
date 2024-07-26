@@ -2819,30 +2819,42 @@ namespace MW5_Mod_Manager
             if (e.Control && e.KeyCode == Keys.S)
             {
                 ApplyModSettings();
+                e.Handled = true;
                 return;
             }
 
             if (e.Control && e.KeyCode == Keys.M)
             {
                 LaunchGame();
+                e.Handled = true;
                 return;
             }
 
             if (e.Control && e.KeyCode == Keys.R)
             {
                 RefreshAll(false);
+                e.Handled = true;
                 return;
             }
 
             if (e.Control && e.KeyCode == Keys.I)
             {
                 ImportLoadOrder();
+                e.Handled = true;
                 return;
             }
 
             if (e.Control && e.KeyCode == Keys.E)
             {
                 ExportLoadOrder();
+                e.Handled = true;
+                return;
+            }
+
+            if (e.Control && e.KeyCode == Keys.F)
+            {
+                toolStripTextFilterBox.Focus();
+                e.Handled = true;
                 return;
             }
         }
@@ -3159,9 +3171,23 @@ namespace MW5_Mod_Manager
 
         private void toolStripTextFilterBox_KeyPress(object sender, KeyPressEventArgs e)
         {
+            // Avoids error sound when pressing the enter key
             if (e.KeyChar == (char)Keys.Enter)
             {
                 e.Handled = true;
+            }
+        }
+
+        private void modObjectListView_BeforeSearching(object sender, BeforeSearchingEventArgs e)
+        {
+            // Abort search if any control characters are in the search string
+            foreach (var c in e.StringToFind)
+            {
+                if (char.IsControl(c))
+                {
+                    e.Canceled = true;
+                    return;
+                }
             }
         }
     }

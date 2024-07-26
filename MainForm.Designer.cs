@@ -988,6 +988,7 @@ namespace MW5_Mod_Manager
             modObjectListView.UseTranslucentHotItem = true;
             modObjectListView.UseTranslucentSelection = true;
             modObjectListView.View = View.Details;
+            modObjectListView.BeforeSearching += modObjectListView_BeforeSearching;
             modObjectListView.BeforeSorting += modObjectListView_BeforeSorting;
             modObjectListView.BeforeCreatingGroups += modObjectListView_BeforeCreatingGroups;
             modObjectListView.AboutToCreateGroups += modObjectListView_AboutToCreateGroups;
