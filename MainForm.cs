@@ -61,6 +61,9 @@ namespace MW5_Mod_Manager
 
             Instance = this;
 
+            toolStripTextFilterBox.TextBox.PreviewKeyDown += FilterTextBoxOnPreviewKeyDown;
+            toolStripTextFilterBox.TextBox.KeyPress += FilterTextBoxOnKeyPress;
+
             if (LocWindowColors.DarkMode)
             {
                 _ = new DarkModeCS(this, false);
@@ -210,6 +213,8 @@ namespace MW5_Mod_Manager
             if (LocViewState.LoadViewStateFromFile())
                 LocViewState.RestoreViewState();
 
+            toolStripRightDummy.Width = tabControl1.Width;
+
             UpdateColumnVisiblityMenu();
 
             panelColorOverridden.BackColor = LocWindowColors.ModOverriddenColor;
@@ -225,6 +230,8 @@ namespace MW5_Mod_Manager
             }*/
 
             ModsManager.Instance.ModFilesChangedEvent += InstanceOnModFilesChangedEvent;
+
+            modObjectListView.Focus();
         }
 
         private void InstanceOnModFilesChangedEvent(object sender, EventArgs e)
@@ -2561,7 +2568,7 @@ namespace MW5_Mod_Manager
         private void toolStripButtonClearFilter_Click(object sender, EventArgs e)
         {
             toolStripTextFilterBox.Text = "";
-            toolStripTextFilterBox.Focus();
+            toolStripTextFilterBox.TextBox.Focus();
         }
 
         private void toolStripButtonFilterToggle_CheckedChanged(object sender, EventArgs e)
@@ -2853,7 +2860,7 @@ namespace MW5_Mod_Manager
 
             if (e.Control && e.KeyCode == Keys.F)
             {
-                toolStripTextFilterBox.Focus();
+                toolStripTextFilterBox.TextBox.Focus();
                 e.Handled = true;
                 return;
             }
@@ -3175,6 +3182,14 @@ namespace MW5_Mod_Manager
             if (e.KeyChar == (char)Keys.Enter)
             {
                 e.Handled = true;
+                return;
+            }
+
+			// Ignore repeated Ctrl+F input
+            if (e.KeyChar == '\u0006')
+            {
+                e.Handled = true;
+				return;
             }
         }
 
@@ -3188,6 +3203,44 @@ namespace MW5_Mod_Manager
                     e.Canceled = true;
                     return;
                 }
+            }
+        }
+
+        private void tabControl1_Resize(object sender, EventArgs e)
+        {
+            toolStripRightDummy.Width = tabControl1.Width;
+        }
+
+        private void toolStripTextFilterBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.F)
+            {
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void FilterTextBoxOnKeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Escape)
+            {
+                if (!string.IsNullOrEmpty(toolStripTextFilterBox.Text))
+                {
+                    toolStripTextFilterBox.Text = String.Empty;
+                }
+                else
+                {
+                    modObjectListView.Focus();
+                }
+                e.Handled = true;
+            }
+        }
+
+        private void FilterTextBoxOnPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape/* && !string.IsNullOrEmpty(toolStripTextFilterBox.Text)*/)
+            {
+                e.IsInputKey = true;
             }
         }
     }

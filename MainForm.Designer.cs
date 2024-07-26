@@ -149,10 +149,12 @@ namespace MW5_Mod_Manager
             toolStripSeparator10 = new ToolStripSeparator();
             toolStripButtonReload = new ToolStripButton();
             toolStripSeparator9 = new ToolStripSeparator();
-            toolStripTextFilterBox = new LocToolStripTextBox();
+            toolStripRightDummy = new ToolStripLabel();
+            toolStripSeparator11 = new ToolStripSeparator();
             toolStripButtonFilterToggle = new ToolStripButton();
             toolStripButtonClearFilter = new ToolStripButton();
-            toolStripSeparator11 = new ToolStripSeparator();
+            toolStripTextFilterBox = new LocToolStripTextBox();
+            toolStripSeparator16 = new ToolStripSeparator();
             timerOverviewUpdateDelay = new Timer(components);
             timerDelayedListRecolor = new Timer(components);
             contextMenuStripColumnOptions = new ContextMenuStrip(components);
@@ -845,6 +847,7 @@ namespace MW5_Mod_Manager
             tabControl1.SelectedIndex = 0;
             tabControl1.Size = new Size(334, 486);
             tabControl1.TabIndex = 11;
+            tabControl1.Resize += tabControl1_Resize;
             // 
             // rotatingLabelBottom
             // 
@@ -1145,7 +1148,7 @@ namespace MW5_Mod_Manager
             // toolStrip1
             // 
             toolStrip1.AutoSize = false;
-            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButtonApply, toolStripButtonStartGame, toolStripSeparator10, toolStripButtonReload, toolStripSeparator9, toolStripTextFilterBox, toolStripButtonFilterToggle, toolStripButtonClearFilter, toolStripSeparator11 });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButtonApply, toolStripButtonStartGame, toolStripSeparator10, toolStripButtonReload, toolStripSeparator9, toolStripRightDummy, toolStripSeparator11, toolStripButtonFilterToggle, toolStripButtonClearFilter, toolStripTextFilterBox, toolStripSeparator16 });
             toolStrip1.Location = new Point(0, 24);
             toolStrip1.Name = "toolStrip1";
             toolStrip1.Size = new Size(1167, 45);
@@ -1200,18 +1203,22 @@ namespace MW5_Mod_Manager
             toolStripSeparator9.Name = "toolStripSeparator9";
             toolStripSeparator9.Size = new Size(6, 45);
             // 
-            // toolStripTextFilterBox
+            // toolStripRightDummy
             // 
-            toolStripTextFilterBox.CueBanner = "Search";
-            toolStripTextFilterBox.Margin = new Padding(5, 0, 5, 0);
-            toolStripTextFilterBox.Name = "toolStripTextFilterBox";
-            toolStripTextFilterBox.Size = new Size(170, 45);
-            toolStripTextFilterBox.KeyPress += toolStripTextFilterBox_KeyPress;
-            toolStripTextFilterBox.KeyUp += toolStripTextFilterBox_KeyUp;
-            toolStripTextFilterBox.TextChanged += toolStripTextFilterBox_TextChanged;
+            toolStripRightDummy.Alignment = ToolStripItemAlignment.Right;
+            toolStripRightDummy.AutoSize = false;
+            toolStripRightDummy.Name = "toolStripRightDummy";
+            toolStripRightDummy.Size = new Size(120, 42);
+            // 
+            // toolStripSeparator11
+            // 
+            toolStripSeparator11.Alignment = ToolStripItemAlignment.Right;
+            toolStripSeparator11.Name = "toolStripSeparator11";
+            toolStripSeparator11.Size = new Size(6, 45);
             // 
             // toolStripButtonFilterToggle
             // 
+            toolStripButtonFilterToggle.Alignment = ToolStripItemAlignment.Right;
             toolStripButtonFilterToggle.CheckOnClick = true;
             toolStripButtonFilterToggle.DisplayStyle = ToolStripItemDisplayStyle.Image;
             toolStripButtonFilterToggle.Image = (Image)resources.GetObject("toolStripButtonFilterToggle.Image");
@@ -1225,6 +1232,7 @@ namespace MW5_Mod_Manager
             // 
             // toolStripButtonClearFilter
             // 
+            toolStripButtonClearFilter.Alignment = ToolStripItemAlignment.Right;
             toolStripButtonClearFilter.DisplayStyle = ToolStripItemDisplayStyle.Image;
             toolStripButtonClearFilter.Enabled = false;
             toolStripButtonClearFilter.Image = (Image)resources.GetObject("toolStripButtonClearFilter.Image");
@@ -1236,10 +1244,23 @@ namespace MW5_Mod_Manager
             toolStripButtonClearFilter.ToolTipText = "Clear filter";
             toolStripButtonClearFilter.Click += toolStripButtonClearFilter_Click;
             // 
-            // toolStripSeparator11
+            // toolStripTextFilterBox
             // 
-            toolStripSeparator11.Name = "toolStripSeparator11";
-            toolStripSeparator11.Size = new Size(6, 45);
+            toolStripTextFilterBox.Alignment = ToolStripItemAlignment.Right;
+            toolStripTextFilterBox.CueBanner = "Search (Ctrl+F)";
+            toolStripTextFilterBox.Margin = new Padding(5, 0, 5, 0);
+            toolStripTextFilterBox.Name = "toolStripTextFilterBox";
+            toolStripTextFilterBox.Size = new Size(140, 45);
+            toolStripTextFilterBox.KeyDown += toolStripTextFilterBox_KeyDown;
+            toolStripTextFilterBox.KeyPress += toolStripTextFilterBox_KeyPress;
+            toolStripTextFilterBox.KeyUp += toolStripTextFilterBox_KeyUp;
+            toolStripTextFilterBox.TextChanged += toolStripTextFilterBox_TextChanged;
+            // 
+            // toolStripSeparator16
+            // 
+            toolStripSeparator16.Alignment = ToolStripItemAlignment.Right;
+            toolStripSeparator16.Name = "toolStripSeparator16";
+            toolStripSeparator16.Size = new Size(6, 45);
             // 
             // timerOverviewUpdateDelay
             // 
@@ -1500,6 +1521,8 @@ namespace MW5_Mod_Manager
         private ToolStripSeparator toolStripSeparator15;
         private ToolStripMenuItem restoreDefaultColumnsToolStripMenuItem;
         private ToolStripMenuItem checkModFilesToolStripMenuItem;
+        private ToolStripLabel toolStripRightDummy;
+        private ToolStripSeparator toolStripSeparator16;
     }
 }
 
