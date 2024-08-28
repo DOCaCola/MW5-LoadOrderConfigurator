@@ -51,7 +51,7 @@ public static class LocWindowColors
     {
         get
         {
-            return _DarkMode ? Color.Black : Color.White;
+            return _DarkMode ? Color.White : Color.Black;
         }
     }
 
