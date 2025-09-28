@@ -40,7 +40,7 @@ namespace MW5_Mod_Manager
             public string FullPath = null;
             public FileSystemWatcherAsync<eModPathType> FolderWatcher = null;
         }
-        public ArrayByEnum<ModPathInfo,eModPathType> ModsPaths = new();
+        public ArrayByEnum<ModPathInfo, eModPathType> ModsPaths = new();
 
         public LocSettings ProgramSettings;
 
@@ -135,7 +135,7 @@ namespace MW5_Mod_Manager
             if (LocSettings.Instance.Data.platform == eGamePlatform.None)
                 return false;
 
-            if (LocSettings.Instance.Data.platform != eGamePlatform.WindowsStore 
+            if (LocSettings.Instance.Data.platform != eGamePlatform.WindowsStore
                 && Utils.StringNullEmptyOrWhiteSpace(LocSettings.Instance.Data.InstallPath))
                 return false;
 
@@ -260,7 +260,7 @@ namespace MW5_Mod_Manager
                     loadOrderChangedModNames.Add(ModDetails[curCandidate].displayName);
                 }
 
-                ModImportData enabledListItem = ModEnabledListLastState?.FirstOrDefault(x => 
+                ModImportData enabledListItem = ModEnabledListLastState?.FirstOrDefault(x =>
                     x.ModPath.Equals(curCandidate, StringComparison.InvariantCultureIgnoreCase));
 
                 bool enabledStateChanged = ModEnabledListLastState == null || enabledListItem == null || !enabledListItem.Enabled;
@@ -270,7 +270,7 @@ namespace MW5_Mod_Manager
                     enabledStateChangedModNames.Add(ModDetails[curCandidate].displayName);
                 }
             }
-            
+
             if (loadOrderChangedModNames.Count > 0)
             {
                 listRefreshCallback();
@@ -285,9 +285,9 @@ namespace MW5_Mod_Manager
                 DateTime timestamp = DateTime.UnixEpoch.AddSeconds(LastAppliedPreset.timeStamp);
 
                 page.Buttons.Add(new TaskDialogCommandLinkButton("&Restore last applied load order", "Use the load order you applied " + timestamp.ToTimeSinceString() + ".")
-                    {
-                        Tag = 1
-                    });
+                {
+                    Tag = 1
+                });
                 page.Buttons.Add(new TaskDialogCommandLinkButton("&Ignore", "Use current load order.")
                 {
                     Tag = 2
@@ -304,7 +304,7 @@ namespace MW5_Mod_Manager
                     page.Text = "The following mods are affected:\r\n" + changedMods;
                 }
                 page.Text += "\r\n\r\n How would you like to proceed?";
-                
+
                 page.Footnote = new TaskDialogFootnote()
                 {
                     Text = "This could occur due to an update to an installed mod or through the use of other tools that modify mod data, potentially altering the load order."
@@ -339,7 +339,7 @@ namespace MW5_Mod_Manager
 
                 page.Heading = "Your mod list has been reset or was deleted.";
                 var changedMods = string.Join(enabledStateChangedModNames.Count > 5 ? ", " : "\r\n", enabledStateChangedModNames);
-                page.Text = "This might have been caused as a result of a game update or due to another programs altering the mod list.\r\n\r\nThe following mods are affected:\r\n"+changedMods+"\r\n\r\n How would you like to proceed?";
+                page.Text = "This might have been caused as a result of a game update or due to another programs altering the mod list.\r\n\r\nThe following mods are affected:\r\n" + changedMods + "\r\n\r\n How would you like to proceed?";
 
                 TaskDialogButton dialogResult = TaskDialog.ShowDialog(MainForm.Instance.Visible ? MainForm.Instance.Handle : 0, page);
 
@@ -501,10 +501,10 @@ namespace MW5_Mod_Manager
                         }
                     }
                 }
-                
+
                 if (hasName)
                 {
-                    
+
                     // find all mods that match the name. There might be duplicates
                     List<string> foundLocalMods = new List<string>();
                     foreach (var curModDetail in ModDetails)
@@ -523,7 +523,7 @@ namespace MW5_Mod_Manager
                             int compResult = string.IsNullOrWhiteSpace(ModDetails[x].version)
                                 .CompareTo(string.IsNullOrWhiteSpace(ModDetails[y].version));
 
-                            if (compResult == 0 && 
+                            if (compResult == 0 &&
                                 (!string.IsNullOrWhiteSpace(ModDetails[y].version) &&
                                  !string.IsNullOrWhiteSpace(ModDetails[x].version))
                                )
@@ -756,7 +756,7 @@ namespace MW5_Mod_Manager
             {
                 FullPath = path,
             };
-            
+
             if (ProgramSettings.Data.EnableFileWatch && Directory.Exists(path))
             {
                 var folderWatcher = new FileSystemWatcherAsync<eModPathType>(path, pathType, true, notifyFilters, _fileWatchStopCounter != 0);
@@ -828,11 +828,11 @@ namespace MW5_Mod_Manager
 
             TaskDialogButton result = TaskDialog.ShowDialog(MainForm.Instance.Handle, new TaskDialogPage()
             {
-                Text =                 @"The modlist.json file could not be found in"+ System.Environment.NewLine 
-                    + modlistPath +@"."+System.Environment.NewLine+System.Environment.NewLine
-                    +@"It is necessary to read this file in order to validate it with the correct version number the game expects." + System.Environment.NewLine + System.Environment.NewLine
-                    +@"LOC will try to create the file with the correct version number when applying your profile, but there is high chance that this will fail."+System.Environment.NewLine
-                    +@"It is recommended to start the game once in order to create this file before applying your mod profile.",
+                Text = @"The modlist.json file could not be found in" + System.Environment.NewLine
+                    + modlistPath + @"." + System.Environment.NewLine + System.Environment.NewLine
+                    + @"It is necessary to read this file in order to validate it with the correct version number the game expects." + System.Environment.NewLine + System.Environment.NewLine
+                    + @"LOC will try to create the file with the correct version number when applying your profile, but there is high chance that this will fail." + System.Environment.NewLine
+                    + @"It is recommended to start the game once in order to create this file before applying your mod profile.",
 
                 Heading = "The modlist.json file could not be found.",
                 Caption = "Mod list error",
@@ -862,8 +862,8 @@ namespace MW5_Mod_Manager
             catch (Exception e)
             {
                 MessageBox.Show(
-                    @"There was an error trying to parse the modlist.json file in "+ System.Environment.NewLine 
-                    + modlistPath +@"."+System.Environment.NewLine+System.Environment.NewLine
+                    @"There was an error trying to parse the modlist.json file in " + System.Environment.NewLine
+                    + modlistPath + @"." + System.Environment.NewLine + System.Environment.NewLine
                     , @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
@@ -950,8 +950,8 @@ namespace MW5_Mod_Manager
 
             // Do a sanity check on workshop id
             // The oldest (known) mechwarrior workshop mod has id 2494637209
-             if (input.Length < 10)
-                 return false;
+            if (input.Length < 10)
+                return false;
 
             return true;
         }
@@ -1118,29 +1118,30 @@ namespace MW5_Mod_Manager
                     return;
                 }
 
-                // Sanity check for mod files
+                // Calculate pak file size and
+                // do basic pak sanity checks. Warn user if something looks off
                 string pakDir = Path.Combine(modPath, "Paks");
-                if (!Directory.Exists(pakDir) || Directory.GetFiles(pakDir, "*.pak").Length == 0)
+                if (modJsonDataObject.manifest != null && modJsonDataObject.manifest.Count > 0 &&
+                    (!Directory.Exists(pakDir) || Directory.GetFiles(pakDir, "*.pak").Length == 0))
                 {
                     TaskDialog.ShowDialog(MainForm.Instance.Handle, new TaskDialogPage()
                     {
-                        Text = @"The mod in the path" + System.Environment.NewLine +
-                               modPath + System.Environment.NewLine + 
-                               @"might be corrupted." + System.Environment.NewLine +
-                               "The mod has a valid mod.json, but has no Pak game data files associated with it.\r\nThe affected mod might need to be reinstalled.",
+                        Text = @"The mod in the path" + Environment.NewLine +
+                               modPath + Environment.NewLine +
+                               @"might be corrupted." + Environment.NewLine +
+                               "The mod has a valid mod.json with a file manifest, but has no Pak game data files associated with it.\r\nThe affected mod might need to be reinstalled.",
                         Heading = "Invalid or corrupted mod.",
                         Caption = "Warning",
                         Buttons =
-                        {
-                            TaskDialogButton.OK,
-                        },
+                            {
+                                TaskDialogButton.OK,
+                            },
                         Icon = TaskDialogIcon.Warning,
                         DefaultButton = TaskDialogButton.OK,
                         AllowCancel = true
                     });
                 }
 
-                long totalPakSize = 0;
                 bool hasZeroBytePak = false;
                 if (Directory.Exists(pakDir))
                 {
@@ -1150,8 +1151,6 @@ namespace MW5_Mod_Manager
 
                         if (fileSize == 0)
                             hasZeroBytePak = true;
-
-                        totalPakSize += fileSize;
                     }
                 }
 
@@ -1159,23 +1158,46 @@ namespace MW5_Mod_Manager
                 {
                     TaskDialog.ShowDialog(MainForm.Instance.Handle, new TaskDialogPage()
                     {
-                        Text = @"The mod in the path" + System.Environment.NewLine +
-                               modPath + System.Environment.NewLine + 
-                               @"might be corrupted." + System.Environment.NewLine +
+                        Text = @"The mod in the path" + Environment.NewLine +
+                               modPath + Environment.NewLine +
+                               @"might be corrupted." + Environment.NewLine +
                                "The mod has one or more Pak game data files that are zero bytes in size.\r\nThe affected mod might need to be reinstalled.",
                         Heading = "Invalid or corrupted mod.",
                         Caption = "Warning",
                         Buttons =
-                        {
-                            TaskDialogButton.OK,
-                        },
+                            {
+                                TaskDialogButton.OK,
+                            },
                         Icon = TaskDialogIcon.Warning,
                         DefaultButton = TaskDialogButton.OK,
                         AllowCancel = true
                     });
                 }
 
-                modData.ModFileSize = totalPakSize;
+                // Get mod file size
+                if (Directory.Exists(modPath))
+                {
+                    var allFiles = Directory.GetFiles(modPath, "*", SearchOption.AllDirectories);
+                    foreach (var filePath in allFiles)
+                    {
+                        // We want to skip files that are potentially different between installs of the same mod
+                        // to not confuse users when comparing their mod sizes
+                        if (string.Compare(Path.GetFileName(filePath), "__folder_managed_by_vortex", StringComparison.Ordinal) == 0)
+                            continue;
+
+                        if (string.Compare(Path.GetFileName(filePath), "mod.json", StringComparison.Ordinal) == 0)
+                            continue;
+
+                        if (string.Compare(Path.GetFileName(filePath), "mod.json.bak", StringComparison.Ordinal) == 0)
+                            continue;
+
+                        if (string.Compare(Path.GetFileName(filePath), "backup.json", StringComparison.Ordinal) == 0)
+                            continue;
+
+                        modData.ModFileSize += LocFileUtils.GetFileSize(filePath);
+                    }
+                }
+
                 this.Mods.Add(modPath, modData);
                 this.ModDetails.Add(modPath, modJsonDataObject);
                 this.ModDirectories.Add(modPath);
@@ -1188,7 +1210,7 @@ namespace MW5_Mod_Manager
             {
                 if (!loadModSuccess)
                 {
-                    var itemToRemove = ModEnabledList.FirstOrDefault(x => 
+                    var itemToRemove = ModEnabledList.FirstOrDefault(x =>
                         x.ModPath.Equals(modPath, StringComparison.InvariantCultureIgnoreCase));
 
                     if (itemToRemove != null)
@@ -1197,7 +1219,7 @@ namespace MW5_Mod_Manager
                     }
                 }
             }
- 
+
         }
 
         private void LoadAllModDetails()
@@ -1223,7 +1245,7 @@ namespace MW5_Mod_Manager
                 string modJsonExisting = File.ReadAllText(modJsonPath);
                 JObject modDetailsNew = JObject.Parse(modJsonExisting);
 
-                
+
                 float originalLoadOrder = Mods[entry.Key].OriginalLoadOrder;
                 if (float.IsInteger(originalLoadOrder))
                 {
@@ -1286,7 +1308,7 @@ namespace MW5_Mod_Manager
 
                 }
             }
-            
+
             if (modListObject == null)
             {
                 modListObject = new JObject();
@@ -1477,7 +1499,7 @@ namespace MW5_Mod_Manager
             float loadOrderB = Mods[listItemB.Path].NewLoadOrder;
 
             //Now we have a mod that is not the mod we are looking at is enabled.
-            //Lets compare the manifest!
+            //Let's compare the manifest!
             List<string> manifestA = this.ModDetails[this.DirNameToPathDict[modA]].manifest;
             List<string> manifestB = this.ModDetails[this.DirNameToPathDict[modB]].manifest;
             List<string> intersect = manifestA.Intersect(manifestB).ToList();
@@ -1554,32 +1576,32 @@ namespace MW5_Mod_Manager
                     if (!itemB.Enabled)
                         continue;
 
-                    //If we have already seen modB in comparison to modA we don't need to compare because the comparison is bi-directionary.
+                    //If we have already seen modB in comparison to modA we don't need to compare because the comparison is bi-directional.
                     if (
                         A.overriddenBy.ContainsKey(modB) ||
                         A.overrides.ContainsKey(modB)
                         )
                     {
-                        ////Console.WriteLine("--" + modA + "has allready been compared to: " + modB);
+                        ////Console.WriteLine("--" + modA + "has already been compared to: " + modB);
                         continue;
                     }
 
                     //Check if we have already seen modB before.
                     if (this.OverridingData.ContainsKey(modB))
                     {
-                        //If we have allready seen modB and we have allready compared modB and modA we don't need to compare because the comparison is bi-directionary.
+                        //If we have already seen modB, and we have already compared modB and modA we don't need to compare because the comparison is bi-directional.
                         if (
                             this.OverridingData[modB].overriddenBy.ContainsKey(modA) ||
                             this.OverridingData[modB].overrides.ContainsKey(modA)
                             )
                         {
-                            ////Console.WriteLine("--" + modB + "has allready been compared to: " + modA);
+                            ////Console.WriteLine("--" + modB + "has already been compared to: " + modA);
                             continue;
                         }
                     }
                     else
                     {
-                        //If we have not make a new modB overridingDatas
+                        //If we have not made a new modB overridingDatas
                         this.OverridingData[modB] = new OverridingData
                         {
                             mod = modB,

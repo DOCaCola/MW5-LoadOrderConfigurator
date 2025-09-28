@@ -39,7 +39,7 @@ namespace MW5_Mod_Manager
         eFilterMode _filterMode = eFilterMode.None;
         private bool _movingItems = false;
         string _onlineUpdateUrl = LocConstants.UrlNexusmods;
-        // The mod currently displaed in the sidebar
+        // The mod currently displayed in the sidebar
         private static string _sideBarSelectedModKey = string.Empty;
         // Force next sidepanel update to execute
         private bool _forceSidePanelUpdate = false;
