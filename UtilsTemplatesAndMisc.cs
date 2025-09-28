@@ -252,7 +252,13 @@ namespace MW5_Mod_Manager
 
     public class ModObject
     {
-        public string displayName { set; get; }
+        private string _displayName = string.Empty;
+        public string displayName
+        {
+            get => _displayName;
+            set => _displayName = value ?? string.Empty;
+        }
+
         public string version { set; get; }
         public int buildNumber { set; get; }
         public string description { set; get; }

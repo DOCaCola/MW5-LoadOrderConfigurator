@@ -1502,6 +1502,10 @@ namespace MW5_Mod_Manager
             //Let's compare the manifest!
             List<string> manifestA = this.ModDetails[this.DirNameToPathDict[modA]].manifest;
             List<string> manifestB = this.ModDetails[this.DirNameToPathDict[modB]].manifest;
+
+            if (manifestA == null || manifestB == null)
+                return;
+
             List<string> intersect = manifestA.Intersect(manifestB).ToList();
 
             if (!intersect.Any())
