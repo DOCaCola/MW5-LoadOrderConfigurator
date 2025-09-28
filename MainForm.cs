@@ -827,6 +827,7 @@ namespace MW5_Mod_Manager
 
             openModsFolderToolStripMenuItem.Visible = LocSettings.Instance.Data.platform != eGamePlatform.WindowsStore;
             toolStripMenuItemOpenModFolderSteam.Visible = LocSettings.Instance.Data.platform == eGamePlatform.Steam;
+            toolStripButtonSteamWorkshop.Visible = LocSettings.Instance.Data.platform == eGamePlatform.Steam;
             openUserModsFolderToolStripMenuItem.Visible = LocSettings.Instance.Data.platform == eGamePlatform.WindowsStore;
         }
 
@@ -1922,14 +1923,23 @@ namespace MW5_Mod_Manager
 
         private void linkLabelSteamId_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            string modKey = _sideBarSelectedModKey;
-            string steamUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=" + ModsManager.Instance.ModDetails[modKey].steamPublishedFileId;
-            var psi = new System.Diagnostics.ProcessStartInfo()
+            if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Middle)
             {
-                FileName = steamUrl,
-                UseShellExecute = true
-            };
-            System.Diagnostics.Process.Start(psi);
+                string modKey = _sideBarSelectedModKey;
+                string steamUrl = String.Empty;
+                if (LocSettings.Instance.Data.platform == eGamePlatform.Steam && e.Button == MouseButtons.Left)
+                    steamUrl = "steam://url/CommunityFilePage/";
+                else
+                    steamUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=";
+
+                steamUrl += ModsManager.Instance.ModDetails[modKey].steamPublishedFileId;
+                var psi = new System.Diagnostics.ProcessStartInfo()
+                {
+                    FileName = steamUrl,
+                    UseShellExecute = true
+                };
+                System.Diagnostics.Process.Start(psi);
+            }
         }
 
         private void richTextBoxModDescription_LinkClicked(object sender, LinkClickedEventArgs e)
@@ -2063,15 +2073,19 @@ namespace MW5_Mod_Manager
 
         private void linkLabelNexusmods_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            string modKey = _sideBarSelectedModKey;
-            string nexusUrl = "https://www.nexusmods.com/mechwarrior5mercenaries/mods/" + ModsManager.Instance.Mods[modKey].NexusModsId;
-
-            var psi = new System.Diagnostics.ProcessStartInfo()
+            if (e.Button == MouseButtons.Left)
             {
-                FileName = nexusUrl,
-                UseShellExecute = true
-            };
-            System.Diagnostics.Process.Start(psi);
+                string modKey = _sideBarSelectedModKey;
+                string nexusUrl = "https://www.nexusmods.com/mechwarrior5mercenaries/mods/" +
+                                  ModsManager.Instance.Mods[modKey].NexusModsId;
+
+                var psi = new System.Diagnostics.ProcessStartInfo()
+                {
+                    FileName = nexusUrl,
+                    UseShellExecute = true
+                };
+                System.Diagnostics.Process.Start(psi);
+            }
         }
 
         public void SelectModInList(string modKey)
@@ -3185,11 +3199,11 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-			// Ignore repeated Ctrl+F input
+            // Ignore repeated Ctrl+F input
             if (e.KeyChar == '\u0006')
             {
                 e.Handled = true;
-				return;
+                return;
             }
         }
 
@@ -3242,6 +3256,17 @@ namespace MW5_Mod_Manager
             {
                 e.IsInputKey = true;
             }
+        }
+
+        private void toolStripButtonSteamWorkshop_Click(object sender, EventArgs e)
+        {
+            string steamUrl = "steam://url/SteamWorkshopPage/784080";
+            var psi = new System.Diagnostics.ProcessStartInfo()
+            {
+                FileName = steamUrl,
+                UseShellExecute = true
+            };
+            System.Diagnostics.Process.Start(psi);
         }
     }
 }

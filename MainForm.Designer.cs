@@ -155,6 +155,9 @@ namespace MW5_Mod_Manager
             toolStripButtonClearFilter = new ToolStripButton();
             toolStripTextFilterBox = new LocToolStripTextBox();
             toolStripSeparator16 = new ToolStripSeparator();
+            toolStripButtonNexusmods = new ToolStripButton();
+            toolStripButtonSteamWorkshop = new ToolStripButton();
+            toolStripSeparator17 = new ToolStripSeparator();
             timerOverviewUpdateDelay = new Timer(components);
             timerDelayedListRecolor = new Timer(components);
             contextMenuStripColumnOptions = new ContextMenuStrip(components);
@@ -1148,7 +1151,7 @@ namespace MW5_Mod_Manager
             // toolStrip1
             // 
             toolStrip1.AutoSize = false;
-            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButtonApply, toolStripButtonStartGame, toolStripSeparator10, toolStripButtonReload, toolStripSeparator9, toolStripRightDummy, toolStripSeparator11, toolStripButtonFilterToggle, toolStripButtonClearFilter, toolStripTextFilterBox, toolStripSeparator16 });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButtonApply, toolStripButtonStartGame, toolStripSeparator10, toolStripButtonReload, toolStripSeparator9, toolStripRightDummy, toolStripSeparator11, toolStripButtonFilterToggle, toolStripButtonClearFilter, toolStripTextFilterBox, toolStripSeparator16, toolStripButtonNexusmods, toolStripButtonSteamWorkshop, toolStripSeparator17 });
             toolStrip1.Location = new Point(0, 24);
             toolStrip1.Name = "toolStrip1";
             toolStrip1.Size = new Size(1167, 45);
@@ -1261,6 +1264,37 @@ namespace MW5_Mod_Manager
             toolStripSeparator16.Alignment = ToolStripItemAlignment.Right;
             toolStripSeparator16.Name = "toolStripSeparator16";
             toolStripSeparator16.Size = new Size(6, 45);
+            // 
+            // toolStripButtonNexusmods
+            // 
+            toolStripButtonNexusmods.Image = (Image)resources.GetObject("toolStripButtonNexusmods.Image");
+            toolStripButtonNexusmods.ImageTransparentColor = Color.Magenta;
+            toolStripButtonNexusmods.Name = "toolStripButtonNexusmods";
+            toolStripButtonNexusmods.Overflow = ToolStripItemOverflow.Never;
+            toolStripButtonNexusmods.Size = new Size(74, 42);
+            toolStripButtonNexusmods.Text = "Nexusmods";
+            toolStripButtonNexusmods.TextAlign = ContentAlignment.BottomCenter;
+            toolStripButtonNexusmods.TextImageRelation = TextImageRelation.ImageAboveText;
+            toolStripButtonNexusmods.ToolTipText = "Open Nexusmods";
+            // 
+            // toolStripButtonSteamWorkshop
+            // 
+            toolStripButtonSteamWorkshop.Image = (Image)resources.GetObject("toolStripButtonSteamWorkshop.Image");
+            toolStripButtonSteamWorkshop.ImageTransparentColor = Color.Magenta;
+            toolStripButtonSteamWorkshop.Name = "toolStripButtonSteamWorkshop";
+            toolStripButtonSteamWorkshop.Padding = new Padding(3, 0, 2, 0);
+            toolStripButtonSteamWorkshop.Size = new Size(70, 42);
+            toolStripButtonSteamWorkshop.Text = "Workshop";
+            toolStripButtonSteamWorkshop.TextAlign = ContentAlignment.BottomCenter;
+            toolStripButtonSteamWorkshop.TextImageRelation = TextImageRelation.ImageAboveText;
+            toolStripButtonSteamWorkshop.ToolTipText = "Open Steam Workshop";
+            toolStripButtonSteamWorkshop.Visible = false;
+            toolStripButtonSteamWorkshop.Click += toolStripButtonSteamWorkshop_Click;
+            // 
+            // toolStripSeparator17
+            // 
+            toolStripSeparator17.Name = "toolStripSeparator17";
+            toolStripSeparator17.Size = new Size(6, 45);
             // 
             // timerOverviewUpdateDelay
             // 
@@ -1523,6 +1557,9 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem checkModFilesToolStripMenuItem;
         private ToolStripLabel toolStripRightDummy;
         private ToolStripSeparator toolStripSeparator16;
+        private ToolStripButton toolStripButtonSteamWorkshop;
+        private ToolStripButton toolStripButtonNexusmods;
+        private ToolStripSeparator toolStripSeparator17;
     }
 }
 
