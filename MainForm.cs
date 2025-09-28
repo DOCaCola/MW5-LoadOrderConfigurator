@@ -3268,5 +3268,10 @@ namespace MW5_Mod_Manager
             };
             System.Diagnostics.Process.Start(psi);
         }
+
+        private void runMechWarrior5ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LaunchGame();
+        }
     }
 }

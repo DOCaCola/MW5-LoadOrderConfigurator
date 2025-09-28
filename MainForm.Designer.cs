@@ -237,6 +237,7 @@ namespace MW5_Mod_Manager
             runMechWarrior5ToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+M";
             runMechWarrior5ToolStripMenuItem.Size = new Size(223, 22);
             runMechWarrior5ToolStripMenuItem.Text = "Run &MechWarrior 5";
+            runMechWarrior5ToolStripMenuItem.Click += runMechWarrior5ToolStripMenuItem_Click;
             // 
             // toolStripSeparator14
             // 
