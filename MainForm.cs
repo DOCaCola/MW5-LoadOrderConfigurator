@@ -848,7 +848,7 @@ namespace MW5_Mod_Manager
 
                 List<ModImportData> orderedModList;
                 // Sort by mechwarrior load order
-                if (!orderByDesired)
+                if (!orderByDesired || desiredMods == null)
                 {
                     orderedModList = ModsManager.Instance.ModEnabledList;
                     orderedModList.Sort((x, y) =>
