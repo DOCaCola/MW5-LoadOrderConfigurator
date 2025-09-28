@@ -1242,23 +1242,44 @@ namespace MW5_Mod_Manager
         #region Launch Game
         private static void LaunchGameMicrosoftStore()
         {
-            try
+            // We don't really know how to properly launch the game on this platform due to the lack of owning the game.
+            // Very few people do on Xbox Game Pass.
+            // Let's try a few different methods.
+            var appTargets = new[]
             {
-                var psi = new ProcessStartInfo()
+                @"shell:appsFolder\PiranhaGamesInc.MechWarrior5Mercenaries_skpx0jhaqqap2!9PB86W3JK8Z5",
+                @"shell:appsFolder\PiranhaGamesInc.MechWarrior5Mercenaries_skpx0jhaqqap2!App",
+                @"shell:appsFolder\PiranhaGamesInc.MechWarrior5Mercenaries_skpx0jhaqqap2"
+            };
+
+            Exception lastException = null;
+
+            foreach (var target in appTargets)
+            {
+                try
                 {
-                    FileName = @"shell:appsFolder\PiranhaGamesInc.MechWarrior5Mercenaries_skpx0jhaqqap2!9PB86W3JK8Z5",
-                    UseShellExecute = true
-                };
-                Process.Start(psi);
+                    var psi = new ProcessStartInfo
+                    {
+                        FileName = target,
+                        UseShellExecute = true
+                    };
+                    Process.Start(psi);
+                    return; // success
+                }
+                catch (Exception ex)
+                {
+                    lastException = ex;
+                }
             }
-            catch (Exception Ex)
+
+            // If we get here, all attempts failed
+            if (lastException != null)
             {
-                Console.WriteLine(Ex.Message);
-                Console.WriteLine(Ex.StackTrace);
-                string message = "There was an error while trying to launch MechWarrior 5.";
+                Console.WriteLine(lastException.Message);
+                Console.WriteLine(lastException.StackTrace);
+                string message = "There was an error while trying to launch MechWarrior 5.\r\n" + lastException.Message;
                 string caption = "Error Launching";
-                MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
+                MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
