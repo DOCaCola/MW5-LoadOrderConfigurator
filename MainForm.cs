@@ -1294,7 +1294,7 @@ namespace MW5_Mod_Manager
             {
                 Console.WriteLine(Ex.Message);
                 Console.WriteLine(Ex.StackTrace);
-                string message = "There was an error while trying to launch MechWarrior 5.";
+                string message = "There was an error while trying to launch MechWarrior 5.\r\n" + Ex.Message;
                 string caption = "Error Launching";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
@@ -1316,7 +1316,7 @@ namespace MW5_Mod_Manager
             {
                 Console.WriteLine(Ex.Message);
                 Console.WriteLine(Ex.StackTrace);
-                string message = "There was an error while trying to make Epic Games Launcher launch Mechwarrior 5.";
+                string message = "There was an error while trying to launch MechWarrior 5 through Epic Games Launcher.\r\n" + Ex.Message;
                 string caption = "Error Launching";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
@@ -1329,7 +1329,7 @@ namespace MW5_Mod_Manager
             {
                 var psi = new ProcessStartInfo()
                 {
-                    FileName = @"steam://rungameid/784080",
+                    FileName = SteamUtils.CreateRunGameCommand(784080),
                     UseShellExecute = true
                 };
                 Process.Start(psi);
@@ -1338,7 +1338,7 @@ namespace MW5_Mod_Manager
             {
                 Console.WriteLine(Ex.Message);
                 Console.WriteLine(Ex.StackTrace);
-                string message = @"There was an error while trying to launch Mechwarrior 5 through Steam.";
+                string message = @"There was an error while trying to launch Mechwarrior 5 through Steam.\r\n" + Ex.Message;
                 string caption = @"Error Launching";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
@@ -1948,7 +1948,7 @@ namespace MW5_Mod_Manager
             {
                 string modKey = _sideBarSelectedModKey;
                 string steamUrl = String.Empty;
-                if (LocSettings.Instance.Data.platform == eGamePlatform.Steam && e.Button == MouseButtons.Left)
+                if (LocSettings.Instance.Data.platform == eGamePlatform.Steam && e.Button == MouseButtons.Left && SteamUtils.IsSteamRunning())
                     steamUrl = "steam://url/CommunityFilePage/";
                 else
                     steamUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=";
@@ -3281,10 +3281,12 @@ namespace MW5_Mod_Manager
 
         private void toolStripButtonSteamWorkshop_Click(object sender, EventArgs e)
         {
-            string steamUrl = "steam://url/SteamWorkshopPage/784080";
+            var runUrl = SteamUtils.IsSteamRunning()
+                ? "steam://url/SteamWorkshopPage/784080"
+                : "https://steamcommunity.com/app/784080/workshop/";
             var psi = new System.Diagnostics.ProcessStartInfo()
             {
-                FileName = steamUrl,
+                FileName = runUrl,
                 UseShellExecute = true
             };
             System.Diagnostics.Process.Start(psi);
