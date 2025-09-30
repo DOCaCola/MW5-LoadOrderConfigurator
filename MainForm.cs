@@ -1613,18 +1613,15 @@ namespace MW5_Mod_Manager
             _sideBarSelectedModKey = selectedModPath;
 
             string selectedModFolder = firstSelectedMod.FolderName;
-            // Make sure displayed label doesn't convert & to underscore
-            string selectedModLabelDisplayName = firstSelectedMod.Name;
-            selectedModLabelDisplayName = selectedModLabelDisplayName.Replace("&", "&&");
-
             ModObject modDetails = ModsManager.Instance.ModDetails[selectedModPath];
 
             panelModInfo.Visible = true;
+            string selectedModLabelDisplayName = firstSelectedMod.Name.Replace("&", "&&");
             labelModName.Text = selectedModLabelDisplayName;
             labelModNameOverrides.Text = selectedModLabelDisplayName;
-            labelModAuthor.Text = @"Author: " + modDetails.author;
-            linkLabelModAuthorUrl.Text = modDetails.authorURL;
-            labelModVersion.Text = @"Version: " + modDetails.version;
+            labelModAuthor.Text = @"Author: " + modDetails.author.Replace("&", "&&");
+            linkLabelModAuthorUrl.Text = modDetails.authorURL.Replace("&", "&&");
+            labelModVersion.Text = @"Version: " + modDetails.version.Replace("&", "&&");
             labelModBuildNumber.Text = @"Build: " + modDetails.buildNumber;
             long steamId = modDetails.steamPublishedFileId;
             if (steamId > 0)
