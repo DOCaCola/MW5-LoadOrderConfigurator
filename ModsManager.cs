@@ -1506,7 +1506,9 @@ namespace MW5_Mod_Manager
             if (manifestA == null || manifestB == null)
                 return;
 
-            List<string> intersect = manifestA.Intersect(manifestB).ToList();
+            List<string> intersect = manifestA
+                .Intersect(manifestB, StringComparer.OrdinalIgnoreCase)
+                .ToList();
 
             if (!intersect.Any())
                 return;
