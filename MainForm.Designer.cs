@@ -1024,7 +1024,7 @@ namespace MW5_Mod_Manager
             olvColumnModAuthor.MinimumWidth = 10;
             olvColumnModAuthor.Sortable = false;
             olvColumnModAuthor.Text = "Author";
-            olvColumnModAuthor.Width = 100;
+            olvColumnModAuthor.Width = 90;
             // 
             // olvColumnModVersion
             // 
@@ -1034,7 +1034,7 @@ namespace MW5_Mod_Manager
             olvColumnModVersion.Sortable = false;
             olvColumnModVersion.Text = "Version";
             olvColumnModVersion.ToolTipText = "Version with build number";
-            olvColumnModVersion.Width = 80;
+            olvColumnModVersion.Width = 70;
             // 
             // olvColumnModCurLoadOrder
             // 
@@ -1045,7 +1045,7 @@ namespace MW5_Mod_Manager
             olvColumnModCurLoadOrder.Text = "LO";
             olvColumnModCurLoadOrder.TextAlign = HorizontalAlignment.Right;
             olvColumnModCurLoadOrder.ToolTipText = "Current load order";
-            olvColumnModCurLoadOrder.Width = 43;
+            olvColumnModCurLoadOrder.Width = 40;
             // 
             // olvColumnModOrgLoadOrder
             // 
@@ -1056,7 +1056,7 @@ namespace MW5_Mod_Manager
             olvColumnModOrgLoadOrder.Text = "oLO";
             olvColumnModOrgLoadOrder.TextAlign = HorizontalAlignment.Right;
             olvColumnModOrgLoadOrder.ToolTipText = "Default load order";
-            olvColumnModOrgLoadOrder.Width = 43;
+            olvColumnModOrgLoadOrder.Width = 40;
             // 
             // olvColumnModFileSize
             // 
