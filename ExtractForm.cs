@@ -232,6 +232,11 @@ namespace MW5_Mod_Manager
                                     try
                                     {
                                         entry.WriteTo(progressStream);
+
+                                        if (entry.LastModifiedTime.HasValue)
+                                        {
+                                            File.SetLastWriteTimeUtc(destinationPath, entry.LastModifiedTime.Value.ToUniversalTime());
+                                        }
                                     }
                                     catch (OperationCanceledException)
                                     {
