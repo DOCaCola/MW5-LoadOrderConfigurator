@@ -100,6 +100,8 @@ namespace MW5_Mod_Manager
         {
             public float NewLoadOrder = Single.NaN;
             public float OriginalLoadOrder = Single.NaN;
+            // timestamp with estimated od age
+            public DateTimeOffset EstimatedModTimeStamp = DateTimeOffset.MinValue;
             // Was the file mod.json modified by LOC before?
             public bool IsNewMod = true;
 
@@ -958,6 +960,15 @@ namespace MW5_Mod_Manager
 
         private void LoadModDetails(string modPath)
         {
+            DateTimeOffset? GetEstimatedAgeFromObject(JObject jsonObject)
+            {
+                if (jsonObject.ContainsKey("locEstimatedAge"))
+                {
+                    return DateTimeOffset.FromUnixTimeSeconds(jsonObject["locEstimatedAge"].Value<long>());
+                }
+                return null;
+            }
+
             float? GetOriginalLoadOrderFromObject(JObject jsonObject)
             {
                 // Our saved load order
@@ -977,7 +988,7 @@ namespace MW5_Mod_Manager
                 return null;
             }
 
-            float? GetOriginalLoadOrderFromBackupFile(string filePath, ModObject modJsonDataObject)
+            JObject TryReadBackupFile(string filePath, ModObject modJsonDataObject)
             {
                 if (File.Exists(filePath))
                 {
@@ -996,7 +1007,7 @@ namespace MW5_Mod_Manager
 
                             if (isValidBackup)
                             {
-                                return GetOriginalLoadOrderFromObject(modBackupDetailsJ);
+                                return modBackupDetailsJ;
                             }
                         }
                     }
@@ -1009,6 +1020,30 @@ namespace MW5_Mod_Manager
                 return null;
             }
 
+            DateTimeOffset? GetEstimatedAgeFromFiles(string modPath)
+            {
+                string paksPath = Path.Combine(modPath, "Paks");
+                string resourcesPath = Path.Combine(modPath, "Resources");
+
+                // Get *.pak files
+                var pakFiles = Directory.Exists(paksPath)
+                    ? Directory.EnumerateFiles(paksPath, "*.pak", SearchOption.AllDirectories)
+                    : Enumerable.Empty<string>();
+
+                // Get *.json files
+                var jsonFiles = Directory.Exists(resourcesPath)
+                    ? Directory.EnumerateFiles(resourcesPath, "*.json", SearchOption.AllDirectories)
+                    : Enumerable.Empty<string>();
+
+                var allFiles = pakFiles.Concat(jsonFiles);
+
+                return allFiles
+                    .Select(file => (DateTimeOffset?)DateTime.SpecifyKind(new FileInfo(file).LastWriteTimeUtc, DateTimeKind.Utc))
+                    .OrderByDescending(d => d)
+                    .FirstOrDefault();
+            }
+
+            DateTimeOffset? estimatedModAge = null;
             bool loadModSuccess = false;
             try
             {
@@ -1035,20 +1070,35 @@ namespace MW5_Mod_Manager
                     modData.NewLoadOrder = modJsonDataObject.defaultLoadOrder;
                     modData.IsNewMod = !modJsonObject.ContainsKey("locOriginalLoadOrder");
 
+                    if (modJsonDataObject.locEstimatedAge != 0)
+                    {
+                        estimatedModAge = DateTimeOffset.FromUnixTimeSeconds(modJsonDataObject.locEstimatedAge);
+                    }
+
                     // Now let's be a bit overkill and try our best to find the original order of the mod
                     // Since other load order manager save these load orders very differently (or not all),
                     // try some different methods
+                    float? originalLoadOrder = null;
 
                     // "MW5 Mod Organizer" backup file
                     // Some mods also accidentally deploy with this file
-                    float? originalLoadOrder = GetOriginalLoadOrderFromBackupFile(Path.Combine(modPath, @"backup.json"), modJsonDataObject);
+                    JObject moBackupFile = TryReadBackupFile(Path.Combine(modPath, @"backup.json"), modJsonDataObject);
+                    if (moBackupFile != null)
+                    {
+                        originalLoadOrder = GetOriginalLoadOrderFromObject(moBackupFile);
+                        estimatedModAge ??= GetEstimatedAgeFromObject(moBackupFile);
+                    }
 
                     // "MW5 Linux Modder" backup file
-                    if (!originalLoadOrder.HasValue)
-                        originalLoadOrder = GetOriginalLoadOrderFromBackupFile(Path.Combine(modPath, @"mod.json.bak"), modJsonDataObject);
+                    JObject linuxBackupFile = TryReadBackupFile(Path.Combine(modPath, @"mod.json.bak"), modJsonDataObject);
+                    if (linuxBackupFile != null)
+                    {
+                        originalLoadOrder = GetOriginalLoadOrderFromObject(linuxBackupFile);
+                        estimatedModAge ??= GetEstimatedAgeFromObject(linuxBackupFile);
+                    }
 
-                    if (!originalLoadOrder.HasValue)
-                        originalLoadOrder = GetOriginalLoadOrderFromObject(modJsonObject);
+                    originalLoadOrder ??= GetOriginalLoadOrderFromObject(modJsonObject);
+                    estimatedModAge ??= GetEstimatedAgeFromObject(modJsonObject);
 
                     modData.OriginalLoadOrder = originalLoadOrder ?? 0f;
 
@@ -1175,28 +1225,29 @@ namespace MW5_Mod_Manager
                 }
 
                 // Get mod file size
-                if (Directory.Exists(modPath))
+                var allFiles = Directory.GetFiles(modPath, "*", SearchOption.AllDirectories);
+                foreach (var filePath in allFiles)
                 {
-                    var allFiles = Directory.GetFiles(modPath, "*", SearchOption.AllDirectories);
-                    foreach (var filePath in allFiles)
-                    {
-                        // We want to skip files that are potentially different between installs of the same mod
-                        // to not confuse users when comparing their mod sizes
-                        if (string.Compare(Path.GetFileName(filePath), "__folder_managed_by_vortex", StringComparison.Ordinal) == 0)
-                            continue;
+                    // We want to skip files that are potentially different between installs of the same mod
+                    // to not confuse users when comparing their mod sizes
+                    if (string.Compare(Path.GetFileName(filePath), "__folder_managed_by_vortex", StringComparison.Ordinal) == 0)
+                        continue;
 
-                        if (string.Compare(Path.GetFileName(filePath), "mod.json", StringComparison.Ordinal) == 0)
-                            continue;
+                    if (string.Compare(Path.GetFileName(filePath), "mod.json", StringComparison.Ordinal) == 0)
+                        continue;
 
-                        if (string.Compare(Path.GetFileName(filePath), "mod.json.bak", StringComparison.Ordinal) == 0)
-                            continue;
+                    if (string.Compare(Path.GetFileName(filePath), "mod.json.bak", StringComparison.Ordinal) == 0)
+                        continue;
 
-                        if (string.Compare(Path.GetFileName(filePath), "backup.json", StringComparison.Ordinal) == 0)
-                            continue;
+                    if (string.Compare(Path.GetFileName(filePath), "backup.json", StringComparison.Ordinal) == 0)
+                        continue;
 
-                        modData.ModFileSize += LocFileUtils.GetFileSize(filePath);
-                    }
+                    modData.ModFileSize += LocFileUtils.GetFileSize(filePath);
                 }
+
+                estimatedModAge ??= GetEstimatedAgeFromFiles(modPath);
+
+                modData.EstimatedModTimeStamp = estimatedModAge ?? DateTimeOffset.Now;
 
                 this.Mods.Add(modPath, modData);
                 this.ModDetails.Add(modPath, modJsonDataObject);

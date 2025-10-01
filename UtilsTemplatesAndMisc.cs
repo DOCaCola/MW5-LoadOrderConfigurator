@@ -271,6 +271,7 @@ namespace MW5_Mod_Manager
         public long steamLastSubmittedBuildNumber { set; get; }
         public string steamModVisibility { set; get; }
         public float locOriginalLoadOrder { set; get; }
+        public int locEstimatedAge { set; get; }
     }
 
     public class OverridingData
