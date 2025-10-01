@@ -134,7 +134,7 @@ namespace MW5_Mod_Manager
         public int BuildNumber;
         public string VersionCombined;
         public long FileSize;
-        public DateTimeOffset EstimatedAge;
+        public DateTimeOffset? FileAge;
         public float CurrentLoadOrder;
         public float OriginalLoadOrder;
         public ModsManager.ModData.ModOrigin Origin;

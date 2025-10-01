@@ -66,58 +66,70 @@ namespace MW5_Mod_Manager
             return (Math.Sign(byteCount) * num).ToString() + " " + suf[place];
         }
 
-        private const int SECOND = 1;
-        private const int MINUTE = 60 * SECOND;
-        private const int HOUR = 60 * MINUTE;
-        private const int DAY = 24 * HOUR;
-        private const int MONTH = 30 * DAY;
+    private const int SECOND = 1;
+    private const int MINUTE = 60 * SECOND;
+    private const int HOUR = 60 * MINUTE;
+    private const int DAY = 24 * HOUR;
+    private const int MONTH = 30 * DAY;
 
-        public static string ToTimeSinceString(this DateTime value) =>
-            ToTimeSinceStringInternal(DateTime.Now - value);
+    // "ago" style
+    public static string ToTimeSinceString(this DateTime value) =>
+        ToTimeStringInternal(DateTime.Now - value, ago: true);
 
-        public static string ToTimeSinceString(this DateTimeOffset value) =>
-            ToTimeSinceStringInternal(DateTimeOffset.Now - value);
+    public static string ToTimeSinceString(this DateTimeOffset value) =>
+        ToTimeStringInternal(DateTimeOffset.Now - value, ago: true);
 
-        private static string ToTimeSinceStringInternal(TimeSpan ts)
+    // "old" style (age of item)
+    public static string ToTimeAgeString(this DateTime value) =>
+        ToTimeStringInternal(DateTime.Now - value, ago: false);
+
+    public static string ToTimeAgeString(this DateTimeOffset value) =>
+        ToTimeStringInternal(DateTimeOffset.Now - value, ago: false);
+
+    private static string ToTimeStringInternal(TimeSpan ts, bool ago)
+    {
+        double seconds = ts.TotalSeconds;
+
+        if (seconds < 0)
+            return ago ? "in the future" : "not yet";
+
+        if (seconds < 5)
+            return "just now";
+
+        if (seconds < 1 * MINUTE)
+            return ts.Seconds + (ago ? " seconds ago" : " seconds");
+
+        if (seconds < 2 * MINUTE)
+            return ago ? "a minute ago" : "1 minute";
+
+        if (seconds < 60 * MINUTE)
+            return ts.Minutes + (ago ? " minutes ago" : " minutes");
+
+        if (seconds < 2 * HOUR)
+            return ago ? "an hour ago" : "1 hour";
+
+        if (seconds < 24 * HOUR)
+            return ts.Hours + (ago ? " hours ago" : " hours");
+
+        if (seconds < 48 * HOUR)
+            return ago ? "yesterday" : "1 day";
+
+        if (seconds < 30 * DAY)
+            return ts.Days + (ago ? " days ago" : " days");
+
+        if (seconds < 12 * MONTH)
         {
-            double seconds = ts.TotalSeconds;
-
-            if (seconds < 0)
-                return "in the future";
-
-            if (seconds < 5)
-                return "just now";
-
-            if (seconds < 1 * MINUTE)
-                return ts.Seconds == 1 ? "one second ago" : ts.Seconds + " seconds ago";
-
-            if (seconds < 2 * MINUTE)
-                return "a minute ago";
-
-            if (seconds < 60 * MINUTE)
-                return ts.Minutes + " minutes ago";
-
-            if (seconds < 2 * HOUR)
-                return "an hour ago";
-
-            if (seconds < 24 * HOUR)
-                return ts.Hours + " hours ago";
-
-            if (seconds < 48 * HOUR)
-                return "yesterday";
-
-            if (seconds < 30 * DAY)
-                return ts.Days + " days ago";
-
-            if (seconds < 12 * MONTH)
-            {
-                int months = (int)Math.Floor((double)ts.Days / 30);
-                return months <= 1 ? "one month ago" : months + " months ago";
-            }
-
-            int years = (int)Math.Floor((double)ts.Days / 365);
-            return years <= 1 ? "one year ago" : years + " years ago";
+            int months = (int)Math.Floor((double)ts.Days / 30);
+            return months <= 1 
+                ? (ago ? "one month ago" : "1 month") 
+                : months + (ago ? " months ago" : " months");
         }
+
+        int years = (int)Math.Floor((double)ts.Days / 365);
+        return years <= 1 
+            ? (ago ? "one year ago" : "1 year") 
+            : years + (ago ? " years ago" : " years");
+    }
 
         public static Color InterpolateColor(Color fromColor, Color toColor, double ratio)
         {

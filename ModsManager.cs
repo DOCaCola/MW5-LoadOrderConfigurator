@@ -100,8 +100,8 @@ namespace MW5_Mod_Manager
         {
             public float NewLoadOrder = Single.NaN;
             public float OriginalLoadOrder = Single.NaN;
-            // timestamp with estimated od age
-            public DateTimeOffset EstimatedModTimeStamp = DateTimeOffset.MinValue;
+            // timestamp with age of mod files
+            public DateTimeOffset? FileAge = null;
             // Was the file mod.json modified by LOC before?
             public bool IsNewMod = true;
 
@@ -960,15 +960,6 @@ namespace MW5_Mod_Manager
 
         private void LoadModDetails(string modPath)
         {
-            DateTimeOffset? GetEstimatedAgeFromObject(JObject jsonObject)
-            {
-                if (jsonObject.ContainsKey("locEstimatedAge"))
-                {
-                    return DateTimeOffset.FromUnixTimeSeconds(jsonObject["locEstimatedAge"].Value<long>());
-                }
-                return null;
-            }
-
             float? GetOriginalLoadOrderFromObject(JObject jsonObject)
             {
                 // Our saved load order
@@ -1020,7 +1011,7 @@ namespace MW5_Mod_Manager
                 return null;
             }
 
-            DateTimeOffset? GetEstimatedAgeFromFiles(string modPath)
+            DateTimeOffset? GetFileAge(string modPath)
             {
                 string paksPath = Path.Combine(modPath, "Paks");
                 string resourcesPath = Path.Combine(modPath, "Resources");
@@ -1043,7 +1034,6 @@ namespace MW5_Mod_Manager
                     .FirstOrDefault();
             }
 
-            DateTimeOffset? estimatedModAge = null;
             bool loadModSuccess = false;
             try
             {
@@ -1070,11 +1060,6 @@ namespace MW5_Mod_Manager
                     modData.NewLoadOrder = modJsonDataObject.defaultLoadOrder;
                     modData.IsNewMod = !modJsonObject.ContainsKey("locOriginalLoadOrder");
 
-                    if (modJsonDataObject.locEstimatedAge != 0)
-                    {
-                        estimatedModAge = DateTimeOffset.FromUnixTimeSeconds(modJsonDataObject.locEstimatedAge);
-                    }
-
                     // Now let's be a bit overkill and try our best to find the original order of the mod
                     // Since other load order manager save these load orders very differently (or not all),
                     // try some different methods
@@ -1086,7 +1071,6 @@ namespace MW5_Mod_Manager
                     if (moBackupFile != null)
                     {
                         originalLoadOrder = GetOriginalLoadOrderFromObject(moBackupFile);
-                        estimatedModAge ??= GetEstimatedAgeFromObject(moBackupFile);
                     }
 
                     // "MW5 Linux Modder" backup file
@@ -1094,11 +1078,9 @@ namespace MW5_Mod_Manager
                     if (linuxBackupFile != null)
                     {
                         originalLoadOrder = GetOriginalLoadOrderFromObject(linuxBackupFile);
-                        estimatedModAge ??= GetEstimatedAgeFromObject(linuxBackupFile);
                     }
 
                     originalLoadOrder ??= GetOriginalLoadOrderFromObject(modJsonObject);
-                    estimatedModAge ??= GetEstimatedAgeFromObject(modJsonObject);
 
                     modData.OriginalLoadOrder = originalLoadOrder ?? 0f;
 
@@ -1245,9 +1227,7 @@ namespace MW5_Mod_Manager
                     modData.ModFileSize += LocFileUtils.GetFileSize(filePath);
                 }
 
-                estimatedModAge ??= GetEstimatedAgeFromFiles(modPath);
-
-                modData.EstimatedModTimeStamp = estimatedModAge ?? DateTimeOffset.Now;
+                modData.FileAge = GetFileAge(modPath);
 
                 this.Mods.Add(modPath, modData);
                 this.ModDetails.Add(modPath, modJsonDataObject);

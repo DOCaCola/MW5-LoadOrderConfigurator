@@ -136,7 +136,7 @@ namespace MW5_Mod_Manager
             olvColumnModOrgLoadOrder = new BrightIdeasSoftware.OLVColumn();
             olvColumnModFileSize = new BrightIdeasSoftware.OLVColumn();
             olvColumnModFolder = new BrightIdeasSoftware.OLVColumn();
-            olvColumnModAge = new BrightIdeasSoftware.OLVColumn();
+            olvColumnModFileAge = new BrightIdeasSoftware.OLVColumn();
             olvColumnFreeSpaceDummy = new BrightIdeasSoftware.OLVColumn();
             toolStrip2 = new ToolStrip();
             toTopToolStripButton = new ToolStripButton();
@@ -429,14 +429,14 @@ namespace MW5_Mod_Manager
             // toolStripMenuItemNexusmodsLink
             // 
             toolStripMenuItemNexusmodsLink.Name = "toolStripMenuItemNexusmodsLink";
-            toolStripMenuItemNexusmodsLink.Size = new Size(180, 22);
+            toolStripMenuItemNexusmodsLink.Size = new Size(179, 22);
             toolStripMenuItemNexusmodsLink.Text = "Visit on &Nexusmods";
             toolStripMenuItemNexusmodsLink.Click += toolStripMenuItemNexusmodsLink_Click;
             // 
             // aboutToolStripMenuItem
             // 
             aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            aboutToolStripMenuItem.Size = new Size(180, 22);
+            aboutToolStripMenuItem.Size = new Size(179, 22);
             aboutToolStripMenuItem.Text = "Ab&out";
             aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
             // 
@@ -973,12 +973,12 @@ namespace MW5_Mod_Manager
             modObjectListView.AllColumns.Add(olvColumnModOrgLoadOrder);
             modObjectListView.AllColumns.Add(olvColumnModFileSize);
             modObjectListView.AllColumns.Add(olvColumnModFolder);
-            modObjectListView.AllColumns.Add(olvColumnModAge);
+            modObjectListView.AllColumns.Add(olvColumnModFileAge);
             modObjectListView.AllColumns.Add(olvColumnFreeSpaceDummy);
             modObjectListView.AllowColumnReorder = true;
             modObjectListView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             modObjectListView.CheckBoxes = true;
-            modObjectListView.Columns.AddRange(new ColumnHeader[] { olvColumnModName, olvColumnModAuthor, olvColumnModVersion, olvColumnModCurLoadOrder, olvColumnModOrgLoadOrder, olvColumnModFileSize, olvColumnModFolder, olvColumnModAge, olvColumnFreeSpaceDummy });
+            modObjectListView.Columns.AddRange(new ColumnHeader[] { olvColumnModName, olvColumnModAuthor, olvColumnModVersion, olvColumnModFileAge, olvColumnModCurLoadOrder, olvColumnModOrgLoadOrder, olvColumnModFileSize, olvColumnModFolder, olvColumnFreeSpaceDummy });
             modObjectListView.FullRowSelect = true;
             modObjectListView.HeaderStyle = ColumnHeaderStyle.Nonclickable;
             modObjectListView.Location = new Point(30, 3);
@@ -1075,13 +1075,14 @@ namespace MW5_Mod_Manager
             olvColumnModFolder.ToolTipText = "Mod directory name";
             olvColumnModFolder.Width = 100;
             // 
-            // olvColumnModAge
+            // olvColumnModFileAge
             // 
-            olvColumnModAge.MinimumWidth = 10;
-            olvColumnModAge.Searchable = false;
-            olvColumnModAge.Sortable = false;
-            olvColumnModAge.Text = "Age";
-            olvColumnModAge.ToolTipText = "Estimated mod age";
+            olvColumnModFileAge.MinimumWidth = 10;
+            olvColumnModFileAge.Searchable = false;
+            olvColumnModFileAge.Sortable = false;
+            olvColumnModFileAge.Text = "File age";
+            olvColumnModFileAge.ToolTipText = "Age of mod files";
+            olvColumnModFileAge.Width = 70;
             // 
             // olvColumnFreeSpaceDummy
             // 
@@ -1579,7 +1580,7 @@ namespace MW5_Mod_Manager
         private ToolStripButton toolStripButtonSteamWorkshop;
         private ToolStripButton toolStripButtonNexusmods;
         private ToolStripSeparator toolStripSeparator17;
-        public BrightIdeasSoftware.OLVColumn olvColumnModAge;
+        public BrightIdeasSoftware.OLVColumn olvColumnModFileAge;
         private ToolStripMenuItem modAgeColumnVisibilityToolStripMenuItem;
     }
 }
