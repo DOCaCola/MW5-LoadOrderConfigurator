@@ -131,6 +131,8 @@ namespace MW5_Mod_Manager
             olvColumnModFileSize.AspectGetter = this.ModFileSizeGetter;
             olvColumnModFileSize.AspectToStringConverter = FileSizeAspectConverter;
             olvColumnModFolder.AspectGetter = this.ModFolderGetter;
+            olvColumnModAge.AspectGetter = this.ModAgeGetter;
+            olvColumnModAge.AspectToStringConverter = ModAgeAspectConverter;
 
             olvColumnModName.VisibilityChanged += OlvColumnVisibilityChanged;
             olvColumnModAuthor.VisibilityChanged += OlvColumnVisibilityChanged;
@@ -265,6 +267,12 @@ namespace MW5_Mod_Manager
             return s.FileSize;
         }
 
+        private object ModAgeGetter(object rowobject)
+        {
+            ModItem s = (ModItem)rowobject;
+            return s.EstimatedAge;
+        }
+
         private object ModOrgLoadOrderGetter(object rowobject)
         {
             ModItem s = (ModItem)rowobject;
@@ -353,6 +361,7 @@ namespace MW5_Mod_Manager
             originalLoadOrderColumnVisibilityToolStripMenuItem.Checked = olvColumnModOrgLoadOrder.IsVisible;
             fileSizeColumnVisibilityToolStripMenuItem.Checked = olvColumnModFileSize.IsVisible;
             modFolderColumnVisibilityToolStripMenuItem.Checked = olvColumnModFolder.IsVisible;
+            modAgeColumnVisibilityToolStripMenuItem.Checked = olvColumnModAge.IsVisible;
         }
         private void OnDropSinkOnCanDrop(object o, OlvDropEventArgs args)
         {
@@ -369,6 +378,12 @@ namespace MW5_Mod_Manager
         {
             long size = (long)value;
             return Utils.BytesToHumanReadableString(size);
+        }
+
+        private string ModAgeAspectConverter(object value)
+        {
+            DateTimeOffset dateOffset = (DateTimeOffset)value;
+            return Utils.ToTimeSinceString(dateOffset);
         }
 
         private void ProcessUpdateCheckData(string updateJson)
@@ -924,6 +939,7 @@ namespace MW5_Mod_Manager
                     newItem.Name = ModsManager.Instance.ModDetails[entry.ModPath].displayName;
                     newItem.FolderName = ModsManager.Instance.PathToDirNameDict[entry.ModPath];
                     newItem.FileSize = ModsManager.Instance.Mods[entry.ModPath].ModFileSize;
+                    newItem.EstimatedAge = ModsManager.Instance.Mods[entry.ModPath].EstimatedModTimeStamp;
                     newItem.Author = ModsManager.Instance.ModDetails[entry.ModPath].author;
                     newItem.CurrentLoadOrder = ModsManager.Instance.Mods[entry.ModPath].NewLoadOrder;
                     newItem.OriginalLoadOrder = ModsManager.Instance.Mods[entry.ModPath].OriginalLoadOrder;
@@ -3097,6 +3113,7 @@ namespace MW5_Mod_Manager
             olvColumnModOrgLoadOrder.IsVisible = originalLoadOrderColumnVisibilityToolStripMenuItem.Checked;
             olvColumnModFileSize.IsVisible = fileSizeColumnVisibilityToolStripMenuItem.Checked;
             olvColumnModFolder.IsVisible = modFolderColumnVisibilityToolStripMenuItem.Checked;
+            olvColumnModAge.IsVisible = modAgeColumnVisibilityToolStripMenuItem.Checked;
 
             modObjectListView.RebuildColumns();
 
@@ -3292,6 +3309,11 @@ namespace MW5_Mod_Manager
         private void runMechWarrior5ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LaunchGame();
+        }
+
+        private void toolStripButton1_Click(object sender, EventArgs e)
+        {
+            modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
         }
     }
 }

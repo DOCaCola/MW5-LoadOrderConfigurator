@@ -136,6 +136,7 @@ namespace MW5_Mod_Manager
             olvColumnModOrgLoadOrder = new BrightIdeasSoftware.OLVColumn();
             olvColumnModFileSize = new BrightIdeasSoftware.OLVColumn();
             olvColumnModFolder = new BrightIdeasSoftware.OLVColumn();
+            olvColumnModAge = new BrightIdeasSoftware.OLVColumn();
             olvColumnFreeSpaceDummy = new BrightIdeasSoftware.OLVColumn();
             toolStrip2 = new ToolStrip();
             toTopToolStripButton = new ToolStripButton();
@@ -167,6 +168,7 @@ namespace MW5_Mod_Manager
             originalLoadOrderColumnVisibilityToolStripMenuItem = new ToolStripMenuItem();
             fileSizeColumnVisibilityToolStripMenuItem = new ToolStripMenuItem();
             modFolderColumnVisibilityToolStripMenuItem = new ToolStripMenuItem();
+            modAgeColumnVisibilityToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator15 = new ToolStripSeparator();
             restoreDefaultColumnsToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
@@ -427,14 +429,14 @@ namespace MW5_Mod_Manager
             // toolStripMenuItemNexusmodsLink
             // 
             toolStripMenuItemNexusmodsLink.Name = "toolStripMenuItemNexusmodsLink";
-            toolStripMenuItemNexusmodsLink.Size = new Size(179, 22);
+            toolStripMenuItemNexusmodsLink.Size = new Size(180, 22);
             toolStripMenuItemNexusmodsLink.Text = "Visit on &Nexusmods";
             toolStripMenuItemNexusmodsLink.Click += toolStripMenuItemNexusmodsLink_Click;
             // 
             // aboutToolStripMenuItem
             // 
             aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            aboutToolStripMenuItem.Size = new Size(179, 22);
+            aboutToolStripMenuItem.Size = new Size(180, 22);
             aboutToolStripMenuItem.Text = "Ab&out";
             aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
             // 
@@ -971,11 +973,12 @@ namespace MW5_Mod_Manager
             modObjectListView.AllColumns.Add(olvColumnModOrgLoadOrder);
             modObjectListView.AllColumns.Add(olvColumnModFileSize);
             modObjectListView.AllColumns.Add(olvColumnModFolder);
+            modObjectListView.AllColumns.Add(olvColumnModAge);
             modObjectListView.AllColumns.Add(olvColumnFreeSpaceDummy);
             modObjectListView.AllowColumnReorder = true;
             modObjectListView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             modObjectListView.CheckBoxes = true;
-            modObjectListView.Columns.AddRange(new ColumnHeader[] { olvColumnModName, olvColumnModAuthor, olvColumnModVersion, olvColumnModCurLoadOrder, olvColumnModOrgLoadOrder, olvColumnModFileSize, olvColumnModFolder, olvColumnFreeSpaceDummy });
+            modObjectListView.Columns.AddRange(new ColumnHeader[] { olvColumnModName, olvColumnModAuthor, olvColumnModVersion, olvColumnModCurLoadOrder, olvColumnModOrgLoadOrder, olvColumnModFileSize, olvColumnModFolder, olvColumnModAge, olvColumnFreeSpaceDummy });
             modObjectListView.FullRowSelect = true;
             modObjectListView.HeaderStyle = ColumnHeaderStyle.Nonclickable;
             modObjectListView.Location = new Point(30, 3);
@@ -1071,6 +1074,14 @@ namespace MW5_Mod_Manager
             olvColumnModFolder.Text = "Mod Folder";
             olvColumnModFolder.ToolTipText = "Mod directory name";
             olvColumnModFolder.Width = 100;
+            // 
+            // olvColumnModAge
+            // 
+            olvColumnModAge.MinimumWidth = 10;
+            olvColumnModAge.Searchable = false;
+            olvColumnModAge.Sortable = false;
+            olvColumnModAge.Text = "Age";
+            olvColumnModAge.ToolTipText = "Estimated mod age";
             // 
             // olvColumnFreeSpaceDummy
             // 
@@ -1268,7 +1279,7 @@ namespace MW5_Mod_Manager
             // 
             // toolStripButtonNexusmods
             // 
-            toolStripButtonNexusmods.Image = (Image)resources.GetObject("toolStripButtonNexusmods.Image");
+            toolStripButtonNexusmods.Image = UiIcons.Nexusmods;
             toolStripButtonNexusmods.ImageTransparentColor = Color.Magenta;
             toolStripButtonNexusmods.Name = "toolStripButtonNexusmods";
             toolStripButtonNexusmods.Overflow = ToolStripItemOverflow.Never;
@@ -1280,7 +1291,7 @@ namespace MW5_Mod_Manager
             // 
             // toolStripButtonSteamWorkshop
             // 
-            toolStripButtonSteamWorkshop.Image = (Image)resources.GetObject("toolStripButtonSteamWorkshop.Image");
+            toolStripButtonSteamWorkshop.Image = UiIcons.Steam;
             toolStripButtonSteamWorkshop.ImageTransparentColor = Color.Magenta;
             toolStripButtonSteamWorkshop.Name = "toolStripButtonSteamWorkshop";
             toolStripButtonSteamWorkshop.Padding = new Padding(3, 0, 2, 0);
@@ -1309,9 +1320,9 @@ namespace MW5_Mod_Manager
             // 
             // contextMenuStripColumnOptions
             // 
-            contextMenuStripColumnOptions.Items.AddRange(new ToolStripItem[] { authorColumnVisibilityToolStripMenuItem, versionColumnVisibilityToolStripMenuItem, currentLoadOrderColumnVisibilityToolStripMenuItem, originalLoadOrderColumnVisibilityToolStripMenuItem, fileSizeColumnVisibilityToolStripMenuItem, modFolderColumnVisibilityToolStripMenuItem, toolStripSeparator15, restoreDefaultColumnsToolStripMenuItem });
+            contextMenuStripColumnOptions.Items.AddRange(new ToolStripItem[] { authorColumnVisibilityToolStripMenuItem, versionColumnVisibilityToolStripMenuItem, currentLoadOrderColumnVisibilityToolStripMenuItem, originalLoadOrderColumnVisibilityToolStripMenuItem, fileSizeColumnVisibilityToolStripMenuItem, modFolderColumnVisibilityToolStripMenuItem, modAgeColumnVisibilityToolStripMenuItem, toolStripSeparator15, restoreDefaultColumnsToolStripMenuItem });
             contextMenuStripColumnOptions.Name = "contextMenuStrip1";
-            contextMenuStripColumnOptions.Size = new Size(174, 164);
+            contextMenuStripColumnOptions.Size = new Size(174, 186);
             // 
             // authorColumnVisibilityToolStripMenuItem
             // 
@@ -1354,6 +1365,13 @@ namespace MW5_Mod_Manager
             modFolderColumnVisibilityToolStripMenuItem.Size = new Size(173, 22);
             modFolderColumnVisibilityToolStripMenuItem.Text = "&Mod folder";
             modFolderColumnVisibilityToolStripMenuItem.Click += columnVisibilityToolStripMenuItem_Click;
+            // 
+            // modAgeColumnVisibilityToolStripMenuItem
+            // 
+            modAgeColumnVisibilityToolStripMenuItem.Name = "modAgeColumnVisibilityToolStripMenuItem";
+            modAgeColumnVisibilityToolStripMenuItem.Size = new Size(173, 22);
+            modAgeColumnVisibilityToolStripMenuItem.Text = "Mod age";
+            modAgeColumnVisibilityToolStripMenuItem.Click += columnVisibilityToolStripMenuItem_Click;
             // 
             // toolStripSeparator15
             // 
@@ -1561,6 +1579,8 @@ namespace MW5_Mod_Manager
         private ToolStripButton toolStripButtonSteamWorkshop;
         private ToolStripButton toolStripButtonNexusmods;
         private ToolStripSeparator toolStripSeparator17;
+        public BrightIdeasSoftware.OLVColumn olvColumnModAge;
+        private ToolStripMenuItem modAgeColumnVisibilityToolStripMenuItem;
     }
 }
 
