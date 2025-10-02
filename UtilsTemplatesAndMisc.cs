@@ -27,24 +27,6 @@ namespace MW5_Mod_Manager
             return isValidUri;
         }
 
-        public static long DirSize(DirectoryInfo d)
-        {
-            long size = 0;
-            // Add file sizes.
-            FileInfo[] fis = d.GetFiles();
-            foreach (FileInfo fi in fis)
-            {
-                size += fi.Length;
-            }
-            // Add subdirectory sizes.
-            DirectoryInfo[] dis = d.GetDirectories();
-            foreach (DirectoryInfo di in dis)
-            {
-                size += DirSize(di);
-            }
-            return size;
-        }
-
         public static bool IsSubdirectory(string candidate, string parent)
         {
             // Normalize the paths to ensure consistency

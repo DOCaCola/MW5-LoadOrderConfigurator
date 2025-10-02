@@ -1467,21 +1467,6 @@ namespace MW5_Mod_Manager
             UpdateMoveControlEnabledState();
         }
 
-        //Check if given listviewitem can be matched to a string.
-        private bool MatchItemToText(string filtertext, ListViewItem item)
-        {
-            if
-                (
-                    item.SubItems[olvColumnModName.Index].Text.ToLower().Contains(filtertext) ||
-                    item.SubItems[olvColumnModFolder.Index].Text.ToLower().Contains(filtertext) ||
-                    item.SubItems[olvColumnModAuthor.Index].Text.ToLower().Contains(filtertext)
-                )
-            {
-                return true;
-            }
-            return false;
-        }
-
         private void AppendContentPathToMainfestList(string contentPath, ref StringBuilder sb)
         {
             sb.Append(@"\b ");
@@ -3314,11 +3299,6 @@ namespace MW5_Mod_Manager
         private void runMechWarrior5ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LaunchGame();
-        }
-
-        private void toolStripButton1_Click(object sender, EventArgs e)
-        {
-            modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
         }
     }
 }
