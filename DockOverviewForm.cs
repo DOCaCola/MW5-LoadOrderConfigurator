@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DarkModeForms;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace MW5_Mod_Manager
@@ -19,6 +20,16 @@ namespace MW5_Mod_Manager
         public DockOverviewForm()
         {
             InitializeComponent();
+
+            splitContainerVersion.SetDisableDarkMode(true);
+            splitContainerVersion.Panel1.SetDisableDarkMode(true);
+            splitContainerVersion.Panel2.SetDisableDarkMode(true);
+
+            splitContainer1.SetDisableDarkMode(true);
+            splitContainer1.Panel1.SetDisableDarkMode(true);
+            splitContainer1.Panel2.SetDisableDarkMode(true);
+
+            panelModInfo.SetDisableDarkMode(true);
         }
 
         private void linkLabelModAuthorUrl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

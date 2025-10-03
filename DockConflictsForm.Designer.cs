@@ -64,7 +64,7 @@ namespace MW5_Mod_Manager
             listBoxOverriding.Location = new Point(0, 21);
             listBoxOverriding.Name = "listBoxOverriding";
             listBoxOverriding.Size = new Size(121, 79);
-            listBoxOverriding.TabIndex = 21;
+            listBoxOverriding.TabIndex = 0;
             listBoxOverriding.SelectedIndexChanged += listBoxOverriding_SelectedIndexChanged;
             listBoxOverriding.MouseDoubleClick += listBoxOverriding_MouseDoubleClick;
             // 
@@ -86,7 +86,7 @@ namespace MW5_Mod_Manager
             listBoxOverriddenBy.Location = new Point(0, 21);
             listBoxOverriddenBy.Name = "listBoxOverriddenBy";
             listBoxOverriddenBy.Size = new Size(121, 79);
-            listBoxOverriddenBy.TabIndex = 23;
+            listBoxOverriddenBy.TabIndex = 1;
             listBoxOverriddenBy.SelectedIndexChanged += listBoxOverriddenBy_SelectedIndexChanged;
             listBoxOverriddenBy.MouseDoubleClick += listBoxOverriddenBy_MouseDoubleClick;
             // 
@@ -106,7 +106,7 @@ namespace MW5_Mod_Manager
             richTextBoxManifestOverridden.Name = "richTextBoxManifestOverridden";
             richTextBoxManifestOverridden.ReadOnly = true;
             richTextBoxManifestOverridden.Size = new Size(246, 221);
-            richTextBoxManifestOverridden.TabIndex = 35;
+            richTextBoxManifestOverridden.TabIndex = 2;
             richTextBoxManifestOverridden.Text = "";
             richTextBoxManifestOverridden.WordWrap = false;
             // 

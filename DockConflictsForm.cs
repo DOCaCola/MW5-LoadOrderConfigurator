@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DarkModeForms;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace MW5_Mod_Manager
@@ -20,6 +21,8 @@ namespace MW5_Mod_Manager
         public DockConflictsForm()
         {
             InitializeComponent();
+
+            splitContainer2.SetDisableDarkMode(true);
         }
 
         private void AppendContentPathToMainfestList(string contentPath, ref StringBuilder sb)

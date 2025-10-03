@@ -1,4 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using BrightIdeasSoftware;
+using DarkModeForms;
+using MW5_Mod_Manager.Controls;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,20 +13,17 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using System.Text;
 using System.Windows.Forms;
+using WeifenLuo.WinFormsUI.Docking;
 using static MW5_Mod_Manager.ModsManager;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using File = System.IO.File;
 using ListView = System.Windows.Forms.ListView;
-using System.Net.Http;
-using System.Runtime.InteropServices;
-using System.Text;
-using BrightIdeasSoftware;
-using Newtonsoft.Json.Linq;
-using DarkModeForms;
-using MW5_Mod_Manager.Controls;
-using WeifenLuo.WinFormsUI.Docking;
 
 namespace MW5_Mod_Manager
 {
@@ -62,6 +63,11 @@ namespace MW5_Mod_Manager
 
             Instance = this;
 
+            /*menuStrip1.SetDisableDarkMode(true);
+            menuStrip1.SetDisableDarkModeChildren(true);
+            toolStrip1.SetDisableDarkMode(true);
+            toolStrip1.SetDisableDarkModeChildren(true);*/
+
             toolStripTextFilterBox.TextBox.PreviewKeyDown += FilterTextBoxOnPreviewKeyDown;
             toolStripTextFilterBox.TextBox.KeyPress += FilterTextBoxOnKeyPress;
 
@@ -88,7 +94,7 @@ namespace MW5_Mod_Manager
 
                 visualStudioToolStripExtender1.SetStyle(menuStrip1, VisualStudioToolStripExtender.VsVersion.Vs2015, new VS2015DarkTheme());
                 visualStudioToolStripExtender1.SetStyle(toolStrip1, VisualStudioToolStripExtender.VsVersion.Vs2015, new VS2015DarkTheme());
-
+                visualStudioToolStripExtender1.SetStyle(DockModListForm.Instance.toolStrip2, VisualStudioToolStripExtender.VsVersion.Vs2015, new VS2015DarkTheme());
             }
             else
             {

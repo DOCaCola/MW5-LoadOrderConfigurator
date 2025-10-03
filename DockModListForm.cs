@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DarkModeForms;
 using WeifenLuo.WinFormsUI.Docking;
 using static MW5_Mod_Manager.MainForm;
 
@@ -24,6 +25,10 @@ namespace MW5_Mod_Manager
         {
             InitializeComponent();
             this.AllowEndUserDocking = false;
+
+            panelColorLegend.SetDisableDarkMode(true);
+            toolStrip2.SetDisableDarkMode(true);
+            toolStrip2.SetDisableDarkModeChildren(true);
         }
 
         

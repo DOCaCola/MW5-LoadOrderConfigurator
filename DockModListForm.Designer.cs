@@ -73,9 +73,9 @@ namespace MW5_Mod_Manager
             toolStrip2.GripStyle = ToolStripGripStyle.Hidden;
             toolStrip2.Items.AddRange(new ToolStripItem[] { toTopToolStripButton, upToolStripButton, toolStripLabel2, downToolStripButton, toBottomToolStripButton });
             toolStrip2.LayoutStyle = ToolStripLayoutStyle.Flow;
-            toolStrip2.Location = new Point(7, 147);
+            toolStrip2.Location = new Point(3, 147);
             toolStrip2.Name = "toolStrip2";
-            toolStrip2.Size = new Size(24, 118);
+            toolStrip2.Size = new Size(25, 112);
             toolStrip2.TabIndex = 43;
             toolStrip2.Text = "toolStrip2";
             // 
@@ -84,6 +84,7 @@ namespace MW5_Mod_Manager
             toTopToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
             toTopToolStripButton.Image = UiIcons.Top;
             toTopToolStripButton.ImageTransparentColor = Color.Magenta;
+            toTopToolStripButton.Margin = new Padding(1, 1, 0, 2);
             toTopToolStripButton.Name = "toTopToolStripButton";
             toTopToolStripButton.Size = new Size(23, 20);
             toTopToolStripButton.Text = "To top";
@@ -95,6 +96,7 @@ namespace MW5_Mod_Manager
             upToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
             upToolStripButton.Image = UiIcons.Up;
             upToolStripButton.ImageTransparentColor = Color.Magenta;
+            upToolStripButton.Margin = new Padding(1, 1, 0, 2);
             upToolStripButton.Name = "upToolStripButton";
             upToolStripButton.Size = new Size(23, 20);
             upToolStripButton.Text = "Up";
@@ -112,6 +114,7 @@ namespace MW5_Mod_Manager
             downToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
             downToolStripButton.Image = UiIcons.Down;
             downToolStripButton.ImageTransparentColor = Color.Magenta;
+            downToolStripButton.Margin = new Padding(1, 1, 0, 2);
             downToolStripButton.Name = "downToolStripButton";
             downToolStripButton.Size = new Size(23, 20);
             downToolStripButton.Text = "Down";
@@ -123,6 +126,7 @@ namespace MW5_Mod_Manager
             toBottomToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
             toBottomToolStripButton.Image = UiIcons.Bottom;
             toBottomToolStripButton.ImageTransparentColor = Color.Magenta;
+            toBottomToolStripButton.Margin = new Padding(1, 1, 0, 2);
             toBottomToolStripButton.Name = "toBottomToolStripButton";
             toBottomToolStripButton.Size = new Size(23, 20);
             toBottomToolStripButton.Text = "To bottom";
@@ -133,7 +137,7 @@ namespace MW5_Mod_Manager
             // 
             rotatingLabelBottom.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             rotatingLabelBottom.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            rotatingLabelBottom.Location = new Point(7, 306);
+            rotatingLabelBottom.Location = new Point(4, 306);
             rotatingLabelBottom.Name = "rotatingLabelBottom";
             rotatingLabelBottom.NewText = "« Low priority";
             rotatingLabelBottom.RotateAngle = -90;
@@ -143,7 +147,7 @@ namespace MW5_Mod_Manager
             // rotatingLabelTop
             // 
             rotatingLabelTop.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            rotatingLabelTop.Location = new Point(7, 9);
+            rotatingLabelTop.Location = new Point(4, 9);
             rotatingLabelTop.Name = "rotatingLabelTop";
             rotatingLabelTop.NewText = "High priority »";
             rotatingLabelTop.RotateAngle = -90;
@@ -167,7 +171,7 @@ namespace MW5_Mod_Manager
             modObjectListView.Columns.AddRange(new ColumnHeader[] { olvColumnModName, olvColumnModAuthor, olvColumnModVersion, olvColumnModFileAge, olvColumnModCurLoadOrder, olvColumnModOrgLoadOrder, olvColumnModFileSize, olvColumnModFolder, olvColumnFreeSpaceDummy });
             modObjectListView.FullRowSelect = true;
             modObjectListView.HeaderStyle = ColumnHeaderStyle.Nonclickable;
-            modObjectListView.Location = new Point(37, 0);
+            modObjectListView.Location = new Point(30, 0);
             modObjectListView.Name = "modObjectListView";
             modObjectListView.SelectColumnsOnRightClick = false;
             modObjectListView.SelectColumnsOnRightClickBehaviour = BrightIdeasSoftware.ObjectListView.ColumnSelectBehaviour.None;
@@ -175,7 +179,7 @@ namespace MW5_Mod_Manager
             modObjectListView.ShowImagesOnSubItems = true;
             modObjectListView.ShowItemToolTips = true;
             modObjectListView.ShowSortIndicators = false;
-            modObjectListView.Size = new Size(763, 424);
+            modObjectListView.Size = new Size(770, 424);
             modObjectListView.SmallImageList = imageListIcons;
             modObjectListView.TabIndex = 41;
             modObjectListView.UseHotControls = false;
