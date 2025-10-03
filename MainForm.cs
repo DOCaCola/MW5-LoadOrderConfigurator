@@ -22,6 +22,7 @@ using BrightIdeasSoftware;
 using Newtonsoft.Json.Linq;
 using DarkModeForms;
 using MW5_Mod_Manager.Controls;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace MW5_Mod_Manager
 {
@@ -30,18 +31,18 @@ namespace MW5_Mod_Manager
     {
         static public MainForm Instance;
 
-        enum eFilterMode
+        public enum eFilterMode
         {
             None,
             ItemFilter,
             ItemHighlight
         }
 
-        eFilterMode _filterMode = eFilterMode.None;
-        private bool _movingItems = false;
+        public eFilterMode _filterMode = eFilterMode.None;
+        public bool _movingItems = false;
         string _onlineUpdateUrl = LocConstants.UrlNexusmods;
         // The mod currently displayed in the sidebar
-        private static string _sideBarSelectedModKey = string.Empty;
+        public static string _sideBarSelectedModKey = string.Empty;
         // Force next sidepanel update to execute
         private bool _forceSidePanelUpdate = false;
         // Mod files differ from the state displayed in the UI
@@ -51,14 +52,13 @@ namespace MW5_Mod_Manager
         public int _ActiveModListHash = 0;
         public AsyncFileLoader _ModImageLoader = null;
 
-        private TypedObjectListView<ModItem> _modList = null;
-        private TypedColumn<ModItem> _modNameColumn = null;
-
-        public bool LoadingAndFilling { get; private set; }
-
         public MainForm()
         {
             InitializeComponent();
+
+            DockModListForm.Instance = new();
+            DockOverviewForm.Instance = new();
+            DockConflictsForm.Instance = new();
 
             Instance = this;
 
@@ -67,27 +67,35 @@ namespace MW5_Mod_Manager
 
             if (LocWindowColors.DarkMode)
             {
+                dockPanel1.Theme = new VS2015DarkTheme();
+
                 _ = new DarkModeCS(this, false);
 
-                modObjectListView.HeaderUsesThemes = false;
+                DockModListForm.Instance.modObjectListView.HeaderUsesThemes = false;
                 var headerstyleb = new HeaderFormatStyle();
                 headerstyleb.SetBackColor(LocWindowColors.ButtonHighlight);
                 headerstyleb.SetForeColor(LocWindowColors.WindowText);
-                modObjectListView.HeaderFormatStyle = headerstyleb;
+                DockModListForm.Instance.modObjectListView.HeaderFormatStyle = headerstyleb;
 
                 toolStripButtonStartGame.Image = UiIconsDark.MW5MercsLogo;
 
-                toBottomToolStripButton.Image = UiIconsDark.Bottom;
-                toTopToolStripButton.Image = UiIconsDark.Top;
-                downToolStripButton.Image = UiIconsDark.Down;
-                upToolStripButton.Image = UiIconsDark.Up;
+                DockModListForm.Instance.toBottomToolStripButton.Image = UiIconsDark.Bottom;
+                DockModListForm.Instance.toTopToolStripButton.Image = UiIconsDark.Top;
+                DockModListForm.Instance.downToolStripButton.Image = UiIconsDark.Down;
+                DockModListForm.Instance.upToolStripButton.Image = UiIconsDark.Up;
 
-                olvColumnFreeSpaceDummy.IsVisible = true;
+                DockModListForm.Instance.olvColumnFreeSpaceDummy.IsVisible = true;
             }
             else
             {
-                toolStrip2.Renderer = new ToolStripTransparentRenderer();
+                dockPanel1.Theme = new VS2015LightTheme();
+
+                DockModListForm.Instance.toolStrip2.Renderer = new ToolStripTransparentRenderer();
             }
+
+            DockOverviewForm.Instance.Show(dockPanel1, DockState.DockRight);
+            DockConflictsForm.Instance.Show(dockPanel1, DockState.DockRight);
+            DockModListForm.Instance.Show(dockPanel1, DockState.Document);
         }
 
         public string GetVersion()
@@ -101,9 +109,6 @@ namespace MW5_Mod_Manager
             this.Icon = Properties.Resources.MainIcon;
 
             this.Text += @" " + GetVersion();
-
-            _modList = new TypedObjectListView<ModItem>(this.modObjectListView);
-            _modNameColumn = new TypedColumn<ModItem>(this.olvColumnModName);
 
             imageListIcons.Images.Add("Steam", UiIcons.Steam);
             imageListIcons.Images.Add("Nexusmods", UiIcons.Nexusmods);
@@ -123,30 +128,30 @@ namespace MW5_Mod_Manager
                 imageListIcons.Images.Add("FolderDis", UiIcons.FolderDis);
             }
 
-            olvColumnModName.ImageGetter = this.ModImageGetter;
-            olvColumnModName.AspectGetter = this.ModNameGetter;
-            olvColumnModAuthor.AspectGetter = this.ModAuthorGetter;
-            olvColumnModVersion.AspectGetter = this.ModVersionGetter;
-            olvColumnModCurLoadOrder.AspectGetter = this.ModCurLoadOrderGetter;
-            olvColumnModOrgLoadOrder.AspectGetter = this.ModOrgLoadOrderGetter;
-            olvColumnModFileSize.AspectGetter = this.ModFileSizeGetter;
-            olvColumnModFileSize.AspectToStringConverter = FileSizeAspectConverter;
-            olvColumnModFolder.AspectGetter = this.ModFolderGetter;
-            olvColumnModFileAge.AspectGetter = this.ModFileAgeGetter;
-            olvColumnModFileAge.AspectToStringConverter = ModFileAgeAspectConverter;
+            DockModListForm.Instance.olvColumnModName.ImageGetter = this.ModImageGetter;
+            DockModListForm.Instance.olvColumnModName.AspectGetter = this.ModNameGetter;
+            DockModListForm.Instance.olvColumnModAuthor.AspectGetter = this.ModAuthorGetter;
+            DockModListForm.Instance.olvColumnModVersion.AspectGetter = this.ModVersionGetter;
+            DockModListForm.Instance.olvColumnModCurLoadOrder.AspectGetter = this.ModCurLoadOrderGetter;
+            DockModListForm.Instance.olvColumnModOrgLoadOrder.AspectGetter = this.ModOrgLoadOrderGetter;
+            DockModListForm.Instance.olvColumnModFileSize.AspectGetter = this.ModFileSizeGetter;
+            DockModListForm.Instance.olvColumnModFileSize.AspectToStringConverter = FileSizeAspectConverter;
+            DockModListForm.Instance.olvColumnModFolder.AspectGetter = this.ModFolderGetter;
+            DockModListForm.Instance.olvColumnModFileAge.AspectGetter = this.ModFileAgeGetter;
+            DockModListForm.Instance.olvColumnModFileAge.AspectToStringConverter = ModFileAgeAspectConverter;
 
-            olvColumnModName.VisibilityChanged += OlvColumnVisibilityChanged;
-            olvColumnModAuthor.VisibilityChanged += OlvColumnVisibilityChanged;
-            olvColumnModVersion.VisibilityChanged += OlvColumnVisibilityChanged;
-            olvColumnModCurLoadOrder.VisibilityChanged += OlvColumnVisibilityChanged;
-            olvColumnModOrgLoadOrder.VisibilityChanged += OlvColumnVisibilityChanged;
-            olvColumnModFileSize.VisibilityChanged += OlvColumnVisibilityChanged;
-            olvColumnModFolder.VisibilityChanged += OlvColumnVisibilityChanged;
+            DockModListForm.Instance.olvColumnModName.VisibilityChanged += OlvColumnVisibilityChanged;
+            DockModListForm.Instance.olvColumnModAuthor.VisibilityChanged += OlvColumnVisibilityChanged;
+            DockModListForm.Instance.olvColumnModVersion.VisibilityChanged += OlvColumnVisibilityChanged;
+            DockModListForm.Instance.olvColumnModCurLoadOrder.VisibilityChanged += OlvColumnVisibilityChanged;
+            DockModListForm.Instance.olvColumnModOrgLoadOrder.VisibilityChanged += OlvColumnVisibilityChanged;
+            DockModListForm.Instance.olvColumnModFileSize.VisibilityChanged += OlvColumnVisibilityChanged;
+            DockModListForm.Instance.olvColumnModFolder.VisibilityChanged += OlvColumnVisibilityChanged;
 
-            olvColumnModName.GroupKeyGetter += GroupKeyGetter;
+            DockModListForm.Instance.olvColumnModName.GroupKeyGetter += GroupKeyGetter;
 
             var dragSource = new ModDragSource();
-            modObjectListView.DragSource = dragSource;
+            DockModListForm.Instance.modObjectListView.DragSource = dragSource;
 
             // Selection
             RowBorderDecoration rbd = new RowBorderDecoration();
@@ -162,7 +167,7 @@ namespace MW5_Mod_Manager
             }
             rbd.BoundsPadding = new Size(0, 0);
             rbd.CornerRounding = 0;
-            modObjectListView.SelectedRowDecoration = rbd;
+            DockModListForm.Instance.modObjectListView.SelectedRowDecoration = rbd;
 
             // Hot item
             RowBorderDecoration rbdhot = new RowBorderDecoration();
@@ -182,10 +187,10 @@ namespace MW5_Mod_Manager
             }
             HotItemStyle his = new HotItemStyle();
             his.Decoration = rbdhot;
-            modObjectListView.HotItemStyle = his;
-            modObjectListView.UseHotItem = true;
+            DockModListForm.Instance.modObjectListView.HotItemStyle = his;
+            DockModListForm.Instance.modObjectListView.UseHotItem = true;
 
-            modObjectListView.BooleanCheckStateGetter = BooleanCheckStateGetter;
+            DockModListForm.Instance.modObjectListView.BooleanCheckStateGetter = BooleanCheckStateGetter;
 
             bool BooleanCheckStateGetter(object rowobject)
             {
@@ -193,7 +198,7 @@ namespace MW5_Mod_Manager
                 return curMod.Enabled;
             }
 
-            modObjectListView.BooleanCheckStatePutter = delegate (Object rowObject, bool newValue)
+            DockModListForm.Instance.modObjectListView.BooleanCheckStatePutter = delegate (Object rowObject, bool newValue)
             {
                 ModItem curMod = (ModItem)rowObject;
                 curMod.Enabled = newValue;
@@ -204,8 +209,8 @@ namespace MW5_Mod_Manager
 
                 ModsManager.Instance.UpdateNewModOverrideData(curMod);
                 UpdateModCountDisplay();
-                RecolorObjectListViewRows();
-                modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
+                DockModListForm.Instance.RecolorObjectListViewRows();
+                DockModListForm.Instance.modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
                 CheckModConfigTainted();
                 QueueSidePanelUpdate(true);
                 return newValue; // return the value that you want the control to use
@@ -216,13 +221,13 @@ namespace MW5_Mod_Manager
             if (LocViewState.LoadViewStateFromFile())
                 LocViewState.RestoreViewState();
 
-            toolStripRightDummy.Width = tabControl1.Width;
+            //toolStripRightDummy.Width = tabControl1.Width;
 
             UpdateColumnVisiblityMenu();
 
-            panelColorOverridden.BackColor = LocWindowColors.ModOverriddenColor;
-            panelColorOverriding.BackColor = LocWindowColors.ModOverridingColor;
-            panelColorOverridingOverridden.BackColor = LocWindowColors.ModOverriddenOveridingColor;
+            DockModListForm.Instance.panelColorOverridden.BackColor = LocWindowColors.ModOverriddenColor;
+            DockModListForm.Instance.panelColorOverriding.BackColor = LocWindowColors.ModOverridingColor;
+            DockModListForm.Instance.panelColorOverridingOverridden.BackColor = LocWindowColors.ModOverriddenOveridingColor;
 
             UpdateMoveControlEnabledState();
 
@@ -234,7 +239,7 @@ namespace MW5_Mod_Manager
 
             ModsManager.Instance.ModFilesChangedEvent += InstanceOnModFilesChangedEvent;
 
-            modObjectListView.Focus();
+            DockModListForm.Instance.modObjectListView.Focus();
         }
 
         private void InstanceOnModFilesChangedEvent(object sender, EventArgs e)
@@ -309,10 +314,10 @@ namespace MW5_Mod_Manager
         {
             if (enable)
             {
-                if (modObjectListView.DropSink == null)
+                if (DockModListForm.Instance.modObjectListView.DropSink == null)
                 {
-                    if (!modObjectListView.FullRowSelect)
-                        modObjectListView.FullRowSelect = true;
+                    if (!DockModListForm.Instance.modObjectListView.FullRowSelect)
+                        DockModListForm.Instance.modObjectListView.FullRowSelect = true;
                     var dropSink = new ModDropSink();
                     dropSink.AcceptExternal = false;
                     dropSink.CanDropBetween = true;
@@ -321,14 +326,14 @@ namespace MW5_Mod_Manager
                     dropSink.CanDropOnSubItem = false;
                     dropSink.FeedbackColor = LocWindowColors.ListFeedBackColor;
                     dropSink.CanDrop += OnDropSinkOnCanDrop;
-                    this.modObjectListView.DropSink = dropSink;
+                    DockModListForm.Instance.modObjectListView.DropSink = dropSink;
                 }
             }
             else
             {
-                modObjectListView.DropSink = null;
-                if (!modObjectListView.FullRowSelect)
-                    modObjectListView.FullRowSelect = true;
+                DockModListForm.Instance.modObjectListView.DropSink = null;
+                if (!DockModListForm.Instance.modObjectListView.FullRowSelect)
+                    DockModListForm.Instance.modObjectListView.FullRowSelect = true;
             }
 
         }
@@ -341,8 +346,8 @@ namespace MW5_Mod_Manager
             if (!_delayedRecolorStarted)
             {
                 _delayedRecolorStarted = true;
-                modObjectListView.BeginUpdate();
-                modObjectListView.SuspendDrawing();
+                DockModListForm.Instance.modObjectListView.BeginUpdate();
+                DockModListForm.Instance.modObjectListView.SuspendDrawing();
             }
 
             timerDelayedListRecolor.Stop();
@@ -356,13 +361,13 @@ namespace MW5_Mod_Manager
 
         private void UpdateColumnVisiblityMenu()
         {
-            authorColumnVisibilityToolStripMenuItem.Checked = olvColumnModAuthor.IsVisible;
-            versionColumnVisibilityToolStripMenuItem.Checked = olvColumnModVersion.IsVisible;
-            currentLoadOrderColumnVisibilityToolStripMenuItem.Checked = olvColumnModCurLoadOrder.IsVisible;
-            originalLoadOrderColumnVisibilityToolStripMenuItem.Checked = olvColumnModOrgLoadOrder.IsVisible;
-            fileSizeColumnVisibilityToolStripMenuItem.Checked = olvColumnModFileSize.IsVisible;
-            modFolderColumnVisibilityToolStripMenuItem.Checked = olvColumnModFolder.IsVisible;
-            modAgeColumnVisibilityToolStripMenuItem.Checked = olvColumnModFileAge.IsVisible;
+            authorColumnVisibilityToolStripMenuItem.Checked = DockModListForm.Instance.olvColumnModAuthor.IsVisible;
+            versionColumnVisibilityToolStripMenuItem.Checked = DockModListForm.Instance.olvColumnModVersion.IsVisible;
+            currentLoadOrderColumnVisibilityToolStripMenuItem.Checked = DockModListForm.Instance.olvColumnModCurLoadOrder.IsVisible;
+            originalLoadOrderColumnVisibilityToolStripMenuItem.Checked = DockModListForm.Instance.olvColumnModOrgLoadOrder.IsVisible;
+            fileSizeColumnVisibilityToolStripMenuItem.Checked = DockModListForm.Instance.olvColumnModFileSize.IsVisible;
+            modFolderColumnVisibilityToolStripMenuItem.Checked = DockModListForm.Instance.olvColumnModFolder.IsVisible;
+            modAgeColumnVisibilityToolStripMenuItem.Checked = DockModListForm.Instance.olvColumnModFileAge.IsVisible;
         }
         private void OnDropSinkOnCanDrop(object o, OlvDropEventArgs args)
         {
@@ -443,22 +448,22 @@ namespace MW5_Mod_Manager
         {
             if (LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh)
             {
-                rotatingLabelTop.NewText = "Low priority »";
-                toolTip1.SetToolTip(rotatingLabelTop, "Mods higher in the list are loaded earlier and may get overridden by mods below them");
-                rotatingLabelBottom.NewText = "« High priority";
-                toolTip1.SetToolTip(rotatingLabelBottom, "Mods lower in the list are loaded later, and may override mods above them");
-                /*rotatingLabelTop.ForeColor = ModsManager.LowPriorityColor;
-                rotatingLabelBottom.ForeColor = ModsManager.HighPriorityColor;*/
+                DockModListForm.Instance.rotatingLabelTop.NewText = "Low priority »";
+                toolTip1.SetToolTip(DockModListForm.Instance.rotatingLabelTop, "Mods higher in the list are loaded earlier and may get overridden by mods below them");
+                DockModListForm.Instance.rotatingLabelBottom.NewText = "« High priority";
+                toolTip1.SetToolTip(DockModListForm.Instance.rotatingLabelBottom, "Mods lower in the list are loaded later, and may override mods above them");
+                /*DockModListForm.Instance.rotatingLabelTop.ForeColor = ModsManager.LowPriorityColor;
+               DockModListForm.Instance. rotatingLabelBottom.ForeColor = ModsManager.HighPriorityColor;*/
 
             }
             else
             {
-                rotatingLabelTop.NewText = "High priority »";
-                toolTip1.SetToolTip(rotatingLabelTop, "Mods higher in the list are loaded later and may override mods below them");
-                rotatingLabelBottom.NewText = "« Low priority";
-                toolTip1.SetToolTip(rotatingLabelBottom, "Mods lower in the list are loaded earlier and may get overridden by mods above them");
-                /*rotatingLabelTop.ForeColor = ModsManager.HighPriorityColor;
-                rotatingLabelBottom.ForeColor = ModsManager.LowPriorityColor;*/
+                DockModListForm.Instance.rotatingLabelTop.NewText = "High priority »";
+                toolTip1.SetToolTip(DockModListForm.Instance.rotatingLabelTop, "Mods higher in the list are loaded later and may override mods below them");
+                DockModListForm.Instance.rotatingLabelBottom.NewText = "« Low priority";
+                toolTip1.SetToolTip(DockModListForm.Instance.rotatingLabelBottom, "Mods lower in the list are loaded earlier and may get overridden by mods above them");
+                /*DockModListForm.Instance.rotatingLabelTop.ForeColor = ModsManager.HighPriorityColor;
+                DockModListForm.Instance.rotatingLabelBottom.ForeColor = ModsManager.LowPriorityColor;*/
             }
         }
 
@@ -614,9 +619,9 @@ namespace MW5_Mod_Manager
         {
             var selectedItems = moveItems.Cast<OLVListItem>().ToList();
             bool anyMoved = false;
-            selectedItems = selectedItems.OrderBy(i => this.modObjectListView.Items.IndexOf(i)).ToList();
+            selectedItems = selectedItems.OrderBy(i => DockModListForm.Instance.modObjectListView.Items.IndexOf(i)).ToList();
 
-            modObjectListView.BeginUpdate();
+            DockModListForm.Instance.modObjectListView.BeginUpdate();
             _movingItems = true;
 
             if (direction == MoveDirection.Up)
@@ -631,13 +636,13 @@ namespace MW5_Mod_Manager
                     if (currentIndex == selectedItemIndex)
                         continue;
 
-                    OLVListItem listItem = (OLVListItem)modObjectListView.Items[currentIndex];
+                    OLVListItem listItem = (OLVListItem)DockModListForm.Instance.modObjectListView.Items[currentIndex];
 
                     ModItem curModItem = (ModItem)listItem.RowObject;
-                    modObjectListView.RemoveObject(curModItem);
+                    DockModListForm.Instance.modObjectListView.RemoveObject(curModItem);
                     newList.Clear();
                     newList.Add(curModItem);
-                    modObjectListView.InsertObjects(newIndex, newList);
+                    DockModListForm.Instance.modObjectListView.InsertObjects(newIndex, newList);
 
                     ModItemList.Instance.ModList.Remove(curModItem);
                     ModItemList.Instance.ModList.Insert(newIndex, curModItem);
@@ -656,16 +661,16 @@ namespace MW5_Mod_Manager
                     int currentIndex = selectedItems[selectedItemIndex].Index;
                     int newIndex = currentIndex + 1;
 
-                    if (currentIndex == modObjectListView.Items.Count - endOffset++)
+                    if (currentIndex == DockModListForm.Instance.modObjectListView.Items.Count - endOffset++)
                         continue;
 
-                    OLVListItem listItem = (OLVListItem)modObjectListView.Items[currentIndex];
+                    OLVListItem listItem = (OLVListItem)DockModListForm.Instance.modObjectListView.Items[currentIndex];
 
                     ModItem curModItem = (ModItem)listItem.RowObject;
-                    modObjectListView.RemoveObject(curModItem);
+                    DockModListForm.Instance.modObjectListView.RemoveObject(curModItem);
                     newList.Clear();
                     newList.Add(curModItem);
-                    modObjectListView.InsertObjects(newIndex, newList);
+                    DockModListForm.Instance.modObjectListView.InsertObjects(newIndex, newList);
 
                     ModItemList.Instance.ModList.Remove(curModItem);
                     ModItemList.Instance.ModList.Insert(newIndex, curModItem);
@@ -680,9 +685,9 @@ namespace MW5_Mod_Manager
 
                 ModsManager.Instance.RecomputeOverridingData();
 
-                modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
-                ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
-                RecolorObjectListViewRows();
+                DockModListForm.Instance.modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
+                ColorListViewNumbers(DockModListForm.Instance.olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
+                DockModListForm.Instance.RecolorObjectListViewRows();
 
                 QueueSidePanelUpdate(true);
 
@@ -691,18 +696,18 @@ namespace MW5_Mod_Manager
 
             _movingItems = false;
 
-            modObjectListView.EndUpdate();
+            DockModListForm.Instance.modObjectListView.EndUpdate();
         }
 
         public enum MovePosition { Top, Bottom };
 
         public void MoveListItems(ListView.SelectedListViewItemCollection moveItems, MovePosition position)
         {
-            modObjectListView.BeginUpdate();
+            DockModListForm.Instance.modObjectListView.BeginUpdate();
             _movingItems = true;
             bool anyMoved = false;
             var selectedItems = moveItems.Cast<OLVListItem>().ToList();
-            selectedItems = selectedItems.OrderBy(i => this.modObjectListView.Items.IndexOf(i)).ToList();
+            selectedItems = selectedItems.OrderBy(i => DockModListForm.Instance.modObjectListView.Items.IndexOf(i)).ToList();
 
             if (position == MovePosition.Top)
             {
@@ -715,10 +720,10 @@ namespace MW5_Mod_Manager
                     {
                         ModItem curModItem = (ModItem)item.RowObject;
 
-                        modObjectListView.RemoveObject(curModItem);
+                        DockModListForm.Instance.modObjectListView.RemoveObject(curModItem);
                         newList.Clear();
                         newList.Add(curModItem);
-                        modObjectListView.InsertObjects(listOffset, newList);
+                        DockModListForm.Instance.modObjectListView.InsertObjects(listOffset, newList);
 
                         ModItemList.Instance.ModList.Remove(curModItem);
                         ModItemList.Instance.ModList.Insert(listOffset, curModItem);
@@ -733,12 +738,12 @@ namespace MW5_Mod_Manager
                 int endOffset = selectedItems.Count;
                 foreach (var item in selectedItems)
                 {
-                    if (item.Index == modObjectListView.Items.Count - endOffset--)
+                    if (item.Index == DockModListForm.Instance.modObjectListView.Items.Count - endOffset--)
                         continue;
 
                     ModItem curModItem = (ModItem)item.RowObject;
-                    modObjectListView.RemoveObject(curModItem);
-                    modObjectListView.AddObject(curModItem);
+                    DockModListForm.Instance.modObjectListView.RemoveObject(curModItem);
+                    DockModListForm.Instance.modObjectListView.AddObject(curModItem);
 
                     ModItemList.Instance.ModList.Remove(curModItem);
                     ModItemList.Instance.ModList.Add(curModItem);
@@ -752,9 +757,9 @@ namespace MW5_Mod_Manager
                 ModItemList.Instance.RecomputeLoadOrders();
 
                 ModsManager.Instance.RecomputeOverridingData();
-                modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
-                ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
-                RecolorObjectListViewRows();
+                DockModListForm.Instance.modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
+                ColorListViewNumbers(DockModListForm.Instance.olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
+                DockModListForm.Instance.RecolorObjectListViewRows();
 
                 QueueSidePanelUpdate(true);
                 CheckModConfigTainted();
@@ -762,7 +767,7 @@ namespace MW5_Mod_Manager
 
             _movingItems = false;
 
-            modObjectListView.EndUpdate();
+            DockModListForm.Instance.modObjectListView.EndUpdate();
         }
 
         public void ApplyModSettings()
@@ -790,13 +795,13 @@ namespace MW5_Mod_Manager
         public void ClearAll()
         {
             _ActiveModListHash = 0;
-            listBoxOverriding.Items.Clear();
-            listBoxOverriddenBy.Items.Clear();
-            richTextBoxManifestOverridden.Clear();
-            pictureBoxModImage.Visible = false;
-            labelModNameOverrides.Text = "";
-            this.modObjectListView.ClearObjects();
-            this.modObjectListView.ClearCachedInfo();
+            DockConflictsForm.Instance.listBoxOverriding.Items.Clear();
+            DockConflictsForm.Instance.listBoxOverriddenBy.Items.Clear();
+            DockConflictsForm.Instance.richTextBoxManifestOverridden.Clear();
+            DockOverviewForm.Instance.pictureBoxModImage.Visible = false;
+            DockConflictsForm.Instance.labelModNameOverrides.Text = "";
+            DockModListForm.Instance.modObjectListView.ClearObjects();
+            DockModListForm.Instance.modObjectListView.ClearCachedInfo();
             ModItemList.Instance.ModList.Clear();
             ModsManager.Instance.ClearAll();
             UpdateSidePanelData(true);
@@ -857,9 +862,6 @@ namespace MW5_Mod_Manager
         {
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
-
-            bool prevLoadingAndFilling = LoadingAndFilling;
-            this.LoadingAndFilling = true;
 
             //try
             {
@@ -934,8 +936,8 @@ namespace MW5_Mod_Manager
                     orderedModList[i].Enabled = newState;
                 }
 
-                modObjectListView.BeginUpdate();
-                modObjectListView.ClearObjects();
+                DockModListForm.Instance.modObjectListView.BeginUpdate();
+                DockModListForm.Instance.modObjectListView.ClearObjects();
                 ModItemList.Instance.ModList.Clear();
                 foreach (var entry in orderedModList.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
                 {
@@ -959,10 +961,10 @@ namespace MW5_Mod_Manager
                     newItem.VersionCombined = versionString;
 
                     ModItemList.Instance.ModList.Add(newItem);
-                    modObjectListView.AddObject(newItem);
+                    DockModListForm.Instance.modObjectListView.AddObject(newItem);
                 }
-                RecolorObjectListViewRows();
-                modObjectListView.EndUpdate();
+                DockModListForm.Instance.RecolorObjectListViewRows();
+                DockModListForm.Instance.modObjectListView.EndUpdate();
 
                 ModsManager.Instance.SaveSettings();
             }
@@ -978,15 +980,14 @@ namespace MW5_Mod_Manager
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
             }*/
-            this.LoadingAndFilling = prevLoadingAndFilling;
             ModItemList.Instance.RecomputeLoadOrders();
 
-            modObjectListView.BeginUpdate();
+            DockModListForm.Instance.modObjectListView.BeginUpdate();
             ModsManager.Instance.RecomputeOverridingData();
-            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
-            RecolorObjectListViewRows();
-            modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
-            modObjectListView.EndUpdate();
+            ColorListViewNumbers(DockModListForm.Instance.olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
+            DockModListForm.Instance.RecolorObjectListViewRows();
+            DockModListForm.Instance.modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
+            DockModListForm.Instance.modObjectListView.EndUpdate();
             UpdateModCountDisplay();
         }
 
@@ -1029,11 +1030,11 @@ namespace MW5_Mod_Manager
             Cursor.Current = Cursors.AppStarting;
             StopModFileChangedUiFeedback();
             _modFileStateMismatch = false;
-            modObjectListView.BeginUpdate();
+            DockModListForm.Instance.modObjectListView.BeginUpdate();
 
-            Point prevPosition = modObjectListView.LowLevelScrollPosition;
-            List<string> prevSelected = new List<string>(modObjectListView.SelectedObjects.Count);
-            foreach (ModItem selected in modObjectListView.SelectedObjects)
+            Point prevPosition = DockModListForm.Instance.modObjectListView.LowLevelScrollPosition;
+            List<string> prevSelected = new List<string>(DockModListForm.Instance.modObjectListView.SelectedObjects.Count);
+            foreach (ModItem selected in DockModListForm.Instance.modObjectListView.SelectedObjects)
             {
                 prevSelected.Add(selected.Path);
             }
@@ -1068,16 +1069,16 @@ namespace MW5_Mod_Manager
 
                 Action redrawCallback = () =>
                 {
-                    modObjectListView.ForceRedraw();
+                    DockModListForm.Instance.modObjectListView.ForceRedraw();
                 };
 
                 if (forceLoadLastApplied || ModsManager.Instance.ShouldLoadLastApplied(redrawCallback))
                 {
                     // Load last saved preset
                     modlist = ModsManager.Instance.LastAppliedPresetModList;
-                    modObjectListView.SuspendDrawing();
+                    DockModListForm.Instance.modObjectListView.SuspendDrawing();
                     LoadAndFill(modlist, true);
-                    modObjectListView.ResumeDrawing();
+                    DockModListForm.Instance.modObjectListView.ResumeDrawing();
 
                     if (_ActiveModListHash != ModItemList.Instance.ModList.ComputeModListHashCode())
                         modConfigTainted = true;
@@ -1089,7 +1090,7 @@ namespace MW5_Mod_Manager
             LoadPresets();
             SetModConfigTainted(modConfigTainted);
 
-            foreach (OLVListItem curListItem in modObjectListView.Items)
+            foreach (OLVListItem curListItem in DockModListForm.Instance.modObjectListView.Items)
             {
                 ModItem curModItem = (ModItem)curListItem.RowObject;
 
@@ -1099,8 +1100,8 @@ namespace MW5_Mod_Manager
                 }
             }
 
-            modObjectListView.EndUpdate();
-            modObjectListView.LowLevelScroll(prevPosition.X, prevPosition.Y);
+            DockModListForm.Instance.modObjectListView.EndUpdate();
+            DockModListForm.Instance.modObjectListView.LowLevelScroll(prevPosition.X, prevPosition.Y);
             Cursor.Current = tempCursor;
         }
 
@@ -1139,15 +1140,15 @@ namespace MW5_Mod_Manager
 
             presetData.ReverseIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh);
 
-            List<string> prevSelected = new List<string>(modObjectListView.SelectedItems.Count);
-            foreach (ModItem selected in modObjectListView.SelectedObjects)
+            List<string> prevSelected = new List<string>(DockModListForm.Instance.modObjectListView.SelectedItems.Count);
+            foreach (ModItem selected in DockModListForm.Instance.modObjectListView.SelectedObjects)
             {
                 prevSelected.Add(selected.Path);
             }
 
-            modObjectListView.BeginUpdate();
-            modObjectListView.ClearObjects();
-            modObjectListView.ClearCachedInfo();
+            DockModListForm.Instance.modObjectListView.BeginUpdate();
+            DockModListForm.Instance.modObjectListView.ClearObjects();
+            DockModListForm.Instance.modObjectListView.ClearCachedInfo();
             ModItemList.Instance.ModList.Clear();
             ModsManager.Instance.ModDetails = new Dictionary<string, ModObject>();
             ModsManager.Instance.ModEnabledList.Clear();
@@ -1170,11 +1171,11 @@ namespace MW5_Mod_Manager
             this.LoadAndFill(newPresetData, true);
             FilterTextChanged();
             CheckModConfigTainted();
-            modObjectListView.EndUpdate();
+            DockModListForm.Instance.modObjectListView.EndUpdate();
 
             bool firstSelected = true;
 
-            foreach (OLVListItem curListItem in modObjectListView.Items)
+            foreach (OLVListItem curListItem in DockModListForm.Instance.modObjectListView.Items)
             {
                 ModItem curModItem = (ModItem)curListItem.RowObject;
 
@@ -1368,14 +1369,14 @@ namespace MW5_Mod_Manager
         }
         #endregion
 
-        private void UpdateMoveControlEnabledState()
+        public void UpdateMoveControlEnabledState()
         {
-            bool anySelected = modObjectListView.SelectedObjects.Count > 0;
+            bool anySelected = DockModListForm.Instance.modObjectListView.SelectedObjects.Count > 0;
             bool enabled = anySelected && _filterMode != eFilterMode.ItemFilter;
-            toTopToolStripButton.Enabled = enabled;
-            toBottomToolStripButton.Enabled = enabled;
-            upToolStripButton.Enabled = enabled;
-            downToolStripButton.Enabled = enabled;
+            DockModListForm.Instance.toTopToolStripButton.Enabled = enabled;
+            DockModListForm.Instance.toBottomToolStripButton.Enabled = enabled;
+            DockModListForm.Instance.upToolStripButton.Enabled = enabled;
+            DockModListForm.Instance.downToolStripButton.Enabled = enabled;
 
             moveupToolStripMenuItem.Enabled = enabled;
             movedownToolStripMenuItem.Enabled = enabled;
@@ -1392,8 +1393,8 @@ namespace MW5_Mod_Manager
                 if (this._filterMode != eFilterMode.None)
                 {
                     // end filtering
-                    modObjectListView.UseFiltering = false;
-                    modObjectListView.ModelFilter = null;
+                    DockModListForm.Instance.modObjectListView.UseFiltering = false;
+                    DockModListForm.Instance.modObjectListView.ModelFilter = null;
 
                     this._filterMode = eFilterMode.None;
                 }
@@ -1406,18 +1407,18 @@ namespace MW5_Mod_Manager
             }
             else
             {
-                modObjectListView.ModelFilter = TextMatchFilter.Contains(modObjectListView, filtertext);
+                DockModListForm.Instance.modObjectListView.ModelFilter = TextMatchFilter.Contains(DockModListForm.Instance.modObjectListView, filtertext);
                 if (!Instance.toolStripButtonFilterToggle.Checked)
                 {
-                    modObjectListView.UseFiltering = false;
+                    DockModListForm.Instance.modObjectListView.UseFiltering = false;
                     // ensure that first found item is visible
-                    if (modObjectListView.ModelFilter != null)
+                    if (DockModListForm.Instance.modObjectListView.ModelFilter != null)
                     {
-                        foreach (object originalObject in modObjectListView.Objects)
+                        foreach (object originalObject in DockModListForm.Instance.modObjectListView.Objects)
                         {
-                            if (modObjectListView.ModelFilter.Filter(originalObject))
+                            if (DockModListForm.Instance.modObjectListView.ModelFilter.Filter(originalObject))
                             {
-                                modObjectListView.EnsureModelVisible(originalObject);
+                                DockModListForm.Instance.modObjectListView.EnsureModelVisible(originalObject);
                                 searchFailed = false;
                                 break;
                             }
@@ -1429,12 +1430,12 @@ namespace MW5_Mod_Manager
                 //We are filtering by selected adding.
                 else
                 {
-                    modObjectListView.UseFiltering = true;
-                    if (modObjectListView.ModelFilter != null)
+                    DockModListForm.Instance.modObjectListView.UseFiltering = true;
+                    if (DockModListForm.Instance.modObjectListView.ModelFilter != null)
                     {
-                        foreach (object originalObject in modObjectListView.Objects)
+                        foreach (object originalObject in DockModListForm.Instance.modObjectListView.Objects)
                         {
-                            if (modObjectListView.ModelFilter.Filter(originalObject))
+                            if (DockModListForm.Instance.modObjectListView.ModelFilter.Filter(originalObject))
                             {
                                 searchFailed = false;
                                 break;
@@ -1458,160 +1459,31 @@ namespace MW5_Mod_Manager
                 toolStripTextFilterBox.BackColor = LocWindowColors.Window;
             }
 
-            modObjectListView.BeginUpdate();
-            modObjectListView.Invalidate();
-            RecolorObjectListViewRows();
-            modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
-            modObjectListView.EndUpdate();
+            DockModListForm.Instance.modObjectListView.BeginUpdate();
+            DockModListForm.Instance.modObjectListView.Invalidate();
+            DockModListForm.Instance.RecolorObjectListViewRows();
+            DockModListForm.Instance.modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
+            DockModListForm.Instance.modObjectListView.EndUpdate();
 
             //While filtering disable the up/down buttons (tough this should no longer be needed).
             UpdateMoveControlEnabledState();
         }
 
-        private void AppendContentPathToMainfestList(string contentPath, ref StringBuilder sb)
-        {
-            sb.Append(@"\b ");
-            sb.Append(Path.GetFileName(contentPath));
-            sb.Append(@" \b0 ");
-
-            sb.Append(@" (" + Utils.RtfEscape(Path.GetDirectoryName(contentPath)) + @")");
-            sb.Append(@" \line ");
-        }
-
-        //Selected index of mods overriding the currently selected mod has changed.
-        private void listBoxOverriddenBy_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            bool startedListUpdate = false;
-            try
-            {
-                if (_filterMode == eFilterMode.None)
-                {
-                    startedListUpdate = true;
-                    richTextBoxManifestOverridden.SuspendDrawing();
-                    modObjectListView.BeginUpdate();
-                    RecolorObjectListViewRows();
-                }
-
-                if (listBoxOverriddenBy.SelectedIndex == -1)
-                    return;
-
-                richTextBoxManifestOverridden.Clear();
-                listBoxOverriding.SelectedIndex = -1;
-                if (listBoxOverriddenBy.Items.Count == 0 || modObjectListView.Items.Count == 0)
-                    return;
-
-                if (listBoxOverriddenBy.SelectedItem == null)
-                    return;
-
-                ModListBoxItem selectedMod = (ModListBoxItem)listBoxOverriddenBy.SelectedItem;
-
-                if (_filterMode == eFilterMode.None)
-                {
-                    HighlightModInList(selectedMod.ModKey);
-                }
-
-                string superMod = ModsManager.Instance.PathToDirNameDict[_sideBarSelectedModKey];
-
-                if (!ModsManager.Instance.ModConflictData.ContainsKey(superMod))
-                    return;
-
-                ModConflictData modData = ModsManager.Instance.ModConflictData[superMod];
-
-                if (!modData.overriddenBy.ContainsKey(selectedMod.ModDirName))
-                    return;
-
-                var sb = new StringBuilder();
-                sb.Append(@"{\rtf1\ansi");
-                foreach (string entry in modData.overriddenBy[selectedMod.ModDirName])
-                {
-                    AppendContentPathToMainfestList(entry, ref sb);
-                }
-                sb.Append(@"}");
-                richTextBoxManifestOverridden.Rtf = sb.ToString();
-            }
-            finally
-            {
-                if (startedListUpdate)
-                {
-                    richTextBoxManifestOverridden.ResumeDrawing();
-                    modObjectListView.EndUpdate();
-                }
-            }
-        }
-
-        //Selected index of mods that are being overriden by the currently selected mod had changed.
-        private void listBoxOverriding_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            bool startedListUpdate = false;
-            try
-            {
-                if (_filterMode == eFilterMode.None)
-                {
-                    startedListUpdate = true;
-                    modObjectListView.BeginUpdate();
-                    richTextBoxManifestOverridden.SuspendDrawing();
-                    RecolorObjectListViewRows();
-                }
-
-                if (listBoxOverriding.SelectedIndex == -1)
-                    return;
-
-                richTextBoxManifestOverridden.Clear();
-                listBoxOverriddenBy.SelectedIndex = -1;
-                if (listBoxOverriding.Items.Count == 0 || modObjectListView.Items.Count == 0)
-                    return;
-
-                if (listBoxOverriding.SelectedItem == null)
-                    return;
-
-                ModListBoxItem selectedMod = (ModListBoxItem)listBoxOverriding.SelectedItem;
-
-                if (_filterMode == eFilterMode.None)
-                {
-                    HighlightModInList(selectedMod.ModKey);
-                }
-
-                string superMod = ModsManager.Instance.PathToDirNameDict[_sideBarSelectedModKey];
-
-                if (!ModsManager.Instance.ModConflictData.ContainsKey(superMod))
-                    return;
-
-                ModConflictData modData = ModsManager.Instance.ModConflictData[superMod];
-
-                var sb = new StringBuilder();
-                sb.Append(@"{\rtf1\ansi");
-                foreach (string entry in modData.overrides[selectedMod.ModDirName])
-                {
-                    AppendContentPathToMainfestList(entry, ref sb);
-                }
-                sb.Append(@"}");
-                richTextBoxManifestOverridden.Rtf = sb.ToString();
-            }
-            finally
-            {
-                if (startedListUpdate)
-                {
-                    richTextBoxManifestOverridden.ResumeDrawing();
-                    modObjectListView.EndUpdate();
-                }
-            }
-        }
-
         private void UpdateSidePanelData(bool forceUpdate)
         {
-            if (modObjectListView.SelectedObjects.Count == 0)
+            if (DockModListForm.Instance.modObjectListView.SelectedObjects.Count == 0)
             {
                 _sideBarSelectedModKey = string.Empty;
-                labelModNameOverrides.Text = string.Empty;
-                pictureBoxModImage.Visible = false;
-                panelModInfo.Visible = false;
-                richTextBoxManifestOverridden.Clear();
-                listBoxOverriddenBy.Items.Clear();
-                listBoxOverriding.Items.Clear();
+                DockConflictsForm.Instance.labelModNameOverrides.Text = string.Empty;
+                DockOverviewForm.Instance.pictureBoxModImage.Visible = false;
+                DockOverviewForm.Instance.panelModInfo.Visible = false;
+                DockConflictsForm.Instance.richTextBoxManifestOverridden.Clear();
+                DockConflictsForm.Instance.listBoxOverriddenBy.Items.Clear();
+                DockConflictsForm.Instance.listBoxOverriding.Items.Clear();
                 return;
             }
 
-            ModItem firstSelectedMod = (ModItem)modObjectListView.SelectedObjects[0];
+            ModItem firstSelectedMod = (ModItem)DockModListForm.Instance.modObjectListView.SelectedObjects[0];
             string selectedModPath = firstSelectedMod.Path;
 
             if (!forceUpdate && _sideBarSelectedModKey == selectedModPath)
@@ -1622,45 +1494,45 @@ namespace MW5_Mod_Manager
             string selectedModFolder = firstSelectedMod.FolderName;
             ModObject modDetails = ModsManager.Instance.ModDetails[selectedModPath];
 
-            panelModInfo.Visible = true;
+            DockOverviewForm.Instance.panelModInfo.Visible = true;
             string selectedModLabelDisplayName = firstSelectedMod.Name.Replace("&", "&&");
-            labelModName.Text = selectedModLabelDisplayName;
-            labelModNameOverrides.Text = selectedModLabelDisplayName;
-            labelModAuthor.Text = @"Author: " + modDetails.author.Replace("&", "&&");
-            linkLabelModAuthorUrl.Text = modDetails.authorURL.Replace("&", "&&");
-            labelModVersion.Text = @"Version: " + modDetails.version.Replace("&", "&&");
-            labelModBuildNumber.Text = @"Build: " + modDetails.buildNumber;
+            DockOverviewForm.Instance.labelModName.Text = selectedModLabelDisplayName;
+            DockConflictsForm.Instance.labelModNameOverrides.Text = selectedModLabelDisplayName;
+            DockOverviewForm.Instance.labelModAuthor.Text = @"Author: " + modDetails.author.Replace("&", "&&");
+            DockOverviewForm.Instance.linkLabelModAuthorUrl.Text = modDetails.authorURL.Replace("&", "&&");
+            DockOverviewForm.Instance.labelModVersion.Text = @"Version: " + modDetails.version.Replace("&", "&&");
+            DockOverviewForm.Instance.labelModBuildNumber.Text = @"Build: " + modDetails.buildNumber;
             long steamId = modDetails.steamPublishedFileId;
             if (steamId > 0)
             {
-                pictureBoxSteamIcon.Visible = true;
-                labelSteamId.Visible = true;
-                linkLabelSteamId.Visible = true;
-                linkLabelSteamId.Text = steamId.ToString();
+                DockOverviewForm.Instance.pictureBoxSteamIcon.Visible = true;
+                DockOverviewForm.Instance.labelSteamId.Visible = true;
+                DockOverviewForm.Instance.linkLabelSteamId.Visible = true;
+                DockOverviewForm.Instance.linkLabelSteamId.Text = steamId.ToString();
             }
             else
             {
-                pictureBoxSteamIcon.Visible = false;
-                labelSteamId.Visible = false;
-                linkLabelSteamId.Visible = false;
+                DockOverviewForm.Instance.pictureBoxSteamIcon.Visible = false;
+                DockOverviewForm.Instance.labelSteamId.Visible = false;
+                DockOverviewForm.Instance.linkLabelSteamId.Visible = false;
             }
 
             string nexusModsId = ModsManager.Instance.Mods[selectedModPath].NexusModsId;
             if (nexusModsId != "")
             {
-                pictureBoxNexusmodsIcon.Visible = true;
-                labelNexusmods.Visible = true;
-                linkLabelNexusmods.Visible = true;
-                linkLabelNexusmods.Text = nexusModsId;
+                DockOverviewForm.Instance.pictureBoxNexusmodsIcon.Visible = true;
+                DockOverviewForm.Instance.labelNexusmods.Visible = true;
+                DockOverviewForm.Instance.linkLabelNexusmods.Visible = true;
+                DockOverviewForm.Instance.linkLabelNexusmods.Text = nexusModsId;
             }
             else
             {
-                pictureBoxNexusmodsIcon.Visible = false;
-                labelNexusmods.Visible = false;
-                linkLabelNexusmods.Visible = false;
+                DockOverviewForm.Instance.pictureBoxNexusmodsIcon.Visible = false;
+                DockOverviewForm.Instance.labelNexusmods.Visible = false;
+                DockOverviewForm.Instance.linkLabelNexusmods.Visible = false;
             }
 
-            richTextBoxModDescription.Text = modDetails.description;
+            DockOverviewForm.Instance.richTextBoxModDescription.Text = modDetails.description;
 
             HandleOverriding(selectedModFolder);
 
@@ -1672,7 +1544,7 @@ namespace MW5_Mod_Manager
                 _ModImageLoader = null;
             }
 
-            pictureBoxModImage.Visible = false;
+            DockOverviewForm.Instance.pictureBoxModImage.Visible = false;
 
             if (File.Exists(imagePath))
             {
@@ -1681,16 +1553,16 @@ namespace MW5_Mod_Manager
 
                 Action<MemoryStream> onFileLoaded = (memoryStream) =>
                 {
-                    if (pictureBoxModImage.Image != null)
+                    if (DockOverviewForm.Instance.pictureBoxModImage.Image != null)
                     {
-                        pictureBoxModImage.Image.Dispose();
-                        pictureBoxModImage.Image = null;
+                        DockOverviewForm.Instance.pictureBoxModImage.Image.Dispose();
+                        DockOverviewForm.Instance.pictureBoxModImage.Image = null;
                     }
 
                     try
                     {
-                        pictureBoxModImage.Image = Image.FromStream(memoryStream);
-                        pictureBoxModImage.Visible = true;
+                        DockOverviewForm.Instance.pictureBoxModImage.Image = Image.FromStream(memoryStream);
+                        DockOverviewForm.Instance.pictureBoxModImage.Visible = true;
                     }
                     catch (Exception e)
                     {
@@ -1710,15 +1582,15 @@ namespace MW5_Mod_Manager
             if (ModsManager.Instance.ModConflictData.Count == 0)
                 return;
 
-            this.listBoxOverriding.Items.Clear();
-            this.listBoxOverriddenBy.Items.Clear();
-            this.richTextBoxManifestOverridden.Clear();
+            DockConflictsForm.Instance.listBoxOverriding.Items.Clear();
+            DockConflictsForm.Instance.listBoxOverriddenBy.Items.Clear();
+            DockConflictsForm.Instance.richTextBoxManifestOverridden.Clear();
 
             if (!ModsManager.Instance.ModConflictData.ContainsKey(SelectedMod))
                 return;
 
-            listBoxOverriding.SuspendDrawing();
-            listBoxOverriddenBy.SuspendDrawing();
+            DockConflictsForm.Instance.listBoxOverriding.SuspendDrawing();
+            DockConflictsForm.Instance.listBoxOverriddenBy.SuspendDrawing();
             ModConflictData modData = ModsManager.Instance.ModConflictData[SelectedMod];
             foreach (string overriding in modData.overriddenBy.Keys)
             {
@@ -1727,7 +1599,7 @@ namespace MW5_Mod_Manager
                 modListBoxItem.DisplayName = ModsManager.Instance.ModDetails[modKey].displayName;
                 modListBoxItem.ModDirName = overriding;
                 modListBoxItem.ModKey = modKey;
-                this.listBoxOverriddenBy.Items.Add(modListBoxItem);
+                DockConflictsForm.Instance.listBoxOverriddenBy.Items.Add(modListBoxItem);
             }
             foreach (string overrides in modData.overrides.Keys)
             {
@@ -1736,10 +1608,10 @@ namespace MW5_Mod_Manager
                 modListBoxItem.DisplayName = ModsManager.Instance.ModDetails[modKey].displayName;
                 modListBoxItem.ModDirName = overrides;
                 modListBoxItem.ModKey = modKey;
-                this.listBoxOverriding.Items.Add(modListBoxItem);
+                DockConflictsForm.Instance.listBoxOverriding.Items.Add(modListBoxItem);
             }
-            listBoxOverriding.ResumeDrawing();
-            listBoxOverriddenBy.ResumeDrawing();
+            DockConflictsForm.Instance.listBoxOverriding.ResumeDrawing();
+            DockConflictsForm.Instance.listBoxOverriddenBy.ResumeDrawing();
         }
 
         private void ExportLoadOrder()
@@ -1774,15 +1646,15 @@ namespace MW5_Mod_Manager
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
-            modObjectListView.BeginUpdate();
+            DockModListForm.Instance.modObjectListView.BeginUpdate();
             //this.ClearAll();
-            List<string> prevSelected = new List<string>(modObjectListView.SelectedItems.Count);
-            foreach (ModItem selected in modObjectListView.SelectedObjects)
+            List<string> prevSelected = new List<string>(DockModListForm.Instance.modObjectListView.SelectedItems.Count);
+            foreach (ModItem selected in DockModListForm.Instance.modObjectListView.SelectedObjects)
             {
                 prevSelected.Add(selected.Path);
             }
-            modObjectListView.ClearObjects();
-            modObjectListView.ClearCachedInfo();
+            DockModListForm.Instance.modObjectListView.ClearObjects();
+            DockModListForm.Instance.modObjectListView.ClearCachedInfo();
             ModItemList.Instance.ModList.Clear();
             ModsManager.Instance.ModDetails.Clear();
             ModsManager.Instance.ModEnabledList.Clear();
@@ -1794,7 +1666,7 @@ namespace MW5_Mod_Manager
             this.LoadAndFill(newData, true);
             FilterTextChanged();
             CheckModConfigTainted();
-            foreach (OLVListItem curListItem in modObjectListView.Items)
+            foreach (OLVListItem curListItem in DockModListForm.Instance.modObjectListView.Items)
             {
                 ModItem curModItem = (ModItem)curListItem.RowObject;
 
@@ -1804,7 +1676,7 @@ namespace MW5_Mod_Manager
                 }
             }
             QueueSidePanelUpdate(true);
-            modObjectListView.EndUpdate();
+            DockModListForm.Instance.modObjectListView.EndUpdate();
         }
 
         private void importLoadOrderToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -1861,7 +1733,7 @@ namespace MW5_Mod_Manager
             if (AreAllModsEnabled())
                 return;
 
-            modObjectListView.BeginUpdate();
+            DockModListForm.Instance.modObjectListView.BeginUpdate();
             try
             {
                 foreach (ModItem curModItem in ModItemList.Instance.ModList)
@@ -1869,17 +1741,17 @@ namespace MW5_Mod_Manager
                     curModItem.Enabled = true;
                 }
 
-                modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
+                DockModListForm.Instance.modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
             }
             finally
             {
-                modObjectListView.EndUpdate();
+                DockModListForm.Instance.modObjectListView.EndUpdate();
             }
 
             ModsManager.Instance.RecomputeOverridingData();
             UpdateModCountDisplay();
-            RecolorObjectListViewRows();
-            modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
+            DockModListForm.Instance.RecolorObjectListViewRows();
+            DockModListForm.Instance.modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
             CheckModConfigTainted();
         }
 
@@ -1891,7 +1763,7 @@ namespace MW5_Mod_Manager
             if (AreAllModsDisabled())
                 return;
 
-            modObjectListView.BeginUpdate();
+            DockModListForm.Instance.modObjectListView.BeginUpdate();
             try
             {
                 foreach (ModItem curModItem in ModItemList.Instance.ModList)
@@ -1899,23 +1771,23 @@ namespace MW5_Mod_Manager
                     curModItem.Enabled = false;
                 }
 
-                modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
+                DockModListForm.Instance.modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
             }
             finally
             {
-                modObjectListView.EndUpdate();
+                DockModListForm.Instance.modObjectListView.EndUpdate();
             }
 
             ModsManager.Instance.RecomputeOverridingData();
             UpdateModCountDisplay();
-            RecolorObjectListViewRows();
-            modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
+            DockModListForm.Instance.RecolorObjectListViewRows();
+            DockModListForm.Instance.modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
             CheckModConfigTainted();
         }
 
         private void openFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach (OLVListItem selectedItem in modObjectListView.SelectedItems)
+            foreach (OLVListItem selectedItem in DockModListForm.Instance.modObjectListView.SelectedItems)
             {
                 ModItem curModItem = (ModItem)selectedItem.RowObject;
                 try
@@ -2022,51 +1894,6 @@ namespace MW5_Mod_Manager
             }
         }
 
-        private void DragDropObjectRows(int insertIndex, IList draggedItems)
-        {
-            // More or less a copy of OLVs Move function with a fix when moving multiple item (originalInsertIndex comparison)
-            modObjectListView.BeginUpdate();
-            List<int> intList = new List<int>();
-            int originalInsertIndex = insertIndex;
-            foreach (object modelObject in draggedItems)
-            {
-                if (modelObject != null)
-                {
-                    int num = modObjectListView.IndexOf(modelObject);
-                    if (num >= 0)
-                    {
-                        intList.Add(num);
-                        if (num <= originalInsertIndex)
-                            --insertIndex;
-                    }
-                }
-            }
-            intList.Sort();
-            intList.Reverse();
-            try
-            {
-                modObjectListView.BeginUpdate();
-                foreach (int index1 in intList)
-                    modObjectListView.Items.RemoveAt(index1);
-                modObjectListView.InsertObjects(insertIndex, draggedItems);
-            }
-            finally
-            {
-                modObjectListView.EndUpdate();
-            }
-
-            ModItemList.Instance.RecomputeLoadOrders();
-
-            ModsManager.Instance.RecomputeOverridingData();
-
-            modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
-            RecolorObjectListViewRows();
-            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
-            modObjectListView.EndUpdate();
-
-            CheckModConfigTainted();
-        }
-
         private void presetMenuItem_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem presetMenuItem = sender as ToolStripMenuItem;
@@ -2075,7 +1902,7 @@ namespace MW5_Mod_Manager
 
         private void savePresetToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (modObjectListView.Items.Count == 0)
+            if (DockModListForm.Instance.modObjectListView.Items.Count == 0)
             {
                 MessageBox.Show(@"No configured mods. Nothing to save as preset.", @"No mods", MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
@@ -2115,15 +1942,15 @@ namespace MW5_Mod_Manager
 
         public void SelectModInList(string modKey)
         {
-            modObjectListView.DeselectAll();
-            foreach (OLVListItem modListItem in modObjectListView.Items)
+            DockModListForm.Instance.modObjectListView.DeselectAll();
+            foreach (OLVListItem modListItem in DockModListForm.Instance.modObjectListView.Items)
             {
                 ModItem curModItem = (ModItem)modListItem.RowObject;
 
                 if (curModItem.Path == modKey)
                 {
                     modListItem.Selected = true;
-                    modObjectListView.EnsureVisible(modListItem.Index);
+                    DockModListForm.Instance.modObjectListView.EnsureVisible(modListItem.Index);
                     break;
                 }
             }
@@ -2131,7 +1958,7 @@ namespace MW5_Mod_Manager
 
         public void HighlightModInList(string modKey)
         {
-            foreach (OLVListItem modListItem in modObjectListView.Items)
+            foreach (OLVListItem modListItem in DockModListForm.Instance.modObjectListView.Items)
             {
                 ModItem curModItem = (ModItem)modListItem.RowObject;
 
@@ -2155,98 +1982,6 @@ namespace MW5_Mod_Manager
             }
         }
 
-        public void RecolorObjectListViewRows()
-        {
-            bool showModOverrides = modObjectListView.SelectedObjects.Count == 1 && _filterMode != eFilterMode.ItemFilter;
-
-            bool anyUpdated = false;
-            for (int i = 0; i <= modObjectListView.Items.Count - 1; ++i)
-            {
-                OLVListItem curItem = (OLVListItem)modObjectListView.Items[i];
-                ModItem curModItem = (ModItem)curItem.RowObject;
-
-                bool alternateColor = i % 2 == 1;
-                Color newBackColor = LocWindowColors.Window;
-                if (alternateColor)
-                {
-                    newBackColor = LocWindowColors.ListColorAlternate;
-                }
-
-                /*if (_filterMode == eFilterMode.ItemHighlight)
-                {
-                    string filtertext = toolStripTextFilterBox.Text.ToLower();
-                    if (!string.IsNullOrWhiteSpace(filtertext) && MatchItemToText(filtertext, curItem))
-                    {
-                        if (!alternateColor)
-                            newBackColor = _highlightColor;
-                        else
-                            newBackColor = _highlightColorAlternate;
-                    }
-                }*/
-
-                // Color mod overrides following the currently selected mod
-                if (showModOverrides)
-                {
-                    ModItem firstSelectedItem = (ModItem)modObjectListView.SelectedObjects[0];
-                    string selectedModPath = firstSelectedItem.Path;
-                    string selectedModFolder = ModsManager.Instance.PathToDirNameDict[selectedModPath];
-                    if (ModsManager.Instance.ModConflictData.ContainsKey(selectedModFolder))
-                    {
-                        ModConflictData modData = ModsManager.Instance.ModConflictData[selectedModFolder];
-                        bool foundMatch = false;
-                        foreach (string overriding in modData.overriddenBy.Keys)
-                        {
-                            string modKey = ModsManager.Instance.DirNameToPathDict[overriding];
-                            if (modKey == curModItem.Path)
-                            {
-                                if (!alternateColor)
-                                    newBackColor = LocWindowColors.ListModOverridingBackColor;
-                                else
-                                    newBackColor = LocWindowColors.ListModOverridingBackColorAlternate;
-                                foundMatch = true;
-                                break;
-                            }
-                        }
-
-                        if (!foundMatch)
-                        {
-                            foreach (string overrides in modData.overrides.Keys)
-                            {
-                                string modKey = ModsManager.Instance.DirNameToPathDict[overrides];
-                                if (modKey == curModItem.Path)
-                                {
-                                    if (!alternateColor)
-                                        newBackColor = LocWindowColors.ListModOverriddenBackColor;
-                                    else
-                                        newBackColor = LocWindowColors.ListModOverriddenBackColorAlternate;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                curModItem.ProcessedRowBackColor = newBackColor;
-
-                foreach (OLVListSubItem subItem in curItem.SubItems)
-                {
-                    if (subItem.BackColor != newBackColor)
-                    {
-                        if (!anyUpdated)
-                        {
-                            anyUpdated = true;
-                            this.modObjectListView.BeginUpdate();
-                        }
-                        subItem.BackColor = newBackColor;
-                    }
-
-                }
-            }
-
-            if (anyUpdated)
-                this.modObjectListView.EndUpdate();
-        }
-
         private int GetModCount(bool enabledOnly)
         {
             int count = 0;
@@ -2263,26 +1998,6 @@ namespace MW5_Mod_Manager
             }
 
             return count;
-        }
-
-        private void listBoxOverriding_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            int index = this.listBoxOverriding.IndexFromPoint(e.Location);
-            if (index != System.Windows.Forms.ListBox.NoMatches)
-            {
-                ModListBoxItem modListBoxItem = listBoxOverriding.Items[index] as ModListBoxItem;
-                SelectModInList(modListBoxItem.ModKey);
-            }
-        }
-
-        private void listBoxOverriddenBy_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            int index = this.listBoxOverriddenBy.IndexFromPoint(e.Location);
-            if (index != System.Windows.Forms.ListBox.NoMatches)
-            {
-                ModListBoxItem modListBoxItem = listBoxOverriddenBy.Items[index] as ModListBoxItem;
-                SelectModInList(modListBoxItem.ModKey);
-            }
         }
 
         public void UpdateModCountDisplay()
@@ -2376,38 +2091,38 @@ namespace MW5_Mod_Manager
 
         private void contextMenuItemMoveToTop_Click(object sender, EventArgs e)
         {
-            var selectedItems = modObjectListView.SelectedObjects;
-            MoveListItems(modObjectListView.SelectedItems, MovePosition.Top);
-            modObjectListView.SelectedObjects = selectedItems;
-            modObjectListView.EnsureModelVisible(selectedItems[0]);
+            var selectedItems = DockModListForm.Instance.modObjectListView.SelectedObjects;
+            MoveListItems(DockModListForm.Instance.modObjectListView.SelectedItems, MovePosition.Top);
+            DockModListForm.Instance.modObjectListView.SelectedObjects = selectedItems;
+            DockModListForm.Instance.modObjectListView.EnsureModelVisible(selectedItems[0]);
         }
 
         private void contextMenuItemMoveToBottom_Click(object sender, EventArgs e)
         {
-            var selectedItems = modObjectListView.SelectedObjects;
-            MoveListItems(modObjectListView.SelectedItems, MovePosition.Bottom);
-            modObjectListView.SelectedObjects = selectedItems;
-            modObjectListView.EnsureModelVisible(selectedItems[^1]);
+            var selectedItems = DockModListForm.Instance.modObjectListView.SelectedObjects;
+            MoveListItems(DockModListForm.Instance.modObjectListView.SelectedItems, MovePosition.Bottom);
+            DockModListForm.Instance.modObjectListView.SelectedObjects = selectedItems;
+            DockModListForm.Instance.modObjectListView.EnsureModelVisible(selectedItems[^1]);
         }
 
         private void moveupToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MoveListItems(modObjectListView.SelectedItems, MoveDirection.Up);
+            MoveListItems(DockModListForm.Instance.modObjectListView.SelectedItems, MoveDirection.Up);
         }
 
         private void movedownToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
-            MoveListItems(modObjectListView.SelectedItems, MoveDirection.Down);
+            MoveListItems(DockModListForm.Instance.modObjectListView.SelectedItems, MoveDirection.Down);
         }
 
         //Color the list view items based on data
         public void ColorizeListViewItems()
         {
-            modObjectListView.BeginUpdate();
-            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
-            ColorListViewNumbers(olvColumnModOrgLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
-            modObjectListView.EndUpdate();
+            DockModListForm.Instance.modObjectListView.BeginUpdate();
+            ColorListViewNumbers(DockModListForm.Instance.olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
+            ColorListViewNumbers(DockModListForm.Instance.olvColumnModOrgLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
+            DockModListForm.Instance.modObjectListView.EndUpdate();
         }
 
         public void ColorListViewNumbers(int subItemIndex, Color fromColor, Color toColor)
@@ -2418,7 +2133,7 @@ namespace MW5_Mod_Manager
             List<float> numbers = new List<float>();
 
             // Extract numbers from ListView column and find unique ones
-            foreach (OLVListItem item in modObjectListView.Items)
+            foreach (OLVListItem item in DockModListForm.Instance.modObjectListView.Items)
             {
                 ModItem curModItem = (ModItem)item.RowObject;
 
@@ -2441,10 +2156,10 @@ namespace MW5_Mod_Manager
             numbers.Sort();
 
             // Color the ListView items based on sorted unique numbers
-            modObjectListView.BeginUpdate();
-            for (int i = 0; i < modObjectListView.Items.Count; i++)
+            DockModListForm.Instance.modObjectListView.BeginUpdate();
+            for (int i = 0; i < DockModListForm.Instance.modObjectListView.Items.Count; i++)
             {
-                OLVListItem curListItem = (OLVListItem)modObjectListView.Items[i];
+                OLVListItem curListItem = (OLVListItem)DockModListForm.Instance.modObjectListView.Items[i];
                 ModItem curModItem = (ModItem)curListItem.RowObject;
 
                 // Skip disabled mods
@@ -2467,17 +2182,17 @@ namespace MW5_Mod_Manager
                     curListItem.SubItems[subItemIndex].ForeColor = newColor;
 
                     // A bit backwards. Have to refactor the function
-                    if (subItemIndex == olvColumnModOrgLoadOrder.Index)
+                    if (subItemIndex == DockModListForm.Instance.olvColumnModOrgLoadOrder.Index)
                     {
                         curModItem.ProcessedOrgLoForeColor = newColor;
                     }
-                    else if (subItemIndex == olvColumnModCurLoadOrder.Index)
+                    else if (subItemIndex == DockModListForm.Instance.olvColumnModCurLoadOrder.Index)
                     {
                         curModItem.ProcessedCurLoForeColor = newColor;
                     }
                 }
             }
-            modObjectListView.EndUpdate();
+            DockModListForm.Instance.modObjectListView.EndUpdate();
         }
 
         private void toolStripMenuItemSortDefaultLoadOrder_Click(object sender, EventArgs e)
@@ -2510,35 +2225,35 @@ namespace MW5_Mod_Manager
                 }
             });
 
-            modObjectListView.BeginUpdate();
-            IList prevSelected = modObjectListView.SelectedObjects;
-            modObjectListView.ClearObjects();
-            modObjectListView.AddObjects(ModItemList.Instance.ModList);
+            DockModListForm.Instance.modObjectListView.BeginUpdate();
+            IList prevSelected = DockModListForm.Instance.modObjectListView.SelectedObjects;
+            DockModListForm.Instance.modObjectListView.ClearObjects();
+            DockModListForm.Instance.modObjectListView.AddObjects(ModItemList.Instance.ModList);
 
             ModItemList.Instance.RecomputeLoadOrders();
 
             ModsManager.Instance.RecomputeOverridingData();
-            modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
-            ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
-            RecolorObjectListViewRows();
+            DockModListForm.Instance.modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
+            ColorListViewNumbers(DockModListForm.Instance.olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
+            DockModListForm.Instance.RecolorObjectListViewRows();
             FilterTextChanged();
             CheckModConfigTainted();
 
-            modObjectListView.SelectedObjects = prevSelected;
+            DockModListForm.Instance.modObjectListView.SelectedObjects = prevSelected;
             if (prevSelected.Count > 0)
             {
-                modObjectListView.EnsureModelVisible(prevSelected[0]);
+                DockModListForm.Instance.modObjectListView.EnsureModelVisible(prevSelected[0]);
             }
 
-            modObjectListView.EndUpdate();
+            DockModListForm.Instance.modObjectListView.EndUpdate();
             QueueSidePanelUpdate(true);
         }
 
         public bool AreAllModsEnabled()
         {
-            for (int i = 1; i < modObjectListView.Items.Count; i++)
+            for (int i = 1; i < DockModListForm.Instance.modObjectListView.Items.Count; i++)
             {
-                if (!modObjectListView.Items[i].Checked)
+                if (!DockModListForm.Instance.modObjectListView.Items[i].Checked)
                     return false;
             }
 
@@ -2547,9 +2262,9 @@ namespace MW5_Mod_Manager
 
         public bool AreAllModsDisabled()
         {
-            for (int i = 1; i < modObjectListView.Items.Count; i++)
+            for (int i = 1; i < DockModListForm.Instance.modObjectListView.Items.Count; i++)
             {
-                if (modObjectListView.Items[i].Checked)
+                if (DockModListForm.Instance.modObjectListView.Items[i].Checked)
                     return false;
             }
 
@@ -2687,7 +2402,7 @@ namespace MW5_Mod_Manager
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach (OLVListItem selectedItem in modObjectListView.SelectedItems)
+            foreach (OLVListItem selectedItem in DockModListForm.Instance.modObjectListView.SelectedItems)
             {
                 ModItem curModItem = (ModItem)selectedItem.RowObject;
                 DeleteMod(curModItem.Path);
@@ -2816,38 +2531,6 @@ namespace MW5_Mod_Manager
             System.Diagnostics.Process.Start(psi);
         }
 
-        private void toTopToolStripButton_Click(object sender, EventArgs e)
-        {
-            var selectedItems = modObjectListView.SelectedObjects;
-            MoveListItems(modObjectListView.SelectedItems, MovePosition.Top);
-            modObjectListView.SelectedObjects = selectedItems;
-            modObjectListView.EnsureModelVisible(selectedItems[0]);
-        }
-
-        private void toBottomToolStripButton_Click(object sender, EventArgs e)
-        {
-            var selectedItems = modObjectListView.SelectedObjects;
-            MoveListItems(modObjectListView.SelectedItems, MovePosition.Bottom);
-            modObjectListView.SelectedObjects = selectedItems;
-            modObjectListView.EnsureModelVisible(selectedItems[^1]);
-        }
-
-        private void upToolStripButton_Click(object sender, EventArgs e)
-        {
-            var selectedItems = modObjectListView.SelectedObjects;
-            MoveListItems(modObjectListView.SelectedItems, MoveDirection.Up);
-            modObjectListView.SelectedObjects = selectedItems;
-            modObjectListView.EnsureModelVisible(selectedItems[0]);
-        }
-
-        private void downToolStripButton_Click(object sender, EventArgs e)
-        {
-            var selectedItems = modObjectListView.SelectedObjects;
-            MoveListItems(modObjectListView.SelectedItems, MoveDirection.Down);
-            modObjectListView.SelectedObjects = selectedItems;
-            modObjectListView.EnsureModelVisible(selectedItems[^1]);
-        }
-
         private void timerOverviewUpdateDelay_Tick(object sender, EventArgs e)
         {
             UpdateSidePanelData(_forceSidePanelUpdate);
@@ -2907,9 +2590,9 @@ namespace MW5_Mod_Manager
 
         public void SetSelectedModEnabledState(bool newState)
         {
-            modObjectListView.BeginUpdate();
+            DockModListForm.Instance.modObjectListView.BeginUpdate();
             this._movingItems = true;
-            foreach (OLVListItem selectedItem in modObjectListView.SelectedItems)
+            foreach (OLVListItem selectedItem in DockModListForm.Instance.modObjectListView.SelectedItems)
             {
                 if (newState == selectedItem.Checked)
                     continue;
@@ -2918,7 +2601,7 @@ namespace MW5_Mod_Manager
             }
             this._movingItems = false;
 
-            modObjectListView.EndUpdate();
+            DockModListForm.Instance.modObjectListView.EndUpdate();
         }
 
         private void enableModsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2931,165 +2614,14 @@ namespace MW5_Mod_Manager
             SetSelectedModEnabledState(false);
         }
 
-        private void modObjectListView_FormatRow(object sender, FormatRowEventArgs e)
-        {
-            ModItem curModItem = (ModItem)e.Item.RowObject;
-            e.Item.BackColor = curModItem.ProcessedRowBackColor;
-            e.UseCellFormatEvents = true;
-        }
-
-        private void modObjectListView_FormatCell(object sender, FormatCellEventArgs e)
-        {
-            ModItem modItem = (ModItem)e.Model;
-            if (!modItem.Enabled)
-            {
-                e.SubItem.ForeColor = Color.FromArgb(142, 140, 142);
-                return;
-            }
-
-            if (e.ColumnIndex == this.olvColumnModName.Index)
-            {
-                if (ModsManager.Instance.ModConflictData.ContainsKey(modItem.FolderName))
-                {
-                    ModConflictData a = ModsManager.Instance.ModConflictData[modItem.FolderName];
-                    Color newItemColor = LocWindowColors.WindowText;
-                    if (a.isOverridden)
-                    {
-                        newItemColor = LocWindowColors.ModOverriddenColor;
-                    }
-                    if (a.isOverriding)
-                    {
-                        newItemColor = LocWindowColors.ModOverridingColor;
-                    }
-                    if (a.isOverriding && a.isOverridden)
-                    {
-                        newItemColor = LocWindowColors.ModOverriddenOveridingColor;
-                    }
-
-                    e.SubItem.ForeColor = newItemColor;
-                }
-            }
-            else if (e.ColumnIndex == this.olvColumnModCurLoadOrder.Index)
-            {
-                e.SubItem.ForeColor = modItem.ProcessedCurLoForeColor;
-            }
-            else if (e.ColumnIndex == this.olvColumnModOrgLoadOrder.Index)
-            {
-                e.SubItem.ForeColor = modItem.ProcessedOrgLoForeColor;
-            }
-        }
-
-        private void modObjectListView_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            UpdateMoveControlEnabledState();
-
-            if (_movingItems)
-                return;
-
-            QueueSidePanelUpdate(false);
-
-            RecolorObjectListViewRows();
-        }
-
-        private void modObjectListView_ModelDropped(object sender, ModelDropEventArgs e)
-        {
-            foreach (ModItem curSourceModItem in e.SourceModels)
-            {
-                int sourceItemIndex = modObjectListView.IndexOf(curSourceModItem);
-                if (e.DropTargetLocation == DropTargetLocation.BelowItem)
-                {
-                    if (sourceItemIndex == e.DropTargetIndex)
-                        return;
-
-                    if (sourceItemIndex - 1 == e.DropTargetIndex)
-                        return;
-                }
-                else if (e.DropTargetLocation == DropTargetLocation.AboveItem)
-                {
-                    if (sourceItemIndex == e.DropTargetIndex)
-                        return;
-
-                    // Next item after last selected
-                    if (sourceItemIndex + 1 == e.DropTargetIndex)
-                        return;
-                }
-                else
-                {
-                    return;
-                }
-            }
-
-            int normalizedIndex = e.DropTargetIndex;
-            if (e.DropTargetLocation == DropTargetLocation.BelowItem)
-            {
-                normalizedIndex++;
-            }
-
-            int adjustedTargetIndex = normalizedIndex;
-            List<ModItem> sourceModItemList = e.SourceModels.Cast<ModItem>().ToList();
-
-            foreach (ModItem curModItem in sourceModItemList)
-            {
-                int index = ModItemList.Instance.ModList.IndexOf(curModItem);
-                if (index != -1)
-                {
-                    if (index < adjustedTargetIndex)
-                    {
-                        adjustedTargetIndex--;
-                    }
-                    ModItemList.Instance.ModList.RemoveAt(index);
-                }
-            }
-
-            ModItemList.Instance.ModList.InsertRange(adjustedTargetIndex, sourceModItemList);
-
-            modObjectListView.BeginUpdate();
-            _movingItems = true;
-
-            DragDropObjectRows(normalizedIndex, e.SourceModels);
-
-            modObjectListView.SelectObjects(e.SourceModels);
-            ModItemList.Instance.RecomputeLoadOrders();
-            modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
-            QueueSidePanelUpdate(true);
-            _movingItems = false;
-            RecolorObjectListViewRows();
-            modObjectListView.EndUpdate();
-        }
-
-        private void modObjectListView_BeforeSorting(object sender, BeforeSortingEventArgs e)
-        {
-            // Disable sorting
-            //e.Canceled = true;
-        }
-
-        private void modObjectListView_DragOver(object sender, DragEventArgs e)
-        {
-            // Simpledropsource sets this to false..
-            if (!modObjectListView.FullRowSelect)
-                modObjectListView.FullRowSelect = true;
-        }
-
-        private void modObjectListView_MouseClick(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right)
-            {
-                var focusedItem = modObjectListView.FocusedItem;
-                if (focusedItem != null && focusedItem.Bounds.Contains(e.Location))
-                {
-                    contextMenuStripMod.Show(Cursor.Position);
-                }
-            }
-        }
-
         private void timerDelayedListRecolor_Tick(object sender, EventArgs e)
         {
             ColorizeListViewItems();
-            modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
-            RecolorObjectListViewRows();
+            DockModListForm.Instance.modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
+            DockModListForm.Instance.RecolorObjectListViewRows();
             timerDelayedListRecolor.Stop();
-            modObjectListView.EndUpdate();
-            modObjectListView.ResumeDrawing();
+            DockModListForm.Instance.modObjectListView.EndUpdate();
+            DockModListForm.Instance.modObjectListView.ResumeDrawing();
             _delayedRecolorStarted = false;
         }
 
@@ -3098,46 +2630,24 @@ namespace MW5_Mod_Manager
             ToolStripMenuItem menuItem = (ToolStripMenuItem)sender;
             menuItem.Checked = !menuItem.Checked;
 
-            olvColumnModAuthor.IsVisible = authorColumnVisibilityToolStripMenuItem.Checked;
-            olvColumnModVersion.IsVisible = versionColumnVisibilityToolStripMenuItem.Checked;
-            olvColumnModCurLoadOrder.IsVisible = currentLoadOrderColumnVisibilityToolStripMenuItem.Checked;
-            olvColumnModOrgLoadOrder.IsVisible = originalLoadOrderColumnVisibilityToolStripMenuItem.Checked;
-            olvColumnModFileSize.IsVisible = fileSizeColumnVisibilityToolStripMenuItem.Checked;
-            olvColumnModFolder.IsVisible = modFolderColumnVisibilityToolStripMenuItem.Checked;
-            olvColumnModFileAge.IsVisible = modAgeColumnVisibilityToolStripMenuItem.Checked;
+            DockModListForm.Instance.olvColumnModAuthor.IsVisible = authorColumnVisibilityToolStripMenuItem.Checked;
+            DockModListForm.Instance.olvColumnModVersion.IsVisible = versionColumnVisibilityToolStripMenuItem.Checked;
+            DockModListForm.Instance.olvColumnModCurLoadOrder.IsVisible = currentLoadOrderColumnVisibilityToolStripMenuItem.Checked;
+            DockModListForm.Instance.olvColumnModOrgLoadOrder.IsVisible = originalLoadOrderColumnVisibilityToolStripMenuItem.Checked;
+            DockModListForm.Instance.olvColumnModFileSize.IsVisible = fileSizeColumnVisibilityToolStripMenuItem.Checked;
+            DockModListForm.Instance.olvColumnModFolder.IsVisible = modFolderColumnVisibilityToolStripMenuItem.Checked;
+            DockModListForm.Instance.olvColumnModFileAge.IsVisible = modAgeColumnVisibilityToolStripMenuItem.Checked;
 
-            modObjectListView.RebuildColumns();
+            DockModListForm.Instance.modObjectListView.RebuildColumns();
 
             UpdateColumnVisiblityMenu();
         }
-
-        private void modObjectListView_ColumnRightClick(object sender, ColumnClickEventArgs e)
-        {
-            contextMenuStripColumnOptions.Show(Cursor.Position);
-        }
-
         private void restoreDefaultColumnsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LocViewState.RestoreListViewState(LocViewState._defaultViewState.listState);
             UpdateColumnVisiblityMenu();
 
             QueueListRecolor();
-        }
-
-        private void modObjectListView_AboutToCreateGroups(object sender, CreateGroupsEventArgs e)
-        {
-            // With this trick we have group without header.
-            // Point being that the list is smoothly scrollable when groups are used
-            foreach (OLVGroup group in e.Groups)
-            {
-                group.State ^= GroupState.LVGS_NOHEADER;
-                group.StateMask ^= GroupState.LVGS_NOHEADER;
-            }
-        }
-
-        private void modObjectListView_BeforeCreatingGroups(object sender, CreateGroupsEventArgs e)
-        {
-            e.Parameters.PrimarySortOrder = SortOrder.None;
         }
 
         private void checkModFilesToolStripMenuItem_Click(object sender, EventArgs e)
@@ -3163,14 +2673,6 @@ namespace MW5_Mod_Manager
             ReloadButtonBlinkState = !ReloadButtonBlinkState;
         }
 
-        private void modObjectListView_ColumnReordered(object sender, ColumnReorderedEventArgs e)
-        {
-            if (e.NewDisplayIndex >= olvColumnFreeSpaceDummy.DisplayIndex)
-            {
-                e.Cancel = true;
-            }
-        }
-
         private void toolStripTextFilterBox_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -3178,19 +2680,19 @@ namespace MW5_Mod_Manager
                 e.Handled = true;
                 if (_filterMode == eFilterMode.ItemHighlight)
                 {
-                    modObjectListView.UseFiltering = false;
-                    if (modObjectListView.ModelFilter != null)
+                    DockModListForm.Instance.modObjectListView.UseFiltering = false;
+                    if (DockModListForm.Instance.modObjectListView.ModelFilter != null)
                     {
                         object foundObject = null;
                         bool lastObject = true;
 
-                        var objectList = modObjectListView.Objects.Cast<object>().ToList();
+                        var objectList = DockModListForm.Instance.modObjectListView.Objects.Cast<object>().ToList();
                         foreach (object originalObject in objectList.ReverseIterate())
                         {
-                            if (!modObjectListView.ModelFilter.Filter(originalObject))
+                            if (!DockModListForm.Instance.modObjectListView.ModelFilter.Filter(originalObject))
                                 continue;
 
-                            bool currentIsSelected = modObjectListView.IsSelected(originalObject);
+                            bool currentIsSelected = DockModListForm.Instance.modObjectListView.IsSelected(originalObject);
                             if (lastObject)
                             {
                                 lastObject = false;
@@ -3208,8 +2710,8 @@ namespace MW5_Mod_Manager
 
                         if (foundObject != null)
                         {
-                            modObjectListView.EnsureModelVisible(foundObject);
-                            modObjectListView.SelectedObject = foundObject;
+                            DockModListForm.Instance.modObjectListView.EnsureModelVisible(foundObject);
+                            DockModListForm.Instance.modObjectListView.SelectedObject = foundObject;
                         }
                     }
                 }
@@ -3233,24 +2735,6 @@ namespace MW5_Mod_Manager
             }
         }
 
-        private void modObjectListView_BeforeSearching(object sender, BeforeSearchingEventArgs e)
-        {
-            // Abort search if any control characters are in the search string
-            foreach (var c in e.StringToFind)
-            {
-                if (char.IsControl(c))
-                {
-                    e.Canceled = true;
-                    return;
-                }
-            }
-        }
-
-        private void tabControl1_Resize(object sender, EventArgs e)
-        {
-            toolStripRightDummy.Width = tabControl1.Width;
-        }
-
         private void toolStripTextFilterBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.F)
@@ -3270,7 +2754,7 @@ namespace MW5_Mod_Manager
                 }
                 else
                 {
-                    modObjectListView.Focus();
+                    DockModListForm.Instance.modObjectListView.Focus();
                 }
                 e.Handled = true;
             }
@@ -3300,30 +2784,6 @@ namespace MW5_Mod_Manager
         private void runMechWarrior5ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LaunchGame();
-        }
-
-        private void modObjectListView_CellToolTipShowing(object sender, ToolTipShowingEventArgs e)
-        {
-            ModItem curModItem = (ModItem)e.Model;
-            if (e.Column == olvColumnModFolder)
-            {
-                e.Text = LocStringUtils.WrapPathForTooltip(curModItem.Path);
-            }
-            else if (e.Column == olvColumnModFileAge)
-            {
-                if (curModItem.FileAge != null)
-                {
-                    CultureInfo culture = CultureInfo.CurrentCulture;
-
-                    // Get the short date and long time patterns
-                    string datePattern = culture.DateTimeFormat.ShortDatePattern; // e.g., "M/d/yyyy"
-                    string timePattern = culture.DateTimeFormat.LongTimePattern;   // e.g., "h:mm:ss tt"
-
-                    string format = $"{datePattern} {timePattern}";
-
-                    e.Text = curModItem.FileAge.Value.ToString(format, culture);
-                }
-            }
         }
     }
 }

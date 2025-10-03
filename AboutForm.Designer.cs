@@ -56,9 +56,9 @@
             label2.Location = new System.Drawing.Point(19, 219);
             label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             label2.Name = "label2";
-            label2.Size = new System.Drawing.Size(168, 15);
+            label2.Size = new System.Drawing.Size(137, 15);
             label2.TabIndex = 1;
-            label2.Text = "Based on rjtwins' original code";
+            label2.Text = "Special thanks to rjtwins!";
             // 
             // pictureBox1
             // 

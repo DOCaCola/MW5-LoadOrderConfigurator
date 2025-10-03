@@ -59,7 +59,7 @@ namespace MW5_Mod_Manager
         static public List<ListViewState> GetCurrentListViewState()
         {
             List<ListViewState> list = new List<ListViewState>();
-            foreach (OLVColumn allColumn in MainForm.Instance.modObjectListView.AllColumns)
+            foreach (OLVColumn allColumn in DockModListForm.Instance.modObjectListView.AllColumns)
             {
                 ListViewState newListViewState = new ListViewState();
 
@@ -115,7 +115,7 @@ namespace MW5_Mod_Manager
         {
             foreach (var state in listState)
             {
-                foreach (OLVColumn curColumn in MainForm.Instance.modObjectListView.AllColumns)
+                foreach (OLVColumn curColumn in DockModListForm.Instance.modObjectListView.AllColumns)
                 {
                     if (curColumn.Text == state.Name)
                     {
@@ -126,7 +126,7 @@ namespace MW5_Mod_Manager
                     }
                 }
             }
-            MainForm.Instance.modObjectListView.RebuildColumns();
+            DockModListForm.Instance.modObjectListView.RebuildColumns();
         }
     }
 }

@@ -91,59 +91,7 @@ namespace MW5_Mod_Manager
             toolStripSeparator5 = new ToolStripSeparator();
             openFolderToolStripMenuItem = new ToolStripMenuItem();
             deleteToolStripMenuItem = new ToolStripMenuItem();
-            tabPage1 = new TabPage();
-            richTextBoxManifestOverridden = new RichTextBox();
-            splitContainer2 = new SplitContainer();
-            listBoxOverriding = new ListBox();
-            label6 = new Label();
-            listBoxOverriddenBy = new ListBox();
-            label5 = new Label();
-            labelModNameOverrides = new Label();
-            label7 = new Label();
-            tabPageModInfo = new TabPage();
-            pictureBoxModImage = new PictureBox();
-            panelModInfo = new Panel();
-            pictureBoxNexusmodsIcon = new PictureBox();
-            labelNexusmods = new Label();
-            linkLabelNexusmods = new LinkLabel();
-            pictureBoxSteamIcon = new PictureBox();
-            label1 = new Label();
-            richTextBoxModDescription = new RichTextBox();
-            labelSteamId = new Label();
-            linkLabelSteamId = new LinkLabel();
-            linkLabelModAuthorUrl = new LinkLabel();
-            labelModBuildNumber = new Label();
-            labelModVersion = new Label();
-            labelModAuthor = new Label();
-            labelModName = new Label();
-            tabControl1 = new TabControl();
             toolTip1 = new ToolTip(components);
-            rotatingLabelBottom = new RotatingLabel();
-            rotatingLabelTop = new RotatingLabel();
-            panelColorLegend = new Panel();
-            label8 = new Label();
-            label4 = new Label();
-            label2 = new Label();
-            panelColorOverridingOverridden = new Panel();
-            panelColorOverriding = new Panel();
-            panelColorOverridden = new Panel();
-            splitContainerMain = new SplitContainer();
-            modObjectListView = new ModsObjectsListView();
-            olvColumnModName = new BrightIdeasSoftware.OLVColumn();
-            olvColumnModAuthor = new BrightIdeasSoftware.OLVColumn();
-            olvColumnModVersion = new BrightIdeasSoftware.OLVColumn();
-            olvColumnModCurLoadOrder = new BrightIdeasSoftware.OLVColumn();
-            olvColumnModOrgLoadOrder = new BrightIdeasSoftware.OLVColumn();
-            olvColumnModFileSize = new BrightIdeasSoftware.OLVColumn();
-            olvColumnModFolder = new BrightIdeasSoftware.OLVColumn();
-            olvColumnModFileAge = new BrightIdeasSoftware.OLVColumn();
-            olvColumnFreeSpaceDummy = new BrightIdeasSoftware.OLVColumn();
-            toolStrip2 = new ToolStrip();
-            toTopToolStripButton = new ToolStripButton();
-            upToolStripButton = new ToolStripButton();
-            toolStripLabel2 = new ToolStripLabel();
-            downToolStripButton = new ToolStripButton();
-            toBottomToolStripButton = new ToolStripButton();
             toolStrip1 = new ToolStrip();
             toolStripButtonApply = new ToolStripButton();
             toolStripButtonStartGame = new ToolStripButton();
@@ -171,28 +119,11 @@ namespace MW5_Mod_Manager
             modAgeColumnVisibilityToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator15 = new ToolStripSeparator();
             restoreDefaultColumnsToolStripMenuItem = new ToolStripMenuItem();
+            dockPanel1 = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
             contextMenuStripMod.SuspendLayout();
-            tabPage1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)splitContainer2).BeginInit();
-            splitContainer2.Panel1.SuspendLayout();
-            splitContainer2.Panel2.SuspendLayout();
-            splitContainer2.SuspendLayout();
-            tabPageModInfo.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBoxModImage).BeginInit();
-            panelModInfo.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBoxNexusmodsIcon).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBoxSteamIcon).BeginInit();
-            tabControl1.SuspendLayout();
-            panelColorLegend.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)splitContainerMain).BeginInit();
-            splitContainerMain.Panel1.SuspendLayout();
-            splitContainerMain.Panel2.SuspendLayout();
-            splitContainerMain.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)modObjectListView).BeginInit();
-            toolStrip2.SuspendLayout();
             toolStrip1.SuspendLayout();
             contextMenuStripColumnOptions.SuspendLayout();
             SuspendLayout();
@@ -563,605 +494,6 @@ namespace MW5_Mod_Manager
             deleteToolStripMenuItem.Text = "D&elete";
             deleteToolStripMenuItem.Click += deleteToolStripMenuItem_Click;
             // 
-            // tabPage1
-            // 
-            tabPage1.Controls.Add(richTextBoxManifestOverridden);
-            tabPage1.Controls.Add(splitContainer2);
-            tabPage1.Controls.Add(labelModNameOverrides);
-            tabPage1.Controls.Add(label7);
-            tabPage1.Location = new Point(4, 24);
-            tabPage1.Name = "tabPage1";
-            tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(326, 458);
-            tabPage1.TabIndex = 0;
-            tabPage1.Text = "Conflicts";
-            tabPage1.UseVisualStyleBackColor = true;
-            // 
-            // richTextBoxManifestOverridden
-            // 
-            richTextBoxManifestOverridden.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            richTextBoxManifestOverridden.Location = new Point(9, 164);
-            richTextBoxManifestOverridden.Name = "richTextBoxManifestOverridden";
-            richTextBoxManifestOverridden.ReadOnly = true;
-            richTextBoxManifestOverridden.Size = new Size(309, 289);
-            richTextBoxManifestOverridden.TabIndex = 28;
-            richTextBoxManifestOverridden.Text = "";
-            richTextBoxManifestOverridden.WordWrap = false;
-            // 
-            // splitContainer2
-            // 
-            splitContainer2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            splitContainer2.IsSplitterFixed = true;
-            splitContainer2.Location = new Point(9, 36);
-            splitContainer2.Name = "splitContainer2";
-            // 
-            // splitContainer2.Panel1
-            // 
-            splitContainer2.Panel1.Controls.Add(listBoxOverriding);
-            splitContainer2.Panel1.Controls.Add(label6);
-            // 
-            // splitContainer2.Panel2
-            // 
-            splitContainer2.Panel2.Controls.Add(listBoxOverriddenBy);
-            splitContainer2.Panel2.Controls.Add(label5);
-            splitContainer2.Size = new Size(309, 100);
-            splitContainer2.SplitterDistance = 152;
-            splitContainer2.TabIndex = 27;
-            // 
-            // listBoxOverriding
-            // 
-            listBoxOverriding.Dock = DockStyle.Bottom;
-            listBoxOverriding.FormattingEnabled = true;
-            listBoxOverriding.HorizontalScrollbar = true;
-            listBoxOverriding.ItemHeight = 15;
-            listBoxOverriding.Location = new Point(0, 21);
-            listBoxOverriding.Name = "listBoxOverriding";
-            listBoxOverriding.Size = new Size(152, 79);
-            listBoxOverriding.TabIndex = 21;
-            listBoxOverriding.SelectedIndexChanged += listBoxOverriding_SelectedIndexChanged;
-            listBoxOverriding.MouseDoubleClick += listBoxOverriding_MouseDoubleClick;
-            // 
-            // label6
-            // 
-            label6.AutoSize = true;
-            label6.Location = new Point(0, 2);
-            label6.Name = "label6";
-            label6.Size = new Size(75, 15);
-            label6.TabIndex = 25;
-            label6.Text = "Is overriding:";
-            // 
-            // listBoxOverriddenBy
-            // 
-            listBoxOverriddenBy.Dock = DockStyle.Bottom;
-            listBoxOverriddenBy.FormattingEnabled = true;
-            listBoxOverriddenBy.HorizontalScrollbar = true;
-            listBoxOverriddenBy.ItemHeight = 15;
-            listBoxOverriddenBy.Location = new Point(0, 21);
-            listBoxOverriddenBy.Name = "listBoxOverriddenBy";
-            listBoxOverriddenBy.Size = new Size(153, 79);
-            listBoxOverriddenBy.TabIndex = 23;
-            listBoxOverriddenBy.SelectedIndexChanged += listBoxOverriddenBy_SelectedIndexChanged;
-            listBoxOverriddenBy.MouseDoubleClick += listBoxOverriddenBy_MouseDoubleClick;
-            // 
-            // label5
-            // 
-            label5.AutoSize = true;
-            label5.Location = new Point(0, 2);
-            label5.Name = "label5";
-            label5.Size = new Size(94, 15);
-            label5.TabIndex = 24;
-            label5.Text = "Is overridden by:";
-            // 
-            // labelModNameOverrides
-            // 
-            labelModNameOverrides.AutoSize = true;
-            labelModNameOverrides.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            labelModNameOverrides.Location = new Point(9, 12);
-            labelModNameOverrides.Name = "labelModNameOverrides";
-            labelModNameOverrides.Size = new Size(22, 15);
-            labelModNameOverrides.TabIndex = 20;
-            labelModNameOverrides.Text = "---";
-            // 
-            // label7
-            // 
-            label7.AutoSize = true;
-            label7.Location = new Point(9, 148);
-            label7.Name = "label7";
-            label7.Size = new Size(127, 15);
-            label7.TabIndex = 26;
-            label7.Text = "Affected mod content:";
-            // 
-            // tabPageModInfo
-            // 
-            tabPageModInfo.Controls.Add(pictureBoxModImage);
-            tabPageModInfo.Controls.Add(panelModInfo);
-            tabPageModInfo.Location = new Point(4, 24);
-            tabPageModInfo.Name = "tabPageModInfo";
-            tabPageModInfo.Padding = new Padding(3);
-            tabPageModInfo.Size = new Size(326, 458);
-            tabPageModInfo.TabIndex = 3;
-            tabPageModInfo.Text = "Overview";
-            tabPageModInfo.UseVisualStyleBackColor = true;
-            // 
-            // pictureBoxModImage
-            // 
-            pictureBoxModImage.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            pictureBoxModImage.Location = new Point(3, 6);
-            pictureBoxModImage.Margin = new Padding(0);
-            pictureBoxModImage.Name = "pictureBoxModImage";
-            pictureBoxModImage.Size = new Size(318, 100);
-            pictureBoxModImage.SizeMode = PictureBoxSizeMode.Zoom;
-            pictureBoxModImage.TabIndex = 2;
-            pictureBoxModImage.TabStop = false;
-            // 
-            // panelModInfo
-            // 
-            panelModInfo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            panelModInfo.Controls.Add(pictureBoxNexusmodsIcon);
-            panelModInfo.Controls.Add(labelNexusmods);
-            panelModInfo.Controls.Add(linkLabelNexusmods);
-            panelModInfo.Controls.Add(pictureBoxSteamIcon);
-            panelModInfo.Controls.Add(label1);
-            panelModInfo.Controls.Add(richTextBoxModDescription);
-            panelModInfo.Controls.Add(labelSteamId);
-            panelModInfo.Controls.Add(linkLabelSteamId);
-            panelModInfo.Controls.Add(linkLabelModAuthorUrl);
-            panelModInfo.Controls.Add(labelModBuildNumber);
-            panelModInfo.Controls.Add(labelModVersion);
-            panelModInfo.Controls.Add(labelModAuthor);
-            panelModInfo.Controls.Add(labelModName);
-            panelModInfo.Location = new Point(0, 106);
-            panelModInfo.Margin = new Padding(0);
-            panelModInfo.Name = "panelModInfo";
-            panelModInfo.Size = new Size(321, 348);
-            panelModInfo.TabIndex = 1;
-            panelModInfo.Visible = false;
-            // 
-            // pictureBoxNexusmodsIcon
-            // 
-            pictureBoxNexusmodsIcon.Image = UiIcons.Nexusmods;
-            pictureBoxNexusmodsIcon.Location = new Point(8, 123);
-            pictureBoxNexusmodsIcon.Name = "pictureBoxNexusmodsIcon";
-            pictureBoxNexusmodsIcon.Size = new Size(16, 16);
-            pictureBoxNexusmodsIcon.TabIndex = 14;
-            pictureBoxNexusmodsIcon.TabStop = false;
-            // 
-            // labelNexusmods
-            // 
-            labelNexusmods.AutoSize = true;
-            labelNexusmods.Location = new Point(26, 125);
-            labelNexusmods.Name = "labelNexusmods";
-            labelNexusmods.Size = new Size(87, 15);
-            labelNexusmods.TabIndex = 13;
-            labelNexusmods.Text = "Nexusmods ID:";
-            // 
-            // linkLabelNexusmods
-            // 
-            linkLabelNexusmods.AutoSize = true;
-            linkLabelNexusmods.Location = new Point(111, 126);
-            linkLabelNexusmods.Name = "linkLabelNexusmods";
-            linkLabelNexusmods.Size = new Size(117, 15);
-            linkLabelNexusmods.TabIndex = 12;
-            linkLabelNexusmods.TabStop = true;
-            linkLabelNexusmods.Text = "linkLabelNexusmods";
-            linkLabelNexusmods.LinkClicked += linkLabelNexusmods_LinkClicked;
-            // 
-            // pictureBoxSteamIcon
-            // 
-            pictureBoxSteamIcon.Image = UiIcons.Steam;
-            pictureBoxSteamIcon.Location = new Point(8, 101);
-            pictureBoxSteamIcon.Name = "pictureBoxSteamIcon";
-            pictureBoxSteamIcon.Size = new Size(16, 16);
-            pictureBoxSteamIcon.TabIndex = 11;
-            pictureBoxSteamIcon.TabStop = false;
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(5, 163);
-            label1.Name = "label1";
-            label1.Size = new Size(70, 15);
-            label1.TabIndex = 10;
-            label1.Text = "Description:";
-            // 
-            // richTextBoxModDescription
-            // 
-            richTextBoxModDescription.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            richTextBoxModDescription.Location = new Point(8, 182);
-            richTextBoxModDescription.Name = "richTextBoxModDescription";
-            richTextBoxModDescription.ReadOnly = true;
-            richTextBoxModDescription.Size = new Size(291, 157);
-            richTextBoxModDescription.TabIndex = 9;
-            richTextBoxModDescription.Text = "";
-            richTextBoxModDescription.LinkClicked += richTextBoxModDescription_LinkClicked;
-            // 
-            // labelSteamId
-            // 
-            labelSteamId.AutoSize = true;
-            labelSteamId.Location = new Point(26, 103);
-            labelSteamId.Name = "labelSteamId";
-            labelSteamId.Size = new Size(57, 15);
-            labelSteamId.TabIndex = 8;
-            labelSteamId.Text = "Steam ID:";
-            // 
-            // linkLabelSteamId
-            // 
-            linkLabelSteamId.AutoSize = true;
-            linkLabelSteamId.Location = new Point(111, 103);
-            linkLabelSteamId.Name = "linkLabelSteamId";
-            linkLabelSteamId.Size = new Size(97, 15);
-            linkLabelSteamId.TabIndex = 7;
-            linkLabelSteamId.TabStop = true;
-            linkLabelSteamId.Text = "linkLabelSteamId";
-            linkLabelSteamId.LinkClicked += linkLabelSteamId_LinkClicked;
-            // 
-            // linkLabelModAuthorUrl
-            // 
-            linkLabelModAuthorUrl.AutoEllipsis = true;
-            linkLabelModAuthorUrl.Location = new Point(5, 46);
-            linkLabelModAuthorUrl.Name = "linkLabelModAuthorUrl";
-            linkLabelModAuthorUrl.Size = new Size(313, 13);
-            linkLabelModAuthorUrl.TabIndex = 6;
-            linkLabelModAuthorUrl.TabStop = true;
-            linkLabelModAuthorUrl.Text = "linkLabel1";
-            linkLabelModAuthorUrl.LinkClicked += linkLabelModAuthorUrl_LinkClicked;
-            // 
-            // labelModBuildNumber
-            // 
-            labelModBuildNumber.AutoSize = true;
-            labelModBuildNumber.Location = new Point(147, 73);
-            labelModBuildNumber.Name = "labelModBuildNumber";
-            labelModBuildNumber.Size = new Size(128, 15);
-            labelModBuildNumber.TabIndex = 4;
-            labelModBuildNumber.Text = "labelModBuildNumber";
-            // 
-            // labelModVersion
-            // 
-            labelModVersion.AutoSize = true;
-            labelModVersion.Location = new Point(5, 73);
-            labelModVersion.Name = "labelModVersion";
-            labelModVersion.Size = new Size(95, 15);
-            labelModVersion.TabIndex = 3;
-            labelModVersion.Text = "labelModVersion";
-            // 
-            // labelModAuthor
-            // 
-            labelModAuthor.AutoSize = true;
-            labelModAuthor.Location = new Point(5, 28);
-            labelModAuthor.Name = "labelModAuthor";
-            labelModAuthor.Size = new Size(94, 15);
-            labelModAuthor.TabIndex = 2;
-            labelModAuthor.Text = "labelModAuthor";
-            // 
-            // labelModName
-            // 
-            labelModName.AutoSize = true;
-            labelModName.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            labelModName.Location = new Point(5, 8);
-            labelModName.Name = "labelModName";
-            labelModName.Size = new Size(91, 15);
-            labelModName.TabIndex = 1;
-            labelModName.Text = "labelModName";
-            // 
-            // tabControl1
-            // 
-            tabControl1.Controls.Add(tabPageModInfo);
-            tabControl1.Controls.Add(tabPage1);
-            tabControl1.Dock = DockStyle.Fill;
-            tabControl1.Location = new Point(0, 0);
-            tabControl1.Name = "tabControl1";
-            tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(334, 486);
-            tabControl1.TabIndex = 11;
-            tabControl1.Resize += tabControl1_Resize;
-            // 
-            // rotatingLabelBottom
-            // 
-            rotatingLabelBottom.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            rotatingLabelBottom.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            rotatingLabelBottom.Location = new Point(5, 362);
-            rotatingLabelBottom.Name = "rotatingLabelBottom";
-            rotatingLabelBottom.NewText = "« Low priority";
-            rotatingLabelBottom.RotateAngle = -90;
-            rotatingLabelBottom.Size = new Size(19, 94);
-            rotatingLabelBottom.TabIndex = 39;
-            // 
-            // rotatingLabelTop
-            // 
-            rotatingLabelTop.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            rotatingLabelTop.Location = new Point(5, 22);
-            rotatingLabelTop.Name = "rotatingLabelTop";
-            rotatingLabelTop.NewText = "High priority »";
-            rotatingLabelTop.RotateAngle = -90;
-            rotatingLabelTop.Size = new Size(19, 99);
-            rotatingLabelTop.TabIndex = 38;
-            // 
-            // panelColorLegend
-            // 
-            panelColorLegend.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            panelColorLegend.Controls.Add(label8);
-            panelColorLegend.Controls.Add(label4);
-            panelColorLegend.Controls.Add(label2);
-            panelColorLegend.Controls.Add(panelColorOverridingOverridden);
-            panelColorLegend.Controls.Add(panelColorOverriding);
-            panelColorLegend.Controls.Add(panelColorOverridden);
-            panelColorLegend.Location = new Point(30, 463);
-            panelColorLegend.Name = "panelColorLegend";
-            panelColorLegend.Size = new Size(368, 21);
-            panelColorLegend.TabIndex = 37;
-            // 
-            // label8
-            // 
-            label8.AutoSize = true;
-            label8.Location = new Point(193, 2);
-            label8.Margin = new Padding(0);
-            label8.Name = "label8";
-            label8.Size = new Size(138, 15);
-            label8.TabIndex = 5;
-            label8.Text = "Overriding && Overridden";
-            // 
-            // label4
-            // 
-            label4.AutoSize = true;
-            label4.Location = new Point(105, 2);
-            label4.Margin = new Padding(0);
-            label4.Name = "label4";
-            label4.Size = new Size(66, 15);
-            label4.TabIndex = 4;
-            label4.Text = "Overridden";
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(18, 2);
-            label2.Margin = new Padding(0);
-            label2.Name = "label2";
-            label2.Size = new Size(63, 15);
-            label2.TabIndex = 3;
-            label2.Text = "Overriding";
-            // 
-            // panelColorOverridingOverridden
-            // 
-            panelColorOverridingOverridden.Location = new Point(178, 3);
-            panelColorOverridingOverridden.Name = "panelColorOverridingOverridden";
-            panelColorOverridingOverridden.Size = new Size(12, 12);
-            panelColorOverridingOverridden.TabIndex = 2;
-            // 
-            // panelColorOverriding
-            // 
-            panelColorOverriding.Location = new Point(3, 3);
-            panelColorOverriding.Name = "panelColorOverriding";
-            panelColorOverriding.Size = new Size(12, 12);
-            panelColorOverriding.TabIndex = 1;
-            // 
-            // panelColorOverridden
-            // 
-            panelColorOverridden.Location = new Point(90, 3);
-            panelColorOverridden.Name = "panelColorOverridden";
-            panelColorOverridden.Size = new Size(12, 12);
-            panelColorOverridden.TabIndex = 0;
-            // 
-            // splitContainerMain
-            // 
-            splitContainerMain.Dock = DockStyle.Fill;
-            splitContainerMain.Location = new Point(0, 69);
-            splitContainerMain.Name = "splitContainerMain";
-            // 
-            // splitContainerMain.Panel1
-            // 
-            splitContainerMain.Panel1.Controls.Add(modObjectListView);
-            splitContainerMain.Panel1.Controls.Add(toolStrip2);
-            splitContainerMain.Panel1.Controls.Add(rotatingLabelBottom);
-            splitContainerMain.Panel1.Controls.Add(rotatingLabelTop);
-            splitContainerMain.Panel1.Controls.Add(panelColorLegend);
-            // 
-            // splitContainerMain.Panel2
-            // 
-            splitContainerMain.Panel2.Controls.Add(tabControl1);
-            splitContainerMain.Panel2MinSize = 250;
-            splitContainerMain.Size = new Size(1167, 486);
-            splitContainerMain.SplitterDistance = 828;
-            splitContainerMain.SplitterWidth = 5;
-            splitContainerMain.TabIndex = 40;
-            // 
-            // modObjectListView
-            // 
-            modObjectListView.AllColumns.Add(olvColumnModName);
-            modObjectListView.AllColumns.Add(olvColumnModAuthor);
-            modObjectListView.AllColumns.Add(olvColumnModVersion);
-            modObjectListView.AllColumns.Add(olvColumnModCurLoadOrder);
-            modObjectListView.AllColumns.Add(olvColumnModOrgLoadOrder);
-            modObjectListView.AllColumns.Add(olvColumnModFileSize);
-            modObjectListView.AllColumns.Add(olvColumnModFolder);
-            modObjectListView.AllColumns.Add(olvColumnModFileAge);
-            modObjectListView.AllColumns.Add(olvColumnFreeSpaceDummy);
-            modObjectListView.AllowColumnReorder = true;
-            modObjectListView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            modObjectListView.CheckBoxes = true;
-            modObjectListView.Columns.AddRange(new ColumnHeader[] { olvColumnModName, olvColumnModAuthor, olvColumnModVersion, olvColumnModFileAge, olvColumnModCurLoadOrder, olvColumnModOrgLoadOrder, olvColumnModFileSize, olvColumnModFolder, olvColumnFreeSpaceDummy });
-            modObjectListView.FullRowSelect = true;
-            modObjectListView.HeaderStyle = ColumnHeaderStyle.Nonclickable;
-            modObjectListView.Location = new Point(30, 3);
-            modObjectListView.Name = "modObjectListView";
-            modObjectListView.SelectColumnsOnRightClick = false;
-            modObjectListView.SelectColumnsOnRightClickBehaviour = BrightIdeasSoftware.ObjectListView.ColumnSelectBehaviour.None;
-            modObjectListView.ShowFilterMenuOnRightClick = false;
-            modObjectListView.ShowImagesOnSubItems = true;
-            modObjectListView.ShowItemToolTips = true;
-            modObjectListView.ShowSortIndicators = false;
-            modObjectListView.Size = new Size(795, 457);
-            modObjectListView.SmallImageList = imageListIcons;
-            modObjectListView.TabIndex = 41;
-            modObjectListView.UseHotControls = false;
-            modObjectListView.UseHotItem = true;
-            modObjectListView.UseOverlays = false;
-            modObjectListView.UseTranslucentHotItem = true;
-            modObjectListView.UseTranslucentSelection = true;
-            modObjectListView.View = View.Details;
-            modObjectListView.BeforeSearching += modObjectListView_BeforeSearching;
-            modObjectListView.BeforeSorting += modObjectListView_BeforeSorting;
-            modObjectListView.BeforeCreatingGroups += modObjectListView_BeforeCreatingGroups;
-            modObjectListView.AboutToCreateGroups += modObjectListView_AboutToCreateGroups;
-            modObjectListView.CellToolTipShowing += modObjectListView_CellToolTipShowing;
-            modObjectListView.ColumnRightClick += modObjectListView_ColumnRightClick;
-            modObjectListView.FormatCell += modObjectListView_FormatCell;
-            modObjectListView.FormatRow += modObjectListView_FormatRow;
-            modObjectListView.ModelDropped += modObjectListView_ModelDropped;
-            modObjectListView.ColumnReordered += modObjectListView_ColumnReordered;
-            modObjectListView.SelectedIndexChanged += modObjectListView_SelectedIndexChanged;
-            modObjectListView.DragOver += modObjectListView_DragOver;
-            modObjectListView.MouseClick += modObjectListView_MouseClick;
-            // 
-            // olvColumnModName
-            // 
-            olvColumnModName.Hideable = false;
-            olvColumnModName.MinimumWidth = 40;
-            olvColumnModName.Text = "Mod";
-            olvColumnModName.Width = 300;
-            // 
-            // olvColumnModAuthor
-            // 
-            olvColumnModAuthor.Groupable = false;
-            olvColumnModAuthor.MinimumWidth = 10;
-            olvColumnModAuthor.Sortable = false;
-            olvColumnModAuthor.Text = "Author";
-            olvColumnModAuthor.Width = 90;
-            // 
-            // olvColumnModVersion
-            // 
-            olvColumnModVersion.Groupable = false;
-            olvColumnModVersion.MinimumWidth = 10;
-            olvColumnModVersion.Searchable = false;
-            olvColumnModVersion.Sortable = false;
-            olvColumnModVersion.Text = "Version";
-            olvColumnModVersion.ToolTipText = "Version with build number";
-            olvColumnModVersion.Width = 70;
-            // 
-            // olvColumnModCurLoadOrder
-            // 
-            olvColumnModCurLoadOrder.Groupable = false;
-            olvColumnModCurLoadOrder.MinimumWidth = 10;
-            olvColumnModCurLoadOrder.Searchable = false;
-            olvColumnModCurLoadOrder.Sortable = false;
-            olvColumnModCurLoadOrder.Text = "LO";
-            olvColumnModCurLoadOrder.TextAlign = HorizontalAlignment.Right;
-            olvColumnModCurLoadOrder.ToolTipText = "Current load order";
-            olvColumnModCurLoadOrder.Width = 40;
-            // 
-            // olvColumnModOrgLoadOrder
-            // 
-            olvColumnModOrgLoadOrder.Groupable = false;
-            olvColumnModOrgLoadOrder.MinimumWidth = 10;
-            olvColumnModOrgLoadOrder.Searchable = false;
-            olvColumnModOrgLoadOrder.Sortable = false;
-            olvColumnModOrgLoadOrder.Text = "oLO";
-            olvColumnModOrgLoadOrder.TextAlign = HorizontalAlignment.Right;
-            olvColumnModOrgLoadOrder.ToolTipText = "Default load order";
-            olvColumnModOrgLoadOrder.Width = 40;
-            // 
-            // olvColumnModFileSize
-            // 
-            olvColumnModFileSize.Groupable = false;
-            olvColumnModFileSize.MinimumWidth = 10;
-            olvColumnModFileSize.Searchable = false;
-            olvColumnModFileSize.Sortable = false;
-            olvColumnModFileSize.Text = "File size";
-            // 
-            // olvColumnModFolder
-            // 
-            olvColumnModFolder.Groupable = false;
-            olvColumnModFolder.MinimumWidth = 10;
-            olvColumnModFolder.Sortable = false;
-            olvColumnModFolder.Text = "Mod Folder";
-            olvColumnModFolder.ToolTipText = "Mod directory name";
-            olvColumnModFolder.Width = 100;
-            // 
-            // olvColumnModFileAge
-            // 
-            olvColumnModFileAge.MinimumWidth = 10;
-            olvColumnModFileAge.Searchable = false;
-            olvColumnModFileAge.Sortable = false;
-            olvColumnModFileAge.Text = "File age";
-            olvColumnModFileAge.ToolTipText = "Age of mod files";
-            olvColumnModFileAge.Width = 70;
-            // 
-            // olvColumnFreeSpaceDummy
-            // 
-            olvColumnFreeSpaceDummy.FillsFreeSpace = true;
-            olvColumnFreeSpaceDummy.Hideable = false;
-            olvColumnFreeSpaceDummy.IsEditable = false;
-            olvColumnFreeSpaceDummy.IsVisible = false;
-            olvColumnFreeSpaceDummy.Searchable = false;
-            olvColumnFreeSpaceDummy.ShowTextInHeader = false;
-            olvColumnFreeSpaceDummy.Sortable = false;
-            olvColumnFreeSpaceDummy.Text = "";
-            // 
-            // toolStrip2
-            // 
-            toolStrip2.Anchor = AnchorStyles.Left;
-            toolStrip2.AutoSize = false;
-            toolStrip2.BackColor = Color.Transparent;
-            toolStrip2.CanOverflow = false;
-            toolStrip2.Dock = DockStyle.None;
-            toolStrip2.GripStyle = ToolStripGripStyle.Hidden;
-            toolStrip2.Items.AddRange(new ToolStripItem[] { toTopToolStripButton, upToolStripButton, toolStripLabel2, downToolStripButton, toBottomToolStripButton });
-            toolStrip2.LayoutStyle = ToolStripLayoutStyle.Flow;
-            toolStrip2.Location = new Point(4, 182);
-            toolStrip2.Name = "toolStrip2";
-            toolStrip2.Size = new Size(24, 118);
-            toolStrip2.TabIndex = 40;
-            toolStrip2.Text = "toolStrip2";
-            // 
-            // toTopToolStripButton
-            // 
-            toTopToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            toTopToolStripButton.Image = UiIcons.Top;
-            toTopToolStripButton.ImageTransparentColor = Color.Magenta;
-            toTopToolStripButton.Name = "toTopToolStripButton";
-            toTopToolStripButton.Size = new Size(23, 20);
-            toTopToolStripButton.Text = "To top";
-            toTopToolStripButton.ToolTipText = "Move selected mod(s) to top";
-            toTopToolStripButton.Click += toTopToolStripButton_Click;
-            // 
-            // upToolStripButton
-            // 
-            upToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            upToolStripButton.Image = UiIcons.Up;
-            upToolStripButton.ImageTransparentColor = Color.Magenta;
-            upToolStripButton.Name = "upToolStripButton";
-            upToolStripButton.Size = new Size(23, 20);
-            upToolStripButton.Text = "Up";
-            upToolStripButton.ToolTipText = "Move selected mod(s) up";
-            upToolStripButton.Click += upToolStripButton_Click;
-            // 
-            // toolStripLabel2
-            // 
-            toolStripLabel2.AutoSize = false;
-            toolStripLabel2.Name = "toolStripLabel2";
-            toolStripLabel2.Size = new Size(15, 15);
-            // 
-            // downToolStripButton
-            // 
-            downToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            downToolStripButton.Image = UiIcons.Down;
-            downToolStripButton.ImageTransparentColor = Color.Magenta;
-            downToolStripButton.Name = "downToolStripButton";
-            downToolStripButton.Size = new Size(23, 20);
-            downToolStripButton.Text = "Down";
-            downToolStripButton.ToolTipText = "Move selected mod(s) down";
-            downToolStripButton.Click += downToolStripButton_Click;
-            // 
-            // toBottomToolStripButton
-            // 
-            toBottomToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            toBottomToolStripButton.Image = UiIcons.Bottom;
-            toBottomToolStripButton.ImageTransparentColor = Color.Magenta;
-            toBottomToolStripButton.Name = "toBottomToolStripButton";
-            toBottomToolStripButton.Size = new Size(23, 20);
-            toBottomToolStripButton.Text = "To bottom";
-            toBottomToolStripButton.ToolTipText = "Move selected mod(s) to bottom";
-            toBottomToolStripButton.Click += toBottomToolStripButton_Click;
-            // 
             // toolStrip1
             // 
             toolStrip1.AutoSize = false;
@@ -1265,6 +597,7 @@ namespace MW5_Mod_Manager
             // 
             toolStripTextFilterBox.Alignment = ToolStripItemAlignment.Right;
             toolStripTextFilterBox.CueBanner = "Search (Ctrl+F)";
+            toolStripTextFilterBox.Font = new Font("Segoe UI", 9F);
             toolStripTextFilterBox.Margin = new Padding(5, 0, 5, 0);
             toolStripTextFilterBox.Name = "toolStripTextFilterBox";
             toolStripTextFilterBox.Size = new Size(140, 45);
@@ -1387,13 +720,22 @@ namespace MW5_Mod_Manager
             restoreDefaultColumnsToolStripMenuItem.Text = "&Restore defaults";
             restoreDefaultColumnsToolStripMenuItem.Click += restoreDefaultColumnsToolStripMenuItem_Click;
             // 
+            // dockPanel1
+            // 
+            dockPanel1.Dock = DockStyle.Fill;
+            dockPanel1.DocumentStyle = WeifenLuo.WinFormsUI.Docking.DocumentStyle.DockingSdi;
+            dockPanel1.Location = new Point(0, 69);
+            dockPanel1.Name = "dockPanel1";
+            dockPanel1.Size = new Size(1167, 486);
+            dockPanel1.TabIndex = 42;
+            // 
             // MainForm
             // 
             AllowDrop = true;
             AutoScaleDimensions = new SizeF(96F, 96F);
             AutoScaleMode = AutoScaleMode.Dpi;
             ClientSize = new Size(1167, 579);
-            Controls.Add(splitContainerMain);
+            Controls.Add(dockPanel1);
             Controls.Add(toolStrip1);
             Controls.Add(menuStrip1);
             Controls.Add(statusStrip1);
@@ -1414,30 +756,6 @@ namespace MW5_Mod_Manager
             statusStrip1.ResumeLayout(false);
             statusStrip1.PerformLayout();
             contextMenuStripMod.ResumeLayout(false);
-            tabPage1.ResumeLayout(false);
-            tabPage1.PerformLayout();
-            splitContainer2.Panel1.ResumeLayout(false);
-            splitContainer2.Panel1.PerformLayout();
-            splitContainer2.Panel2.ResumeLayout(false);
-            splitContainer2.Panel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)splitContainer2).EndInit();
-            splitContainer2.ResumeLayout(false);
-            tabPageModInfo.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)pictureBoxModImage).EndInit();
-            panelModInfo.ResumeLayout(false);
-            panelModInfo.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBoxNexusmodsIcon).EndInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBoxSteamIcon).EndInit();
-            tabControl1.ResumeLayout(false);
-            panelColorLegend.ResumeLayout(false);
-            panelColorLegend.PerformLayout();
-            splitContainerMain.Panel1.ResumeLayout(false);
-            splitContainerMain.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)splitContainerMain).EndInit();
-            splitContainerMain.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)modObjectListView).EndInit();
-            toolStrip2.ResumeLayout(false);
-            toolStrip2.PerformLayout();
             toolStrip1.ResumeLayout(false);
             toolStrip1.PerformLayout();
             contextMenuStripColumnOptions.ResumeLayout(false);
@@ -1447,14 +765,6 @@ namespace MW5_Mod_Manager
 
         #endregion
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
-        public BrightIdeasSoftware.OLVColumn olvColumnModName;
-        public BrightIdeasSoftware.OLVColumn olvColumnModFolder;
-        public BrightIdeasSoftware.OLVColumn olvColumnModAuthor;
-        public BrightIdeasSoftware.OLVColumn olvColumnModFileSize;
-        public BrightIdeasSoftware.OLVColumn olvColumnModVersion;
-        public BrightIdeasSoftware.OLVColumn olvColumnModCurLoadOrder;
-        public BrightIdeasSoftware.OLVColumn olvColumnModOrgLoadOrder;
-        public BrightIdeasSoftware.OLVColumn olvColumnFreeSpaceDummy;
         public System.Windows.Forms.ToolStripLabel toolStripVendorLabeltoolStripLabel1;
         private BindingSource textProgressBarBindingSource;
         private MenuStrip menuStrip1;
@@ -1472,62 +782,28 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem enableAllModsToolStripMenuItem;
         private ToolStripMenuItem disableAllModsToolStripMenuItem;
         public ToolStripStatusLabel toolStripStatusLabelMwVersion;
-        private ContextMenuStrip contextMenuStripMod;
+        public ContextMenuStrip contextMenuStripMod;
         private ToolStripMenuItem openFolderToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripMenuItem toolStripMenuItemSettings;
         private ToolStripSeparator toolStripSeparator3;
         public ToolStripMenuItem toolStripMenuItemOpenModFolderSteam;
-        private TabPage tabPage1;
-        private Label label6;
-        private Label labelModNameOverrides;
-        private ListBox listBoxOverriding;
-        private Label label7;
-        private ListBox listBoxOverriddenBy;
-        private Label label5;
-        private TabPage tabPageModInfo;
-        private PictureBox pictureBoxModImage;
-        private Panel panelModInfo;
-        private Label label1;
-        private RichTextBox richTextBoxModDescription;
-        private Label labelSteamId;
-        private LinkLabel linkLabelSteamId;
-        private LinkLabel linkLabelModAuthorUrl;
-        private Label labelModBuildNumber;
-        private Label labelModVersion;
-        private Label labelModAuthor;
-        private Label labelModName;
-        private TabControl tabControl1;
         public ToolStripMenuItem presetsToolStripMenuItem;
         private ToolStripMenuItem toolStripMenuItemLoadPresets;
         private ToolStripSeparator toolStripSeparator4;
         private ToolStripMenuItem savePresetToolStripMenuItem;
         private ToolStripMenuItem deletePresetToolStripMenuItem;
         private ImageList imageListIcons;
-        private PictureBox pictureBoxSteamIcon;
-        private PictureBox pictureBoxNexusmodsIcon;
-        private Label labelNexusmods;
-        private LinkLabel linkLabelNexusmods;
         private ToolTip toolTip1;
         private ToolStripStatusLabel toolStripStatusLabel1;
         private ToolStripStatusLabel toolStripStatusLabelModCountTotal;
         private ToolStripStatusLabel toolStripStatusLabelModsActive;
-        private Panel panelColorLegend;
-        private Label label8;
-        private Label label4;
-        private Label label2;
-        private Panel panelColorOverridingOverridden;
-        private Panel panelColorOverriding;
-        private Panel panelColorOverridden;
         private ToolStripMenuItem contextMenuItemMoveToTop;
         private ToolStripMenuItem contextMenuItemMoveToBottom;
         private ToolStripSeparator toolStripSeparator5;
         private ToolStripMenuItem moveupToolStripMenuItem;
         private ToolStripMenuItem movedownToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator6;
-        private RotatingLabel rotatingLabelTop;
-        private RotatingLabel rotatingLabelBottom;
-        private SplitContainer splitContainerMain;
         private ToolStripMenuItem toolStripMenuItemSortDefaultLoadOrder;
         private ToolStripSeparator toolStripSeparator8;
         private ToolStripMenuItem openUserModsFolderToolStripMenuItem;
@@ -1540,20 +816,12 @@ namespace MW5_Mod_Manager
         private ToolStripSeparator toolStripSeparator11;
         private ToolStripButton toolStripButtonClearFilter;
         private ToolStripSeparator toolStripSeparator10;
-        private SplitContainer splitContainer2;
         private ToolStripMenuItem deleteToolStripMenuItem;
         private ToolStripMenuItem toolStripMenuItemInstallArchive;
         private ToolStripMenuItem toolStripMenuItemInstallFromFolder;
         private ToolStripSeparator toolStripSeparator12;
-        private RichTextBox richTextBoxManifestOverridden;
         private ToolStripMenuItem toolStripMenuItemNexusmodsLink;
         private ToolStripStatusLabel toolStripStatusLabelUpdate;
-        private ToolStrip toolStrip2;
-        private ToolStripButton toTopToolStripButton;
-        private ToolStripButton upToolStripButton;
-        private ToolStripButton downToolStripButton;
-        private ToolStripButton toBottomToolStripButton;
-        private ToolStripLabel toolStripLabel2;
         private Timer timerOverviewUpdateDelay;
         private ToolStripMenuItem reloadModDataToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator13;
@@ -1564,9 +832,8 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem enableModsToolStripMenuItem;
         private ToolStripMenuItem disableModsToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator7;
-        public ModsObjectsListView modObjectListView;
         private Timer timerDelayedListRecolor;
-        private ContextMenuStrip contextMenuStripColumnOptions;
+        public ContextMenuStrip contextMenuStripColumnOptions;
         private ToolStripMenuItem authorColumnVisibilityToolStripMenuItem;
         private ToolStripMenuItem versionColumnVisibilityToolStripMenuItem;
         private ToolStripMenuItem currentLoadOrderColumnVisibilityToolStripMenuItem;
@@ -1581,8 +848,8 @@ namespace MW5_Mod_Manager
         private ToolStripButton toolStripButtonSteamWorkshop;
         private ToolStripButton toolStripButtonNexusmods;
         private ToolStripSeparator toolStripSeparator17;
-        public BrightIdeasSoftware.OLVColumn olvColumnModFileAge;
         private ToolStripMenuItem modAgeColumnVisibilityToolStripMenuItem;
+        private WeifenLuo.WinFormsUI.Docking.DockPanel dockPanel1;
     }
 }
 
