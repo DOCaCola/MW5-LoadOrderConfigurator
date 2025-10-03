@@ -282,9 +282,9 @@ namespace MW5_Mod_Manager
         public int locEstimatedAge { set; get; }
     }
 
-    public class OverridingData
+    public class ModConflictData
     {
-        public string mod { set; get; }
+        public string modPath { set; get; }
         public bool isOverridden { set; get; }
         public bool isOverriding { set; get; }
         public Dictionary<string, List<string>> overrides { set; get; }

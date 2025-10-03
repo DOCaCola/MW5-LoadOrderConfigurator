@@ -49,19 +49,19 @@ namespace MW5_Mod_Manager
 
         // Directories found in all mod paths
         public List<string> FoundDirectories = new();
-        public Dictionary<string, string> DirNameToPathDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        public Dictionary<string, string> PathToDirNameDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, string> DirNameToPathDict = new(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, string> PathToDirNameDict = new(StringComparer.OrdinalIgnoreCase);
 
         // Mod data as loaded from the mods' mod.json file
-        public Dictionary<string, ModObject> ModDetails = new Dictionary<string, ModObject>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, ModObject> ModDetails = new(StringComparer.OrdinalIgnoreCase);
         // Valid mod directories
         public List<string> ModDirectories = new();
 
-        public List<ModImportData> ModEnabledList = new List<ModImportData>();
+        public List<ModImportData> ModEnabledList = new();
         // As it was last loaded from file
         public List<ModImportData> ModEnabledListLastState;
-        public Dictionary<string, OverridingData> OverridingData = new Dictionary<string, OverridingData>(StringComparer.OrdinalIgnoreCase);
-        public Dictionary<string, string> Presets = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, ModConflictData> ModConflictData = new(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, string> Presets = new(StringComparer.OrdinalIgnoreCase);
 
         // Triggered when critical mod files were changed that would require a file reload
         public event EventHandler ModFilesChangedEvent;
@@ -793,26 +793,26 @@ namespace MW5_Mod_Manager
 
         public void ParseDirectories()
         {
-            this.FoundDirectories.Clear();
+            FoundDirectories.Clear();
 
             if (LocSettings.Instance.Data.platform != eGamePlatform.WindowsStore
                 && !Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.Program]?.FullPath)
                 && Directory.Exists(ModsPaths[eModPathType.Program]?.FullPath))
             {
-                this.FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.Program]?.FullPath));
+                FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.Program]?.FullPath));
             }
 
             if (!Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.Steam]?.FullPath)
                 && Directory.Exists(ModsPaths[eModPathType.Steam]?.FullPath))
             {
-                this.FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.Steam]?.FullPath));
+                FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.Steam]?.FullPath));
             }
 
             if (LocSettings.Instance.Data.platform == eGamePlatform.WindowsStore
                 && !Utils.StringNullEmptyOrWhiteSpace(ModsPaths[eModPathType.AppData]?.FullPath)
                 && Directory.Exists(ModsPaths[eModPathType.AppData]?.FullPath))
             {
-                this.FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.AppData]?.FullPath));
+                FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.AppData]?.FullPath));
             }
             //AddDirectoryPathsToDict();
         }
@@ -858,7 +858,7 @@ namespace MW5_Mod_Manager
             JObject modListObjectObject;
             try
             {
-                this.rawJson = File.ReadAllText(modlistPath);
+                rawJson = File.ReadAllText(modlistPath);
                 modListObjectObject = JObject.Parse(rawJson);
             }
             catch (Exception e)
@@ -912,7 +912,7 @@ namespace MW5_Mod_Manager
             this.ModDetails.Clear();
             this.ModEnabledList.Clear();
             this.DirNameToPathDict.Clear();
-            this.OverridingData.Clear();
+            this.ModConflictData.Clear();
             ClearGamePaths();
             this.VortexDeploymentData.Clear();
         }
@@ -1407,246 +1407,261 @@ namespace MW5_Mod_Manager
             sw.Close();
         }
 
-        //Save presets from memory to file for use in next session.
+        // Save presets to file
         internal void SavePresets()
         {
-            string presetsJsonFile = GetSettingsDirectory() + Path.DirectorySeparatorChar + PresetsFileName;
-            string presetJsonString = JsonConvert.SerializeObject(this.Presets, Formatting.Indented);
+            string presetsFilePath = Path.Combine(GetSettingsDirectory(), PresetsFileName);
+            string tempFilePath = presetsFilePath + ".tmp";
 
-            if (File.Exists(presetsJsonFile))
-                File.Delete(presetsJsonFile);
-
-            //Console.WriteLine(JsonString);
-            StreamWriter sw = File.CreateText(presetsJsonFile);
-            sw.WriteLine(presetJsonString);
-            sw.Flush();
-            sw.Close();
-        }
-
-        //Load prests from file
-        public void LoadPresets()
-        {
-            string JsonFile = GetSettingsDirectory() + Path.DirectorySeparatorChar + PresetsFileName;
-            //parse to dict of strings.
-
-            if (!File.Exists(JsonFile))
-                return;
-
-            Dictionary<string, string> temp;
             try
             {
-                string json = File.ReadAllText(JsonFile);
-                temp = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-                //Console.WriteLine("OUTPUT HERE!");
-                //Console.WriteLine(JsonConvert.SerializeObject(temp, Formatting.Indented));
+                string presetJsonString = JsonConvert.SerializeObject(this.Presets, Formatting.Indented);
+
+                // Write to a temporary file first
+                File.WriteAllText(tempFilePath, presetJsonString);
+
+                // Replace the original file with the new one (atomic operation)
+                File.Copy(tempFilePath, presetsFilePath, overwrite: true);
+                File.Delete(tempFilePath);
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                string message = "There was an error in decoding the presets file:\r\n\r\n"
-                    + Ex.Message;
-                string caption = "Presets File Decoding Error";
-                MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
-                return;
+                MessageBox.Show(
+                    $"There was an error saving the presets file:\r\n\r\n{ex.Message}",
+                    "Presets File Save Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
             }
-            this.Presets = temp;
+        }
+
+        // Load presets file
+        public void LoadPresets()
+        {
+            // Load the presets file from the settings directory
+            string presetsFilePath = Path.Combine(GetSettingsDirectory(), PresetsFileName);
+
+            if (!File.Exists(presetsFilePath))
+                return;
+
+            try
+            {
+                string json = File.ReadAllText(presetsFilePath);
+                var loadedPresets = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+
+                if (loadedPresets != null)
+                {
+                    Presets = loadedPresets;
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "The presets file is empty or invalid.",
+                        "Presets File Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"There was an error decoding the presets file:\r\n\r\n{ex.Message}",
+                    "Presets File Decoding Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
         }
 
         //Used to update the override data when a new item is added or removed to/from the mod list instead of checking all items agains each other again.
         public void UpdateNewModOverrideData(ModItem newModItem)
         {
-            string modA = newModItem.FolderName;
+            string modAPath = newModItem.FolderName;
 
             if (!newModItem.Enabled)
             {
-                if (this.OverridingData.ContainsKey(modA))
-                    this.OverridingData.Remove(modA);
+                ModConflictData.Remove(modAPath);
 
-                foreach (string key in this.OverridingData.Keys)
+                foreach (string key in ModConflictData.Keys)
                 {
-                    if (OverridingData[key].overriddenBy.ContainsKey(modA))
-                        OverridingData[key].overriddenBy.Remove(modA);
+                    ModConflictData[key].overriddenBy.Remove(modAPath);
 
-                    if (OverridingData[key].overrides.ContainsKey(modA))
-                        OverridingData[key].overrides.Remove(modA);
+                    ModConflictData[key].overrides.Remove(modAPath);
 
-                    if (OverridingData[key].overrides.Count == 0)
-                        OverridingData[key].isOverriding = false;
+                    if (ModConflictData[key].overrides.Count == 0)
+                        ModConflictData[key].isOverriding = false;
 
-                    if (OverridingData[key].overriddenBy.Count == 0)
-                        OverridingData[key].isOverridden = false;
+                    if (ModConflictData[key].overriddenBy.Count == 0)
+                        ModConflictData[key].isOverridden = false;
                 }
             }
             else
             {
-                if (!this.OverridingData.ContainsKey(modA))
+                if (!ModConflictData.ContainsKey(modAPath))
                 {
-                    this.OverridingData[modA] = new OverridingData
+                    ModConflictData[modAPath] = new ModConflictData
                     {
-                        mod = modA,
+                        modPath = modAPath,
                         overrides = new Dictionary<string, List<string>>(),
                         overriddenBy = new Dictionary<string, List<string>>()
                     };
                 }
 
-                // check each mod for changes
+                // Check each mod for changes
                 foreach (ModItem item in ModItemList.Instance.ModList)
                 {
-                    string modB = item.FolderName;
+                    string modBPath = item.FolderName;
 
-                    // Don't compare the same mod
-                    if (modA == modB)
+                    if (modAPath == modBPath)
                         continue;
 
                     if (!item.Enabled)
                         continue;
 
-                    if (!this.OverridingData.ContainsKey(modB))
+                    if (!ModConflictData.ContainsKey(modBPath))
                     {
-                        this.OverridingData[modB] = new OverridingData
+                        ModConflictData[modBPath] = new ModConflictData
                         {
-                            mod = modB,
+                            modPath = modBPath,
                             overrides = new Dictionary<string, List<string>>(),
                             overriddenBy = new Dictionary<string, List<string>>()
                         };
                     }
-                    RecomputeModOverridingData(newModItem, item, this.OverridingData[modA], this.OverridingData[modB]);
+                    RecomputeModConflictData(newModItem, item, ModConflictData[modAPath], ModConflictData[modBPath]);
                 }
             }
 
             MainForm.Instance.ColorizeListViewItems();
         }
 
-        //See if items A and B are interacting in terms of manifest and return the intersect
-        public void RecomputeModOverridingData(ModItem listItemA, ModItem listItemB, OverridingData A, OverridingData B)
+        // Compares the manifests of both mods to find intersecting files.
+        public void RecomputeModConflictData(ModItem listItemA, ModItem listItemB, ModConflictData conflictDataA, ModConflictData conflictDataB)
         {
             if (listItemA == listItemB)
                 return;
 
-            string modA = listItemA.FolderName;
-            string modB = listItemB.FolderName;
+            string modAPath = listItemA.FolderName;
+            string modBPath = listItemB.FolderName;
 
+            // Retrieve current load orders
             float loadOrderA = Mods[listItemA.Path].NewLoadOrder;
             float loadOrderB = Mods[listItemB.Path].NewLoadOrder;
 
-            //Now we have a mod that is not the mod we are looking at is enabled.
-            //Let's compare the manifest!
-            List<string> manifestA = this.ModDetails[this.DirNameToPathDict[modA]].manifest;
-            List<string> manifestB = this.ModDetails[this.DirNameToPathDict[modB]].manifest;
+            // Retrieve manifests for both mods
+            var manifestA = ModDetails.TryGetValue(DirNameToPathDict[modAPath], out var modObjA) ? modObjA.manifest : null;
+            var manifestB = ModDetails.TryGetValue(DirNameToPathDict[modBPath], out var modObjB) ? modObjB.manifest : null;
 
             if (manifestA == null || manifestB == null)
                 return;
 
-            List<string> intersect = manifestA
-                .Intersect(manifestB, StringComparer.OrdinalIgnoreCase)
-                .ToList();
-
-            if (!intersect.Any())
+            // Find intersecting files (case-insensitive)
+            var intersect = manifestA.Intersect(manifestB, StringComparer.OrdinalIgnoreCase).ToList();
+            if (intersect.Count == 0)
                 return;
 
-            bool isOverriding = loadOrderA > loadOrderB ||
-                                (loadOrderA == loadOrderB &&
-                                 string.Compare(modA, modB, StringComparison.InvariantCultureIgnoreCase) > 0);
+            // Determine which mod overrides the other
+            bool aOverridesB = loadOrderA > loadOrderB ||
+                       (loadOrderA == loadOrderB &&
+                        string.Compare(modAPath, modBPath, StringComparison.InvariantCultureIgnoreCase) > 0);
 
-            if (isOverriding)
+            if (aOverridesB)
             {
-                if (A.mod != modB)
+                // A overrides B
+                if (conflictDataA.modPath != modBPath)
                 {
-                    A.isOverriding = true;
-                    A.overrides[modB] = intersect;
+                    conflictDataA.isOverriding = true;
+                    conflictDataA.overrides[modBPath] = intersect;
                 }
-                if (B.mod != modA)
+                if (conflictDataB.modPath != modAPath)
                 {
-                    B.isOverridden = true;
-                    B.overriddenBy[modA] = intersect;
+                    conflictDataB.isOverridden = true;
+                    conflictDataB.overriddenBy[modAPath] = intersect;
                 }
             }
             else
             {
-                if (A.mod != modB)
+                // B overrides A
+                if (conflictDataA.modPath != modBPath)
                 {
-                    A.isOverridden = true;
-                    A.overriddenBy[modB] = intersect;
+                    conflictDataA.isOverridden = true;
+                    conflictDataA.overriddenBy[modBPath] = intersect;
                 }
-                if (B.mod != modA)
+                if (conflictDataB.modPath != modAPath)
                 {
-                    B.isOverriding = true;
-                    B.overrides[modA] = intersect;
+                    conflictDataB.isOverriding = true;
+                    conflictDataB.overrides[modAPath] = intersect;
                 }
             }
-            this.OverridingData[modA] = A;
-            this.OverridingData[modB] = B;
+
+            ModConflictData[modAPath] = conflictDataA;
+            ModConflictData[modBPath] = conflictDataB;
         }
 
         public void RecomputeOverridingData()
         {
-            this.OverridingData.Clear();
+            ModConflictData.Clear();
 
+            // Iterate over all enabled mods to compute their override relationships
             foreach (ModItem itemA in ModItemList.Instance.ModList)
             {
-                // Skip disabled items
                 if (!itemA.Enabled)
                     continue;
 
-                string modA = itemA.FolderName;
+                string modAPath = itemA.FolderName;
 
-                // Check if we already have this mod in the dict, if not create an entry for it.
-                if (!this.OverridingData.ContainsKey(modA))
+                // Ensure an entry exists for modA in the conflict data dictionary
+                if (!ModConflictData.ContainsKey(modAPath))
                 {
-                    this.OverridingData[modA] = new OverridingData
+                    ModConflictData[modAPath] = new ModConflictData
                     {
-                        mod = modA,
+                        modPath = modAPath,
                         overrides = new Dictionary<string, List<string>>(),
                         overriddenBy = new Dictionary<string, List<string>>()
                     };
                 }
-                OverridingData A = this.OverridingData[modA];
+                ModConflictData conflictDataA = this.ModConflictData[modAPath];
 
-                //Console.WriteLine("Checking: " + modA + " : " + priorityA.ToString());
+                // Compare modA with every other enabled mod to determine conflicts
                 foreach (ModItem itemB in ModItemList.Instance.ModList)
                 {
-                    string modB = itemB.FolderName;
+                    string modBPath = itemB.FolderName;
 
-                    if (modA == modB)
+                    if (modAPath == modBPath)
                         continue;
 
                     if (!itemB.Enabled)
                         continue;
 
-                    //If we have already seen modB in comparison to modA we don't need to compare because the comparison is bi-directional.
+                    // Avoid redundant comparisons: if modA and modB have already been compared, skip
                     if (
-                        A.overriddenBy.ContainsKey(modB) ||
-                        A.overrides.ContainsKey(modB)
+                        conflictDataA.overriddenBy.ContainsKey(modBPath) ||
+                        conflictDataA.overrides.ContainsKey(modBPath)
                         )
                     {
-                        ////Console.WriteLine("--" + modA + "has already been compared to: " + modB);
                         continue;
                     }
 
-                    //Check if we have already seen modB before.
-                    if (this.OverridingData.ContainsKey(modB))
+                    // If modB already has conflict data, check if this pair was already compared
+                    if (ModConflictData.ContainsKey(modBPath))
                     {
-                        //If we have already seen modB, and we have already compared modB and modA we don't need to compare because the comparison is bi-directional.
                         if (
-                            this.OverridingData[modB].overriddenBy.ContainsKey(modA) ||
-                            this.OverridingData[modB].overrides.ContainsKey(modA)
+                            ModConflictData[modBPath].overriddenBy.ContainsKey(modAPath) ||
+                            ModConflictData[modBPath].overrides.ContainsKey(modAPath)
                             )
                         {
-                            ////Console.WriteLine("--" + modB + "has already been compared to: " + modA);
+                            // This mod pair has already been processed
                             continue;
                         }
                     }
                     else
                     {
-                        //If we have not made a new modB overridingDatas
-                        this.OverridingData[modB] = new OverridingData
+                        // Create conflict data entry for modB
+                        ModConflictData[modBPath] = new ModConflictData
                         {
-                            mod = modB,
+                            modPath = modBPath,
                             overrides = new Dictionary<string, List<string>>(),
                             overriddenBy = new Dictionary<string, List<string>>()
                         };
                     }
-                    RecomputeModOverridingData(itemA, itemB, this.OverridingData[modA], this.OverridingData[modB]);
+                    RecomputeModConflictData(itemA, itemB, ModConflictData[modAPath], ModConflictData[modBPath]);
                 }
             }
 

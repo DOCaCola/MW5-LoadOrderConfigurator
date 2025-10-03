@@ -1511,10 +1511,10 @@ namespace MW5_Mod_Manager
 
                 string superMod = ModsManager.Instance.PathToDirNameDict[_sideBarSelectedModKey];
 
-                if (!ModsManager.Instance.OverridingData.ContainsKey(superMod))
+                if (!ModsManager.Instance.ModConflictData.ContainsKey(superMod))
                     return;
 
-                OverridingData modData = ModsManager.Instance.OverridingData[superMod];
+                ModConflictData modData = ModsManager.Instance.ModConflictData[superMod];
 
                 if (!modData.overriddenBy.ContainsKey(selectedMod.ModDirName))
                     return;
@@ -1572,10 +1572,10 @@ namespace MW5_Mod_Manager
 
                 string superMod = ModsManager.Instance.PathToDirNameDict[_sideBarSelectedModKey];
 
-                if (!ModsManager.Instance.OverridingData.ContainsKey(superMod))
+                if (!ModsManager.Instance.ModConflictData.ContainsKey(superMod))
                     return;
 
-                OverridingData modData = ModsManager.Instance.OverridingData[superMod];
+                ModConflictData modData = ModsManager.Instance.ModConflictData[superMod];
 
                 var sb = new StringBuilder();
                 sb.Append(@"{\rtf1\ansi");
@@ -1706,19 +1706,19 @@ namespace MW5_Mod_Manager
         //Handles the showing of overriding data on select
         private void HandleOverriding(string SelectedMod)
         {
-            if (ModsManager.Instance.OverridingData.Count == 0)
+            if (ModsManager.Instance.ModConflictData.Count == 0)
                 return;
 
             this.listBoxOverriding.Items.Clear();
             this.listBoxOverriddenBy.Items.Clear();
             this.richTextBoxManifestOverridden.Clear();
 
-            if (!ModsManager.Instance.OverridingData.ContainsKey(SelectedMod))
+            if (!ModsManager.Instance.ModConflictData.ContainsKey(SelectedMod))
                 return;
 
             listBoxOverriding.SuspendDrawing();
             listBoxOverriddenBy.SuspendDrawing();
-            OverridingData modData = ModsManager.Instance.OverridingData[SelectedMod];
+            ModConflictData modData = ModsManager.Instance.ModConflictData[SelectedMod];
             foreach (string overriding in modData.overriddenBy.Keys)
             {
                 ModListBoxItem modListBoxItem = new ModListBoxItem();
@@ -2189,9 +2189,9 @@ namespace MW5_Mod_Manager
                     ModItem firstSelectedItem = (ModItem)modObjectListView.SelectedObjects[0];
                     string selectedModPath = firstSelectedItem.Path;
                     string selectedModFolder = ModsManager.Instance.PathToDirNameDict[selectedModPath];
-                    if (ModsManager.Instance.OverridingData.ContainsKey(selectedModFolder))
+                    if (ModsManager.Instance.ModConflictData.ContainsKey(selectedModFolder))
                     {
-                        OverridingData modData = ModsManager.Instance.OverridingData[selectedModFolder];
+                        ModConflictData modData = ModsManager.Instance.ModConflictData[selectedModFolder];
                         bool foundMatch = false;
                         foreach (string overriding in modData.overriddenBy.Keys)
                         {
@@ -2948,9 +2948,9 @@ namespace MW5_Mod_Manager
 
             if (e.ColumnIndex == this.olvColumnModName.Index)
             {
-                if (ModsManager.Instance.OverridingData.ContainsKey(modItem.FolderName))
+                if (ModsManager.Instance.ModConflictData.ContainsKey(modItem.FolderName))
                 {
-                    OverridingData a = ModsManager.Instance.OverridingData[modItem.FolderName];
+                    ModConflictData a = ModsManager.Instance.ModConflictData[modItem.FolderName];
                     Color newItemColor = LocWindowColors.WindowText;
                     if (a.isOverridden)
                     {
