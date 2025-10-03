@@ -380,5 +380,37 @@ namespace MW5_Mod_Manager
             if (anyUpdated)
                 modObjectListView.EndUpdate();
         }
+
+        private void toTopToolStripButton_Click(object sender, EventArgs e)
+        {
+            var selectedItems = modObjectListView.SelectedObjects;
+            MainForm.Instance.MoveListItems(modObjectListView.SelectedItems, MovePosition.Top);
+            modObjectListView.SelectedObjects = selectedItems;
+            modObjectListView.EnsureModelVisible(selectedItems[0]);
+        }
+
+        private void toBottomToolStripButton_Click(object sender, EventArgs e)
+        {
+            var selectedItems = modObjectListView.SelectedObjects;
+            MainForm.Instance.MoveListItems(modObjectListView.SelectedItems, MovePosition.Bottom);
+            modObjectListView.SelectedObjects = selectedItems;
+            modObjectListView.EnsureModelVisible(selectedItems[^1]);
+        }
+
+        private void upToolStripButton_Click(object sender, EventArgs e)
+        {
+            var selectedItems = modObjectListView.SelectedObjects;
+            MainForm.Instance.MoveListItems(modObjectListView.SelectedItems, MoveDirection.Up);
+            modObjectListView.SelectedObjects = selectedItems;
+            modObjectListView.EnsureModelVisible(selectedItems[0]);
+        }
+
+        private void downToolStripButton_Click(object sender, EventArgs e)
+        {
+            var selectedItems = modObjectListView.SelectedObjects;
+            MainForm.Instance.MoveListItems(modObjectListView.SelectedItems, MoveDirection.Down);
+            modObjectListView.SelectedObjects = selectedItems;
+            modObjectListView.EnsureModelVisible(selectedItems[^1]);
+        }
     }
 }

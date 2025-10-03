@@ -85,10 +85,16 @@ namespace MW5_Mod_Manager
                 DockModListForm.Instance.upToolStripButton.Image = UiIconsDark.Up;
 
                 DockModListForm.Instance.olvColumnFreeSpaceDummy.IsVisible = true;
+
+                visualStudioToolStripExtender1.SetStyle(menuStrip1, VisualStudioToolStripExtender.VsVersion.Vs2015, new VS2015DarkTheme());
+                visualStudioToolStripExtender1.SetStyle(toolStrip1, VisualStudioToolStripExtender.VsVersion.Vs2015, new VS2015DarkTheme());
+
             }
             else
             {
                 dockPanel1.Theme = new VS2015LightTheme();
+                visualStudioToolStripExtender1.SetStyle(menuStrip1, VisualStudioToolStripExtender.VsVersion.Vs2015, new VS2015LightTheme());
+                visualStudioToolStripExtender1.SetStyle(toolStrip1, VisualStudioToolStripExtender.VsVersion.Vs2015, new VS2015LightTheme());
 
                 DockModListForm.Instance.toolStrip2.Renderer = new ToolStripTransparentRenderer();
             }
@@ -110,22 +116,22 @@ namespace MW5_Mod_Manager
 
             this.Text += @" " + GetVersion();
 
-            imageListIcons.Images.Add("Steam", UiIcons.Steam);
-            imageListIcons.Images.Add("Nexusmods", UiIcons.Nexusmods);
-            imageListIcons.Images.Add("Folder", UiIcons.Folder);
+            DockModListForm.Instance.imageListIcons.Images.Add("Steam", UiIcons.Steam);
+            DockModListForm.Instance.imageListIcons.Images.Add("Nexusmods", UiIcons.Nexusmods);
+            DockModListForm.Instance.imageListIcons.Images.Add("Folder", UiIcons.Folder);
 
 
             if (LocWindowColors.DarkMode)
             {
-                imageListIcons.Images.Add("SteamDis", UiIconsDark.SteamDis);
-                imageListIcons.Images.Add("NexusmodsDis", UiIconsDark.NexusmodsDis);
-                imageListIcons.Images.Add("FolderDis", UiIconsDark.FolderDis);
+                DockModListForm.Instance.imageListIcons.Images.Add("SteamDis", UiIconsDark.SteamDis);
+                DockModListForm.Instance.imageListIcons.Images.Add("NexusmodsDis", UiIconsDark.NexusmodsDis);
+                DockModListForm.Instance.imageListIcons.Images.Add("FolderDis", UiIconsDark.FolderDis);
             }
             else
             {
-                imageListIcons.Images.Add("SteamDis", UiIcons.SteamDis);
-                imageListIcons.Images.Add("NexusmodsDis", UiIcons.NexusmodsDis);
-                imageListIcons.Images.Add("FolderDis", UiIcons.FolderDis);
+                DockModListForm.Instance.imageListIcons.Images.Add("SteamDis", UiIcons.SteamDis);
+                DockModListForm.Instance.imageListIcons.Images.Add("NexusmodsDis", UiIcons.NexusmodsDis);
+                DockModListForm.Instance.imageListIcons.Images.Add("FolderDis", UiIcons.FolderDis);
             }
 
             DockModListForm.Instance.olvColumnModName.ImageGetter = this.ModImageGetter;

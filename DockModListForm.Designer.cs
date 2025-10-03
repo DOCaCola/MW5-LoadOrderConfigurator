@@ -50,6 +50,7 @@ namespace MW5_Mod_Manager
             olvColumnModFolder = new BrightIdeasSoftware.OLVColumn();
             olvColumnModFileAge = new BrightIdeasSoftware.OLVColumn();
             olvColumnFreeSpaceDummy = new BrightIdeasSoftware.OLVColumn();
+            imageListIcons = new ImageList(components);
             panelColorLegend = new Panel();
             label8 = new Label();
             label4 = new Label();
@@ -57,7 +58,6 @@ namespace MW5_Mod_Manager
             panelColorOverridingOverridden = new Panel();
             panelColorOverriding = new Panel();
             panelColorOverridden = new Panel();
-            imageListIcons = new ImageList(components);
             toolStrip2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)modObjectListView).BeginInit();
             panelColorLegend.SuspendLayout();
@@ -73,7 +73,7 @@ namespace MW5_Mod_Manager
             toolStrip2.GripStyle = ToolStripGripStyle.Hidden;
             toolStrip2.Items.AddRange(new ToolStripItem[] { toTopToolStripButton, upToolStripButton, toolStripLabel2, downToolStripButton, toBottomToolStripButton });
             toolStrip2.LayoutStyle = ToolStripLayoutStyle.Flow;
-            toolStrip2.Location = new Point(11, 147);
+            toolStrip2.Location = new Point(7, 147);
             toolStrip2.Name = "toolStrip2";
             toolStrip2.Size = new Size(24, 118);
             toolStrip2.TabIndex = 43;
@@ -88,6 +88,7 @@ namespace MW5_Mod_Manager
             toTopToolStripButton.Size = new Size(23, 20);
             toTopToolStripButton.Text = "To top";
             toTopToolStripButton.ToolTipText = "Move selected mod(s) to top";
+            toTopToolStripButton.Click += toTopToolStripButton_Click;
             // 
             // upToolStripButton
             // 
@@ -98,6 +99,7 @@ namespace MW5_Mod_Manager
             upToolStripButton.Size = new Size(23, 20);
             upToolStripButton.Text = "Up";
             upToolStripButton.ToolTipText = "Move selected mod(s) up";
+            upToolStripButton.Click += upToolStripButton_Click;
             // 
             // toolStripLabel2
             // 
@@ -114,6 +116,7 @@ namespace MW5_Mod_Manager
             downToolStripButton.Size = new Size(23, 20);
             downToolStripButton.Text = "Down";
             downToolStripButton.ToolTipText = "Move selected mod(s) down";
+            downToolStripButton.Click += downToolStripButton_Click;
             // 
             // toBottomToolStripButton
             // 
@@ -124,12 +127,13 @@ namespace MW5_Mod_Manager
             toBottomToolStripButton.Size = new Size(23, 20);
             toBottomToolStripButton.Text = "To bottom";
             toBottomToolStripButton.ToolTipText = "Move selected mod(s) to bottom";
+            toBottomToolStripButton.Click += toBottomToolStripButton_Click;
             // 
             // rotatingLabelBottom
             // 
             rotatingLabelBottom.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             rotatingLabelBottom.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            rotatingLabelBottom.Location = new Point(12, 306);
+            rotatingLabelBottom.Location = new Point(7, 306);
             rotatingLabelBottom.Name = "rotatingLabelBottom";
             rotatingLabelBottom.NewText = "« Low priority";
             rotatingLabelBottom.RotateAngle = -90;
@@ -139,7 +143,7 @@ namespace MW5_Mod_Manager
             // rotatingLabelTop
             // 
             rotatingLabelTop.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            rotatingLabelTop.Location = new Point(12, 9);
+            rotatingLabelTop.Location = new Point(7, 9);
             rotatingLabelTop.Name = "rotatingLabelTop";
             rotatingLabelTop.NewText = "High priority »";
             rotatingLabelTop.RotateAngle = -90;
@@ -163,7 +167,7 @@ namespace MW5_Mod_Manager
             modObjectListView.Columns.AddRange(new ColumnHeader[] { olvColumnModName, olvColumnModAuthor, olvColumnModVersion, olvColumnModFileAge, olvColumnModCurLoadOrder, olvColumnModOrgLoadOrder, olvColumnModFileSize, olvColumnModFolder, olvColumnFreeSpaceDummy });
             modObjectListView.FullRowSelect = true;
             modObjectListView.HeaderStyle = ColumnHeaderStyle.Nonclickable;
-            modObjectListView.Location = new Point(134, 56);
+            modObjectListView.Location = new Point(37, 0);
             modObjectListView.Name = "modObjectListView";
             modObjectListView.SelectColumnsOnRightClick = false;
             modObjectListView.SelectColumnsOnRightClickBehaviour = BrightIdeasSoftware.ObjectListView.ColumnSelectBehaviour.None;
@@ -171,7 +175,7 @@ namespace MW5_Mod_Manager
             modObjectListView.ShowImagesOnSubItems = true;
             modObjectListView.ShowItemToolTips = true;
             modObjectListView.ShowSortIndicators = false;
-            modObjectListView.Size = new Size(554, 278);
+            modObjectListView.Size = new Size(763, 424);
             modObjectListView.SmallImageList = imageListIcons;
             modObjectListView.TabIndex = 41;
             modObjectListView.UseHotControls = false;
@@ -278,6 +282,12 @@ namespace MW5_Mod_Manager
             olvColumnFreeSpaceDummy.Sortable = false;
             olvColumnFreeSpaceDummy.Text = "";
             // 
+            // imageListIcons
+            // 
+            imageListIcons.ColorDepth = ColorDepth.Depth32Bit;
+            imageListIcons.ImageSize = new Size(16, 16);
+            imageListIcons.TransparentColor = Color.Transparent;
+            // 
             // panelColorLegend
             // 
             panelColorLegend.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
@@ -287,7 +297,7 @@ namespace MW5_Mod_Manager
             panelColorLegend.Controls.Add(panelColorOverridingOverridden);
             panelColorLegend.Controls.Add(panelColorOverriding);
             panelColorLegend.Controls.Add(panelColorOverridden);
-            panelColorLegend.Location = new Point(96, 417);
+            panelColorLegend.Location = new Point(37, 425);
             panelColorLegend.Name = "panelColorLegend";
             panelColorLegend.Size = new Size(368, 21);
             panelColorLegend.TabIndex = 45;
@@ -343,12 +353,6 @@ namespace MW5_Mod_Manager
             panelColorOverridden.Size = new Size(12, 12);
             panelColorOverridden.TabIndex = 0;
             // 
-            // imageListIcons
-            // 
-            imageListIcons.ColorDepth = ColorDepth.Depth32Bit;
-            imageListIcons.ImageSize = new Size(16, 16);
-            imageListIcons.TransparentColor = Color.Transparent;
-            // 
             // DockModListForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -399,6 +403,6 @@ namespace MW5_Mod_Manager
         public System.Windows.Forms.Panel panelColorOverridingOverridden;
         public System.Windows.Forms.Panel panelColorOverriding;
         public System.Windows.Forms.Panel panelColorOverridden;
-        private ImageList imageListIcons;
+        public ImageList imageListIcons;
     }
 }

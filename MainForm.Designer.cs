@@ -37,7 +37,6 @@ namespace MW5_Mod_Manager
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             openFileDialog1 = new OpenFileDialog();
             toolStripPlatformLabel = new ToolStripStatusLabel();
-            imageListIcons = new ImageList(components);
             textProgressBarBindingSource = new BindingSource(components);
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
@@ -120,6 +119,7 @@ namespace MW5_Mod_Manager
             toolStripSeparator15 = new ToolStripSeparator();
             restoreDefaultColumnsToolStripMenuItem = new ToolStripMenuItem();
             dockPanel1 = new WeifenLuo.WinFormsUI.Docking.DockPanel();
+            visualStudioToolStripExtender1 = new WeifenLuo.WinFormsUI.Docking.VisualStudioToolStripExtender(components);
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -134,12 +134,6 @@ namespace MW5_Mod_Manager
             toolStripPlatformLabel.Name = "toolStripPlatformLabel";
             toolStripPlatformLabel.Size = new Size(16, 19);
             toolStripPlatformLabel.Text = "-";
-            // 
-            // imageListIcons
-            // 
-            imageListIcons.ColorDepth = ColorDepth.Depth32Bit;
-            imageListIcons.ImageSize = new Size(16, 16);
-            imageListIcons.TransparentColor = Color.Transparent;
             // 
             // menuStrip1
             // 
@@ -597,7 +591,6 @@ namespace MW5_Mod_Manager
             // 
             toolStripTextFilterBox.Alignment = ToolStripItemAlignment.Right;
             toolStripTextFilterBox.CueBanner = "Search (Ctrl+F)";
-            toolStripTextFilterBox.Font = new Font("Segoe UI", 9F);
             toolStripTextFilterBox.Margin = new Padding(5, 0, 5, 0);
             toolStripTextFilterBox.Name = "toolStripTextFilterBox";
             toolStripTextFilterBox.Size = new Size(140, 45);
@@ -729,6 +722,10 @@ namespace MW5_Mod_Manager
             dockPanel1.Size = new Size(1167, 486);
             dockPanel1.TabIndex = 42;
             // 
+            // visualStudioToolStripExtender1
+            // 
+            visualStudioToolStripExtender1.DefaultRenderer = null;
+            // 
             // MainForm
             // 
             AllowDrop = true;
@@ -793,7 +790,6 @@ namespace MW5_Mod_Manager
         private ToolStripSeparator toolStripSeparator4;
         private ToolStripMenuItem savePresetToolStripMenuItem;
         private ToolStripMenuItem deletePresetToolStripMenuItem;
-        private ImageList imageListIcons;
         private ToolTip toolTip1;
         private ToolStripStatusLabel toolStripStatusLabel1;
         private ToolStripStatusLabel toolStripStatusLabelModCountTotal;
@@ -850,6 +846,7 @@ namespace MW5_Mod_Manager
         private ToolStripSeparator toolStripSeparator17;
         private ToolStripMenuItem modAgeColumnVisibilityToolStripMenuItem;
         private WeifenLuo.WinFormsUI.Docking.DockPanel dockPanel1;
+        private WeifenLuo.WinFormsUI.Docking.VisualStudioToolStripExtender visualStudioToolStripExtender1;
     }
 }
 
