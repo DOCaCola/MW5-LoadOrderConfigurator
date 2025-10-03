@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -3299,6 +3300,30 @@ namespace MW5_Mod_Manager
         private void runMechWarrior5ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LaunchGame();
+        }
+
+        private void modObjectListView_CellToolTipShowing(object sender, ToolTipShowingEventArgs e)
+        {
+            ModItem curModItem = (ModItem)e.Model;
+            if (e.Column == olvColumnModFolder)
+            {
+                e.Text = LocStringUtils.WrapPathForTooltip(curModItem.Path);
+            }
+            else if (e.Column == olvColumnModFileAge)
+            {
+                if (curModItem.FileAge != null)
+                {
+                    CultureInfo culture = CultureInfo.CurrentCulture;
+
+                    // Get the short date and long time patterns
+                    string datePattern = culture.DateTimeFormat.ShortDatePattern; // e.g., "M/d/yyyy"
+                    string timePattern = culture.DateTimeFormat.LongTimePattern;   // e.g., "h:mm:ss tt"
+
+                    string format = $"{datePattern} {timePattern}";
+
+                    e.Text = curModItem.FileAge.Value.ToString(format, culture);
+                }
+            }
         }
     }
 }
