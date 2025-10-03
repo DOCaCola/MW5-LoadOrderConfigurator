@@ -52,6 +52,11 @@ namespace MW5_Mod_Manager
             toolStripMenuItemSettings = new ToolStripMenuItem();
             toolStripSeparator1 = new ToolStripSeparator();
             exitToolStripMenuItem = new ToolStripMenuItem();
+            viewToolStripMenuItem = new ToolStripMenuItem();
+            toolStripMenuItemColumns = new ToolStripMenuItem();
+            toolStripSeparator16 = new ToolStripSeparator();
+            toolStripMenuItemOverviewWindowToggle = new ToolStripMenuItem();
+            toolStripMenuItemConflictWindowToggle = new ToolStripMenuItem();
             presetsToolStripMenuItem = new ToolStripMenuItem();
             toolStripMenuItemLoadPresets = new ToolStripMenuItem();
             toolStripSeparator4 = new ToolStripSeparator();
@@ -97,27 +102,16 @@ namespace MW5_Mod_Manager
             toolStripSeparator10 = new ToolStripSeparator();
             toolStripButtonReload = new ToolStripButton();
             toolStripSeparator9 = new ToolStripSeparator();
-            toolStripRightDummy = new ToolStripLabel();
-            toolStripSeparator11 = new ToolStripSeparator();
-            toolStripButtonFilterToggle = new ToolStripButton();
-            toolStripButtonClearFilter = new ToolStripButton();
-            toolStripTextFilterBox = new LocToolStripTextBox();
-            toolStripSeparator16 = new ToolStripSeparator();
             toolStripButtonNexusmods = new ToolStripButton();
             toolStripButtonSteamWorkshop = new ToolStripButton();
             toolStripSeparator17 = new ToolStripSeparator();
+            toolStripTextFilterBox = new LocToolStripTextBox();
+            toolStripSeparator11 = new ToolStripSeparator();
+            toolStripButtonClearFilter = new ToolStripButton();
+            toolStripButtonFilterToggle = new ToolStripButton();
             timerOverviewUpdateDelay = new Timer(components);
             timerDelayedListRecolor = new Timer(components);
             contextMenuStripColumnOptions = new ContextMenuStrip(components);
-            authorColumnVisibilityToolStripMenuItem = new ToolStripMenuItem();
-            versionColumnVisibilityToolStripMenuItem = new ToolStripMenuItem();
-            currentLoadOrderColumnVisibilityToolStripMenuItem = new ToolStripMenuItem();
-            originalLoadOrderColumnVisibilityToolStripMenuItem = new ToolStripMenuItem();
-            fileSizeColumnVisibilityToolStripMenuItem = new ToolStripMenuItem();
-            modFolderColumnVisibilityToolStripMenuItem = new ToolStripMenuItem();
-            modAgeColumnVisibilityToolStripMenuItem = new ToolStripMenuItem();
-            toolStripSeparator15 = new ToolStripSeparator();
-            restoreDefaultColumnsToolStripMenuItem = new ToolStripMenuItem();
             dockPanel1 = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             visualStudioToolStripExtender1 = new WeifenLuo.WinFormsUI.Docking.VisualStudioToolStripExtender(components);
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
@@ -125,7 +119,6 @@ namespace MW5_Mod_Manager
             statusStrip1.SuspendLayout();
             contextMenuStripMod.SuspendLayout();
             toolStrip1.SuspendLayout();
-            contextMenuStripColumnOptions.SuspendLayout();
             SuspendLayout();
             // 
             // toolStripPlatformLabel
@@ -137,7 +130,7 @@ namespace MW5_Mod_Manager
             // 
             // menuStrip1
             // 
-            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, presetsToolStripMenuItem, modsToolStripMenuItem, helpToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, viewToolStripMenuItem, presetsToolStripMenuItem, modsToolStripMenuItem, helpToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(1167, 24);
@@ -229,6 +222,38 @@ namespace MW5_Mod_Manager
             exitToolStripMenuItem.Size = new Size(223, 22);
             exitToolStripMenuItem.Text = "E&xit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
+            // 
+            // viewToolStripMenuItem
+            // 
+            viewToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { toolStripMenuItemColumns, toolStripSeparator16, toolStripMenuItemOverviewWindowToggle, toolStripMenuItemConflictWindowToggle });
+            viewToolStripMenuItem.Name = "viewToolStripMenuItem";
+            viewToolStripMenuItem.Size = new Size(44, 20);
+            viewToolStripMenuItem.Text = "&View";
+            // 
+            // toolStripMenuItemColumns
+            // 
+            toolStripMenuItemColumns.Name = "toolStripMenuItemColumns";
+            toolStripMenuItemColumns.Size = new Size(151, 22);
+            toolStripMenuItemColumns.Text = "&Columns";
+            // 
+            // toolStripSeparator16
+            // 
+            toolStripSeparator16.Name = "toolStripSeparator16";
+            toolStripSeparator16.Size = new Size(148, 6);
+            // 
+            // toolStripMenuItemOverviewWindowToggle
+            // 
+            toolStripMenuItemOverviewWindowToggle.Name = "toolStripMenuItemOverviewWindowToggle";
+            toolStripMenuItemOverviewWindowToggle.Size = new Size(151, 22);
+            toolStripMenuItemOverviewWindowToggle.Text = "Mod &Overview";
+            toolStripMenuItemOverviewWindowToggle.Click += toolStripMenuItemOverviewWindowToggle_Click;
+            // 
+            // toolStripMenuItemConflictWindowToggle
+            // 
+            toolStripMenuItemConflictWindowToggle.Name = "toolStripMenuItemConflictWindowToggle";
+            toolStripMenuItemConflictWindowToggle.Size = new Size(151, 22);
+            toolStripMenuItemConflictWindowToggle.Text = "&Conflicts View";
+            toolStripMenuItemConflictWindowToggle.Click += toolStripMenuItemConflictWindowToggle_Click;
             // 
             // presetsToolStripMenuItem
             // 
@@ -491,7 +516,7 @@ namespace MW5_Mod_Manager
             // toolStrip1
             // 
             toolStrip1.AutoSize = false;
-            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButtonApply, toolStripButtonStartGame, toolStripSeparator10, toolStripButtonReload, toolStripSeparator9, toolStripRightDummy, toolStripSeparator11, toolStripButtonFilterToggle, toolStripButtonClearFilter, toolStripTextFilterBox, toolStripSeparator16, toolStripButtonNexusmods, toolStripButtonSteamWorkshop, toolStripSeparator17 });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButtonApply, toolStripButtonStartGame, toolStripSeparator10, toolStripButtonReload, toolStripSeparator9, toolStripButtonNexusmods, toolStripButtonSteamWorkshop, toolStripSeparator17, toolStripTextFilterBox, toolStripSeparator11, toolStripButtonClearFilter, toolStripButtonFilterToggle });
             toolStrip1.Location = new Point(0, 24);
             toolStrip1.Name = "toolStrip1";
             toolStrip1.Size = new Size(1167, 45);
@@ -546,66 +571,6 @@ namespace MW5_Mod_Manager
             toolStripSeparator9.Name = "toolStripSeparator9";
             toolStripSeparator9.Size = new Size(6, 45);
             // 
-            // toolStripRightDummy
-            // 
-            toolStripRightDummy.Alignment = ToolStripItemAlignment.Right;
-            toolStripRightDummy.AutoSize = false;
-            toolStripRightDummy.Name = "toolStripRightDummy";
-            toolStripRightDummy.Size = new Size(120, 42);
-            // 
-            // toolStripSeparator11
-            // 
-            toolStripSeparator11.Alignment = ToolStripItemAlignment.Right;
-            toolStripSeparator11.Name = "toolStripSeparator11";
-            toolStripSeparator11.Size = new Size(6, 45);
-            // 
-            // toolStripButtonFilterToggle
-            // 
-            toolStripButtonFilterToggle.Alignment = ToolStripItemAlignment.Right;
-            toolStripButtonFilterToggle.CheckOnClick = true;
-            toolStripButtonFilterToggle.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            toolStripButtonFilterToggle.Image = (Image)resources.GetObject("toolStripButtonFilterToggle.Image");
-            toolStripButtonFilterToggle.ImageTransparentColor = Color.Magenta;
-            toolStripButtonFilterToggle.Name = "toolStripButtonFilterToggle";
-            toolStripButtonFilterToggle.Size = new Size(23, 42);
-            toolStripButtonFilterToggle.Text = "Filter";
-            toolStripButtonFilterToggle.TextImageRelation = TextImageRelation.ImageAboveText;
-            toolStripButtonFilterToggle.ToolTipText = "Toggle filter mode";
-            toolStripButtonFilterToggle.CheckedChanged += toolStripButtonFilterToggle_CheckedChanged;
-            // 
-            // toolStripButtonClearFilter
-            // 
-            toolStripButtonClearFilter.Alignment = ToolStripItemAlignment.Right;
-            toolStripButtonClearFilter.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            toolStripButtonClearFilter.Enabled = false;
-            toolStripButtonClearFilter.Image = (Image)resources.GetObject("toolStripButtonClearFilter.Image");
-            toolStripButtonClearFilter.ImageTransparentColor = Color.Magenta;
-            toolStripButtonClearFilter.Name = "toolStripButtonClearFilter";
-            toolStripButtonClearFilter.Size = new Size(23, 42);
-            toolStripButtonClearFilter.Text = "Clear";
-            toolStripButtonClearFilter.TextImageRelation = TextImageRelation.ImageAboveText;
-            toolStripButtonClearFilter.ToolTipText = "Clear filter";
-            toolStripButtonClearFilter.Click += toolStripButtonClearFilter_Click;
-            // 
-            // toolStripTextFilterBox
-            // 
-            toolStripTextFilterBox.Alignment = ToolStripItemAlignment.Right;
-            toolStripTextFilterBox.CueBanner = "Search (Ctrl+F)";
-            toolStripTextFilterBox.Font = new Font("Segoe UI", 9F);
-            toolStripTextFilterBox.Margin = new Padding(5, 0, 5, 0);
-            toolStripTextFilterBox.Name = "toolStripTextFilterBox";
-            toolStripTextFilterBox.Size = new Size(140, 45);
-            toolStripTextFilterBox.KeyDown += toolStripTextFilterBox_KeyDown;
-            toolStripTextFilterBox.KeyPress += toolStripTextFilterBox_KeyPress;
-            toolStripTextFilterBox.KeyUp += toolStripTextFilterBox_KeyUp;
-            toolStripTextFilterBox.TextChanged += toolStripTextFilterBox_TextChanged;
-            // 
-            // toolStripSeparator16
-            // 
-            toolStripSeparator16.Alignment = ToolStripItemAlignment.Right;
-            toolStripSeparator16.Name = "toolStripSeparator16";
-            toolStripSeparator16.Size = new Size(6, 45);
-            // 
             // toolStripButtonNexusmods
             // 
             toolStripButtonNexusmods.Image = UiIcons.Nexusmods;
@@ -637,6 +602,48 @@ namespace MW5_Mod_Manager
             toolStripSeparator17.Name = "toolStripSeparator17";
             toolStripSeparator17.Size = new Size(6, 45);
             // 
+            // toolStripTextFilterBox
+            // 
+            toolStripTextFilterBox.CueBanner = "Search (Ctrl+F)";
+            toolStripTextFilterBox.Margin = new Padding(5, 0, 5, 0);
+            toolStripTextFilterBox.Name = "toolStripTextFilterBox";
+            toolStripTextFilterBox.Size = new Size(140, 45);
+            toolStripTextFilterBox.KeyDown += toolStripTextFilterBox_KeyDown;
+            toolStripTextFilterBox.KeyPress += toolStripTextFilterBox_KeyPress;
+            toolStripTextFilterBox.KeyUp += toolStripTextFilterBox_KeyUp;
+            toolStripTextFilterBox.TextChanged += toolStripTextFilterBox_TextChanged;
+            // 
+            // toolStripSeparator11
+            // 
+            toolStripSeparator11.Name = "toolStripSeparator11";
+            toolStripSeparator11.Size = new Size(6, 45);
+            // 
+            // toolStripButtonClearFilter
+            // 
+            toolStripButtonClearFilter.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            toolStripButtonClearFilter.Enabled = false;
+            toolStripButtonClearFilter.Image = UiIcons.FilterClear;
+            toolStripButtonClearFilter.ImageTransparentColor = Color.Magenta;
+            toolStripButtonClearFilter.Name = "toolStripButtonClearFilter";
+            toolStripButtonClearFilter.Size = new Size(23, 42);
+            toolStripButtonClearFilter.Text = "Clear";
+            toolStripButtonClearFilter.TextImageRelation = TextImageRelation.ImageAboveText;
+            toolStripButtonClearFilter.ToolTipText = "Clear filter";
+            toolStripButtonClearFilter.Click += toolStripButtonClearFilter_Click;
+            // 
+            // toolStripButtonFilterToggle
+            // 
+            toolStripButtonFilterToggle.CheckOnClick = true;
+            toolStripButtonFilterToggle.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            toolStripButtonFilterToggle.Image = UiIcons.FilterToggle;
+            toolStripButtonFilterToggle.ImageTransparentColor = Color.Magenta;
+            toolStripButtonFilterToggle.Name = "toolStripButtonFilterToggle";
+            toolStripButtonFilterToggle.Size = new Size(23, 42);
+            toolStripButtonFilterToggle.Text = "Filter";
+            toolStripButtonFilterToggle.TextImageRelation = TextImageRelation.ImageAboveText;
+            toolStripButtonFilterToggle.ToolTipText = "Toggle filter mode";
+            toolStripButtonFilterToggle.CheckedChanged += toolStripButtonFilterToggle_CheckedChanged;
+            // 
             // timerOverviewUpdateDelay
             // 
             timerOverviewUpdateDelay.Interval = 75;
@@ -649,70 +656,8 @@ namespace MW5_Mod_Manager
             // 
             // contextMenuStripColumnOptions
             // 
-            contextMenuStripColumnOptions.Items.AddRange(new ToolStripItem[] { authorColumnVisibilityToolStripMenuItem, versionColumnVisibilityToolStripMenuItem, currentLoadOrderColumnVisibilityToolStripMenuItem, originalLoadOrderColumnVisibilityToolStripMenuItem, fileSizeColumnVisibilityToolStripMenuItem, modFolderColumnVisibilityToolStripMenuItem, modAgeColumnVisibilityToolStripMenuItem, toolStripSeparator15, restoreDefaultColumnsToolStripMenuItem });
             contextMenuStripColumnOptions.Name = "contextMenuStrip1";
-            contextMenuStripColumnOptions.Size = new Size(174, 186);
-            // 
-            // authorColumnVisibilityToolStripMenuItem
-            // 
-            authorColumnVisibilityToolStripMenuItem.Name = "authorColumnVisibilityToolStripMenuItem";
-            authorColumnVisibilityToolStripMenuItem.Size = new Size(173, 22);
-            authorColumnVisibilityToolStripMenuItem.Text = "&Author";
-            authorColumnVisibilityToolStripMenuItem.Click += columnVisibilityToolStripMenuItem_Click;
-            // 
-            // versionColumnVisibilityToolStripMenuItem
-            // 
-            versionColumnVisibilityToolStripMenuItem.Name = "versionColumnVisibilityToolStripMenuItem";
-            versionColumnVisibilityToolStripMenuItem.Size = new Size(173, 22);
-            versionColumnVisibilityToolStripMenuItem.Text = "&Version";
-            versionColumnVisibilityToolStripMenuItem.Click += columnVisibilityToolStripMenuItem_Click;
-            // 
-            // currentLoadOrderColumnVisibilityToolStripMenuItem
-            // 
-            currentLoadOrderColumnVisibilityToolStripMenuItem.Name = "currentLoadOrderColumnVisibilityToolStripMenuItem";
-            currentLoadOrderColumnVisibilityToolStripMenuItem.Size = new Size(173, 22);
-            currentLoadOrderColumnVisibilityToolStripMenuItem.Text = "&Current load order";
-            currentLoadOrderColumnVisibilityToolStripMenuItem.Click += columnVisibilityToolStripMenuItem_Click;
-            // 
-            // originalLoadOrderColumnVisibilityToolStripMenuItem
-            // 
-            originalLoadOrderColumnVisibilityToolStripMenuItem.Name = "originalLoadOrderColumnVisibilityToolStripMenuItem";
-            originalLoadOrderColumnVisibilityToolStripMenuItem.Size = new Size(173, 22);
-            originalLoadOrderColumnVisibilityToolStripMenuItem.Text = "&Original load order";
-            originalLoadOrderColumnVisibilityToolStripMenuItem.Click += columnVisibilityToolStripMenuItem_Click;
-            // 
-            // fileSizeColumnVisibilityToolStripMenuItem
-            // 
-            fileSizeColumnVisibilityToolStripMenuItem.Name = "fileSizeColumnVisibilityToolStripMenuItem";
-            fileSizeColumnVisibilityToolStripMenuItem.Size = new Size(173, 22);
-            fileSizeColumnVisibilityToolStripMenuItem.Text = "&File size";
-            fileSizeColumnVisibilityToolStripMenuItem.Click += columnVisibilityToolStripMenuItem_Click;
-            // 
-            // modFolderColumnVisibilityToolStripMenuItem
-            // 
-            modFolderColumnVisibilityToolStripMenuItem.Name = "modFolderColumnVisibilityToolStripMenuItem";
-            modFolderColumnVisibilityToolStripMenuItem.Size = new Size(173, 22);
-            modFolderColumnVisibilityToolStripMenuItem.Text = "&Mod folder";
-            modFolderColumnVisibilityToolStripMenuItem.Click += columnVisibilityToolStripMenuItem_Click;
-            // 
-            // modAgeColumnVisibilityToolStripMenuItem
-            // 
-            modAgeColumnVisibilityToolStripMenuItem.Name = "modAgeColumnVisibilityToolStripMenuItem";
-            modAgeColumnVisibilityToolStripMenuItem.Size = new Size(173, 22);
-            modAgeColumnVisibilityToolStripMenuItem.Text = "Mod age";
-            modAgeColumnVisibilityToolStripMenuItem.Click += columnVisibilityToolStripMenuItem_Click;
-            // 
-            // toolStripSeparator15
-            // 
-            toolStripSeparator15.Name = "toolStripSeparator15";
-            toolStripSeparator15.Size = new Size(170, 6);
-            // 
-            // restoreDefaultColumnsToolStripMenuItem
-            // 
-            restoreDefaultColumnsToolStripMenuItem.Name = "restoreDefaultColumnsToolStripMenuItem";
-            restoreDefaultColumnsToolStripMenuItem.Size = new Size(173, 22);
-            restoreDefaultColumnsToolStripMenuItem.Text = "&Restore defaults";
-            restoreDefaultColumnsToolStripMenuItem.Click += restoreDefaultColumnsToolStripMenuItem_Click;
+            contextMenuStripColumnOptions.Size = new Size(61, 4);
             // 
             // dockPanel1
             // 
@@ -756,7 +701,6 @@ namespace MW5_Mod_Manager
             contextMenuStripMod.ResumeLayout(false);
             toolStrip1.ResumeLayout(false);
             toolStrip1.PerformLayout();
-            contextMenuStripColumnOptions.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -831,23 +775,17 @@ namespace MW5_Mod_Manager
         private ToolStripSeparator toolStripSeparator7;
         private Timer timerDelayedListRecolor;
         public ContextMenuStrip contextMenuStripColumnOptions;
-        private ToolStripMenuItem authorColumnVisibilityToolStripMenuItem;
-        private ToolStripMenuItem versionColumnVisibilityToolStripMenuItem;
-        private ToolStripMenuItem currentLoadOrderColumnVisibilityToolStripMenuItem;
-        private ToolStripMenuItem originalLoadOrderColumnVisibilityToolStripMenuItem;
-        private ToolStripMenuItem fileSizeColumnVisibilityToolStripMenuItem;
-        private ToolStripMenuItem modFolderColumnVisibilityToolStripMenuItem;
-        private ToolStripSeparator toolStripSeparator15;
-        private ToolStripMenuItem restoreDefaultColumnsToolStripMenuItem;
         private ToolStripMenuItem checkModFilesToolStripMenuItem;
-        private ToolStripLabel toolStripRightDummy;
-        private ToolStripSeparator toolStripSeparator16;
         private ToolStripButton toolStripButtonSteamWorkshop;
         private ToolStripButton toolStripButtonNexusmods;
         private ToolStripSeparator toolStripSeparator17;
-        private ToolStripMenuItem modAgeColumnVisibilityToolStripMenuItem;
         private WeifenLuo.WinFormsUI.Docking.DockPanel dockPanel1;
         private WeifenLuo.WinFormsUI.Docking.VisualStudioToolStripExtender visualStudioToolStripExtender1;
+        private ToolStripMenuItem viewToolStripMenuItem;
+        public ToolStripMenuItem toolStripMenuItemOverviewWindowToggle;
+        public ToolStripMenuItem toolStripMenuItemConflictWindowToggle;
+        private ToolStripMenuItem toolStripMenuItemColumns;
+        private ToolStripSeparator toolStripSeparator16;
     }
 }
 

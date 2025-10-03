@@ -31,7 +31,7 @@ namespace MW5_Mod_Manager
             toolStrip2.SetDisableDarkModeChildren(true);
         }
 
-        
+
         private void modObjectListView_BeforeSearching(object sender, BeforeSearchingEventArgs e)
         {
             // Abort search if any control characters are in the search string
@@ -294,7 +294,7 @@ namespace MW5_Mod_Manager
             MainForm.Instance.CheckModConfigTainted();
         }
 
-                public void RecolorObjectListViewRows()
+        public void RecolorObjectListViewRows()
         {
             bool showModOverrides = modObjectListView.SelectedObjects.Count == 1 && MainForm.Instance._filterMode != eFilterMode.ItemFilter;
 

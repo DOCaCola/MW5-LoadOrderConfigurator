@@ -44,7 +44,8 @@ namespace MW5_Mod_Manager
             richTextBoxManifestOverridden.Clear();
             listBoxOverriddenBy.Items.Clear();
             listBoxOverriding.Items.Clear();
-            noneSelectedPanel.Visible = true; }
+            noneSelectedPanel.Visible = true;
+        }
 
         private void AppendContentPathToMainfestList(string contentPath, ref StringBuilder sb)
         {

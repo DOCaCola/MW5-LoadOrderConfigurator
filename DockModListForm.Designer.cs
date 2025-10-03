@@ -301,7 +301,7 @@ namespace MW5_Mod_Manager
             panelColorLegend.Controls.Add(panelColorOverridingOverridden);
             panelColorLegend.Controls.Add(panelColorOverriding);
             panelColorLegend.Controls.Add(panelColorOverridden);
-            panelColorLegend.Location = new Point(37, 425);
+            panelColorLegend.Location = new Point(34, 427);
             panelColorLegend.Name = "panelColorLegend";
             panelColorLegend.Size = new Size(368, 21);
             panelColorLegend.TabIndex = 45;

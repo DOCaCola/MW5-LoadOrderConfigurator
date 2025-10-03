@@ -61,6 +61,8 @@ namespace MW5_Mod_Manager
             toolStripTextFilterBox.TextBox.PreviewKeyDown += FilterTextBoxOnPreviewKeyDown;
             toolStripTextFilterBox.TextBox.KeyPress += FilterTextBoxOnKeyPress;
 
+            dockPanel1.SuspendLayout();
+
             if (LocWindowColors.DarkMode)
             {
                 dockPanel1.Theme = new VS2015DarkTheme();
@@ -97,7 +99,26 @@ namespace MW5_Mod_Manager
 
             DockOverviewForm.Instance.Show(dockPanel1, DockState.DockRight);
             DockConflictsForm.Instance.Show(dockPanel1, DockState.DockRight);
+            DockOverviewForm.Instance.Show(dockPanel1, DockState.DockRight);
+
             DockModListForm.Instance.Show(dockPanel1, DockState.Document);
+            dockPanel1.ResumeLayout(true);
+
+            AddColumnDisplayMenu();
+        }
+        /*
+        private ToolStripMenuItem authorColumnVisibilityToolStripMenuItemB = new ToolStripMenuItem();
+        private ToolStripMenuItem versionColumnVisibilityToolStripMenuItemB = new ToolStripMenuItem();
+        private ToolStripMenuItem currentLoadOrderColumnVisibilityToolStripMenuItemB = new ToolStripMenuItem();
+        private ToolStripMenuItem originalLoadOrderColumnVisibilityToolStripMenuItemB = new ToolStripMenuItem();
+        private ToolStripMenuItem fileSizeColumnVisibilityToolStripMenuItemB = new ToolStripMenuItem();
+        private ToolStripMenuItem modFolderColumnVisibilityToolStripMenuItemB = new ToolStripMenuItem();
+        private ToolStripMenuItem modAgeColumnVisibilityToolStripMenuItemB = new ToolStripMenuItem();
+        */
+        private void AddColumnDisplayMenu()
+        {
+            // add submenu to view menu for column visibility
+            //toolStripMenuItemColumns.DropDownItems.AddRange(contextMenuStripColumnOptions.Items);
         }
 
         public string GetVersion()
@@ -223,9 +244,10 @@ namespace MW5_Mod_Manager
             if (LocViewState.LoadViewStateFromFile())
                 LocViewState.RestoreViewState();
 
-            //toolStripRightDummy.Width = tabControl1.Width;
-
-            UpdateColumnVisiblityMenu();
+            CreateColumnMenus();
+            AddColumnVisibilityMenuItems(toolStripMenuItemColumns.DropDownItems);
+            AddColumnVisibilityMenuItems(contextMenuStripColumnOptions.Items);
+            UpdateColumnVisibilityMenus();
 
             DockModListForm.Instance.panelColorOverridden.BackColor = LocWindowColors.ModOverriddenColor;
             DockModListForm.Instance.panelColorOverriding.BackColor = LocWindowColors.ModOverridingColor;
@@ -361,16 +383,94 @@ namespace MW5_Mod_Manager
             QueueListRecolor();
         }
 
-        private void UpdateColumnVisiblityMenu()
+        // Represents a column for menu building
+        private class ColumnMenuInfo
         {
-            authorColumnVisibilityToolStripMenuItem.Checked = DockModListForm.Instance.olvColumnModAuthor.IsVisible;
-            versionColumnVisibilityToolStripMenuItem.Checked = DockModListForm.Instance.olvColumnModVersion.IsVisible;
-            currentLoadOrderColumnVisibilityToolStripMenuItem.Checked = DockModListForm.Instance.olvColumnModCurLoadOrder.IsVisible;
-            originalLoadOrderColumnVisibilityToolStripMenuItem.Checked = DockModListForm.Instance.olvColumnModOrgLoadOrder.IsVisible;
-            fileSizeColumnVisibilityToolStripMenuItem.Checked = DockModListForm.Instance.olvColumnModFileSize.IsVisible;
-            modFolderColumnVisibilityToolStripMenuItem.Checked = DockModListForm.Instance.olvColumnModFolder.IsVisible;
-            modAgeColumnVisibilityToolStripMenuItem.Checked = DockModListForm.Instance.olvColumnModFileAge.IsVisible;
+            public string Name { get; }
+            public OLVColumn Column { get; }
+
+            public ColumnMenuInfo(string name, OLVColumn column)
+            {
+                Name = name;
+                Column = column;
+            }
         }
+
+        private ColumnMenuInfo[] columnMenus;
+
+        private void CreateColumnMenus()
+        {
+            columnMenus = new[]
+            {
+                new ColumnMenuInfo("&Author", DockModListForm.Instance.olvColumnModAuthor),
+                new ColumnMenuInfo("&Version", DockModListForm.Instance.olvColumnModVersion),
+                new ColumnMenuInfo("&Current Load Order", DockModListForm.Instance.olvColumnModCurLoadOrder),
+                new ColumnMenuInfo("&Original Load Order", DockModListForm.Instance.olvColumnModOrgLoadOrder),
+                new ColumnMenuInfo("File &Size", DockModListForm.Instance.olvColumnModFileSize),
+                new ColumnMenuInfo("File A&ge", DockModListForm.Instance.olvColumnModFileAge),
+                new ColumnMenuInfo("Mod &Folder", DockModListForm.Instance.olvColumnModFolder),
+            };
+        }
+
+        private void AddColumnVisibilityMenuItems(ToolStripItemCollection items)
+        {
+            // Add column visibility items
+            foreach (var col in columnMenus)
+            {
+                var menuItem = new ToolStripMenuItem(col.Name)
+                {
+                    Checked = col.Column.IsVisible,
+                    CheckOnClick = true
+                };
+
+                menuItem.Click += (s, e) =>
+                {
+                    col.Column.IsVisible = menuItem.Checked;
+                    DockModListForm.Instance.modObjectListView.RebuildColumns();
+                    UpdateColumnVisibilityMenus();
+                };
+
+                items.Add(menuItem);
+            }
+
+            // Add separator
+            items.Add(new ToolStripSeparator());
+
+            // Add "Restore Defaults" item
+            var restoreDefaultsItem = new ToolStripMenuItem("Restore Defaults");
+            restoreDefaultsItem.Click += (s, e) =>
+            {
+                LocViewState.RestoreListViewState(LocViewState._defaultViewState.listState);
+                UpdateColumnVisibilityMenus();
+                QueueListRecolor();
+            };
+            items.Add(restoreDefaultsItem);
+        }
+
+        private void UpdateColumnVisibilityMenus()
+        {
+            IEnumerable<ToolStripItemCollection> menus = new[]
+            {
+                toolStripMenuItemColumns.DropDownItems,
+                contextMenuStripColumnOptions.Items
+            };
+
+            foreach (var menu in menus)
+            {
+                foreach (ToolStripItem item in menu)
+                {
+                    if (item is ToolStripMenuItem menuItem)
+                    {
+                        var colInfo = columnMenus.FirstOrDefault(c => c.Name == menuItem.Text);
+                        if (colInfo != null)
+                        {
+                            menuItem.Checked = colInfo.Column.IsVisible;
+                        }
+                    }
+                }
+            }
+        }
+
         private void OnDropSinkOnCanDrop(object o, OlvDropEventArgs args)
         {
             if (_filterMode == eFilterMode.ItemFilter)
@@ -2629,31 +2729,6 @@ namespace MW5_Mod_Manager
             _delayedRecolorStarted = false;
         }
 
-        private void columnVisibilityToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ToolStripMenuItem menuItem = (ToolStripMenuItem)sender;
-            menuItem.Checked = !menuItem.Checked;
-
-            DockModListForm.Instance.olvColumnModAuthor.IsVisible = authorColumnVisibilityToolStripMenuItem.Checked;
-            DockModListForm.Instance.olvColumnModVersion.IsVisible = versionColumnVisibilityToolStripMenuItem.Checked;
-            DockModListForm.Instance.olvColumnModCurLoadOrder.IsVisible = currentLoadOrderColumnVisibilityToolStripMenuItem.Checked;
-            DockModListForm.Instance.olvColumnModOrgLoadOrder.IsVisible = originalLoadOrderColumnVisibilityToolStripMenuItem.Checked;
-            DockModListForm.Instance.olvColumnModFileSize.IsVisible = fileSizeColumnVisibilityToolStripMenuItem.Checked;
-            DockModListForm.Instance.olvColumnModFolder.IsVisible = modFolderColumnVisibilityToolStripMenuItem.Checked;
-            DockModListForm.Instance.olvColumnModFileAge.IsVisible = modAgeColumnVisibilityToolStripMenuItem.Checked;
-
-            DockModListForm.Instance.modObjectListView.RebuildColumns();
-
-            UpdateColumnVisiblityMenu();
-        }
-        private void restoreDefaultColumnsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            LocViewState.RestoreListViewState(LocViewState._defaultViewState.listState);
-            UpdateColumnVisiblityMenu();
-
-            QueueListRecolor();
-        }
-
         private void checkModFilesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ModCheckForm checkDialog = new ModCheckForm();
@@ -2788,6 +2863,16 @@ namespace MW5_Mod_Manager
         private void runMechWarrior5ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LaunchGame();
+        }
+
+        private void toolStripMenuItemOverviewWindowToggle_Click(object sender, EventArgs e)
+        {
+            DockOverviewForm.Instance.Show(dockPanel1);
+        }
+
+        private void toolStripMenuItemConflictWindowToggle_Click(object sender, EventArgs e)
+        {
+            DockConflictsForm.Instance.Show(dockPanel1);
         }
     }
 }
