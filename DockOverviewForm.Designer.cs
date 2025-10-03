@@ -66,7 +66,6 @@ namespace MW5_Mod_Manager
             // 
             pictureBoxModImage.Dock = DockStyle.Fill;
             pictureBoxModImage.Location = new Point(0, 0);
-            pictureBoxModImage.Margin = new Padding(0);
             pictureBoxModImage.MaximumSize = new Size(10000, 500);
             pictureBoxModImage.Name = "pictureBoxModImage";
             pictureBoxModImage.Size = new Size(320, 130);

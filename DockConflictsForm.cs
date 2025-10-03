@@ -18,12 +18,33 @@ namespace MW5_Mod_Manager
     {
         static public DockConflictsForm Instance;
 
+        public Panel noneSelectedPanel = new();
+        private Label noneSelectedLabel = new();
+
         public DockConflictsForm()
         {
             InitializeComponent();
 
+            noneSelectedPanel.Dock = DockStyle.Fill;
+            noneSelectedLabel.Text = "(none selected)";
+            noneSelectedLabel.TextAlign = ContentAlignment.MiddleCenter;
+            noneSelectedLabel.Enabled = false;
+            noneSelectedLabel.Dock = DockStyle.Fill;
+            noneSelectedPanel.Controls.Add(noneSelectedLabel);
+            Controls.Add(noneSelectedPanel);
+            noneSelectedPanel.SetDisableDarkMode(true);
+            noneSelectedPanel.BringToFront();
+
             splitContainer2.SetDisableDarkMode(true);
         }
+
+        public void ClearModInfo()
+        {
+            labelModNameOverrides.Text = string.Empty;
+            richTextBoxManifestOverridden.Clear();
+            listBoxOverriddenBy.Items.Clear();
+            listBoxOverriding.Items.Clear();
+            noneSelectedPanel.Visible = true; }
 
         private void AppendContentPathToMainfestList(string contentPath, ref StringBuilder sb)
         {
@@ -67,10 +88,8 @@ namespace MW5_Mod_Manager
 
                 string superMod = ModsManager.Instance.PathToDirNameDict[MainForm._sideBarSelectedModKey];
 
-                if (!ModsManager.Instance.ModConflictData.ContainsKey(superMod))
+                if (!ModsManager.Instance.ModConflictData.TryGetValue(superMod, out ModConflictData modData))
                     return;
-
-                ModConflictData modData = ModsManager.Instance.ModConflictData[superMod];
 
                 var sb = new StringBuilder();
                 sb.Append(@"{\rtf1\ansi");
@@ -93,8 +112,8 @@ namespace MW5_Mod_Manager
 
         private void listBoxOverriding_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            int index = this.listBoxOverriding.IndexFromPoint(e.Location);
-            if (index != System.Windows.Forms.ListBox.NoMatches)
+            int index = listBoxOverriding.IndexFromPoint(e.Location);
+            if (index != ListBox.NoMatches)
             {
                 ModListBoxItem modListBoxItem = listBoxOverriding.Items[index] as ModListBoxItem;
                 MainForm.Instance.SelectModInList(modListBoxItem.ModKey);
@@ -134,10 +153,8 @@ namespace MW5_Mod_Manager
 
                 string superMod = ModsManager.Instance.PathToDirNameDict[MainForm._sideBarSelectedModKey];
 
-                if (!ModsManager.Instance.ModConflictData.ContainsKey(superMod))
+                if (!ModsManager.Instance.ModConflictData.TryGetValue(superMod, out ModConflictData modData))
                     return;
-
-                ModConflictData modData = ModsManager.Instance.ModConflictData[superMod];
 
                 if (!modData.overriddenBy.ContainsKey(selectedMod.ModDirName))
                     return;
@@ -163,8 +180,8 @@ namespace MW5_Mod_Manager
 
         private void listBoxOverriddenBy_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            int index = this.listBoxOverriddenBy.IndexFromPoint(e.Location);
-            if (index != System.Windows.Forms.ListBox.NoMatches)
+            int index = listBoxOverriddenBy.IndexFromPoint(e.Location);
+            if (index != ListBox.NoMatches)
             {
                 ModListBoxItem modListBoxItem = listBoxOverriddenBy.Items[index] as ModListBoxItem;
                 MainForm.Instance.SelectModInList(modListBoxItem.ModKey);

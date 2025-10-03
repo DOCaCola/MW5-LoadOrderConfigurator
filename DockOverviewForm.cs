@@ -16,10 +16,23 @@ namespace MW5_Mod_Manager
     public partial class DockOverviewForm : DockContent
     {
         static public DockOverviewForm Instance;
+        
+        public Panel noneSelectedPanel = new();
+        private Label noneSelectedLabel = new();
 
         public DockOverviewForm()
         {
             InitializeComponent();
+
+            noneSelectedPanel.Dock = DockStyle.Fill;
+            noneSelectedLabel.Text = "(none selected)";
+            noneSelectedLabel.TextAlign = ContentAlignment.MiddleCenter;
+            noneSelectedLabel.Enabled = false;
+            noneSelectedLabel.Dock = DockStyle.Fill;
+            noneSelectedPanel.Controls.Add(noneSelectedLabel);
+            Controls.Add(noneSelectedPanel);
+            noneSelectedPanel.SetDisableDarkMode(true);
+            noneSelectedPanel.BringToFront();
 
             splitContainerVersion.SetDisableDarkMode(true);
             splitContainerVersion.Panel1.SetDisableDarkMode(true);
@@ -55,12 +68,12 @@ namespace MW5_Mod_Manager
                     steamUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=";
 
                 steamUrl += ModsManager.Instance.ModDetails[modKey].steamPublishedFileId;
-                var psi = new System.Diagnostics.ProcessStartInfo()
+                var psi = new ProcessStartInfo()
                 {
                     FileName = steamUrl,
                     UseShellExecute = true
                 };
-                System.Diagnostics.Process.Start(psi);
+                Process.Start(psi);
             }
         }
 
@@ -72,12 +85,12 @@ namespace MW5_Mod_Manager
                 string nexusUrl = "https://www.nexusmods.com/mechwarrior5mercenaries/mods/" +
                                   ModsManager.Instance.Mods[modKey].NexusModsId;
 
-                var psi = new System.Diagnostics.ProcessStartInfo()
+                var psi = new ProcessStartInfo()
                 {
                     FileName = nexusUrl,
                     UseShellExecute = true
                 };
-                System.Diagnostics.Process.Start(psi);
+                Process.Start(psi);
             }
         }
     }

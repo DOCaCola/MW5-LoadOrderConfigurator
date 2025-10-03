@@ -8,20 +8,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
-using System.Text;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 using static MW5_Mod_Manager.ModsManager;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using File = System.IO.File;
 using ListView = System.Windows.Forms.ListView;
 
@@ -62,11 +57,6 @@ namespace MW5_Mod_Manager
             DockConflictsForm.Instance = new();
 
             Instance = this;
-
-            /*menuStrip1.SetDisableDarkMode(true);
-            menuStrip1.SetDisableDarkModeChildren(true);
-            toolStrip1.SetDisableDarkMode(true);
-            toolStrip1.SetDisableDarkModeChildren(true);*/
 
             toolStripTextFilterBox.TextBox.PreviewKeyDown += FilterTextBoxOnPreviewKeyDown;
             toolStripTextFilterBox.TextBox.KeyPress += FilterTextBoxOnKeyPress;
@@ -803,21 +793,22 @@ namespace MW5_Mod_Manager
         }
 
 
-        //For clearing the entire applications data
         public void ClearAll()
         {
             _ActiveModListHash = 0;
-            DockConflictsForm.Instance.listBoxOverriding.Items.Clear();
-            DockConflictsForm.Instance.listBoxOverriddenBy.Items.Clear();
-            DockConflictsForm.Instance.richTextBoxManifestOverridden.Clear();
-            DockOverviewForm.Instance.pictureBoxModImage.Visible = false;
-            DockConflictsForm.Instance.labelModNameOverrides.Text = "";
+
+            DockConflictsForm.Instance.SuspendLayout();
+            DockOverviewForm.Instance.SuspendLayout();
+
             DockModListForm.Instance.modObjectListView.ClearObjects();
             DockModListForm.Instance.modObjectListView.ClearCachedInfo();
             ModItemList.Instance.ModList.Clear();
             ModsManager.Instance.ClearAll();
             UpdateSidePanelData(true);
             StopModFileChangedUiFeedback();
+
+            DockConflictsForm.Instance.ResumeLayout();
+            DockOverviewForm.Instance.ResumeLayout();
         }
 
         //For processing internals and updating ui after setting a vendor
@@ -1180,7 +1171,7 @@ namespace MW5_Mod_Manager
             }
 
             ModsManager.Instance.ProcessModImportList(ref newPresetData, true);
-            this.LoadAndFill(newPresetData, true);
+            LoadAndFill(newPresetData, true);
             FilterTextChanged();
             CheckModConfigTainted();
             DockModListForm.Instance.modObjectListView.EndUpdate();
@@ -1486,12 +1477,10 @@ namespace MW5_Mod_Manager
             if (DockModListForm.Instance.modObjectListView.SelectedObjects.Count == 0)
             {
                 _sideBarSelectedModKey = string.Empty;
-                DockConflictsForm.Instance.labelModNameOverrides.Text = string.Empty;
                 DockOverviewForm.Instance.pictureBoxModImage.Visible = false;
                 DockOverviewForm.Instance.panelModInfo.Visible = false;
-                DockConflictsForm.Instance.richTextBoxManifestOverridden.Clear();
-                DockConflictsForm.Instance.listBoxOverriddenBy.Items.Clear();
-                DockConflictsForm.Instance.listBoxOverriding.Items.Clear();
+                DockConflictsForm.Instance.ClearModInfo();
+                DockOverviewForm.Instance.noneSelectedPanel.Visible = true;
                 return;
             }
 
@@ -1506,6 +1495,7 @@ namespace MW5_Mod_Manager
             string selectedModFolder = firstSelectedMod.FolderName;
             ModObject modDetails = ModsManager.Instance.ModDetails[selectedModPath];
 
+            DockOverviewForm.Instance.noneSelectedPanel.Visible = false;
             DockOverviewForm.Instance.panelModInfo.Visible = true;
             string selectedModLabelDisplayName = firstSelectedMod.Name.Replace("&", "&&");
             DockOverviewForm.Instance.labelModName.Text = selectedModLabelDisplayName;
@@ -1591,6 +1581,7 @@ namespace MW5_Mod_Manager
         //Handles the showing of overriding data on select
         private void HandleOverriding(string SelectedMod)
         {
+            DockConflictsForm.Instance.noneSelectedPanel.Visible = false;
             if (ModsManager.Instance.ModConflictData.Count == 0)
                 return;
 
@@ -1622,6 +1613,7 @@ namespace MW5_Mod_Manager
                 modListBoxItem.ModKey = modKey;
                 DockConflictsForm.Instance.listBoxOverriding.Items.Add(modListBoxItem);
             }
+
             DockConflictsForm.Instance.listBoxOverriding.ResumeDrawing();
             DockConflictsForm.Instance.listBoxOverriddenBy.ResumeDrawing();
         }
