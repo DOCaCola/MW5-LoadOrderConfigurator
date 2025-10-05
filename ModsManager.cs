@@ -42,6 +42,21 @@ namespace MW5_Mod_Manager
         }
         public ArrayByEnum<ModPathInfo, eModPathType> ModsPaths = new();
 
+        
+        // Input data when importing a mod from file/clipboard/last load order file
+        public class ModImportData
+        {
+            public string ModPath;
+            public string ModFolder;
+            public string ModName;
+            // Version and build is currently unused. Potentially for future use
+            public string Version;
+            public int Build = -1;
+            public float LoadOrder = Single.NaN;
+            public bool Enabled = false;
+            public bool Available = false;
+        }
+
         public LocSettings ProgramSettings;
 
         // User made changes not written to files
@@ -352,7 +367,7 @@ namespace MW5_Mod_Manager
             return false;
         }
 
-        public void InitModEnabledList()
+        public void RenewModEnabledList()
         {
             ModEnabledList.Clear();
             foreach (string modDir in this.ModDirectories)
@@ -713,12 +728,12 @@ namespace MW5_Mod_Manager
 
         public void ClearGamePaths()
         {
-            ModsPaths[ModsManager.eModPathType.Program]?.FolderWatcher?.Dispose();
-            ModsPaths[ModsManager.eModPathType.Program] = null;
-            ModsPaths[ModsManager.eModPathType.Steam]?.FolderWatcher?.Dispose();
-            ModsPaths[ModsManager.eModPathType.Steam] = null;
-            ModsPaths[ModsManager.eModPathType.AppData]?.FolderWatcher?.Dispose();
-            ModsPaths[ModsManager.eModPathType.AppData] = null;
+            ModsPaths[eModPathType.Program]?.FolderWatcher?.Dispose();
+            ModsPaths[eModPathType.Program] = null;
+            ModsPaths[eModPathType.Steam]?.FolderWatcher?.Dispose();
+            ModsPaths[eModPathType.Steam] = null;
+            ModsPaths[eModPathType.AppData]?.FolderWatcher?.Dispose();
+            ModsPaths[eModPathType.AppData] = null;
         }
 
         // Deduces mod directory locations

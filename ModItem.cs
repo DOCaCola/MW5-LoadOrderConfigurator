@@ -69,7 +69,7 @@ namespace MW5_Mod_Manager
         public void RecomputeLoadOrders(bool restoreLoadOrdersOfDisabled = false)
         {
             // If the list is sorted according to MW5's default load order,
-            // we can reset everything to the default load order
+            // we can reset load orders to their default load order
             bool isDefaultSorted = AreModsSortedByDefaultLoadOrder();
 
             /*List.Sort((x, y) =>
@@ -90,14 +90,14 @@ namespace MW5_Mod_Manager
             int curLoadOrder = GetModCount(restoreLoadOrdersOfDisabled);
             
             // Reorder modlist by recreating it...
-            List<ModImportData> newModList = new List<ModImportData>();
+            List<ModsManager.ModImportData> newModList = new List<ModsManager.ModImportData>();
 
             foreach (ModItem curModItem in ModList.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
             {
                 string modKey = curModItem.Path;
                 bool modEnabled = curModItem.Enabled;
 
-                ModImportData newImportData = new ModImportData();
+                ModsManager.ModImportData newImportData = new ModsManager.ModImportData();
                 newImportData.ModPath = modKey;
                 newImportData.ModFolder = curModItem.FolderName;
                 newImportData.Enabled = modEnabled;

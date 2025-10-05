@@ -11,7 +11,6 @@ using DarkModeForms;
 using MW5_Mod_Manager.Controls;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using static MW5_Mod_Manager.ImportForm;
 
 namespace MW5_Mod_Manager
 {
@@ -21,7 +20,7 @@ namespace MW5_Mod_Manager
         public enum eResultDataType { DirNames, ModNames }
 
         public eResultDataType ResultDataType { get; set; } = eResultDataType.DirNames;
-        public List<ModImportData> ResultData;
+        public List<ModsManager.ModImportData> ResultData;
 
         public ImportForm()
         {
@@ -43,7 +42,7 @@ namespace MW5_Mod_Manager
 
             }
 
-            List<ModImportData> resultData = new List<ModImportData>();
+            List<ModsManager.ModImportData> resultData = new List<ModsManager.ModImportData>();
             if (jsonImportObject != null)
             {
                 bool isLegacyJson = jsonImportObject.Count > 0;
@@ -52,7 +51,7 @@ namespace MW5_Mod_Manager
                 {
                     if (property.Value.Type == JTokenType.Boolean)
                     {
-                        ModImportData newImportData = new ModImportData();
+                        ModsManager.ModImportData newImportData = new ModsManager.ModImportData();
                         newImportData.ModFolder = property.Name;
                         newImportData.Enabled = (bool)property.Value;
 
@@ -98,7 +97,7 @@ namespace MW5_Mod_Manager
                     // unescape mod names
                     string modName = matchResult.Groups[3].ToString().Replace("\"\"", "\"");
 
-                    ModImportData newImportData = new ModImportData();
+                    ModsManager.ModImportData newImportData = new ModsManager.ModImportData();
                     newImportData.Enabled = true;
                     newImportData.ModName = modName;
                     newImportData.LoadOrder = float.Parse(matchResult.Groups[1].ToString());
@@ -137,7 +136,7 @@ namespace MW5_Mod_Manager
 
                     string modName = matchResult.Groups[3].ToString().Replace("\"\"", "\"");
 
-                    ModImportData newImportData = new ModImportData();
+                    ModsManager.ModImportData newImportData = new ModsManager.ModImportData();
                     newImportData.Enabled = true;
                     newImportData.ModName = modName;
                     newImportData.LoadOrder = float.Parse(matchResult.Groups[1].ToString());
@@ -213,15 +212,4 @@ namespace MW5_Mod_Manager
         }
     }
 
-    public class ModImportData
-    {
-        public string ModPath;
-        public string ModFolder;
-        public string ModName;
-        public string Version;
-        public int Build = -1;
-        public float LoadOrder = Single.NaN;
-        public bool Enabled = false;
-        public bool Available = false;
-    }
 }

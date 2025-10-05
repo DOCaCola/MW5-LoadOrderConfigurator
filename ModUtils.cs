@@ -8,13 +8,13 @@ namespace MW5_Mod_Manager
 {
     internal class ModUtils
     {
-        // Swaps items the targetList by the sequence of mods in filterList
-        public static void SwapModsToMatchFilter(ref List<ModImportData> targetList, List<ModImportData> filterList)
+        // Sorts items the targetList by the sequence of mods in filterList
+        public static void SortModsToMatchFilter(ref List<ModsManager.ModImportData> targetList, List<ModsManager.ModImportData> filterList)
         {
             int filterIndex = 0;
             for (int i = 0; i < targetList.Count && filterIndex < filterList.Count; i++)
             {
-                ModImportData currentItem = targetList[i];
+                ModsManager.ModImportData currentItem = targetList[i];
 
                 var itemExists = filterList.FirstOrDefault(x => 
                     x.ModPath.Equals(currentItem.ModPath, StringComparison.InvariantCultureIgnoreCase));
