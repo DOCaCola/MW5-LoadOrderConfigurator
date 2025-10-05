@@ -19,14 +19,14 @@ namespace MW5_Mod_Manager
         static public DockConflictsForm Instance;
 
         public Panel noneSelectedPanel = new();
-        private Label noneSelectedLabel = new();
+        public Label noneSelectedLabel = new();
 
         public DockConflictsForm()
         {
             InitializeComponent();
 
             noneSelectedPanel.Dock = DockStyle.Fill;
-            noneSelectedLabel.Text = "(none selected)";
+            SetNoneSelectedText();
             noneSelectedLabel.TextAlign = ContentAlignment.MiddleCenter;
             noneSelectedLabel.Enabled = false;
             noneSelectedLabel.Dock = DockStyle.Fill;
@@ -38,8 +38,19 @@ namespace MW5_Mod_Manager
             splitContainer2.SetDisableDarkMode(true);
         }
 
+        public void SetNoneSelectedText()
+        {
+            noneSelectedLabel.Text = "(none selected)";
+        }
+
+        public void SetModNotEnabledText()
+        {
+            noneSelectedLabel.Text = "(mod is disabled)";
+        }
+
         public void ClearModInfo()
         {
+            SetNoneSelectedText();
             labelModNameOverrides.Text = string.Empty;
             richTextBoxManifestOverridden.Clear();
             listBoxOverriddenBy.Items.Clear();

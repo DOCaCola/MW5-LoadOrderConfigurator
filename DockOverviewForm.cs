@@ -50,10 +50,14 @@ namespace MW5_Mod_Manager
             string modKey = MainForm._sideBarSelectedModKey;
             string modUrl = ModsManager.Instance.ModDetails[modKey].authorURL;
             bool isValidUrl = Utils.IsUrlValid(modUrl);
-            if (isValidUrl)
+            if (!isValidUrl)
+                return;
+            var psi = new ProcessStartInfo()
             {
-                Process.Start(modUrl);
-            }
+                FileName = modUrl,
+                UseShellExecute = true
+            };
+            Process.Start(psi);
         }
 
         private void linkLabelSteamId_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

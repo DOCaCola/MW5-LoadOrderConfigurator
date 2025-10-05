@@ -1587,6 +1587,16 @@ namespace MW5_Mod_Manager
             UpdateMoveControlEnabledState();
         }
 
+        public ModItem GetFirstSelectedMod()
+        {
+            var selectedObjects = DockModListForm.Instance.modObjectListView.SelectedObjects;
+            if (selectedObjects != null && selectedObjects.Count > 0)
+            {
+                return (ModItem)selectedObjects[0];
+            }
+            return null;
+        }
+
         private void UpdateSidePanelData(bool forceUpdate)
         {
             if (DockModListForm.Instance.modObjectListView.SelectedObjects.Count == 0)
@@ -1599,7 +1609,10 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-            ModItem firstSelectedMod = (ModItem)DockModListForm.Instance.modObjectListView.SelectedObjects[0];
+            ModItem firstSelectedMod = GetFirstSelectedMod();
+            if (firstSelectedMod == null)
+                return;
+
             string selectedModPath = firstSelectedMod.Path;
 
             if (!forceUpdate && _sideBarSelectedModKey == selectedModPath)
@@ -1694,22 +1707,37 @@ namespace MW5_Mod_Manager
         }
 
         //Handles the showing of overriding data on select
-        private void HandleOverriding(string SelectedMod)
+        private void HandleOverriding(string selectedModPath)
         {
-            DockConflictsForm.Instance.noneSelectedPanel.Visible = false;
-            if (ModsManager.Instance.ModConflictData.Count == 0)
-                return;
-
             DockConflictsForm.Instance.listBoxOverriding.Items.Clear();
             DockConflictsForm.Instance.listBoxOverriddenBy.Items.Clear();
             DockConflictsForm.Instance.richTextBoxManifestOverridden.Clear();
 
-            if (!ModsManager.Instance.ModConflictData.ContainsKey(SelectedMod))
+            ModItem selectedModItem = GetFirstSelectedMod();
+            if (selectedModItem == null)
+            {
+                DockConflictsForm.Instance.SetNoneSelectedText();
+                DockConflictsForm.Instance.noneSelectedPanel.Visible = true;
+                return;
+            }
+
+            if (!selectedModItem.Enabled)
+            {
+                DockConflictsForm.Instance.SetModNotEnabledText();
+                DockConflictsForm.Instance.noneSelectedPanel.Visible = true;
+                return;
+            }
+
+            DockConflictsForm.Instance.noneSelectedPanel.Visible = false;
+            if (ModsManager.Instance.ModConflictData.Count == 0)
+                return;
+
+            if (!ModsManager.Instance.ModConflictData.ContainsKey(selectedModPath))
                 return;
 
             DockConflictsForm.Instance.listBoxOverriding.SuspendDrawing();
             DockConflictsForm.Instance.listBoxOverriddenBy.SuspendDrawing();
-            ModConflictData modData = ModsManager.Instance.ModConflictData[SelectedMod];
+            ModConflictData modData = ModsManager.Instance.ModConflictData[selectedModPath];
             foreach (string overriding in modData.overriddenBy.Keys)
             {
                 ModListBoxItem modListBoxItem = new ModListBoxItem();
