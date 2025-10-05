@@ -1255,49 +1255,65 @@ namespace MW5_Mod_Manager
 
         public void SaveModDetails()
         {
-            foreach (KeyValuePair<string, ModObject> entry in this.ModDetails)
-            {
-                string modJsonPath = entry.Key + @"\mod.json";
+            var serializer = new JsonSerializer { Formatting = Formatting.Indented };
 
-                // Make sure the file still exists, in case the mod was deleted
+            foreach (var entry in ModDetails)
+            {
+                string modJsonPath = Path.Combine(entry.Key, "mod.json");
+
+                // Make sure the file still exists, in case the mod was deleted in the meantime
                 if (!File.Exists(modJsonPath))
                     continue;
 
-                string modJsonExisting = File.ReadAllText(modJsonPath);
-                JObject modDetailsNew = JObject.Parse(modJsonExisting);
-
-
-                float originalLoadOrder = Mods[entry.Key].OriginalLoadOrder;
-                if (float.IsInteger(originalLoadOrder))
+                //try
                 {
-                    int oloInteger = (int)originalLoadOrder;
-                    modDetailsNew["locOriginalLoadOrder"] = oloInteger;
-                }
-                else
-                {
-                    modDetailsNew["locOriginalLoadOrder"] = originalLoadOrder;
-                }
+                    string modJsonExisting = File.ReadAllText(modJsonPath);
+                    JObject modDetailsNew = JObject.Parse(modJsonExisting);
 
-                float newLoadOrder = Mods[entry.Key].NewLoadOrder;
-                if (float.IsInteger(newLoadOrder))
-                {
-                    int nloInteger = (int)newLoadOrder;
-                    modDetailsNew["defaultLoadOrder"] = nloInteger;
-                }
-                else
-                {
-                    modDetailsNew["defaultLoadOrder"] = newLoadOrder;
-                }
+                    if (!Mods.TryGetValue(entry.Key, out var modData))
+                        continue;
 
-                JsonSerializer serializer = new JsonSerializer();
-                serializer.Formatting = Formatting.Indented;
-                using (StreamWriter sw = new StreamWriter(modJsonPath))
-                using (JsonWriter writer = new JsonTextWriter(sw))
-                {
-                    //modDetailsNew.WriteTo(writer);
+                    bool needsUpdate = false;
 
-                    serializer.Serialize(writer, modDetailsNew);
+                    float originalLoadOrder = modData.OriginalLoadOrder;
+                    JToken currentOlo = modDetailsNew["locOriginalLoadOrder"];
+                    JToken newOlo = float.IsInteger(originalLoadOrder)
+                        ? new JValue((int)originalLoadOrder)
+                        : new JValue(originalLoadOrder);
+
+                    if (!JToken.DeepEquals(currentOlo, newOlo))
+                    {
+                        modDetailsNew["locOriginalLoadOrder"] = newOlo;
+                        needsUpdate = true;
+                    }
+
+                    float newLoadOrder = modData.NewLoadOrder;
+                    JToken currentNlo = modDetailsNew["defaultLoadOrder"];
+                    JToken newNlo = float.IsInteger(newLoadOrder)
+                        ? new JValue((int)newLoadOrder)
+                        : new JValue(newLoadOrder);
+
+                    if (!JToken.DeepEquals(currentNlo, newNlo))
+                    {
+                        modDetailsNew["defaultLoadOrder"] = newNlo;
+                        needsUpdate = true;
+                    }
+
+                    // Only write if something changed
+                    if (needsUpdate)
+                    {
+                        using (var sw = new StreamWriter(modJsonPath))
+                        using (var writer = new JsonTextWriter(sw))
+                        {
+                            serializer.Serialize(writer, modDetailsNew);
+                        }
+                    }
                 }
+                /*catch (Exception ex)
+                {
+                    // Log or show error, but continue with other mods
+                    Console.WriteLine($"Error saving mod details for {modJsonPath}: {ex.Message}");
+                }*/
             }
         }
 
