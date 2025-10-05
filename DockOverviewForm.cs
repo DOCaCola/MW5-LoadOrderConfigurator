@@ -16,7 +16,7 @@ namespace MW5_Mod_Manager
     public partial class DockOverviewForm : DockContent
     {
         static public DockOverviewForm Instance;
-        
+
         public Panel noneSelectedPanel = new();
         private Label noneSelectedLabel = new();
 
@@ -47,8 +47,11 @@ namespace MW5_Mod_Manager
 
         private void linkLabelModAuthorUrl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            string modKey = MainForm._sideBarSelectedModKey;
-            string modUrl = ModsManager.Instance.ModDetails[modKey].authorURL;
+            ModObject selectedMod = MainForm.GetSidebarSelectedModDetails();
+            if (selectedMod == null)
+                return;
+
+            string modUrl = selectedMod.authorURL;
             bool isValidUrl = Utils.IsUrlValid(modUrl);
             if (!isValidUrl)
                 return;
@@ -64,14 +67,17 @@ namespace MW5_Mod_Manager
         {
             if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Middle)
             {
-                string modKey = MainForm._sideBarSelectedModKey;
+                ModObject selectedMod = MainForm.GetSidebarSelectedModDetails();
+                if (selectedMod == null)
+                    return;
+
                 string steamUrl = String.Empty;
                 if (LocSettings.Instance.Data.platform == eGamePlatform.Steam && e.Button == MouseButtons.Left && SteamUtils.IsSteamRunning())
                     steamUrl = "steam://url/CommunityFilePage/";
                 else
                     steamUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=";
 
-                steamUrl += ModsManager.Instance.ModDetails[modKey].steamPublishedFileId;
+                steamUrl += selectedMod.steamPublishedFileId;
                 var psi = new ProcessStartInfo()
                 {
                     FileName = steamUrl,
@@ -85,9 +91,12 @@ namespace MW5_Mod_Manager
         {
             if (e.Button == MouseButtons.Left)
             {
-                string modKey = MainForm._sideBarSelectedModKey;
+                ModsManager.ModData selectedModData = MainForm.GetSidebarSelectedModData();
+                if (selectedModData == null)
+                    return;
+
                 string nexusUrl = "https://www.nexusmods.com/mechwarrior5mercenaries/mods/" +
-                                  ModsManager.Instance.Mods[modKey].NexusModsId;
+                                  selectedModData.NexusModsId;
 
                 var psi = new ProcessStartInfo()
                 {
@@ -95,6 +104,20 @@ namespace MW5_Mod_Manager
                     UseShellExecute = true
                 };
                 Process.Start(psi);
+            }
+        }
+
+        private void richTextBoxModDescription_LinkClicked(object sender, LinkClickedEventArgs e)
+        {
+            bool isValidUrl = Utils.IsUrlValid(e.LinkText);
+            if (isValidUrl)
+            {
+                var psi = new System.Diagnostics.ProcessStartInfo()
+                {
+                    FileName = e.LinkText,
+                    UseShellExecute = true
+                };
+                System.Diagnostics.Process.Start(psi);
             }
         }
     }

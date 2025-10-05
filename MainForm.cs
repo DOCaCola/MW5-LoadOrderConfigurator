@@ -38,7 +38,7 @@ namespace MW5_Mod_Manager
         public bool _movingItems = false;
         string _onlineUpdateUrl = LocConstants.UrlNexusmods;
         // The mod currently displayed in the sidebar
-        public static string _sideBarSelectedModKey = string.Empty;
+        private static string _sideBarSelectedModKey = null;
         // Force next sidepanel update to execute
         private bool _forceSidePanelUpdate = false;
         // Mod files differ from the state displayed in the UI
@@ -47,6 +47,32 @@ namespace MW5_Mod_Manager
         // Hash of the mod list currently applied to mechwarrior
         public int _ActiveModListHash = 0;
         public AsyncFileLoader _ModImageLoader = null;
+
+        
+        public static string GetSidebarSelectedModPath()
+        {
+            return _sideBarSelectedModKey;
+        }
+
+        public static ModObject GetSidebarSelectedModDetails()
+        {
+            string modKey = _sideBarSelectedModKey;
+            return ModsManager.Instance.ModDetails[modKey];
+        }
+
+        public static ModData GetSidebarSelectedModData()
+        {
+            string modKey = _sideBarSelectedModKey;
+            return ModsManager.Instance.Mods[modKey];
+        }
+
+        public static ModConflictData GetSidebarSelectedModConflictData()
+        {
+            string modDirName = ModsManager.Instance.PathToDirNameDict[_sideBarSelectedModKey];
+
+            ModsManager.Instance.ModConflictData.TryGetValue(modDirName, out ModConflictData modData);
+            return modData;
+        }
 
         public MainForm()
         {
@@ -118,22 +144,6 @@ namespace MW5_Mod_Manager
 
             DockModListForm.Instance.Show(dockPanel1, DockState.Document);
             dockPanel1.ResumeLayout(true);
-
-            AddColumnDisplayMenu();
-        }
-        /*
-        private ToolStripMenuItem authorColumnVisibilityToolStripMenuItemB = new ToolStripMenuItem();
-        private ToolStripMenuItem versionColumnVisibilityToolStripMenuItemB = new ToolStripMenuItem();
-        private ToolStripMenuItem currentLoadOrderColumnVisibilityToolStripMenuItemB = new ToolStripMenuItem();
-        private ToolStripMenuItem originalLoadOrderColumnVisibilityToolStripMenuItemB = new ToolStripMenuItem();
-        private ToolStripMenuItem fileSizeColumnVisibilityToolStripMenuItemB = new ToolStripMenuItem();
-        private ToolStripMenuItem modFolderColumnVisibilityToolStripMenuItemB = new ToolStripMenuItem();
-        private ToolStripMenuItem modAgeColumnVisibilityToolStripMenuItemB = new ToolStripMenuItem();
-        */
-        private void AddColumnDisplayMenu()
-        {
-            // add submenu to view menu for column visibility
-            //toolStripMenuItemColumns.DropDownItems.AddRange(contextMenuStripColumnOptions.Items);
         }
 
         public string GetVersion()
@@ -1601,7 +1611,7 @@ namespace MW5_Mod_Manager
         {
             if (DockModListForm.Instance.modObjectListView.SelectedObjects.Count == 0)
             {
-                _sideBarSelectedModKey = string.Empty;
+                _sideBarSelectedModKey = null;
                 DockOverviewForm.Instance.pictureBoxModImage.Visible = false;
                 DockOverviewForm.Instance.panelModInfo.Visible = false;
                 DockConflictsForm.Instance.ClearModInfo();
@@ -1951,53 +1961,6 @@ namespace MW5_Mod_Manager
                     MessageBox.Show(ex.Message, "Error opening directory", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-
-        }
-
-        private void linkLabelModAuthorUrl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            string modKey = _sideBarSelectedModKey;
-            string modUrl = ModsManager.Instance.ModDetails[modKey].authorURL;
-            bool isValidUrl = Utils.IsUrlValid(modUrl);
-            if (isValidUrl)
-            {
-                Process.Start(modUrl);
-            }
-        }
-
-        private void linkLabelSteamId_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Middle)
-            {
-                string modKey = _sideBarSelectedModKey;
-                string steamUrl = String.Empty;
-                if (LocSettings.Instance.Data.platform == eGamePlatform.Steam && e.Button == MouseButtons.Left && SteamUtils.IsSteamRunning())
-                    steamUrl = "steam://url/CommunityFilePage/";
-                else
-                    steamUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=";
-
-                steamUrl += ModsManager.Instance.ModDetails[modKey].steamPublishedFileId;
-                var psi = new System.Diagnostics.ProcessStartInfo()
-                {
-                    FileName = steamUrl,
-                    UseShellExecute = true
-                };
-                System.Diagnostics.Process.Start(psi);
-            }
-        }
-
-        private void richTextBoxModDescription_LinkClicked(object sender, LinkClickedEventArgs e)
-        {
-            bool isValidUrl = Utils.IsUrlValid(e.LinkText);
-            if (isValidUrl)
-            {
-                var psi = new System.Diagnostics.ProcessStartInfo()
-                {
-                    FileName = e.LinkText,
-                    UseShellExecute = true
-                };
-                System.Diagnostics.Process.Start(psi);
-            }
         }
 
         private void ShowSettingsDialog()
@@ -2069,24 +2032,6 @@ namespace MW5_Mod_Manager
             deleteDialog.ShowDialog(this);
             deleteDialog.Dispose();
         }
-
-        private void linkLabelNexusmods_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                string modKey = _sideBarSelectedModKey;
-                string nexusUrl = "https://www.nexusmods.com/mechwarrior5mercenaries/mods/" +
-                                  ModsManager.Instance.Mods[modKey].NexusModsId;
-
-                var psi = new System.Diagnostics.ProcessStartInfo()
-                {
-                    FileName = nexusUrl,
-                    UseShellExecute = true
-                };
-                System.Diagnostics.Process.Start(psi);
-            }
-        }
-
         public void SelectModInList(string modKey)
         {
             DockModListForm.Instance.modObjectListView.DeselectAll();

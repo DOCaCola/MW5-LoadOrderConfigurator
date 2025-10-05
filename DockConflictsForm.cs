@@ -98,14 +98,13 @@ namespace MW5_Mod_Manager
                     MainForm.Instance.HighlightModInList(selectedMod.ModKey);
                 }
 
-                string superMod = ModsManager.Instance.PathToDirNameDict[MainForm._sideBarSelectedModKey];
-
-                if (!ModsManager.Instance.ModConflictData.TryGetValue(superMod, out ModConflictData modData))
+                ModConflictData modConflictData = MainForm.GetSidebarSelectedModConflictData();
+                if (modConflictData == null)
                     return;
 
                 var sb = new StringBuilder();
                 sb.Append(@"{\rtf1\ansi");
-                foreach (string entry in modData.overrides[selectedMod.ModDirName])
+                foreach (string entry in modConflictData.overrides[selectedMod.ModDirName])
                 {
                     AppendContentPathToMainfestList(entry, ref sb);
                 }
@@ -163,17 +162,16 @@ namespace MW5_Mod_Manager
                     MainForm.Instance.HighlightModInList(selectedMod.ModKey);
                 }
 
-                string superMod = ModsManager.Instance.PathToDirNameDict[MainForm._sideBarSelectedModKey];
-
-                if (!ModsManager.Instance.ModConflictData.TryGetValue(superMod, out ModConflictData modData))
+                ModConflictData modConflictData = MainForm.GetSidebarSelectedModConflictData();
+                if (modConflictData == null)
                     return;
 
-                if (!modData.overriddenBy.ContainsKey(selectedMod.ModDirName))
+                if (!modConflictData.overriddenBy.ContainsKey(selectedMod.ModDirName))
                     return;
 
                 var sb = new StringBuilder();
                 sb.Append(@"{\rtf1\ansi");
-                foreach (string entry in modData.overriddenBy[selectedMod.ModDirName])
+                foreach (string entry in modConflictData.overriddenBy[selectedMod.ModDirName])
                 {
                     AppendContentPathToMainfestList(entry, ref sb);
                 }

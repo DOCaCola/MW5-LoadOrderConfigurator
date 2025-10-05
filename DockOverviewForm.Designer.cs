@@ -193,6 +193,7 @@ namespace MW5_Mod_Manager
             richTextBoxModDescription.Size = new Size(308, 127);
             richTextBoxModDescription.TabIndex = 9;
             richTextBoxModDescription.Text = "";
+            richTextBoxModDescription.LinkClicked += richTextBoxModDescription_LinkClicked;
             // 
             // labelSteamId
             // 
