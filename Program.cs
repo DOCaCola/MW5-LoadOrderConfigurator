@@ -22,7 +22,18 @@ namespace MW5_Mod_Manager
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
-            Application.Run(new MainForm());
+            Application.Run(new LocAppContext());
+        }
+    }
+
+    public class LocAppContext : ApplicationContext
+    {
+        private MainForm mainForm;
+
+        public LocAppContext()
+        {
+            mainForm = new MainForm();  
+            mainForm.Show();
         }
     }
 }

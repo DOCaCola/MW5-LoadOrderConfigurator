@@ -48,7 +48,7 @@ namespace MW5_Mod_Manager
         public int _ActiveModListHash = 0;
         public AsyncFileLoader _ModImageLoader = null;
 
-        
+
         public static string GetSidebarSelectedModPath()
         {
             return _sideBarSelectedModKey;
@@ -56,18 +56,23 @@ namespace MW5_Mod_Manager
 
         public static ModObject GetSidebarSelectedModDetails()
         {
-            string modKey = _sideBarSelectedModKey;
-            return ModsManager.Instance.ModDetails[modKey];
+            if (_sideBarSelectedModKey == null)
+                return null;
+            return ModsManager.Instance.ModDetails[_sideBarSelectedModKey];
         }
 
         public static ModData GetSidebarSelectedModData()
         {
-            string modKey = _sideBarSelectedModKey;
-            return ModsManager.Instance.Mods[modKey];
+            if (_sideBarSelectedModKey == null)
+                return null;
+            return ModsManager.Instance.Mods[_sideBarSelectedModKey];
         }
 
         public static ModConflictData GetSidebarSelectedModConflictData()
         {
+            if (_sideBarSelectedModKey == null)
+                return null;
+
             string modDirName = ModsManager.Instance.PathToDirNameDict[_sideBarSelectedModKey];
 
             ModsManager.Instance.ModConflictData.TryGetValue(modDirName, out ModConflictData modData);
@@ -81,7 +86,7 @@ namespace MW5_Mod_Manager
             DockModListForm.Instance = new();
             DockOverviewForm.Instance = new();
             DockConflictsForm.Instance = new();
-            
+
             Instance = this;
 
             toolStripTextFilterBox.TextBox.PreviewKeyDown += FilterTextBoxOnPreviewKeyDown;
@@ -2861,6 +2866,11 @@ namespace MW5_Mod_Manager
         private void toolStripMenuItemConflictWindowToggle_Click(object sender, EventArgs e)
         {
             DockConflictsForm.Instance.Show(dockPanel1);
+        }
+
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Application.Exit();
         }
     }
 }
