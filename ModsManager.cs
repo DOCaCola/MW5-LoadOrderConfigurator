@@ -506,16 +506,12 @@ namespace MW5_Mod_Manager
                 bool foundMod = false;
                 if (hasFolder)
                 {
-                    if (DirNameToPathDict.ContainsKey(curImportItem.ModFolder))
+                    if (DirNameToPathDict.TryGetValue(curImportItem.ModFolder, out var modPath))
                     {
-                        string modPath = DirNameToPathDict[curImportItem.ModFolder];
-                        if (!string.IsNullOrWhiteSpace(modPath))
-                        {
-                            curImportItem.Available = true;
-                            curImportItem.ModPath = modPath;
-                            curImportItem.ModFolder = Path.GetFileName(modPath);
-                            foundMod = true;
-                        }
+                        curImportItem.Available = true;
+                        curImportItem.ModPath = modPath;
+                        curImportItem.ModFolder = Path.GetFileName(modPath);
+                        foundMod = true;
                     }
                 }
 
@@ -684,7 +680,7 @@ namespace MW5_Mod_Manager
                 if (string.IsNullOrWhiteSpace(pathOfInterest))
                     return false;
 
-                if (string.Compare(Path.GetFileName(pathOfInterest), "mod.json", StringComparison.Ordinal) == 0)
+                if (string.Equals(Path.GetFileName(pathOfInterest), "mod.json", StringComparison.OrdinalIgnoreCase))
                 {
                     if (fileMissing || File.Exists(pathOfInterest))
                     {
@@ -703,8 +699,7 @@ namespace MW5_Mod_Manager
                         // We are only interested in tracked mod directories
                         foreach (string curModDirectory in this.ModDirectories)
                         {
-                            if (string.Compare(pathOfInterest, curModDirectory,
-                                    StringComparison.Ordinal) == 0)
+                            if (string.Equals(pathOfInterest, curModDirectory, StringComparison.OrdinalIgnoreCase))
                             {
                                 return true;
                             }
@@ -796,7 +791,7 @@ namespace MW5_Mod_Manager
 
             while (currentDirectory != null)
             {
-                if (Path.GetFileName(currentDirectory).Equals("steamapps", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(Path.GetFileName(currentDirectory), "steamapps", StringComparison.OrdinalIgnoreCase))
                 {
                     return currentDirectory;
                 }
@@ -946,7 +941,7 @@ namespace MW5_Mod_Manager
                 // If Priority is equal, compare Folder name
                 if (priorityComparison == 0)
                 {
-                    return PathToDirNameDict[y].CompareTo(PathToDirNameDict[x]);
+                    return string.Compare(PathToDirNameDict[y], PathToDirNameDict[x], StringComparison.OrdinalIgnoreCase);
                 }
 
                 return priorityComparison;
@@ -1107,7 +1102,7 @@ namespace MW5_Mod_Manager
                     {
                         // If the mod directory name matches the store id, we can be pretty certain.
                         // There are mods however, that have this field incorrectly filled
-                        if (modDirName == modJsonDataObject.steamPublishedFileId.ToString())
+                        if (string.Equals(modDirName, modJsonDataObject.steamPublishedFileId.ToString(), StringComparison.Ordinal))
                         {
                             modData.Origin = ModData.ModOrigin.Steam;
                         }
@@ -1116,7 +1111,7 @@ namespace MW5_Mod_Manager
                         // it's certain that this is a steam mod
                         if (modData.Origin == ModData.ModOrigin.Unknown)
                         {
-                            if (modPath.StartsWith(ModsPaths[eModPathType.Steam]?.FullPath))
+                            if (modPath.StartsWith(ModsPaths[eModPathType.Steam]?.FullPath, StringComparison.OrdinalIgnoreCase))
                             {
                                 modData.Origin = ModData.ModOrigin.Steam;
                             }
@@ -1227,16 +1222,16 @@ namespace MW5_Mod_Manager
                 {
                     // We want to skip files that are potentially different between installs of the same mod
                     // to not confuse users when comparing their mod sizes
-                    if (string.Compare(Path.GetFileName(filePath), "__folder_managed_by_vortex", StringComparison.Ordinal) == 0)
+                    if (string.Equals(Path.GetFileName(filePath), "__folder_managed_by_vortex", StringComparison.Ordinal))
                         continue;
 
-                    if (string.Compare(Path.GetFileName(filePath), "mod.json", StringComparison.Ordinal) == 0)
+                    if (string.Equals(Path.GetFileName(filePath), "mod.json", StringComparison.Ordinal))
                         continue;
 
-                    if (string.Compare(Path.GetFileName(filePath), "mod.json.bak", StringComparison.Ordinal) == 0)
+                    if (string.Equals(Path.GetFileName(filePath), "mod.json.bak", StringComparison.Ordinal))
                         continue;
 
-                    if (string.Compare(Path.GetFileName(filePath), "backup.json", StringComparison.Ordinal) == 0)
+                    if (string.Equals(Path.GetFileName(filePath), "backup.json", StringComparison.Ordinal))
                         continue;
 
                     modData.ModFileSize += LocFileUtils.GetFileSize(filePath);
@@ -1257,7 +1252,7 @@ namespace MW5_Mod_Manager
                 if (!loadModSuccess)
                 {
                     var itemToRemove = ModEnabledList.FirstOrDefault(x =>
-                        x.ModPath.Equals(modPath, StringComparison.InvariantCultureIgnoreCase));
+                        string.Equals(x.ModPath, modPath, StringComparison.InvariantCultureIgnoreCase));
 
                     if (itemToRemove != null)
                     {
@@ -1497,27 +1492,28 @@ namespace MW5_Mod_Manager
 
                 foreach (string key in ModConflictData.Keys)
                 {
-                    ModConflictData[key].overriddenBy.Remove(modAPath);
+                    var conflictData = ModConflictData[key];
+                    conflictData.overriddenBy.Remove(modAPath);
+                    conflictData.overrides.Remove(modAPath);
 
-                    ModConflictData[key].overrides.Remove(modAPath);
+                    if (conflictData.overrides.Count == 0)
+                        conflictData.isOverriding = false;
 
-                    if (ModConflictData[key].overrides.Count == 0)
-                        ModConflictData[key].isOverriding = false;
-
-                    if (ModConflictData[key].overriddenBy.Count == 0)
-                        ModConflictData[key].isOverridden = false;
+                    if (conflictData.overriddenBy.Count == 0)
+                        conflictData.isOverridden = false;
                 }
             }
             else
             {
-                if (!ModConflictData.ContainsKey(modAPath))
-                {
-                    ModConflictData[modAPath] = new ModConflictData
+                if (!ModConflictData.TryGetValue(modAPath, out ModConflictData conflictDataA))
+                    {
+                    conflictDataA = new ModConflictData
                     {
                         modPath = modAPath,
                         overrides = new Dictionary<string, List<string>>(),
                         overriddenBy = new Dictionary<string, List<string>>()
                     };
+                    ModConflictData[modAPath] = conflictDataA;
                 }
 
                 // Check each mod for changes
@@ -1531,16 +1527,17 @@ namespace MW5_Mod_Manager
                     if (!item.Enabled)
                         continue;
 
-                    if (!ModConflictData.ContainsKey(modBPath))
+                    if (!ModConflictData.TryGetValue(modBPath, out ModConflictData conflictDataB))
                     {
-                        ModConflictData[modBPath] = new ModConflictData
+                        conflictDataB = new ModConflictData
                         {
                             modPath = modBPath,
                             overrides = new Dictionary<string, List<string>>(),
                             overriddenBy = new Dictionary<string, List<string>>()
                         };
+                        ModConflictData[modBPath] = conflictDataB;
                     }
-                    RecomputeModConflictData(newModItem, item, ModConflictData[modAPath], ModConflictData[modBPath]);
+                    RecomputeModConflictData(newModItem, item, conflictDataA, conflictDataB);
                 }
             }
 
@@ -1561,8 +1558,12 @@ namespace MW5_Mod_Manager
             float loadOrderB = Mods[listItemB.Path].NewLoadOrder;
 
             // Retrieve manifests for both mods
-            var manifestA = ModDetails.TryGetValue(DirNameToPathDict[modAPath], out var modObjA) ? modObjA.manifest : null;
-            var manifestB = ModDetails.TryGetValue(DirNameToPathDict[modBPath], out var modObjB) ? modObjB.manifest : null;
+            if (!DirNameToPathDict.TryGetValue(modAPath, out var modAFullPath) ||
+                !DirNameToPathDict.TryGetValue(modBPath, out var modBFullPath))
+                return;
+
+            var manifestA = ModDetails.TryGetValue(modAFullPath, out var modObjA) ? modObjA.manifest : null;
+            var manifestB = ModDetails.TryGetValue(modBFullPath, out var modObjB) ? modObjB.manifest : null;
 
             if (manifestA == null || manifestB == null)
                 return;
@@ -1623,16 +1624,16 @@ namespace MW5_Mod_Manager
                 string modAPath = itemA.FolderName;
 
                 // Ensure an entry exists for modA in the conflict data dictionary
-                if (!ModConflictData.ContainsKey(modAPath))
+                if (!ModConflictData.TryGetValue(modAPath, out ModConflictData conflictDataA))
                 {
-                    ModConflictData[modAPath] = new ModConflictData
+                    conflictDataA = new ModConflictData
                     {
                         modPath = modAPath,
                         overrides = new Dictionary<string, List<string>>(),
                         overriddenBy = new Dictionary<string, List<string>>()
                     };
+                    ModConflictData[modAPath] = conflictDataA;
                 }
-                ModConflictData conflictDataA = this.ModConflictData[modAPath];
 
                 // Compare modA with every other enabled mod to determine conflicts
                 foreach (ModItem itemB in ModItemList.Instance.ModList)
@@ -1655,28 +1656,28 @@ namespace MW5_Mod_Manager
                     }
 
                     // If modB already has conflict data, check if this pair was already compared
-                    if (ModConflictData.ContainsKey(modBPath))
+                    if (!ModConflictData.TryGetValue(modBPath, out ModConflictData conflictDataB))
+                    {
+                        conflictDataB = new ModConflictData
+                        {
+                            modPath = modBPath,
+                            overrides = new Dictionary<string, List<string>>(),
+                            overriddenBy = new Dictionary<string, List<string>>()
+                        };
+                        ModConflictData[modBPath] = conflictDataB;
+                    }
+                    else
                     {
                         if (
-                            ModConflictData[modBPath].overriddenBy.ContainsKey(modAPath) ||
-                            ModConflictData[modBPath].overrides.ContainsKey(modAPath)
+                            conflictDataB.overriddenBy.ContainsKey(modAPath) ||
+                            conflictDataB.overrides.ContainsKey(modAPath)
                             )
                         {
                             // This mod pair has already been processed
                             continue;
                         }
                     }
-                    else
-                    {
-                        // Create conflict data entry for modB
-                        ModConflictData[modBPath] = new ModConflictData
-                        {
-                            modPath = modBPath,
-                            overrides = new Dictionary<string, List<string>>(),
-                            overriddenBy = new Dictionary<string, List<string>>()
-                        };
-                    }
-                    RecomputeModConflictData(itemA, itemB, ModConflictData[modAPath], ModConflictData[modBPath]);
+                    RecomputeModConflictData(itemA, itemB, conflictDataA, conflictDataB);
                 }
             }
 
