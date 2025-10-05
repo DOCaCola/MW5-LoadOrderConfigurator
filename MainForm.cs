@@ -55,7 +55,7 @@ namespace MW5_Mod_Manager
             DockModListForm.Instance = new();
             DockOverviewForm.Instance = new();
             DockConflictsForm.Instance = new();
-
+            
             Instance = this;
 
             toolStripTextFilterBox.TextBox.PreviewKeyDown += FilterTextBoxOnPreviewKeyDown;
@@ -65,9 +65,16 @@ namespace MW5_Mod_Manager
 
             if (LocWindowColors.DarkMode)
             {
-                dockPanel1.Theme = new VS2015DarkTheme();
+                var darkTheme = new LocDarkTheme();
+                dockPanel1.Theme = darkTheme;
 
-                _ = new DarkModeCS(this, false);
+                menuStrip1.SetDisableDarkMode(true);
+                menuStrip1.SetDisableDarkModeChildren(true);
+                toolStrip1.SetDisableDarkMode(true);
+                toolStrip1.SetDisableDarkModeChildren(true);
+                var darkModeCs = new DarkModeCS(this, false);
+                darkModeCs.ThemeControl(toolStripTextFilterBox.Control);
+
 
                 DockModListForm.Instance.modObjectListView.HeaderUsesThemes = false;
                 var headerstyleb = new HeaderFormatStyle();
@@ -84,15 +91,23 @@ namespace MW5_Mod_Manager
 
                 DockModListForm.Instance.olvColumnFreeSpaceDummy.IsVisible = true;
 
-                visualStudioToolStripExtender1.SetStyle(menuStrip1, VisualStudioToolStripExtender.VsVersion.Vs2015, new VS2015DarkTheme());
-                visualStudioToolStripExtender1.SetStyle(toolStrip1, VisualStudioToolStripExtender.VsVersion.Vs2015, new VS2015DarkTheme());
-                visualStudioToolStripExtender1.SetStyle(DockModListForm.Instance.toolStrip2, VisualStudioToolStripExtender.VsVersion.Vs2015, new VS2015DarkTheme());
+                visualStudioToolStripExtender1.SetStyle(menuStrip1, VisualStudioToolStripExtender.VsVersion.Vs2015, darkTheme);
+                visualStudioToolStripExtender1.SetStyle(toolStrip1, VisualStudioToolStripExtender.VsVersion.Vs2015, darkTheme);
+                visualStudioToolStripExtender1.SetStyle(DockModListForm.Instance.toolStrip2, VisualStudioToolStripExtender.VsVersion.Vs2015, darkTheme);
+
+                contextMenuStripColumnOptions.Renderer = darkTheme.ToolStripRenderer;
+                contextMenuStripMod.Renderer = darkTheme.ToolStripRenderer;
             }
             else
             {
-                dockPanel1.Theme = new VS2015LightTheme();
-                visualStudioToolStripExtender1.SetStyle(menuStrip1, VisualStudioToolStripExtender.VsVersion.Vs2015, new VS2015LightTheme());
-                visualStudioToolStripExtender1.SetStyle(toolStrip1, VisualStudioToolStripExtender.VsVersion.Vs2015, new VS2015LightTheme());
+                var lightTheme = new LocLightTheme();
+                dockPanel1.Theme = lightTheme;
+                toolStrip1.RenderMode = ToolStripRenderMode.Professional;
+                visualStudioToolStripExtender1.SetStyle(menuStrip1, VisualStudioToolStripExtender.VsVersion.Vs2015, lightTheme);
+                visualStudioToolStripExtender1.SetStyle(toolStrip1, VisualStudioToolStripExtender.VsVersion.Vs2015, lightTheme);
+
+                contextMenuStripColumnOptions.Renderer = lightTheme.ToolStripRenderer;
+                contextMenuStripMod.Renderer = lightTheme.ToolStripRenderer;
 
                 DockModListForm.Instance.toolStrip2.Renderer = new ToolStripTransparentRenderer();
             }
@@ -1600,9 +1615,9 @@ namespace MW5_Mod_Manager
             string selectedModLabelDisplayName = firstSelectedMod.Name.Replace("&", "&&");
             DockOverviewForm.Instance.labelModName.Text = selectedModLabelDisplayName;
             DockConflictsForm.Instance.labelModNameOverrides.Text = selectedModLabelDisplayName;
-            DockOverviewForm.Instance.labelModAuthor.Text = @"Author: " + modDetails.author.Replace("&", "&&");
+            DockOverviewForm.Instance.labelModAuthor.Text = @"Author: " + modDetails.author?.Replace("&", "&&");
             DockOverviewForm.Instance.linkLabelModAuthorUrl.Text = modDetails.authorURL.Replace("&", "&&");
-            DockOverviewForm.Instance.labelModVersion.Text = @"Version: " + modDetails.version.Replace("&", "&&");
+            DockOverviewForm.Instance.labelModVersion.Text = @"Version: " + modDetails.version?.Replace("&", "&&");
             DockOverviewForm.Instance.labelModBuildNumber.Text = @"Build: " + modDetails.buildNumber;
             long steamId = modDetails.steamPublishedFileId;
             if (steamId > 0)
