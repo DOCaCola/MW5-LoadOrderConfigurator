@@ -27,6 +27,12 @@ namespace MW5_Mod_Manager.Controls
             //return true;
             return base.ProcessLButtonDown(hti);
         }
+
+        public virtual void RefreshItems()
+        {
+            foreach (OLVListItem curItem in this.Items)
+                this.RefreshItem(curItem);
+        }
     }
 
     //The rotating label for priority indication.

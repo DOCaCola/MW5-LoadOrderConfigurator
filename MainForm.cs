@@ -1069,6 +1069,10 @@ namespace MW5_Mod_Manager
             }
 
             // Fill listview
+#if DEBUG
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+#endif
+
             DockModListForm.Instance.modObjectListView.BeginUpdate();
             DockModListForm.Instance.modObjectListView.ClearObjects();
             ModItemList.Instance.ModList.Clear();
@@ -1094,22 +1098,26 @@ namespace MW5_Mod_Manager
                 newItem.VersionCombined = versionString;
 
                 ModItemList.Instance.ModList.Add(newItem);
-                DockModListForm.Instance.modObjectListView.AddObject(newItem);
             }
-            DockModListForm.Instance.RecolorObjectListViewRows();
-            DockModListForm.Instance.modObjectListView.EndUpdate();
+            DockModListForm.Instance.modObjectListView.InsertObjects(0, ModItemList.Instance.ModList);
 
             ModsManager.Instance.SaveSettings();
 
             ModItemList.Instance.RecomputeLoadOrders();
 
-            DockModListForm.Instance.modObjectListView.BeginUpdate();
             ModsManager.Instance.RecomputeOverridingData();
             ColorListViewNumbers(DockModListForm.Instance.olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
             DockModListForm.Instance.RecolorObjectListViewRows();
-            DockModListForm.Instance.modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
-            DockModListForm.Instance.modObjectListView.EndUpdate();
+
+            DockModListForm.Instance.modObjectListView.RefreshItems();
             UpdateModCountDisplay();
+
+            DockModListForm.Instance.modObjectListView.EndUpdate();
+
+#if DEBUG
+            sw.Stop();
+            System.Diagnostics.Debug.WriteLine($"Fill listview took {sw.ElapsedMilliseconds} ms");
+#endif
         }
 
         public object ModNameGetter(object rowObject)

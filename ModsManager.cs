@@ -1655,7 +1655,7 @@ namespace MW5_Mod_Manager
                         continue;
                     }
 
-                    // If modB already has conflict data, check if this pair was already compared
+                    // If modB already has conflict data, check if this mod pair was already compared
                     if (!ModConflictData.TryGetValue(modBPath, out ModConflictData conflictDataB))
                     {
                         conflictDataB = new ModConflictData
