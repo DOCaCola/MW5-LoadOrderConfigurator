@@ -582,6 +582,7 @@ namespace MW5_Mod_Manager
             toolStripButtonNexusmods.TextAlign = ContentAlignment.BottomCenter;
             toolStripButtonNexusmods.TextImageRelation = TextImageRelation.ImageAboveText;
             toolStripButtonNexusmods.ToolTipText = "Open Nexusmods";
+            toolStripButtonNexusmods.Click += toolStripButtonNexusmods_Click;
             // 
             // toolStripButtonSteamWorkshop
             // 
@@ -605,7 +606,6 @@ namespace MW5_Mod_Manager
             // toolStripTextFilterBox
             // 
             toolStripTextFilterBox.CueBanner = "Search (Ctrl+F)";
-            toolStripTextFilterBox.Font = new Font("Segoe UI", 9F);
             toolStripTextFilterBox.Margin = new Padding(5, 0, 5, 0);
             toolStripTextFilterBox.Name = "toolStripTextFilterBox";
             toolStripTextFilterBox.Size = new Size(140, 45);

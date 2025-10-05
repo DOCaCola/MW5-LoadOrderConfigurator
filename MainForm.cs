@@ -817,9 +817,10 @@ namespace MW5_Mod_Manager
 
                 ModsManager.Instance.RecomputeOverridingData();
 
-                DockModListForm.Instance.modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
                 ColorListViewNumbers(DockModListForm.Instance.olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
                 DockModListForm.Instance.RecolorObjectListViewRows();
+                DockModListForm.Instance.modObjectListView.RefreshItems();
+                DockModListForm.Instance.modObjectListView.Sort();
 
                 QueueSidePanelUpdate(true);
 
@@ -889,9 +890,10 @@ namespace MW5_Mod_Manager
                 ModItemList.Instance.RecomputeLoadOrders();
 
                 ModsManager.Instance.RecomputeOverridingData();
-                DockModListForm.Instance.modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
                 ColorListViewNumbers(DockModListForm.Instance.olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
                 DockModListForm.Instance.RecolorObjectListViewRows();
+                DockModListForm.Instance.modObjectListView.RefreshItems();
+                DockModListForm.Instance.modObjectListView.Sort();
 
                 QueueSidePanelUpdate(true);
                 CheckModConfigTainted();
@@ -1110,6 +1112,7 @@ namespace MW5_Mod_Manager
             DockModListForm.Instance.RecolorObjectListViewRows();
 
             DockModListForm.Instance.modObjectListView.RefreshItems();
+            DockModListForm.Instance.modObjectListView.Sort();
             UpdateModCountDisplay();
 
             DockModListForm.Instance.modObjectListView.EndUpdate();
@@ -1899,7 +1902,7 @@ namespace MW5_Mod_Manager
                     curModItem.Enabled = true;
                 }
 
-                DockModListForm.Instance.modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
+                DockModListForm.Instance.modObjectListView.RefreshItems();
             }
             finally
             {
@@ -1929,7 +1932,7 @@ namespace MW5_Mod_Manager
                     curModItem.Enabled = false;
                 }
 
-                DockModListForm.Instance.modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
+                DockModListForm.Instance.modObjectListView.RefreshItems();
             }
             finally
             {
@@ -2326,9 +2329,9 @@ namespace MW5_Mod_Manager
             ModItemList.Instance.RecomputeLoadOrders();
 
             ModsManager.Instance.RecomputeOverridingData();
-            DockModListForm.Instance.modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
             ColorListViewNumbers(DockModListForm.Instance.olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
             DockModListForm.Instance.RecolorObjectListViewRows();
+            DockModListForm.Instance.modObjectListView.RefreshItems();
             FilterTextChanged();
             CheckModConfigTainted();
 
@@ -2867,6 +2870,16 @@ namespace MW5_Mod_Manager
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             Application.Exit();
+        }
+
+        private void toolStripButtonNexusmods_Click(object sender, EventArgs e)
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo()
+            {
+                FileName = "https://www.nexusmods.com/games/mechwarrior5mercenaries/mods",
+                UseShellExecute = true
+            };
+            System.Diagnostics.Process.Start(psi);
         }
     }
 }
