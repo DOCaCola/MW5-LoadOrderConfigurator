@@ -1047,16 +1047,16 @@ namespace MW5_Mod_Manager
             bool loadModSuccess = false;
             try
             {
+                string modJsonFilePath = Path.Combine(modPath, @"mod.json");
+                if (!File.Exists(modJsonFilePath))
+                {
+                    return;
+                }
+
                 ModData modData = new ModData();
                 ModObject modJsonDataObject = null;
                 try
                 {
-                    string modJsonFilePath = Path.Combine(modPath, @"mod.json");
-                    if (!File.Exists(modJsonFilePath))
-                    {
-                        return;
-                    }
-
                     string modJsonText = File.ReadAllText(modJsonFilePath);
                     JObject modJsonObject = JObject.Parse(modJsonText);
 
@@ -1131,12 +1131,10 @@ namespace MW5_Mod_Manager
                     }
 
                     // Fallback
-                    if (modData.Origin == ModData.ModOrigin.Unknown)
+                    if (modData.Origin == ModData.ModOrigin.Unknown &&
+                        File.Exists(Path.Combine(modPath, "__folder_managed_by_vortex")))
                     {
-                        if (File.Exists(modPath + @"\__folder_managed_by_vortex"))
-                        {
-                            modData.Origin = ModData.ModOrigin.Nexusmods;
-                        }
+                        modData.Origin = ModData.ModOrigin.Nexusmods;
                     }
                 }
                 catch (Exception e)
@@ -1163,8 +1161,8 @@ namespace MW5_Mod_Manager
                 // Calculate pak file size and
                 // do basic pak sanity checks. Warn user if something looks off
                 string pakDir = Path.Combine(modPath, "Paks");
-                if (modJsonDataObject.manifest != null && modJsonDataObject.manifest.Count > 0 &&
-                    (!Directory.Exists(pakDir) || Directory.GetFiles(pakDir, "*.pak").Length == 0))
+                if (modJsonDataObject.manifest?.Count > 0 &&
+                    (!Directory.Exists(pakDir) || !Directory.EnumerateFiles(pakDir, "*.pak").Any()))
                 {
                     TaskDialog.ShowDialog(MainForm.Instance.Handle, new TaskDialogPage()
                     {
@@ -1184,18 +1182,9 @@ namespace MW5_Mod_Manager
                     });
                 }
 
-                bool hasZeroBytePak = false;
-                if (Directory.Exists(pakDir))
-                {
-                    foreach (string filePath in Directory.GetFiles(pakDir, "*.pak"))
-                    {
-                        long fileSize = LocFileUtils.GetFileSize(filePath);
-
-                        if (fileSize == 0)
-                            hasZeroBytePak = true;
-                    }
-                }
-
+                // Zero-byte pak check
+                bool hasZeroBytePak = Directory.Exists(pakDir) &&
+                    Directory.EnumerateFiles(pakDir, "*.pak").Any(f => LocFileUtils.GetFileSize(f) == 0);
                 if (hasZeroBytePak)
                 {
                     TaskDialog.ShowDialog(MainForm.Instance.Handle, new TaskDialogPage()
@@ -1217,25 +1206,16 @@ namespace MW5_Mod_Manager
                 }
 
                 // Get mod file size
-                var allFiles = Directory.GetFiles(modPath, "*", SearchOption.AllDirectories);
-                foreach (var filePath in allFiles)
+                var skipFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
                 {
                     // We want to skip files that are potentially different between installs of the same mod
-                    // to not confuse users when comparing their mod sizes
-                    if (string.Equals(Path.GetFileName(filePath), "__folder_managed_by_vortex", StringComparison.Ordinal))
-                        continue;
+                    // to not get different sizes for different users/computers
+                    "__folder_managed_by_vortex", "mod.json", "mod.json.bak", "backup.json"
+                };
+                modData.ModFileSize = Directory.EnumerateFiles(modPath, "*", SearchOption.AllDirectories)
+                    .Where(f => !skipFiles.Contains(Path.GetFileName(f)))
+                    .Sum(f => LocFileUtils.GetFileSize(f));
 
-                    if (string.Equals(Path.GetFileName(filePath), "mod.json", StringComparison.Ordinal))
-                        continue;
-
-                    if (string.Equals(Path.GetFileName(filePath), "mod.json.bak", StringComparison.Ordinal))
-                        continue;
-
-                    if (string.Equals(Path.GetFileName(filePath), "backup.json", StringComparison.Ordinal))
-                        continue;
-
-                    modData.ModFileSize += LocFileUtils.GetFileSize(filePath);
-                }
 
                 modData.FileAge = GetFileAge(modPath);
 
