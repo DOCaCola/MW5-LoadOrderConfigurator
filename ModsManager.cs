@@ -1017,7 +1017,6 @@ namespace MW5_Mod_Manager
                         // Silently fail
                     }
                 }
-
                 return null;
             }
 
@@ -1047,7 +1046,7 @@ namespace MW5_Mod_Manager
             bool loadModSuccess = false;
             try
             {
-                string modJsonFilePath = Path.Combine(modPath, @"mod.json");
+                string modJsonFilePath = Path.Combine(modPath, "mod.json");
                 if (!File.Exists(modJsonFilePath))
                 {
                     return;
@@ -1075,22 +1074,31 @@ namespace MW5_Mod_Manager
                     // try some different methods
                     float? originalLoadOrder = null;
 
-                    // "MW5 Mod Organizer" backup file
-                    // Some mods also accidentally deploy with this file
-                    JObject moBackupFile = TryReadBackupFile(Path.Combine(modPath, @"backup.json"), modJsonDataObject);
-                    if (moBackupFile != null)
+                    // Only try backup files if locOriginalLoadOrder is not present in mod.json
+                    if (modData.IsNewMod)
                     {
-                        originalLoadOrder = GetOriginalLoadOrderFromObject(moBackupFile);
+                        // "MW5 Mod Organizer" backup file
+                        // Some mods also accidentally deploy with this file
+                        JObject moBackupFile = TryReadBackupFile(Path.Combine(modPath, "backup.json"), modJsonDataObject);
+                        if (moBackupFile != null)
+                        {
+                            originalLoadOrder = GetOriginalLoadOrderFromObject(moBackupFile);
+                        }
+                        if (!originalLoadOrder.HasValue)
+                        {
+							// "MW5 Linux Modder" backup file
+                            JObject linuxBackupFile = TryReadBackupFile(Path.Combine(modPath, "mod.json.bak"), modJsonDataObject);
+                            if (linuxBackupFile != null)
+                            {
+                                originalLoadOrder = GetOriginalLoadOrderFromObject(linuxBackupFile);
+                            }
+                        }
                     }
-
-                    // "MW5 Linux Modder" backup file
-                    JObject linuxBackupFile = TryReadBackupFile(Path.Combine(modPath, @"mod.json.bak"), modJsonDataObject);
-                    if (linuxBackupFile != null)
+                    // Always fallback to mod.json if not found in backup
+                    if (!originalLoadOrder.HasValue)
                     {
-                        originalLoadOrder = GetOriginalLoadOrderFromObject(linuxBackupFile);
+                        originalLoadOrder = GetOriginalLoadOrderFromObject(modJsonObject);
                     }
-
-                    originalLoadOrder ??= GetOriginalLoadOrderFromObject(modJsonObject);
 
                     modData.OriginalLoadOrder = originalLoadOrder ?? 0f;
 
