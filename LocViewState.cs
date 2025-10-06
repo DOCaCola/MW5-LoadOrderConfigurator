@@ -41,7 +41,7 @@ namespace MW5_Mod_Manager
 
         static public bool LoadViewStateFromFile()
         {
-            string viewFile = Path.Combine(ModsManager.GetSettingsDirectory(), "ViewState.json");
+            string viewFile = Path.Combine(LocSettings.GetSettingsDirectory(), "ViewState.json");
 
             if (!File.Exists(viewFile))
                 return false;
@@ -114,8 +114,8 @@ namespace MW5_Mod_Manager
                 JObject settingsFile = JObject.FromObject(viewStateData);
                 settingsFile["dockPanel"] = JObject.Parse(dockPanelJson);
 
-                string viewFile = Path.Combine(ModsManager.GetSettingsDirectory(), "ViewState.json");
-                Directory.CreateDirectory(ModsManager.GetSettingsDirectory());
+                string viewFile = Path.Combine(LocSettings.GetSettingsDirectory(), "ViewState.json");
+                Directory.CreateDirectory(LocSettings.GetSettingsDirectory());
 
                 using (StreamWriter sw = new StreamWriter(viewFile))
                 using (JsonWriter writer = new JsonTextWriter(sw))

@@ -24,7 +24,15 @@ namespace MW5_Mod_Manager
 
     public class LocSettings
     {
-        static public LocSettings Instance;
+        public static string SettingsFileName = @"Settings.json";
+
+        public static string GetSettingsDirectory()
+        {
+            string appDataDir = System.Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            return Path.Combine(appDataDir, @"MW5LoadOrderConfigurator");
+        }
+
+        static public LocSettings Instance = new LocSettings(Path.Combine(GetSettingsDirectory(), SettingsFileName));
 
         public class SettingsData
         {
@@ -44,6 +52,32 @@ namespace MW5_Mod_Manager
             Instance = this;
             _filePath = filePath;
             LoadSettings();
+        }
+
+        //Try and load data from previous sessions
+        public bool TryLoadProgramSettings()
+        {
+            //Load settings from previous session:
+            try
+            {
+                LoadSettings();
+
+                ModsManager.Instance.UpdateGamePaths();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(@"ERROR: Something went wrong while loading " + SettingsFileName);
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+
+            if (LocSettings.Instance.Data.platform == eGamePlatform.WindowsStore)
+                return true;
+
+            if (!Utils.StringNullEmptyOrWhiteSpace(LocSettings.Instance.Data.InstallPath))
+                return true;
+
+            return false;
         }
 
         public void LoadSettings()

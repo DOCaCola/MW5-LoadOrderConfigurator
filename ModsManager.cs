@@ -57,8 +57,6 @@ namespace MW5_Mod_Manager
             public bool Available = false;
         }
 
-        public LocSettings ProgramSettings;
-
         // User made changes not written to files
         public bool ModSettingsTainted = false;
 
@@ -99,7 +97,6 @@ namespace MW5_Mod_Manager
         // Last applied preset in ready-to-load form
         public List<ModImportData> LastAppliedPresetModList = null;
 
-        public static string SettingsFileName = @"Settings.json";
         public static string PresetsFileName = @"Presets.json";
         public static string LastAppliedOrderFileName = @"LastApplied.json";
 
@@ -140,11 +137,6 @@ namespace MW5_Mod_Manager
         static ModsManager()
         {
             Instance = new ModsManager();
-        }
-
-        ModsManager()
-        {
-            ProgramSettings = new LocSettings(Path.Combine(GetSettingsDirectory(), SettingsFileName));
         }
 
         public bool GameIsConfigured()
@@ -188,7 +180,7 @@ namespace MW5_Mod_Manager
 
         public void LoadLastAppliedPresetData()
         {
-            string lastAppliedJsonFile = GetSettingsDirectory() + Path.DirectorySeparatorChar + LastAppliedOrderFileName;
+            string lastAppliedJsonFile = LocSettings.GetSettingsDirectory() + Path.DirectorySeparatorChar + LastAppliedOrderFileName;
 
 
             if (!File.Exists(lastAppliedJsonFile))
@@ -598,39 +590,6 @@ namespace MW5_Mod_Manager
             modImportList.RemoveAll(x => !x.Available);
         }
 
-
-        public static string GetSettingsDirectory()
-        {
-            string appDataDir = System.Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            return Path.Combine(appDataDir, @"MW5LoadOrderConfigurator");
-        }
-
-        //Try and load data from previous sessions
-        public bool TryLoadProgramSettings()
-        {
-            //Load settings from previous session:
-            try
-            {
-                this.ProgramSettings.LoadSettings();
-
-                UpdateGamePaths();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(@"ERROR: Something went wrong while loading " + SettingsFileName);
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
-            }
-
-            if (LocSettings.Instance.Data.platform == eGamePlatform.WindowsStore)
-                return true;
-
-            if (!Utils.StringNullEmptyOrWhiteSpace(LocSettings.Instance.Data.InstallPath))
-                return true;
-
-            return false;
-        }
-
         private static string GetLocalAppDataModPath()
         {
             string appDataRoaming = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -739,7 +698,7 @@ namespace MW5_Mod_Manager
             if (LocSettings.Instance.Data.platform != eGamePlatform.WindowsStore)
             {
                 string modPath = Path.Combine(LocSettings.Instance.Data.InstallPath, "MW5Mercs", "Mods");
-                this.ModsPaths[ModsManager.eModPathType.Program] = CreateModPathInfo(modPath, eModPathType.Program);
+                ModsPaths[eModPathType.Program] = CreateModPathInfo(modPath, eModPathType.Program);
             }
 
             switch (LocSettings.Instance.Data.platform)
@@ -747,11 +706,11 @@ namespace MW5_Mod_Manager
                 case eGamePlatform.Steam:
                     string steamAppsParentDirectory = FindSteamAppsParentDirectory(LocSettings.Instance.Data.InstallPath);
                     string workshopPath = Path.Combine(steamAppsParentDirectory, "workshop", "content", "784080");
-                    this.ModsPaths[ModsManager.eModPathType.Steam] = CreateModPathInfo(workshopPath, eModPathType.Steam);
+                    ModsPaths[eModPathType.Steam] = CreateModPathInfo(workshopPath, eModPathType.Steam);
                     break;
                 case eGamePlatform.WindowsStore:
                     string appDataPath = GetLocalAppDataModPath();
-                    this.ModsPaths[ModsManager.eModPathType.AppData] = CreateModPathInfo(appDataPath, eModPathType.AppData);
+                    ModsPaths[eModPathType.AppData] = CreateModPathInfo(appDataPath, eModPathType.AppData);
                     break;
             }
         }
@@ -769,7 +728,7 @@ namespace MW5_Mod_Manager
                 FullPath = path,
             };
 
-            if (ProgramSettings.Data.EnableFileWatch && Directory.Exists(path))
+            if (LocSettings.Instance.Data.EnableFileWatch && Directory.Exists(path))
             {
                 var folderWatcher = new FileSystemWatcherAsync<eModPathType>(path, pathType, true, notifyFilters, _fileWatchStopCounter != 0);
                 var customObject = folderWatcher.CustomObject;
@@ -825,11 +784,6 @@ namespace MW5_Mod_Manager
                 FoundDirectories.AddRange(Directory.GetDirectories(ModsPaths[eModPathType.AppData]?.FullPath));
             }
             //AddDirectoryPathsToDict();
-        }
-
-        public void SaveSettings()
-        {
-            ProgramSettings.SaveSettings();
         }
 
         public void WarnIfNoModList()
@@ -1390,7 +1344,7 @@ namespace MW5_Mod_Manager
 
         internal void SaveLastAppliedModOrder()
         {
-            string lastAppliedJsonFile = GetSettingsDirectory() + Path.DirectorySeparatorChar + LastAppliedOrderFileName;
+            string lastAppliedJsonFile = LocSettings.GetSettingsDirectory() + Path.DirectorySeparatorChar + LastAppliedOrderFileName;
 
             Dictionary<string, LastAppliedPresetModData> lastAppliedModList = new Dictionary<string, LastAppliedPresetModData>();
             foreach (var entry in ModEnabledList)
@@ -1424,7 +1378,7 @@ namespace MW5_Mod_Manager
         // Save presets to file
         internal void SavePresets()
         {
-            string presetsFilePath = Path.Combine(GetSettingsDirectory(), PresetsFileName);
+            string presetsFilePath = Path.Combine(LocSettings.GetSettingsDirectory(), PresetsFileName);
             string tempFilePath = presetsFilePath + ".tmp";
 
             try
@@ -1452,7 +1406,7 @@ namespace MW5_Mod_Manager
         public void LoadPresets()
         {
             // Load the presets file from the settings directory
-            string presetsFilePath = Path.Combine(GetSettingsDirectory(), PresetsFileName);
+            string presetsFilePath = Path.Combine(LocSettings.GetSettingsDirectory(), PresetsFileName);
 
             if (!File.Exists(presetsFilePath))
                 return;

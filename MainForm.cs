@@ -1118,7 +1118,7 @@ namespace MW5_Mod_Manager
             }
             DockModListForm.Instance.modObjectListView.InsertObjects(0, ModItemList.Instance.ModList);
 
-            ModsManager.Instance.SaveSettings();
+            LocSettings.Instance.SaveSettings();
 
             ModItemList.Instance.RecomputeLoadOrders();
 
@@ -1188,7 +1188,7 @@ namespace MW5_Mod_Manager
 
             ClearAll();
             bool modConfigTainted = false;
-            if (ModsManager.Instance.TryLoadProgramSettings())
+            if (LocSettings.Instance.TryLoadProgramSettings())
             {
                 UpdatePriorityLabels();
                 SetVersionAndPlatform();
