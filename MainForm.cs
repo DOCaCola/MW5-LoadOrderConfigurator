@@ -143,12 +143,27 @@ namespace MW5_Mod_Manager
                 DockModListForm.Instance.toolStrip2.Renderer = new ToolStripTransparentRenderer();
             }
 
+            ResetDockWindowLayout();
+            dockPanel1.ResumeLayout(true);
+        }
+
+        public void ResetDockWindowLayout()
+        {
+            for (int i = dockPanel1.Contents.Count - 1; i >= 0; i--)
+            {
+                var content = dockPanel1.Contents[i];
+
+                if (content is DockModListForm)
+                    continue;
+
+                content.DockHandler.Dispose();
+            }
+
             DockOverviewForm.Instance.Show(dockPanel1, DockState.DockRight);
             DockConflictsForm.Instance.Show(dockPanel1, DockState.DockRight);
             DockOverviewForm.Instance.Show(dockPanel1, DockState.DockRight);
 
             DockModListForm.Instance.Show(dockPanel1, DockState.Document);
-            dockPanel1.ResumeLayout(true);
         }
 
         public string GetVersion()
@@ -2880,6 +2895,11 @@ namespace MW5_Mod_Manager
                 UseShellExecute = true
             };
             System.Diagnostics.Process.Start(psi);
+        }
+
+        private void resetWindowLayoutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ResetDockWindowLayout();
         }
     }
 }

@@ -1,15 +1,17 @@
 ﻿using BrightIdeasSoftware;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
-using System.Runtime.Versioning;
 using System.Windows.Forms;
+using System.Xml.Linq;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace MW5_Mod_Manager
 {
@@ -34,6 +36,8 @@ namespace MW5_Mod_Manager
 
         public static ViewStateData _defaultViewState = new ViewStateData();
         static ViewStateData _viewStateData = null;
+        static string _dockPanelXml = null;
+        static DeserializeDockContent _deserializeDockContent = new DeserializeDockContent(GetContentFromPersistString);
 
         static public bool LoadViewStateFromFile()
         {
@@ -44,13 +48,22 @@ namespace MW5_Mod_Manager
 
             try
             {
-                string listViewStateDataJson = File.ReadAllText(viewFile);
-                _viewStateData = JObject.Parse(listViewStateDataJson).ToObject<ViewStateData>();
+                string jsonData = File.ReadAllText(viewFile);
+                JObject settingsFile = JObject.Parse(jsonData);
+                _viewStateData = settingsFile.ToObject<ViewStateData>();
+
+                // Extract dockPanel JSON and convert back to XML string
+                if (settingsFile["dockPanel"] != null)
+                {
+                    XDocument dockXmlDoc = JsonConvert.DeserializeXNode(settingsFile["dockPanel"].ToString());
+                    _dockPanelXml = dockXmlDoc.ToString();
+                }
+
                 return true;
             }
             catch (Exception e)
             {
-
+                Console.WriteLine("Error loading view state: " + e.Message);
             }
 
             return false;
@@ -80,19 +93,37 @@ namespace MW5_Mod_Manager
 
             viewStateData.WindowMaximized = MainForm.Instance.WindowState == FormWindowState.Maximized;
             viewStateData.WindowPosition = MainForm.Instance.DesktopBounds;
-
             viewStateData.listState = GetCurrentListViewState();
 
-            Directory.CreateDirectory(ModsManager.GetSettingsDirectory());
-            JObject settingsFile = JObject.FromObject(viewStateData);
-            string viewFile = Path.Combine(ModsManager.GetSettingsDirectory(), "ViewState.json");
-
-            JsonSerializer serializer = new JsonSerializer();
-            serializer.Formatting = Formatting.Indented;
-            using (StreamWriter sw = new StreamWriter(viewFile))
-            using (JsonWriter writer = new JsonTextWriter(sw))
+            // Save dockPanel layout as XML to memory
+            using (MemoryStream ms = new MemoryStream())
             {
-                serializer.Serialize(writer, settingsFile);
+                MainForm.Instance.dockPanel1.SaveAsXml(ms, Encoding.UTF8, true);
+                ms.Position = 0;
+
+                XDocument xmlDoc = XDocument.Load(ms);
+
+                // Remove comments
+                xmlDoc.DescendantNodes()
+                    .OfType<XComment>()
+                    .ToList()
+                    .ForEach(c => c.Remove());
+
+                string dockPanelJson = JsonConvert.SerializeXNode(xmlDoc, Formatting.None, false);
+
+                JObject settingsFile = JObject.FromObject(viewStateData);
+                settingsFile["dockPanel"] = JObject.Parse(dockPanelJson);
+
+                string viewFile = Path.Combine(ModsManager.GetSettingsDirectory(), "ViewState.json");
+                Directory.CreateDirectory(ModsManager.GetSettingsDirectory());
+
+                using (StreamWriter sw = new StreamWriter(viewFile))
+                using (JsonWriter writer = new JsonTextWriter(sw))
+                {
+                    writer.Formatting = Formatting.Indented;
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.Serialize(writer, settingsFile);
+                }
             }
         }
 
@@ -109,6 +140,7 @@ namespace MW5_Mod_Manager
             }
 
             RestoreListViewState(_viewStateData.listState);
+            RestoreDockPanelLayout(_deserializeDockContent);
         }
 
         static public void RestoreListViewState(List<ListViewState> listState)
@@ -127,6 +159,33 @@ namespace MW5_Mod_Manager
                 }
             }
             DockModListForm.Instance.modObjectListView.RebuildColumns();
+        }
+
+        public static void RestoreDockPanelLayout(DeserializeDockContent deserializeContent)
+        {
+            if (string.IsNullOrEmpty(_dockPanelXml) || MainForm.Instance?.dockPanel1 == null)
+                return;
+
+            using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(_dockPanelXml)))
+            {
+                while (MainForm.Instance.dockPanel1.Contents.Count > 0)
+                {
+                    MainForm.Instance.dockPanel1.Contents[0].DockHandler.Dispose();
+                }
+                MainForm.Instance.dockPanel1.LoadFromXml(ms, deserializeContent, true);
+
+                DockModListForm.Instance.Show(MainForm.Instance.dockPanel1, DockState.Document);
+            }
+        }
+
+        static private IDockContent GetContentFromPersistString(string persistString)
+        {
+            if (persistString == typeof(DockOverviewForm).ToString())
+                return DockOverviewForm.Instance;
+            else if (persistString == typeof(DockConflictsForm).ToString())
+                return DockConflictsForm.Instance;
+
+            return null;
         }
     }
 }

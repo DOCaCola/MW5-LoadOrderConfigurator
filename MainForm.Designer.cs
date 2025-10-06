@@ -114,6 +114,8 @@ namespace MW5_Mod_Manager
             contextMenuStripColumnOptions = new ContextMenuStrip(components);
             dockPanel1 = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             visualStudioToolStripExtender1 = new WeifenLuo.WinFormsUI.Docking.VisualStudioToolStripExtender(components);
+            resetWindowLayoutToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator15 = new ToolStripSeparator();
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -225,7 +227,7 @@ namespace MW5_Mod_Manager
             // 
             // viewToolStripMenuItem
             // 
-            viewToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { toolStripMenuItemColumns, toolStripSeparator16, toolStripMenuItemOverviewWindowToggle, toolStripMenuItemConflictWindowToggle });
+            viewToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { toolStripMenuItemColumns, toolStripSeparator16, toolStripMenuItemOverviewWindowToggle, toolStripMenuItemConflictWindowToggle, toolStripSeparator15, resetWindowLayoutToolStripMenuItem });
             viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             viewToolStripMenuItem.Size = new Size(44, 20);
             viewToolStripMenuItem.Text = "&View";
@@ -233,25 +235,25 @@ namespace MW5_Mod_Manager
             // toolStripMenuItemColumns
             // 
             toolStripMenuItemColumns.Name = "toolStripMenuItemColumns";
-            toolStripMenuItemColumns.Size = new Size(151, 22);
+            toolStripMenuItemColumns.Size = new Size(183, 22);
             toolStripMenuItemColumns.Text = "&Columns";
             // 
             // toolStripSeparator16
             // 
             toolStripSeparator16.Name = "toolStripSeparator16";
-            toolStripSeparator16.Size = new Size(148, 6);
+            toolStripSeparator16.Size = new Size(180, 6);
             // 
             // toolStripMenuItemOverviewWindowToggle
             // 
             toolStripMenuItemOverviewWindowToggle.Name = "toolStripMenuItemOverviewWindowToggle";
-            toolStripMenuItemOverviewWindowToggle.Size = new Size(151, 22);
+            toolStripMenuItemOverviewWindowToggle.Size = new Size(183, 22);
             toolStripMenuItemOverviewWindowToggle.Text = "Mod &Overview";
             toolStripMenuItemOverviewWindowToggle.Click += toolStripMenuItemOverviewWindowToggle_Click;
             // 
             // toolStripMenuItemConflictWindowToggle
             // 
             toolStripMenuItemConflictWindowToggle.Name = "toolStripMenuItemConflictWindowToggle";
-            toolStripMenuItemConflictWindowToggle.Size = new Size(151, 22);
+            toolStripMenuItemConflictWindowToggle.Size = new Size(183, 22);
             toolStripMenuItemConflictWindowToggle.Text = "&Conflicts View";
             toolStripMenuItemConflictWindowToggle.Click += toolStripMenuItemConflictWindowToggle_Click;
             // 
@@ -673,6 +675,18 @@ namespace MW5_Mod_Manager
             // 
             visualStudioToolStripExtender1.DefaultRenderer = null;
             // 
+            // resetWindowLayoutToolStripMenuItem
+            // 
+            resetWindowLayoutToolStripMenuItem.Name = "resetWindowLayoutToolStripMenuItem";
+            resetWindowLayoutToolStripMenuItem.Size = new Size(183, 22);
+            resetWindowLayoutToolStripMenuItem.Text = "&Reset window layout";
+            resetWindowLayoutToolStripMenuItem.Click += resetWindowLayoutToolStripMenuItem_Click;
+            // 
+            // toolStripSeparator15
+            // 
+            toolStripSeparator15.Name = "toolStripSeparator15";
+            toolStripSeparator15.Size = new Size(180, 6);
+            // 
             // MainForm
             // 
             AllowDrop = true;
@@ -781,13 +795,15 @@ namespace MW5_Mod_Manager
         private ToolStripButton toolStripButtonSteamWorkshop;
         private ToolStripButton toolStripButtonNexusmods;
         private ToolStripSeparator toolStripSeparator17;
-        private WeifenLuo.WinFormsUI.Docking.DockPanel dockPanel1;
+        public WeifenLuo.WinFormsUI.Docking.DockPanel dockPanel1;
         private WeifenLuo.WinFormsUI.Docking.VisualStudioToolStripExtender visualStudioToolStripExtender1;
         private ToolStripMenuItem viewToolStripMenuItem;
         public ToolStripMenuItem toolStripMenuItemOverviewWindowToggle;
         public ToolStripMenuItem toolStripMenuItemConflictWindowToggle;
         private ToolStripMenuItem toolStripMenuItemColumns;
         private ToolStripSeparator toolStripSeparator16;
+        private ToolStripSeparator toolStripSeparator15;
+        private ToolStripMenuItem resetWindowLayoutToolStripMenuItem;
     }
 }
 
