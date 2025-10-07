@@ -1204,6 +1204,7 @@ namespace MW5_Mod_Manager
                     ModsManager.Instance.ModEnabledListLastState = modlist;
                 }
                 ModsManager.Instance.DetermineBestAvailableGameVersion();
+                toolStripStatusLabelMwVersion.Text = @"Game Version: " + ModsManager.Instance.GameVersion;
 
                 // Check if we want to load the last applied mod list
 
@@ -1839,7 +1840,8 @@ namespace MW5_Mod_Manager
             ModsManager.Instance.ParseDirectories();
             ModsManager.Instance.ReloadModData();
             ModsManager.Instance.DetermineBestAvailableGameVersion();
-            this.LoadAndFill(newData, true);
+            toolStripStatusLabelMwVersion.Text = @"Game Version: " + ModsManager.Instance.GameVersion;
+            LoadAndFill(newData, true);
             FilterTextChanged();
             CheckModConfigTainted();
             foreach (OLVListItem curListItem in DockModListForm.Instance.modObjectListView.Items)

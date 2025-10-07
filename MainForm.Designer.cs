@@ -57,6 +57,8 @@ namespace MW5_Mod_Manager
             toolStripSeparator16 = new ToolStripSeparator();
             toolStripMenuItemOverviewWindowToggle = new ToolStripMenuItem();
             toolStripMenuItemConflictWindowToggle = new ToolStripMenuItem();
+            toolStripSeparator15 = new ToolStripSeparator();
+            resetWindowLayoutToolStripMenuItem = new ToolStripMenuItem();
             presetsToolStripMenuItem = new ToolStripMenuItem();
             toolStripMenuItemLoadPresets = new ToolStripMenuItem();
             toolStripSeparator4 = new ToolStripSeparator();
@@ -114,8 +116,6 @@ namespace MW5_Mod_Manager
             contextMenuStripColumnOptions = new ContextMenuStrip(components);
             dockPanel1 = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             visualStudioToolStripExtender1 = new WeifenLuo.WinFormsUI.Docking.VisualStudioToolStripExtender(components);
-            resetWindowLayoutToolStripMenuItem = new ToolStripMenuItem();
-            toolStripSeparator15 = new ToolStripSeparator();
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -256,6 +256,18 @@ namespace MW5_Mod_Manager
             toolStripMenuItemConflictWindowToggle.Size = new Size(183, 22);
             toolStripMenuItemConflictWindowToggle.Text = "&Conflicts View";
             toolStripMenuItemConflictWindowToggle.Click += toolStripMenuItemConflictWindowToggle_Click;
+            // 
+            // toolStripSeparator15
+            // 
+            toolStripSeparator15.Name = "toolStripSeparator15";
+            toolStripSeparator15.Size = new Size(180, 6);
+            // 
+            // resetWindowLayoutToolStripMenuItem
+            // 
+            resetWindowLayoutToolStripMenuItem.Name = "resetWindowLayoutToolStripMenuItem";
+            resetWindowLayoutToolStripMenuItem.Size = new Size(183, 22);
+            resetWindowLayoutToolStripMenuItem.Text = "&Reset window layout";
+            resetWindowLayoutToolStripMenuItem.Click += resetWindowLayoutToolStripMenuItem_Click;
             // 
             // presetsToolStripMenuItem
             // 
@@ -608,6 +620,7 @@ namespace MW5_Mod_Manager
             // toolStripTextFilterBox
             // 
             toolStripTextFilterBox.CueBanner = "Search (Ctrl+F)";
+            toolStripTextFilterBox.Font = new Font("Segoe UI", 9F);
             toolStripTextFilterBox.Margin = new Padding(5, 0, 5, 0);
             toolStripTextFilterBox.Name = "toolStripTextFilterBox";
             toolStripTextFilterBox.Size = new Size(140, 45);
@@ -674,18 +687,6 @@ namespace MW5_Mod_Manager
             // visualStudioToolStripExtender1
             // 
             visualStudioToolStripExtender1.DefaultRenderer = null;
-            // 
-            // resetWindowLayoutToolStripMenuItem
-            // 
-            resetWindowLayoutToolStripMenuItem.Name = "resetWindowLayoutToolStripMenuItem";
-            resetWindowLayoutToolStripMenuItem.Size = new Size(183, 22);
-            resetWindowLayoutToolStripMenuItem.Text = "&Reset window layout";
-            resetWindowLayoutToolStripMenuItem.Click += resetWindowLayoutToolStripMenuItem_Click;
-            // 
-            // toolStripSeparator15
-            // 
-            toolStripSeparator15.Name = "toolStripSeparator15";
-            toolStripSeparator15.Size = new Size(180, 6);
             // 
             // MainForm
             // 

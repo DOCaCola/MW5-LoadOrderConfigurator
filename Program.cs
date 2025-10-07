@@ -15,7 +15,7 @@ namespace MW5_Mod_Manager
         [STAThread]
         private static void Main()
         {
-            ModsManager.Instance.TryLoadProgramSettings();
+           LocSettings.Instance.TryLoadProgramSettings();
             if (LocWindowColors.DarkMode)
                 LocWindowColors.DarkMode = LocSettings.Instance.Data.AllowDarkMode;
 
@@ -29,11 +29,23 @@ namespace MW5_Mod_Manager
     public class LocAppContext : ApplicationContext
     {
         private MainForm mainForm;
+        private DirectLaunchForm directLaunchForm;
 
         public LocAppContext()
         {
-            mainForm = new MainForm();  
-            mainForm.Show();
+            bool directLaunch = true;
+
+            if (directLaunch)
+            {
+                directLaunchForm = new DirectLaunchForm();
+                directLaunchForm.Show();
+            }
+            else
+            {
+                mainForm = new MainForm();  
+                mainForm.Show();
+            }
+
         }
     }
 }

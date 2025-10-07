@@ -43,6 +43,7 @@ namespace MW5_Mod_Manager
             public bool AllowDarkMode { set; get; } = true;
         }
 
+        public bool SettingsLoaded = false;
         public SettingsData Data = new();
 
         private string _filePath;
@@ -86,6 +87,7 @@ namespace MW5_Mod_Manager
             {
                 string json = File.ReadAllText(_filePath);
                 Data = JsonConvert.DeserializeObject<SettingsData>(json);
+                SettingsLoaded = true;
             }
         }
 

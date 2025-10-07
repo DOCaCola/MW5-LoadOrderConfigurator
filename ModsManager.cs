@@ -477,8 +477,7 @@ namespace MW5_Mod_Manager
                 }
             }
 
-            this.GameVersion = bestAvailableVersion;
-            MainForm.Instance.toolStripStatusLabelMwVersion.Text = @"Game Version: " + bestAvailableVersion;
+            GameVersion = bestAvailableVersion;
         }
 
         /// <summary>
@@ -1439,7 +1438,7 @@ namespace MW5_Mod_Manager
             }
         }
 
-        //Used to update the override data when a new item is added or removed to/from the mod list instead of checking all items agains each other again.
+        // Used to update the override data when a new item is added or removed to/from the mod list instead of checking all items against each other again.
         public void UpdateNewModOverrideData(ModItem newModItem)
         {
             string modAPath = newModItem.FolderName;
@@ -1464,7 +1463,7 @@ namespace MW5_Mod_Manager
             else
             {
                 if (!ModConflictData.TryGetValue(modAPath, out ModConflictData conflictDataA))
-                    {
+                {
                     conflictDataA = new ModConflictData
                     {
                         modPath = modAPath,
