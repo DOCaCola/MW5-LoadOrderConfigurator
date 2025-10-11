@@ -811,7 +811,7 @@ namespace MW5_Mod_Manager
             });
         }
 
-        public List<ModImportData> LoadModList()
+        public List<ModImportData> LoadMw5ModListFileData()
         {
             string modlistPath = GetModListJsonFilePath();
 
@@ -842,7 +842,7 @@ namespace MW5_Mod_Manager
             JObject modStatus = modListObjectObject.Value<JObject>("modStatus");
             if (modStatus != null)
             {
-                List<ModImportData> modList = new List<ModImportData>(modStatus.Properties().Count());
+                List<ModImportData> modImportList = new List<ModImportData>(modStatus.Properties().Count());
                 foreach (JProperty curMOD in modStatus.Properties())
 
                 {
@@ -852,10 +852,10 @@ namespace MW5_Mod_Manager
                     newImportData.ModFolder = curMOD.Name;
                     newImportData.Enabled = enabled;
 
-                    modList.Add(newImportData);
+                    modImportList.Add(newImportData);
                 }
 
-                return modList;
+                return modImportList;
             }
 
             return null;

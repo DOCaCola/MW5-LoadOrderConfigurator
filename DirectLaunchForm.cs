@@ -27,7 +27,7 @@ namespace MW5_Mod_Manager
                 ModsManager.Instance.DetermineBestAvailableGameVersion();
                 ModsManager.Instance.RenewModEnabledList();
 
-                List<ModsManager.ModImportData> modlist = ModsManager.Instance.LoadModList();
+                List<ModsManager.ModImportData> modlist = ModsManager.Instance.LoadMw5ModListFileData();
                 if (modlist != null)
                 {
                     ModsManager.Instance.ProcessModImportList(ref modlist, false);
@@ -49,6 +49,7 @@ namespace MW5_Mod_Manager
                     }
                 }
 
+                ModItemList.FillFromImportList(modlist);
                 ModItemList.Instance.RecomputeLoadOrders();
                 ModsManager.Instance.SaveToFiles();
             }

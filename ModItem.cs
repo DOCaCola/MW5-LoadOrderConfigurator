@@ -16,7 +16,25 @@ namespace MW5_Mod_Manager
     {
         public static ModItemList Instance = new ModItemList();
 
-        public List<ModItem> ModList = new List<ModItem>();
+        public List<ModItem> ModList = null;
+
+        public static void FillFromImportList(List<ModsManager.ModImportData> orderedModList)
+        {
+            if (Instance.ModList != null)
+            {
+                Instance.ModList.Clear();
+            }
+            else
+            {
+                Instance.ModList = new List<ModItem>();
+            }
+            foreach (var entry in orderedModList.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
+            {
+                ModItem newItem = ModItem.CreateFromImportData(entry);
+
+                Instance.ModList.Add(newItem);
+            }
+        }
 
         public bool AreModsSortedByDefaultLoadOrder()
         {
@@ -142,6 +160,27 @@ namespace MW5_Mod_Manager
         public Color ProcessedRowBackColor = LocWindowColors.Window;
         public Color ProcessedCurLoForeColor = LocWindowColors.WindowText;
         public Color ProcessedOrgLoForeColor = LocWindowColors.WindowText;
+
+        public static ModItem CreateFromImportData(ModsManager.ModImportData entry)
+        {
+            var modPath = entry.ModPath;
+            return new ModItem
+            {
+                Enabled = entry.Enabled,
+                Path = modPath,
+                Name = ModsManager.Instance.ModDetails[entry.ModPath].displayName,
+                FolderName = ModsManager.Instance.PathToDirNameDict[entry.ModPath],
+                FileSize = ModsManager.Instance.Mods[entry.ModPath].ModFileSize,
+                FileAge = ModsManager.Instance.Mods[entry.ModPath].FileAge,
+                Author = ModsManager.Instance.ModDetails[entry.ModPath].author,
+                CurrentLoadOrder = ModsManager.Instance.Mods[entry.ModPath].NewLoadOrder,
+                OriginalLoadOrder = ModsManager.Instance.Mods[entry.ModPath].OriginalLoadOrder,
+                Origin = ModsManager.Instance.Mods[entry.ModPath].Origin,
+                Version = ModsManager.Instance.ModDetails[entry.ModPath].version,
+                BuildNumber = ModsManager.Instance.ModDetails[entry.ModPath].buildNumber,
+                VersionCombined = (ModsManager.Instance.ModDetails[entry.ModPath].version + " (" + ModsManager.Instance.ModDetails[entry.ModPath].buildNumber.ToString() + ")").Trim()
+            };
+        }
     }
 }
 

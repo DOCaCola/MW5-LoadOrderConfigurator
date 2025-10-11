@@ -949,7 +949,7 @@ namespace MW5_Mod_Manager
 
             DockModListForm.Instance.modObjectListView.ClearObjects();
             DockModListForm.Instance.modObjectListView.ClearCachedInfo();
-            ModItemList.Instance.ModList.Clear();
+            ModItemList.Instance.ModList = null;
             ModsManager.Instance.ClearAll();
             UpdateSidePanelData(true);
             StopModFileChangedUiFeedback();
@@ -1007,8 +1007,7 @@ namespace MW5_Mod_Manager
             openUserModsFolderToolStripMenuItem.Visible = LocSettings.Instance.Data.platform == eGamePlatform.WindowsStore;
         }
 
-        //Load mod data and fill in the list box...
-        public void LoadAndFill(List<ModImportData> desiredMods, bool orderByDesired)
+        public void PrepareDataAndPopulateListView(List<ModImportData> desiredMods, bool orderByDesired)
         {
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
@@ -1023,14 +1022,18 @@ namespace MW5_Mod_Manager
                 orderedModList.Sort((x, y) =>
                 {
                     // Compare load order
-                    int priorityComparison = ModsManager.Instance.ModDetails[y.ModPath].defaultLoadOrder
-                        .CompareTo(ModsManager.Instance.ModDetails[x.ModPath].defaultLoadOrder);
+                    var detailsX = ModsManager.Instance.ModDetails[x.ModPath];
+                    var detailsY = ModsManager.Instance.ModDetails[y.ModPath];
+
+                    int priorityComparison = detailsY.defaultLoadOrder.CompareTo(detailsX.defaultLoadOrder);
 
                     // If Priority is equal, compare Folder name
                     if (priorityComparison == 0)
                     {
-                        return String
-                            .Compare(ModsManager.Instance.PathToDirNameDict[y.ModPath].ToString(), ModsManager.Instance.PathToDirNameDict[x.ModPath], StringComparison.InvariantCultureIgnoreCase);
+                        return string.Compare(
+                            ModsManager.Instance.PathToDirNameDict[y.ModPath],
+                            ModsManager.Instance.PathToDirNameDict[x.ModPath],
+                            StringComparison.OrdinalIgnoreCase);
                     }
 
                     return priorityComparison;
@@ -1042,13 +1045,13 @@ namespace MW5_Mod_Manager
                 ModUtils.SortModsToMatchFilter(ref orderedModList, desiredMods);
             }
 
-            // set all mods to desired enabled states
+            // set mods to desired enabled states
             if (desiredMods != null)
             {
                 foreach (var curDesiredMod in desiredMods)
                 {
                     var curTargetItem = ModsManager.Instance.ModEnabledList.FirstOrDefault(x =>
-                        x.ModPath.Equals(curDesiredMod.ModPath, StringComparison.InvariantCultureIgnoreCase));
+                        x.ModPath.Equals(curDesiredMod.ModPath, StringComparison.OrdinalIgnoreCase));
 
                     if (curTargetItem != null)
                     {
@@ -1066,12 +1069,12 @@ namespace MW5_Mod_Manager
                 if (desiredMods != null)
                 {
                     var curTargetItem = ModsManager.Instance.ModEnabledList.FirstOrDefault(x =>
-                        x.ModPath.Equals(curModListItem.ModPath, StringComparison.InvariantCultureIgnoreCase));
+                        x.ModPath.Equals(curModListItem.ModPath, StringComparison.OrdinalIgnoreCase));
 
                     if (curTargetItem != null)
                     {
                         var curDesiredItem = desiredMods.FirstOrDefault(x =>
-                            x.ModPath.Equals(curModListItem.ModPath, StringComparison.InvariantCultureIgnoreCase));
+                            x.ModPath.Equals(curModListItem.ModPath, StringComparison.OrdinalIgnoreCase));
 
                         if (curDesiredItem == null)
                         {
@@ -1092,30 +1095,7 @@ namespace MW5_Mod_Manager
 
             DockModListForm.Instance.modObjectListView.BeginUpdate();
             DockModListForm.Instance.modObjectListView.ClearObjects();
-            ModItemList.Instance.ModList.Clear();
-            foreach (var entry in orderedModList.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
-            {
-                ModItem newItem = new ModItem();
-                newItem.Enabled = entry.Enabled;
-                newItem.Path = entry.ModPath;
-                newItem.Name = ModsManager.Instance.ModDetails[entry.ModPath].displayName;
-                newItem.FolderName = ModsManager.Instance.PathToDirNameDict[entry.ModPath];
-                newItem.FileSize = ModsManager.Instance.Mods[entry.ModPath].ModFileSize;
-                newItem.FileAge = ModsManager.Instance.Mods[entry.ModPath].FileAge;
-                newItem.Author = ModsManager.Instance.ModDetails[entry.ModPath].author;
-                newItem.CurrentLoadOrder = ModsManager.Instance.Mods[entry.ModPath].NewLoadOrder;
-                newItem.OriginalLoadOrder = ModsManager.Instance.Mods[entry.ModPath].OriginalLoadOrder;
-                newItem.Origin = ModsManager.Instance.Mods[entry.ModPath].Origin;
-
-                newItem.Version = ModsManager.Instance.ModDetails[entry.ModPath].version;
-                newItem.BuildNumber = ModsManager.Instance.ModDetails[entry.ModPath].buildNumber;
-                string versionString = (ModsManager.Instance.ModDetails[entry.ModPath].version + " (" +
-                                        ModsManager.Instance.ModDetails[entry.ModPath].buildNumber.ToString() + ")").Trim();
-
-                newItem.VersionCombined = versionString;
-
-                ModItemList.Instance.ModList.Add(newItem);
-            }
+            ModItemList.FillFromImportList(orderedModList);
             DockModListForm.Instance.modObjectListView.InsertObjects(0, ModItemList.Instance.ModList);
 
             LocSettings.Instance.SaveSettings();
@@ -1197,7 +1177,7 @@ namespace MW5_Mod_Manager
                 ModsManager.Instance.ReloadModData();
 
                 // load modlist.json
-                List<ModImportData> modlist = ModsManager.Instance.LoadModList();
+                List<ModImportData> modlist = ModsManager.Instance.LoadMw5ModListFileData();
                 if (modlist != null)
                 {
                     ModsManager.Instance.ProcessModImportList(ref modlist, false);
@@ -1209,7 +1189,7 @@ namespace MW5_Mod_Manager
                 // Check if we want to load the last applied mod list
 
                 if (!forceLoadLastApplied)
-                    LoadAndFill(modlist, false);
+                    PrepareDataAndPopulateListView(modlist, false);
 
                 _ActiveModListHash = ModItemList.Instance.ModList.ComputeModListHashCode();
 
@@ -1225,7 +1205,7 @@ namespace MW5_Mod_Manager
                     // Load last saved preset
                     modlist = ModsManager.Instance.LastAppliedPresetModList;
                     DockModListForm.Instance.modObjectListView.SuspendDrawing();
-                    LoadAndFill(modlist, true);
+                    PrepareDataAndPopulateListView(modlist, true);
                     DockModListForm.Instance.modObjectListView.ResumeDrawing();
 
                     if (_ActiveModListHash != ModItemList.Instance.ModList.ComputeModListHashCode())
@@ -1297,7 +1277,7 @@ namespace MW5_Mod_Manager
             DockModListForm.Instance.modObjectListView.BeginUpdate();
             DockModListForm.Instance.modObjectListView.ClearObjects();
             DockModListForm.Instance.modObjectListView.ClearCachedInfo();
-            ModItemList.Instance.ModList.Clear();
+            ModItemList.Instance.ModList = null;
             ModsManager.Instance.ModDetails = new Dictionary<string, ModObject>();
             ModsManager.Instance.ModEnabledList.Clear();
             ModsManager.Instance.ModDirectories.Clear();
@@ -1316,7 +1296,7 @@ namespace MW5_Mod_Manager
             }
 
             ModsManager.Instance.ProcessModImportList(ref newPresetData, true);
-            LoadAndFill(newPresetData, true);
+            PrepareDataAndPopulateListView(newPresetData, true);
             FilterTextChanged();
             CheckModConfigTainted();
             DockModListForm.Instance.modObjectListView.EndUpdate();
@@ -1832,7 +1812,7 @@ namespace MW5_Mod_Manager
             }
             DockModListForm.Instance.modObjectListView.ClearObjects();
             DockModListForm.Instance.modObjectListView.ClearCachedInfo();
-            ModItemList.Instance.ModList.Clear();
+            ModItemList.Instance.ModList = null;
             ModsManager.Instance.ModDetails.Clear();
             ModsManager.Instance.ModEnabledList.Clear();
             ModsManager.Instance.ModDirectories.Clear();
@@ -1841,7 +1821,7 @@ namespace MW5_Mod_Manager
             ModsManager.Instance.ReloadModData();
             ModsManager.Instance.DetermineBestAvailableGameVersion();
             toolStripStatusLabelMwVersion.Text = @"Game Version: " + ModsManager.Instance.GameVersion;
-            LoadAndFill(newData, true);
+            PrepareDataAndPopulateListView(newData, true);
             FilterTextChanged();
             CheckModConfigTainted();
             foreach (OLVListItem curListItem in DockModListForm.Instance.modObjectListView.Items)
