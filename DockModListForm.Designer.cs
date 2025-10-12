@@ -215,6 +215,7 @@ namespace MW5_Mod_Manager
             olvColumnModAuthor.MinimumWidth = 10;
             olvColumnModAuthor.Sortable = false;
             olvColumnModAuthor.Text = "Author";
+            olvColumnModAuthor.ToolTipText = "";
             olvColumnModAuthor.Width = 90;
             // 
             // olvColumnModVersion
@@ -224,7 +225,7 @@ namespace MW5_Mod_Manager
             olvColumnModVersion.Searchable = false;
             olvColumnModVersion.Sortable = false;
             olvColumnModVersion.Text = "Version";
-            olvColumnModVersion.ToolTipText = "Version with build number";
+            olvColumnModVersion.ToolTipText = "Version and build number";
             olvColumnModVersion.Width = 70;
             // 
             // olvColumnModCurLoadOrder
@@ -235,7 +236,7 @@ namespace MW5_Mod_Manager
             olvColumnModCurLoadOrder.Sortable = false;
             olvColumnModCurLoadOrder.Text = "LO";
             olvColumnModCurLoadOrder.TextAlign = HorizontalAlignment.Right;
-            olvColumnModCurLoadOrder.ToolTipText = "Current load order";
+            olvColumnModCurLoadOrder.ToolTipText = "Current set load order";
             olvColumnModCurLoadOrder.Width = 40;
             // 
             // olvColumnModOrgLoadOrder
@@ -246,7 +247,7 @@ namespace MW5_Mod_Manager
             olvColumnModOrgLoadOrder.Sortable = false;
             olvColumnModOrgLoadOrder.Text = "oLO";
             olvColumnModOrgLoadOrder.TextAlign = HorizontalAlignment.Right;
-            olvColumnModOrgLoadOrder.ToolTipText = "Default load order";
+            olvColumnModOrgLoadOrder.ToolTipText = "Stock/Original load order";
             olvColumnModOrgLoadOrder.Width = 40;
             // 
             // olvColumnModFileSize
@@ -256,6 +257,7 @@ namespace MW5_Mod_Manager
             olvColumnModFileSize.Searchable = false;
             olvColumnModFileSize.Sortable = false;
             olvColumnModFileSize.Text = "File size";
+            olvColumnModFileSize.ToolTipText = "Size of installed files";
             // 
             // olvColumnModFolder
             // 

@@ -67,16 +67,7 @@ namespace MW5_Mod_Manager
             {
                 case eGamePlatform.Steam:
                     {
-                        string steamDirectory = null;
-
-                        try
-                        {
-                            steamDirectory = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam", "InstallPath", null) as string;
-                        }
-                        catch (Exception ex)
-                        {
-
-                        }
+                        string steamDirectory = SteamUtils.GetSteamPath();
 
                         if (steamDirectory != null)
                         {

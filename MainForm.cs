@@ -1233,7 +1233,6 @@ namespace MW5_Mod_Manager
             Cursor.Current = tempCursor;
         }
 
-        //Saves current load order to preset.
         public void SavePreset(string name)
         {
             Dictionary<string, bool> NoPathModlist = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
@@ -1245,7 +1244,6 @@ namespace MW5_Mod_Manager
             ModsManager.Instance.SavePresets();
         }
 
-        //Sets up the load order from a preset.
         private void LoadFromPreset(string name)
         {
             if (!ModsManager.Instance.GameIsConfigured())
@@ -1259,8 +1257,8 @@ namespace MW5_Mod_Manager
             }
             catch (Exception Ex)
             {
-                string message = "There was an error in decoding the load order string.";
-                string caption = "Load Order Decoding Error";
+                string message = "There was an error decoding the load order data.\r\n" + Ex.Message;
+                string caption = "Preset load error";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
                 return;
@@ -2882,6 +2880,16 @@ namespace MW5_Mod_Manager
         private void resetWindowLayoutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ResetDockWindowLayout();
+        }
+
+        private void reportBugToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo()
+            {
+                FileName = "https://www.nexusmods.com/mechwarrior5mercenaries/mods/1085?tab=bugs",
+                UseShellExecute = true
+            };
+            System.Diagnostics.Process.Start(psi);
         }
     }
 }

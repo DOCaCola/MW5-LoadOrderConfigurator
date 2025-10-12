@@ -116,6 +116,8 @@ namespace MW5_Mod_Manager
             contextMenuStripColumnOptions = new ContextMenuStrip(components);
             dockPanel1 = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             visualStudioToolStripExtender1 = new WeifenLuo.WinFormsUI.Docking.VisualStudioToolStripExtender(components);
+            reportBugToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator18 = new ToolStripSeparator();
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -385,7 +387,7 @@ namespace MW5_Mod_Manager
             // 
             // helpToolStripMenuItem
             // 
-            helpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { toolStripMenuItemNexusmodsLink, aboutToolStripMenuItem });
+            helpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { reportBugToolStripMenuItem, toolStripSeparator18, toolStripMenuItemNexusmodsLink, aboutToolStripMenuItem });
             helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             helpToolStripMenuItem.Size = new Size(40, 20);
             helpToolStripMenuItem.Text = "&Info";
@@ -393,14 +395,14 @@ namespace MW5_Mod_Manager
             // toolStripMenuItemNexusmodsLink
             // 
             toolStripMenuItemNexusmodsLink.Name = "toolStripMenuItemNexusmodsLink";
-            toolStripMenuItemNexusmodsLink.Size = new Size(179, 22);
+            toolStripMenuItemNexusmodsLink.Size = new Size(180, 22);
             toolStripMenuItemNexusmodsLink.Text = "Visit on &Nexusmods";
             toolStripMenuItemNexusmodsLink.Click += toolStripMenuItemNexusmodsLink_Click;
             // 
             // aboutToolStripMenuItem
             // 
             aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            aboutToolStripMenuItem.Size = new Size(179, 22);
+            aboutToolStripMenuItem.Size = new Size(180, 22);
             aboutToolStripMenuItem.Text = "Ab&out";
             aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
             // 
@@ -620,7 +622,6 @@ namespace MW5_Mod_Manager
             // toolStripTextFilterBox
             // 
             toolStripTextFilterBox.CueBanner = "Search (Ctrl+F)";
-            toolStripTextFilterBox.Font = new Font("Segoe UI", 9F);
             toolStripTextFilterBox.Margin = new Padding(5, 0, 5, 0);
             toolStripTextFilterBox.Name = "toolStripTextFilterBox";
             toolStripTextFilterBox.Size = new Size(140, 45);
@@ -687,6 +688,18 @@ namespace MW5_Mod_Manager
             // visualStudioToolStripExtender1
             // 
             visualStudioToolStripExtender1.DefaultRenderer = null;
+            // 
+            // reportBugToolStripMenuItem
+            // 
+            reportBugToolStripMenuItem.Name = "reportBugToolStripMenuItem";
+            reportBugToolStripMenuItem.Size = new Size(180, 22);
+            reportBugToolStripMenuItem.Text = "&Report Bug";
+            reportBugToolStripMenuItem.Click += reportBugToolStripMenuItem_Click;
+            // 
+            // toolStripSeparator18
+            // 
+            toolStripSeparator18.Name = "toolStripSeparator18";
+            toolStripSeparator18.Size = new Size(177, 6);
             // 
             // MainForm
             // 
@@ -805,6 +818,8 @@ namespace MW5_Mod_Manager
         private ToolStripSeparator toolStripSeparator16;
         private ToolStripSeparator toolStripSeparator15;
         private ToolStripMenuItem resetWindowLayoutToolStripMenuItem;
+        private ToolStripMenuItem reportBugToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator18;
     }
 }
 

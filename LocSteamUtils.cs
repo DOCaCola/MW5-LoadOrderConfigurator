@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Gameloop.Vdf;
+using Gameloop.Vdf.Linq;
 using Microsoft.Win32;
 
 namespace MW5_Mod_Manager
@@ -54,6 +56,15 @@ namespace MW5_Mod_Manager
                 command += $"//{Args}";
             }
             return command;
+        }
+
+        public static string GetSteamPath()
+        {
+            using (var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Valve\Steam"))
+            {
+                var installPath = key?.GetValue("InstallPath") as string;
+                return string.IsNullOrEmpty(installPath) ? null : Path.GetFullPath(installPath);
+            }
         }
     }
 }
