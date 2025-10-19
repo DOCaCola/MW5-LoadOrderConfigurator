@@ -258,8 +258,11 @@ namespace MW5_Mod_Manager
 
             foreach (var curCandidate in lastEnabledModList)
             {
-                // Compare current load order in mod.json with the one we last saved
                 string curCandidateFolderName = Path.GetFileName(curCandidate);
+                if (!LastAppliedPreset.mods.ContainsKey(curCandidateFolderName))
+                    continue;
+
+                // Compare current load order in mod.json with the one we last saved
                 bool loadOrderChanged = !FloatUtils.IsEqual(
                     LastAppliedPreset.mods[curCandidateFolderName].lastLoadOrder,
                     ModDetails[curCandidate].defaultLoadOrder);
@@ -901,26 +904,6 @@ namespace MW5_Mod_Manager
             });
         }
 
-        public static bool IsSteamWorkshopID(string input)
-        {
-            if (String.IsNullOrEmpty(input))
-                return false;
-
-            // Check if all characters in the string are digits
-            foreach (char c in input)
-            {
-                if (!char.IsDigit(c))
-                    return false;
-            }
-
-            // Do a sanity check on workshop id
-            // The oldest (known) mechwarrior workshop mod has id 2494637209
-            if (input.Length < 10)
-                return false;
-
-            return true;
-        }
-
         private void LoadModDetails(string modPath)
         {
             float? GetOriginalLoadOrderFromObject(JObject jsonObject)
@@ -1059,7 +1042,7 @@ namespace MW5_Mod_Manager
                     string modDirName = Path.GetFileName(modPath);
 
                     // Check if this might be a mod from the steam workshop
-                    if (IsSteamWorkshopID(modDirName))
+                    if (SteamUtils.IsWorkshopID(modDirName))
                     {
                         // If the mod directory name matches the store id, we can be pretty certain.
                         // There are mods however, that have this field incorrectly filled
@@ -1180,12 +1163,12 @@ namespace MW5_Mod_Manager
 
                 modData.FileAge = GetFileAge(modPath);
 
-                this.Mods.Add(modPath, modData);
-                this.ModDetails.Add(modPath, modJsonDataObject);
-                this.ModDirectories.Add(modPath);
+                Mods.Add(modPath, modData);
+                ModDetails.Add(modPath, modJsonDataObject);
+                ModDirectories.Add(modPath);
                 string directoryName = Path.GetFileName(modPath);
-                this.DirNameToPathDict[directoryName] = modPath;
-                this.PathToDirNameDict[modPath] = directoryName;
+                DirNameToPathDict[directoryName] = modPath;
+                PathToDirNameDict[modPath] = directoryName;
                 loadModSuccess = true;
             }
             finally
@@ -1324,7 +1307,7 @@ namespace MW5_Mod_Manager
                 modListObject.Add("modStatus", modStatusObject);
             }
 
-            foreach (var entry in this.ModEnabledList)
+            foreach (var entry in ModEnabledList)
             {
                 JObject newStatus = new JObject(
                     new JProperty("bEnabled", entry.Enabled)

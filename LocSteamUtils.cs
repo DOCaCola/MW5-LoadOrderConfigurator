@@ -5,8 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Gameloop.Vdf;
-using Gameloop.Vdf.Linq;
 using Microsoft.Win32;
 
 namespace MW5_Mod_Manager
@@ -65,6 +63,28 @@ namespace MW5_Mod_Manager
                 var installPath = key?.GetValue("InstallPath") as string;
                 return string.IsNullOrEmpty(installPath) ? null : Path.GetFullPath(installPath);
             }
+        }
+
+        /// <summary>
+        /// Checks if the given string is a valid Steam Workshop ID.
+        public static bool IsWorkshopID(string input)
+        {
+            if (String.IsNullOrEmpty(input))
+                return false;
+
+            // Check if all characters in the string are digits
+            foreach (char c in input)
+            {
+                if (!char.IsDigit(c))
+                    return false;
+            }
+
+            // Do a sanity check on workshop id
+            // The oldest (known) mechwarrior workshop mod has id 2494637209
+            if (input.Length < 10)
+                return false;
+
+            return true;
         }
     }
 }

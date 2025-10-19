@@ -828,7 +828,7 @@ namespace MW5_Mod_Manager
 
             if (anyMoved)
             {
-                ModItemList.Instance.RecomputeLoadOrders();
+                LoadOrder.RecomputeLoadOrders();
 
                 ModsManager.Instance.RecomputeOverridingData();
 
@@ -902,7 +902,7 @@ namespace MW5_Mod_Manager
 
             if (anyMoved)
             {
-                ModItemList.Instance.RecomputeLoadOrders();
+                LoadOrder.RecomputeLoadOrders();
 
                 ModsManager.Instance.RecomputeOverridingData();
                 ColorListViewNumbers(DockModListForm.Instance.olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
@@ -927,7 +927,7 @@ namespace MW5_Mod_Manager
             ModsManager.Instance.StopModFileWatches();
             try
             {
-                ModItemList.Instance.RecomputeLoadOrders();
+                LoadOrder.RecomputeLoadOrders();
                 ModsManager.Instance.SaveToFiles();
                 ModsManager.Instance.SaveLastAppliedModOrder();
                 SetModConfigTainted(false);
@@ -1100,7 +1100,7 @@ namespace MW5_Mod_Manager
 
             LocSettings.Instance.SaveSettings();
 
-            ModItemList.Instance.RecomputeLoadOrders();
+            LoadOrder.RecomputeLoadOrders();
 
             ModsManager.Instance.RecomputeOverridingData();
             ColorListViewNumbers(DockModListForm.Instance.olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
@@ -2073,28 +2073,10 @@ namespace MW5_Mod_Manager
             }
         }
 
-        private int GetModCount(bool enabledOnly)
-        {
-            int count = 0;
-            if (enabledOnly)
-            {
-                foreach (var curMod in ModsManager.Instance.ModEnabledList)
-                {
-                    if (curMod.Enabled) { count++; }
-                }
-            }
-            else
-            {
-                count = ModsManager.Instance.Mods.Count;
-            }
-
-            return count;
-        }
-
         public void UpdateModCountDisplay()
         {
-            toolStripStatusLabelModCountTotal.Text = @"Total: " + GetModCount(false);
-            toolStripStatusLabelModsActive.Text = @"Active: " + GetModCount(true);
+            toolStripStatusLabelModCountTotal.Text = @"Total: " + ModItemList.Instance.GetModCount(false);
+            toolStripStatusLabelModsActive.Text = @"Active: " + ModItemList.Instance.GetModCount(true);
         }
 
         // Taint config if current mod list differs from the config on the disk
@@ -2291,7 +2273,7 @@ namespace MW5_Mod_Manager
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
-            if (ModItemList.Instance.AreModsSortedByDefaultLoadOrder())
+            if (LoadOrder.AreModsSortedByDefaultLoadOrder())
                 return;
 
             // This sorting follows the way MW5 orders its list
@@ -2321,7 +2303,7 @@ namespace MW5_Mod_Manager
             DockModListForm.Instance.modObjectListView.ClearObjects();
             DockModListForm.Instance.modObjectListView.AddObjects(ModItemList.Instance.ModList);
 
-            ModItemList.Instance.RecomputeLoadOrders();
+            LoadOrder.RecomputeLoadOrders();
 
             ModsManager.Instance.RecomputeOverridingData();
             ColorListViewNumbers(DockModListForm.Instance.olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);

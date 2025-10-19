@@ -50,7 +50,7 @@ namespace MW5_Mod_Manager
                 }
 
                 ModItemList.FillFromImportList(modlist);
-                ModItemList.Instance.RecomputeLoadOrders();
+                LoadOrder.RecomputeLoadOrders();
                 ModsManager.Instance.SaveToFiles();
             }
         }

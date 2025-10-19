@@ -33,7 +33,7 @@ namespace MW5_Mod_Manager
 
         public LocAppContext()
         {
-            bool directLaunch = true;
+            bool directLaunch = false;
 
             if (directLaunch)
             {

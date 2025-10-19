@@ -202,7 +202,7 @@ namespace MW5_Mod_Manager
             DragDropObjectRows(normalizedIndex, e.SourceModels);
 
             modObjectListView.SelectObjects(e.SourceModels);
-            ModItemList.Instance.RecomputeLoadOrders();
+            LoadOrder.RecomputeLoadOrders();
             modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
             MainForm.Instance.QueueSidePanelUpdate(true);
             MainForm.Instance._movingItems = false;
@@ -282,7 +282,7 @@ namespace MW5_Mod_Manager
                 modObjectListView.EndUpdate();
             }
 
-            ModItemList.Instance.RecomputeLoadOrders();
+            LoadOrder.RecomputeLoadOrders();
 
             ModsManager.Instance.RecomputeOverridingData();
 
