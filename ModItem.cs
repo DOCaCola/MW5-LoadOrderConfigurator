@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Diagnostics;
 using System.Runtime.Versioning;
 using System.Text;
 using MW5_Mod_Manager;
@@ -56,6 +57,8 @@ namespace MW5_Mod_Manager
         }
     }
 
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [DebuggerTypeProxy(typeof(ModItem.DebugView))]
     public class ModItem
     {
         public bool Enabled;
@@ -95,6 +98,28 @@ namespace MW5_Mod_Manager
                 BuildNumber = ModsManager.Instance.ModDetails[entry.ModPath].buildNumber,
                 VersionCombined = (ModsManager.Instance.ModDetails[entry.ModPath].version + " (" + ModsManager.Instance.ModDetails[entry.ModPath].buildNumber.ToString() + ")").Trim()
             };
+        }
+
+        private string DebuggerDisplay => $"{Name} [{FolderName}] Enabled={Enabled} LO={CurrentLoadOrder}/{OriginalLoadOrder} Origin={Origin}";
+
+        internal sealed class DebugView
+        {
+            private readonly ModItem m;
+            public DebugView(ModItem m) { this.m = m; }
+
+            public bool Enabled => m.Enabled;
+            public string Name => m.Name;
+            public string FolderName => m.FolderName;
+            public string Path => m.Path;
+            public string Author => m.Author;
+            public string Version => m.Version;
+            public int BuildNumber => m.BuildNumber;
+            public string VersionCombined => m.VersionCombined;
+            public long FileSize => m.FileSize;
+            public DateTimeOffset? FileAge => m.FileAge;
+            public float CurrentLoadOrder => m.CurrentLoadOrder;
+            public float OriginalLoadOrder => m.OriginalLoadOrder;
+            public ModsManager.ModData.ModOrigin Origin => m.Origin;
         }
     }
 }

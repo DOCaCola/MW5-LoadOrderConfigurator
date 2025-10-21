@@ -272,7 +272,7 @@ namespace MW5_Mod_Manager
                 curMod.Enabled = newValue;
 
                 var modItem = ModsManager.Instance.ModEnabledList.FirstOrDefault(x =>
-                    x.ModPath.Equals(curMod.Path, StringComparison.InvariantCultureIgnoreCase));
+                    x.ModPath.Equals(curMod.Path, StringComparison.OrdinalIgnoreCase));
                 modItem.Enabled = newValue;
 
                 ModsManager.Instance.UpdateNewModOverrideData(curMod);
@@ -2290,7 +2290,7 @@ namespace MW5_Mod_Manager
                 // If Priority is equal, compare Folder name
                 if (priorityComparison == 0)
                 {
-                    return String.Compare(x.FolderName, y.FolderName, StringComparison.InvariantCultureIgnoreCase);
+                    return String.Compare(x.FolderName, y.FolderName, StringComparison.OrdinalIgnoreCase);
                 }
                 else
                 {

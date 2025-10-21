@@ -17,7 +17,7 @@ namespace MW5_Mod_Manager
                 ModsManager.ModImportData currentItem = targetList[i];
 
                 var itemExists = filterList.FirstOrDefault(x => 
-                    x.ModPath.Equals(currentItem.ModPath, StringComparison.InvariantCultureIgnoreCase));
+                    x.ModPath.Equals(currentItem.ModPath, StringComparison.OrdinalIgnoreCase));
                 
                 if (itemExists != null)
                 {

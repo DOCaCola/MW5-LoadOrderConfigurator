@@ -77,6 +77,8 @@ namespace MW5_Mod_Manager
             openUserModsFolderToolStripMenuItem = new ToolStripMenuItem();
             checkModFilesToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
+            reportBugToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator18 = new ToolStripSeparator();
             toolStripMenuItemNexusmodsLink = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
             statusStrip1 = new StatusStrip();
@@ -116,8 +118,7 @@ namespace MW5_Mod_Manager
             contextMenuStripColumnOptions = new ContextMenuStrip(components);
             dockPanel1 = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             visualStudioToolStripExtender1 = new WeifenLuo.WinFormsUI.Docking.VisualStudioToolStripExtender(components);
-            reportBugToolStripMenuItem = new ToolStripMenuItem();
-            toolStripSeparator18 = new ToolStripSeparator();
+            tEstToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -134,7 +135,7 @@ namespace MW5_Mod_Manager
             // 
             // menuStrip1
             // 
-            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, viewToolStripMenuItem, presetsToolStripMenuItem, modsToolStripMenuItem, helpToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, viewToolStripMenuItem, presetsToolStripMenuItem, modsToolStripMenuItem, helpToolStripMenuItem, tEstToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(1167, 24);
@@ -392,6 +393,18 @@ namespace MW5_Mod_Manager
             helpToolStripMenuItem.Size = new Size(40, 20);
             helpToolStripMenuItem.Text = "&Info";
             // 
+            // reportBugToolStripMenuItem
+            // 
+            reportBugToolStripMenuItem.Name = "reportBugToolStripMenuItem";
+            reportBugToolStripMenuItem.Size = new Size(180, 22);
+            reportBugToolStripMenuItem.Text = "&Report Bug";
+            reportBugToolStripMenuItem.Click += reportBugToolStripMenuItem_Click;
+            // 
+            // toolStripSeparator18
+            // 
+            toolStripSeparator18.Name = "toolStripSeparator18";
+            toolStripSeparator18.Size = new Size(177, 6);
+            // 
             // toolStripMenuItemNexusmodsLink
             // 
             toolStripMenuItemNexusmodsLink.Name = "toolStripMenuItemNexusmodsLink";
@@ -622,6 +635,7 @@ namespace MW5_Mod_Manager
             // toolStripTextFilterBox
             // 
             toolStripTextFilterBox.CueBanner = "Search (Ctrl+F)";
+            toolStripTextFilterBox.Font = new Font("Segoe UI", 9F);
             toolStripTextFilterBox.Margin = new Padding(5, 0, 5, 0);
             toolStripTextFilterBox.Name = "toolStripTextFilterBox";
             toolStripTextFilterBox.Size = new Size(140, 45);
@@ -689,17 +703,11 @@ namespace MW5_Mod_Manager
             // 
             visualStudioToolStripExtender1.DefaultRenderer = null;
             // 
-            // reportBugToolStripMenuItem
+            // tEstToolStripMenuItem
             // 
-            reportBugToolStripMenuItem.Name = "reportBugToolStripMenuItem";
-            reportBugToolStripMenuItem.Size = new Size(180, 22);
-            reportBugToolStripMenuItem.Text = "&Report Bug";
-            reportBugToolStripMenuItem.Click += reportBugToolStripMenuItem_Click;
-            // 
-            // toolStripSeparator18
-            // 
-            toolStripSeparator18.Name = "toolStripSeparator18";
-            toolStripSeparator18.Size = new Size(177, 6);
+            tEstToolStripMenuItem.Name = "tEstToolStripMenuItem";
+            tEstToolStripMenuItem.Size = new Size(40, 20);
+            tEstToolStripMenuItem.Text = "TEst";
             // 
             // MainForm
             // 
@@ -820,6 +828,7 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem resetWindowLayoutToolStripMenuItem;
         private ToolStripMenuItem reportBugToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator18;
+        private ToolStripMenuItem tEstToolStripMenuItem;
     }
 }
 

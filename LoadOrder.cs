@@ -5,10 +5,6 @@ using System.Globalization;
 
 namespace MW5_Mod_Manager
 {
-    // Computes minimal-change load orders that match the current visual order.
-    // - Uses InvariantCultureIgnoreCase for folder-name tie breaking
-    // - No maximum on load orders
-    // - Load orders are never negative (floor at 0); negative originals can't anchor
     internal static class LoadOrder
     {
         public static void RecomputeLoadOrders(bool restoreLoadOrdersOfDisabled = false)
@@ -77,7 +73,7 @@ namespace MW5_Mod_Manager
                 {
                     if (curModItem.OriginalLoadOrder > prevModItem.OriginalLoadOrder ||
                         (curModItem.OriginalLoadOrder == prevModItem.OriginalLoadOrder &&
-                         string.Compare(curModItem.FolderName, prevModItem.FolderName, StringComparison.InvariantCultureIgnoreCase) > 0))
+                         string.Compare(curModItem.FolderName, prevModItem.FolderName, StringComparison.OrdinalIgnoreCase) > 0))
                     {
                         return false;
                     }
@@ -86,7 +82,7 @@ namespace MW5_Mod_Manager
                 {
                     if (prevModItem.OriginalLoadOrder > curModItem.OriginalLoadOrder ||
                         (prevModItem.OriginalLoadOrder == curModItem.OriginalLoadOrder &&
-                         string.Compare(prevModItem.FolderName, curModItem.FolderName, StringComparison.InvariantCultureIgnoreCase) > 0))                 
+                         string.Compare(prevModItem.FolderName, curModItem.FolderName, StringComparison.OrdinalIgnoreCase) > 0))                 
                     {
                         return false;
                     }
@@ -96,5 +92,105 @@ namespace MW5_Mod_Manager
             return true;
         }
 
+        public static void RecomputeLoadOrderAdaptive()
+        {
+            // Temporary list sorted by default rules (OriginalLoadOrder, then FolderName)
+            List<ModItem> defaultSorted = new List<ModItem>(ModItemList.Instance.ModList);
+            defaultSorted.Sort((x, y) =>
+            {
+                if (LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow)
+                {
+                    int cmp = y.OriginalLoadOrder.CompareTo(x.OriginalLoadOrder);
+                    if (cmp != 0) return cmp;
+                    return string.Compare(y.FolderName, x.FolderName, StringComparison.OrdinalIgnoreCase);
+                }
+                else
+                {
+                    int cmp = x.OriginalLoadOrder.CompareTo(y.OriginalLoadOrder);
+                    if (cmp != 0) return cmp;
+                    return string.Compare(x.FolderName, y.FolderName, StringComparison.OrdinalIgnoreCase);
+                }
+            });
+
+            // Comparator-as-predicate: does 'a' come before 'b' under default rules?
+            bool IsOrderedBefore(ModItem a, ModItem b)
+            {
+                if (LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow)
+                {
+                    if (a.OriginalLoadOrder > b.OriginalLoadOrder) return true; // higher first
+                    if (a.OriginalLoadOrder < b.OriginalLoadOrder) return false;
+                    return string.Compare(a.FolderName, b.FolderName, StringComparison.OrdinalIgnoreCase) >= 0; // tie: descending
+                }
+                else
+                {
+                    if (a.OriginalLoadOrder < b.OriginalLoadOrder) return true; // lower first
+                    if (a.OriginalLoadOrder > b.OriginalLoadOrder) return false;
+                    return string.Compare(a.FolderName, b.FolderName, StringComparison.OrdinalIgnoreCase) <= 0; // tie: ascending
+                }
+            }
+
+            // Step 2: Find the largest subset (LIS) of current list that still follows default ordering
+            List<ModItem> mods = ModItemList.Instance.ModList;
+            int n = mods.Count;
+            List<ModItem> modsKeepingOriginalOrder = new List<ModItem>();
+            List<ModItem> modsNeedingReassignment = new List<ModItem>();
+
+            if (n > 0)
+            {
+                int[] dp = new int[n];
+                int[] prev = new int[n];
+                for (int i = 0; i < n; i++) { dp[i] = 1; prev[i] = -1; }
+
+                int bestLen = 1;
+                int bestEnd = 0;
+
+                for (int i = 1; i < n; i++)
+                {
+                    for (int j = 0; j < i; j++)
+                    {
+                        if (IsOrderedBefore(mods[j], mods[i]) && dp[j] + 1 > dp[i])
+                        {
+                            dp[i] = dp[j] + 1;
+                            prev[i] = j;
+                        }
+                    }
+                    if (dp[i] > bestLen)
+                    {
+                        bestLen = dp[i];
+                        bestEnd = i;
+                    }
+                }
+
+                // Reconstruct LIS indices in order
+                List<int> idxs = new List<int>();
+                for (int k = bestEnd; k != -1; k = prev[k]) idxs.Add(k);
+                idxs.Reverse();
+
+                HashSet<ModItem> inKeeping = new HashSet<ModItem>();
+                foreach (int idx in idxs)
+                {
+                    modsKeepingOriginalOrder.Add(mods[idx]);
+                    inKeeping.Add(mods[idx]);
+                }
+
+                foreach (ModItem m in mods)
+                {
+                    if (!inKeeping.Contains(m)) modsNeedingReassignment.Add(m);
+                }
+            }
+
+            // Create a list reflecting current order with a keep/reassign marker per mod
+            HashSet<ModItem> keepSet = new HashSet<ModItem>(modsKeepingOriginalOrder);
+            List<(ModItem Mod, bool KeepsOriginal)> adaptiveMarkedList = new List<(ModItem, bool)>(mods.Count);
+            foreach (ModItem m in mods)
+            {
+                bool keeps = keepSet.Contains(m);
+                adaptiveMarkedList.Add((m, keeps));
+            }
+
+            // TODO
+        }
+
+    }
     }
 }

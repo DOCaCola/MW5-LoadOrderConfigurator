@@ -273,7 +273,7 @@ namespace MW5_Mod_Manager
                 }
 
                 ModImportData enabledListItem = ModEnabledListLastState?.FirstOrDefault(x =>
-                    x.ModPath.Equals(curCandidate, StringComparison.InvariantCultureIgnoreCase));
+                    x.ModPath.Equals(curCandidate, StringComparison.OrdinalIgnoreCase));
 
                 bool enabledStateChanged = ModEnabledListLastState == null || enabledListItem == null || !enabledListItem.Enabled;
 
@@ -1176,7 +1176,7 @@ namespace MW5_Mod_Manager
                 if (!loadModSuccess)
                 {
                     var itemToRemove = ModEnabledList.FirstOrDefault(x =>
-                        string.Equals(x.ModPath, modPath, StringComparison.InvariantCultureIgnoreCase));
+                        string.Equals(x.ModPath, modPath, StringComparison.OrdinalIgnoreCase));
 
                     if (itemToRemove != null)
                     {
@@ -1516,7 +1516,7 @@ namespace MW5_Mod_Manager
             // Determine which mod overrides the other
             bool aOverridesB = loadOrderA > loadOrderB ||
                        (loadOrderA == loadOrderB &&
-                        string.Compare(modAPath, modBPath, StringComparison.InvariantCultureIgnoreCase) > 0);
+                        string.Compare(modAPath, modBPath, StringComparison.OrdinalIgnoreCase) > 0);
 
             if (aOverridesB)
             {

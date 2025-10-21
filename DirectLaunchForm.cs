@@ -40,7 +40,7 @@ namespace MW5_Mod_Manager
                     foreach (var curDesiredMod in modlist)
                     {
                         var curTargetItem = ModsManager.Instance.ModEnabledList.FirstOrDefault(x =>
-                            x.ModPath.Equals(curDesiredMod.ModPath, StringComparison.InvariantCultureIgnoreCase));
+                            x.ModPath.Equals(curDesiredMod.ModPath, StringComparison.OrdinalIgnoreCase));
 
                         if (curTargetItem != null)
                         {
