@@ -9,6 +9,9 @@ namespace MW5_Mod_Manager
     {
         public static void RecomputeLoadOrders(bool restoreLoadOrdersOfDisabled = false)
         {
+
+            RecomputeLoadOrderAdaptive();
+            return;
             // If the list is sorted according to MW5's default load order,
             // we can reset load orders to their default load order
             bool isDefaultSorted = AreModsSortedByDefaultLoadOrder();
@@ -160,7 +163,213 @@ namespace MW5_Mod_Manager
                 adaptiveMarkedList.Add((m, keeps));
             }
 
-            // TODO
+            HashSet<ModItem> finalKeepSet = new HashSet<ModItem>(modsKeepingOriginalOrder);
+            HashSet<ModItem> reassignSet = new HashSet<ModItem>(modsNeedingReassignment);
+            Dictionary<ModItem, int> assignedLoadOrders = new Dictionary<ModItem, int>(mods.Count);
+
+            int RoundLoadOrder(float value)
+            {
+                return Convert.ToInt32(Math.Round(value, MidpointRounding.AwayFromZero));
+            }
+
+            bool IsPairLessOrEqual(int valueA, string folderA, int valueB, string folderB)
+            {
+                if (valueA < valueB) return true;
+                if (valueA > valueB) return false;
+                return string.Compare(folderA, folderB, StringComparison.OrdinalIgnoreCase) <= 0;
+            }
+
+            int FindNextKeepIndex(int startIndex)
+            {
+                for (int i = startIndex; i < adaptiveMarkedList.Count; i++)
+                {
+                    if (finalKeepSet.Contains(adaptiveMarkedList[i].Mod))
+                    {
+                        return i;
+                    }
+                }
+                return -1;
+            }
+
+            bool TryAssignSegment(int segmentStart, int segmentEnd, bool hasLowerBound, int lowerValue, string lowerFolder, ModItem upperAnchor, out int lastValue, out string lastFolder)
+            {
+                int segmentLength = segmentEnd - segmentStart;
+                if (segmentLength <= 0)
+                {
+                    lastValue = hasLowerBound ? lowerValue : -1;
+                    lastFolder = hasLowerBound ? lowerFolder : string.Empty;
+                    return true;
+                }
+
+                int anchorValue = RoundLoadOrder(upperAnchor.OriginalLoadOrder);
+                string anchorFolder = upperAnchor.FolderName;
+
+                int[] temporaryValues = new int[segmentLength];
+                int nextValue = anchorValue;
+                string nextFolder = anchorFolder;
+
+                for (int offset = segmentLength - 1; offset >= 0; offset--)
+                {
+                    ModItem mod = adaptiveMarkedList[segmentStart + offset].Mod;
+                    int candidate = nextValue;
+                    bool assigned = false;
+                    while (candidate >= 0)
+                    {
+                        if (IsPairLessOrEqual(candidate, mod.FolderName, nextValue, nextFolder))
+                        {
+                            temporaryValues[offset] = candidate;
+                            nextValue = candidate;
+                            nextFolder = mod.FolderName;
+                            assigned = true;
+                            break;
+                        }
+                        candidate--;
+                    }
+
+                    if (!assigned)
+                    {
+                        lastValue = -1;
+                        lastFolder = string.Empty;
+                        return false;
+                    }
+                }
+
+                if (segmentLength > 0 && hasLowerBound)
+                {
+                    ModItem firstMod = adaptiveMarkedList[segmentStart].Mod;
+                    int firstValue = temporaryValues[0];
+                    if (!IsPairLessOrEqual(lowerValue, lowerFolder, firstValue, firstMod.FolderName))
+                    {
+                        lastValue = -1;
+                        lastFolder = string.Empty;
+                        return false;
+                    }
+                }
+
+                for (int offset = 0; offset < segmentLength; offset++)
+                {
+                    ModItem mod = adaptiveMarkedList[segmentStart + offset].Mod;
+                    int value = temporaryValues[offset];
+                    assignedLoadOrders[mod] = value;
+                    reassignSet.Add(mod);
+                    finalKeepSet.Remove(mod);
+                }
+
+                ModItem lastMod = adaptiveMarkedList[segmentEnd - 1].Mod;
+                lastValue = temporaryValues[segmentLength - 1];
+                lastFolder = lastMod.FolderName;
+                return true;
+            }
+
+            int currentIndex = 0;
+            int prevValue = -1;
+            string prevFolder = string.Empty;
+            bool hasPrev = false;
+
+            while (currentIndex < adaptiveMarkedList.Count)
+            {
+                int nextKeepIndex = FindNextKeepIndex(currentIndex);
+
+                if (nextKeepIndex == -1)
+                {
+                    for (int i = currentIndex; i < adaptiveMarkedList.Count; i++)
+                    {
+                        ModItem mod = adaptiveMarkedList[i].Mod;
+                        int candidate = Math.Max(RoundLoadOrder(mod.OriginalLoadOrder), hasPrev ? prevValue : 0);
+                        while (hasPrev && !IsPairLessOrEqual(prevValue, prevFolder, candidate, mod.FolderName))
+                        {
+                            candidate++;
+                        }
+
+                        assignedLoadOrders[mod] = candidate;
+                        reassignSet.Add(mod);
+                        finalKeepSet.Remove(mod);
+
+                        prevValue = candidate;
+                        prevFolder = mod.FolderName;
+                        hasPrev = true;
+                    }
+                    break;
+                }
+
+                if (nextKeepIndex > currentIndex)
+                {
+                    ModItem anchorMod = adaptiveMarkedList[nextKeepIndex].Mod;
+                    if (!TryAssignSegment(currentIndex, nextKeepIndex, hasPrev, prevValue, prevFolder, anchorMod, out int lastSegmentValue, out string lastSegmentFolder))
+                    {
+                        finalKeepSet.Remove(anchorMod);
+                        reassignSet.Add(anchorMod);
+                        continue;
+                    }
+
+                    if (nextKeepIndex > currentIndex)
+                    {
+                        prevValue = lastSegmentValue;
+                        prevFolder = lastSegmentFolder;
+                        hasPrev = true;
+                    }
+                    currentIndex = nextKeepIndex;
+                    continue;
+                }
+
+                ModItem currentAnchor = adaptiveMarkedList[currentIndex].Mod;
+                int anchorValue = RoundLoadOrder(currentAnchor.OriginalLoadOrder);
+                if (hasPrev && !IsPairLessOrEqual(prevValue, prevFolder, anchorValue, currentAnchor.FolderName))
+                {
+                    finalKeepSet.Remove(currentAnchor);
+                    reassignSet.Add(currentAnchor);
+                    continue;
+                }
+
+                assignedLoadOrders[currentAnchor] = anchorValue;
+                prevValue = anchorValue;
+                prevFolder = currentAnchor.FolderName;
+                hasPrev = true;
+                currentIndex++;
+            }
+
+            modsKeepingOriginalOrder = new List<ModItem>();
+            modsNeedingReassignment = new List<ModItem>();
+            foreach (var entry in adaptiveMarkedList)
+            {
+                ModItem mod = entry.Mod;
+                if (finalKeepSet.Contains(mod))
+                {
+                    modsKeepingOriginalOrder.Add(mod);
+                }
+                else
+                {
+                    modsNeedingReassignment.Add(mod);
+                }
+            }
+
+            foreach (var entry in adaptiveMarkedList)
+            {
+                ModItem mod = entry.Mod;
+                if (!assignedLoadOrders.TryGetValue(mod, out int loadOrderValue))
+                {
+                    continue;
+                }
+
+                mod.CurrentLoadOrder = loadOrderValue;
+                ModsManager.Instance.Mods[mod.Path].NewLoadOrder = loadOrderValue;
+            }
+
+            List<ModsManager.ModImportData> newModList = new List<ModsManager.ModImportData>(mods.Count);
+            foreach (ModItem curModItem in mods.AsEnumerable().Reverse())
+            {
+                string modKey = curModItem.Path;
+                ModsManager.ModImportData newImportData = new ModsManager.ModImportData
+                {
+                    ModPath = modKey,
+                    ModFolder = curModItem.FolderName,
+                    Enabled = curModItem.Enabled,
+                    Available = true
+                };
+                newModList.Add(newImportData);
+            }
+
+            ModsManager.Instance.ModEnabledList = newModList;
         }
 
     }
