@@ -191,7 +191,7 @@ namespace MW5_Mod_Manager
                 return -1;
             }
 
-            bool TryAssignSegment(int segmentStart, int segmentEnd, bool hasLowerBound, int lowerValue, string lowerFolder, ModItem upperAnchor, out int lastValue, out string lastFolder)
+            bool TryAssignSegment(int segmentStart, int segmentEnd, bool hasLowerBound, int lowerValue, string lowerFolder, ModItem lowerAnchor, ModItem upperAnchor, out int lastValue, out string lastFolder)
             {
                 int segmentLength = segmentEnd - segmentStart;
                 if (segmentLength <= 0)
@@ -203,6 +203,9 @@ namespace MW5_Mod_Manager
 
                 int anchorValue = RoundLoadOrder(upperAnchor.OriginalLoadOrder);
                 string anchorFolder = upperAnchor.FolderName;
+                int nextAnchorValue = anchorValue;
+
+                int lowerAnchorValue = lowerAnchor != null ? RoundLoadOrder(lowerAnchor.OriginalLoadOrder) : 0;
 
                 int[] temporaryValues = new int[segmentLength];
                 int nextValue = anchorValue;
@@ -211,7 +214,37 @@ namespace MW5_Mod_Manager
                 for (int offset = segmentLength - 1; offset >= 0; offset--)
                 {
                     ModItem mod = adaptiveMarkedList[segmentStart + offset].Mod;
-                    int candidate = nextValue;
+                    int originalRounded = RoundLoadOrder(mod.OriginalLoadOrder);
+                    int candidate = originalRounded;
+
+                    if (lowerAnchor != null)
+                    {
+                        int diffPrev = Math.Abs(originalRounded - lowerAnchorValue);
+                        int diffNext = Math.Abs(nextAnchorValue - originalRounded);
+                        if (diffPrev <= diffNext)
+                        {
+                            candidate = Math.Max(candidate, lowerAnchorValue);
+                        }
+                        else
+                        {
+                            candidate = Math.Min(candidate, nextAnchorValue);
+                        }
+                    }
+                    else
+                    {
+                        candidate = Math.Min(candidate, nextAnchorValue);
+                    }
+
+                    if (candidate > nextValue)
+                    {
+                        candidate = nextValue;
+                    }
+
+                    if (candidate < 0)
+                    {
+                        candidate = 0;
+                    }
+
                     bool assigned = false;
                     while (candidate >= 0)
                     {
@@ -265,6 +298,7 @@ namespace MW5_Mod_Manager
             int prevValue = -1;
             string prevFolder = string.Empty;
             bool hasPrev = false;
+            ModItem lastKeptAnchor = null;
 
             while (currentIndex < adaptiveMarkedList.Count)
             {
@@ -275,7 +309,30 @@ namespace MW5_Mod_Manager
                     for (int i = currentIndex; i < adaptiveMarkedList.Count; i++)
                     {
                         ModItem mod = adaptiveMarkedList[i].Mod;
-                        int candidate = Math.Max(RoundLoadOrder(mod.OriginalLoadOrder), hasPrev ? prevValue : 0);
+                        int candidate = RoundLoadOrder(mod.OriginalLoadOrder);
+                        if (lastKeptAnchor != null)
+                        {
+                            int lastAnchorValue = RoundLoadOrder(lastKeptAnchor.OriginalLoadOrder);
+                            if (candidate < lastAnchorValue)
+                            {
+                                candidate = lastAnchorValue;
+                            }
+                        }
+
+                        if (hasPrev)
+                        {
+                            candidate = Math.Max(candidate, prevValue);
+                        }
+                        else if (candidate < 0)
+                        {
+                            candidate = 0;
+                        }
+
+                        if (candidate < 0)
+                        {
+                            candidate = 0;
+                        }
+
                         while (hasPrev && !IsPairLessOrEqual(prevValue, prevFolder, candidate, mod.FolderName))
                         {
                             candidate++;
@@ -295,7 +352,7 @@ namespace MW5_Mod_Manager
                 if (nextKeepIndex > currentIndex)
                 {
                     ModItem anchorMod = adaptiveMarkedList[nextKeepIndex].Mod;
-                    if (!TryAssignSegment(currentIndex, nextKeepIndex, hasPrev, prevValue, prevFolder, anchorMod, out int lastSegmentValue, out string lastSegmentFolder))
+                    if (!TryAssignSegment(currentIndex, nextKeepIndex, hasPrev, prevValue, prevFolder, lastKeptAnchor, anchorMod, out int lastSegmentValue, out string lastSegmentFolder))
                     {
                         finalKeepSet.Remove(anchorMod);
                         reassignSet.Add(anchorMod);
@@ -325,6 +382,7 @@ namespace MW5_Mod_Manager
                 prevValue = anchorValue;
                 prevFolder = currentAnchor.FolderName;
                 hasPrev = true;
+                lastKeptAnchor = currentAnchor;
                 currentIndex++;
             }
 
