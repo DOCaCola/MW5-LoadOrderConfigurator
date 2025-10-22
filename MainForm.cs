@@ -1706,30 +1706,61 @@ namespace MW5_Mod_Manager
             if (File.Exists(imagePath))
             {
                 _ModImageLoader = new AsyncFileLoader();
-                //_ModImageLoader.ToggleDebugMode(true);
 
-                Action<MemoryStream> onFileLoaded = (memoryStream) =>
+                Action<MemoryStream> onFileLoaded = memoryStream =>
                 {
-                    if (DockOverviewForm.Instance.pictureBoxModImage.Image != null)
+                    if (memoryStream == null)
+                        return;
+
+                    byte[] imageBytes = memoryStream.ToArray();
+                    memoryStream.Dispose();
+
+                    void AssignImage()
                     {
-                        DockOverviewForm.Instance.pictureBoxModImage.Image.Dispose();
-                        DockOverviewForm.Instance.pictureBoxModImage.Image = null;
+                        if (DockOverviewForm.Instance.IsDisposed || !DockOverviewForm.Instance.IsHandleCreated)
+                            return;
+
+                        DockOverviewForm.Instance.pictureBoxModImage.Visible = false;
+
+                        using (var ms = new MemoryStream(imageBytes))
+                        {
+                            try
+                            {
+                                using var decodedImage = Image.FromStream(ms, useEmbeddedColorManagement: false, validateImageData: true);
+                                var safeBitmap = new Bitmap(decodedImage);
+
+                                DockOverviewForm.Instance.pictureBoxModImage.Image?.Dispose();
+                                DockOverviewForm.Instance.pictureBoxModImage.Image = safeBitmap;
+                                DockOverviewForm.Instance.pictureBoxModImage.Visible = true;
+                            }
+                            catch (ArgumentException ex)
+                            {
+                                Debug.WriteLine($"Failed to load mod image '{imagePath}': {ex.Message}");
+                                DockOverviewForm.Instance.pictureBoxModImage.Image?.Dispose();
+                                DockOverviewForm.Instance.pictureBoxModImage.Image = null;
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Unexpected error while loading mod image '{imagePath}': {ex}");
+                                DockOverviewForm.Instance.pictureBoxModImage.Image?.Dispose();
+                                DockOverviewForm.Instance.pictureBoxModImage.Image = null;
+                            }
+                        }
                     }
 
-                    try
+                    if (InvokeRequired)
                     {
-                        DockOverviewForm.Instance.pictureBoxModImage.Image = Image.FromStream(memoryStream);
-                        DockOverviewForm.Instance.pictureBoxModImage.Visible = true;
+                        BeginInvoke((Action)AssignImage);
                     }
-                    catch (Exception e)
+                    else
                     {
-
+                        AssignImage();
                     }
                 };
 
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+#pragma warning disable CS4014
                 _ModImageLoader.LoadFileAsync(imagePath, onFileLoaded);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+#pragma warning restore CS4014
             }
         }
 
