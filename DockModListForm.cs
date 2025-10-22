@@ -1,7 +1,6 @@
 ﻿using BrightIdeasSoftware;
 using MW5_Mod_Manager.Controls;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -38,7 +37,6 @@ namespace MW5_Mod_Manager
             if (_listViewUpdateNesting == 1)
             {
                 modObjectListView.BeginUpdate();
-                modObjectListView.SuspendDrawing();
             }
             return new ListViewUpdateScope(this);
         }
@@ -51,7 +49,6 @@ namespace MW5_Mod_Manager
             _listViewUpdateNesting--;
             if (_listViewUpdateNesting == 0)
             {
-                modObjectListView.ResumeDrawing();
                 modObjectListView.EndUpdate();
             }
         }
@@ -251,18 +248,28 @@ namespace MW5_Mod_Manager
 
             using (BeginListViewUpdateScope())
             {
+                int insertionIndex = normalizedIndex;
+                foreach (var mod in draggedItems)
+                {
+                    int currentViewIndex = modObjectListView.IndexOf(mod);
+                    if (currentViewIndex >= 0 && currentViewIndex < insertionIndex)
+                        insertionIndex--;
+                }
+
+                var draggedObjects = draggedItems.Cast<object>().ToList();
+                modObjectListView.RemoveObjects(draggedObjects);
+                modObjectListView.InsertObjects(insertionIndex, draggedObjects);
+                modObjectListView.SelectedObjects = draggedObjects;
+
                 LoadOrder.RecomputeLoadOrders();
                 ModsManager.Instance.RecomputeOverridingData();
 
-                var selectionSet = new HashSet<string>(draggedItems.Select(m => m.Path), StringComparer.OrdinalIgnoreCase);
-                string ensureVisiblePath = draggedItems.First().Path;
-                ApplyModelOrderToListView(selectionSet, ensureVisiblePath, null, suppressUpdateScope: true);
-
                 MainForm.Instance.ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
                 RecolorObjectListViewRows();
-                modObjectListView.RefreshItems();
+                modObjectListView.RefreshObjects(modObjectListView.Objects.Cast<object>().ToList());
                 modObjectListView.Sort();
             }
+
             MainForm.Instance.QueueSidePanelUpdate(true);
             MainForm.Instance.CheckModConfigTainted();
 

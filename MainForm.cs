@@ -4,7 +4,6 @@ using MW5_Mod_Manager.Controls;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -765,32 +764,58 @@ namespace MW5_Mod_Manager
         public void MoveListItems(ListView.SelectedListViewItemCollection moveItems, MoveDirection direction)
         {
             var listView = DockModListForm.Instance.modObjectListView;
-            var selectedMods = moveItems.Cast<OLVListItem>().Select(item => (ModItem)item.RowObject).ToList();
-            if (selectedMods.Count == 0)
+            var selectedItems = moveItems.Cast<OLVListItem>().ToList();
+            if (selectedItems.Count == 0)
                 return;
 
-            var selectionSet = new HashSet<string>(selectedMods.Select(m => m.Path), StringComparer.OrdinalIgnoreCase);
-            var viewOrder = ModItemList.Instance.GetViewOrderedItems();
-            bool reverseView = LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow;
+            bool reversed = LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow;
+            var selectionSet = new HashSet<string>(selectedItems.Select(item => ((ModItem)item.RowObject).Path),
+                StringComparer.OrdinalIgnoreCase);
+            Point scrollPosition = listView.LowLevelScrollPosition;
 
-            bool[] selectedFlags = BuildSelectionFlags(viewOrder, selectionSet);
-            bool moved = direction == MoveDirection.Up
-                ? MoveSelectionOneStep(viewOrder, selectedFlags, moveUp: true)
-                : MoveSelectionOneStep(viewOrder, selectedFlags, moveUp: false);
+            bool movedAny = false;
+            using (DockModListForm.Instance.BeginListViewUpdateScope())
+            {
+                if (direction == MoveDirection.Up)
+                {
+                    foreach (var item in selectedItems.OrderBy(i => i.Index))
+                    {
+                        var mod = (ModItem)item.RowObject;
+                        int currentIndex = listView.IndexOf(mod);
+                        int targetIndex = currentIndex - 1;
+                        if (targetIndex < 0)
+                            continue;
 
-            if (!moved)
-                return;
+                        listView.RemoveObject(mod);
+                        listView.InsertObjects(targetIndex, new[] { mod });
+                        UpdateModelIndexFromView(mod, listView.IndexOf(mod), reversed);
+                        movedAny = true;
+                    }
+                }
+                else
+                {
+                    foreach (var item in selectedItems.OrderByDescending(i => i.Index))
+                    {
+                        var mod = (ModItem)item.RowObject;
+                        int currentIndex = listView.IndexOf(mod);
+                        int targetIndex = currentIndex + 1;
+                        if (targetIndex >= listView.GetItemCount())
+                            continue;
 
-            var scrollPosition = listView.LowLevelScrollPosition;
-            _movingItems = true;
+                        listView.RemoveObject(mod);
+                        listView.InsertObjects(targetIndex, new[] { mod });
+                        UpdateModelIndexFromView(mod, listView.IndexOf(mod), reversed);
+                        movedAny = true;
+                    }
+                }
 
-            UpdateModelOrderFromView(viewOrder, reverseView);
+                if (!movedAny)
+                    return;
 
-            bool preferFirst = direction == MoveDirection.Up;
-            string ensureVisiblePath = GetEnsureVisiblePath(viewOrder, selectionSet, preferFirst);
-            RefreshAfterModelReorder(selectionSet, ensureVisiblePath, scrollPosition);
-
-            _movingItems = false;
+                _movingItems = true;
+                RefreshAfterModelReorder(selectionSet, null, scrollPosition, ensureVisible: false);
+                _movingItems = false;
+            }
         }
 
         public enum MovePosition { Top, Bottom };
@@ -798,150 +823,116 @@ namespace MW5_Mod_Manager
         public void MoveListItems(ListView.SelectedListViewItemCollection moveItems, MovePosition position)
         {
             var listView = DockModListForm.Instance.modObjectListView;
-            var selectedMods = moveItems.Cast<OLVListItem>().Select(item => (ModItem)item.RowObject).ToList();
-            if (selectedMods.Count == 0)
+            var selectedItems = moveItems.Cast<OLVListItem>().OrderBy(i => i.Index).ToList();
+            if (selectedItems.Count == 0)
                 return;
 
-            var selectionSet = new HashSet<string>(selectedMods.Select(m => m.Path), StringComparer.OrdinalIgnoreCase);
-            var viewOrder = ModItemList.Instance.GetViewOrderedItems();
-            bool reverseView = LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow;
+            bool reversed = LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow;
+            var selectedModels = selectedItems.Select(i => (ModItem)i.RowObject).ToList();
+            var selectionSet = new HashSet<string>(selectedModels.Select(m => m.Path), StringComparer.OrdinalIgnoreCase);
+            Point scrollPosition = listView.LowLevelScrollPosition;
 
-            var selectedSequence = new List<ModItem>();
-            var remainingSequence = new List<ModItem>();
-            foreach (var mod in viewOrder)
+            using (DockModListForm.Instance.BeginListViewUpdateScope())
             {
-                if (selectionSet.Contains(mod.Path))
+                listView.RemoveObjects(selectedModels.Cast<object>().ToList());
+
+                if (position == MovePosition.Top)
                 {
-                    selectedSequence.Add(mod);
+                    listView.InsertObjects(0, selectedModels.Cast<object>().ToList());
                 }
                 else
                 {
-                    remainingSequence.Add(mod);
+                    listView.AddObjects(selectedModels.Cast<object>().ToList());
+                }
+
+                foreach (var mod in selectedModels)
+                {
+                    int newViewIndex = listView.IndexOf(mod);
+                    UpdateModelIndexFromView(mod, newViewIndex, reversed);
                 }
             }
 
-            List<ModItem> newViewOrder = position == MovePosition.Top
-                ? selectedSequence.Concat(remainingSequence).ToList()
-                : remainingSequence.Concat(selectedSequence).ToList();
-
-            if (viewOrder.SequenceEqual(newViewOrder))
-                return;
-
-            var scrollPosition = listView.LowLevelScrollPosition;
             _movingItems = true;
-
-            UpdateModelOrderFromView(newViewOrder, reverseView);
-
-            bool preferFirst = position == MovePosition.Top;
-            string ensureVisiblePath = GetEnsureVisiblePath(newViewOrder, selectionSet, preferFirst);
+            string ensureVisiblePath = position == MovePosition.Top
+                ? selectedModels.FirstOrDefault()?.Path
+                : selectedModels.LastOrDefault()?.Path;
             RefreshAfterModelReorder(selectionSet, ensureVisiblePath, scrollPosition);
-
             _movingItems = false;
         }
 
-        private static bool[] BuildSelectionFlags(List<ModItem> viewOrder, HashSet<string> selectionSet)
+        private void RefreshAfterModelReorder(HashSet<string> selectionSet, string ensureVisiblePath, Point scrollPosition, bool ensureVisible = true)
         {
-            var flags = new bool[viewOrder.Count];
-            for (int i = 0; i < viewOrder.Count; i++)
-            {
-                flags[i] = selectionSet.Contains(viewOrder[i].Path);
-            }
-            return flags;
-        }
+            LoadOrder.RecomputeLoadOrders();
+            ModsManager.Instance.RecomputeOverridingData();
 
-        private static bool MoveSelectionOneStep(List<ModItem> viewOrder, bool[] selectionFlags, bool moveUp)
-        {
-            bool changed = false;
-            if (moveUp)
-            {
-                for (int i = 1; i < viewOrder.Count; i++)
-                {
-                    if (!selectionFlags[i] || selectionFlags[i - 1])
-                        continue;
-                    Swap(viewOrder, i, i - 1);
-                    selectionFlags[i - 1] = true;
-                    selectionFlags[i] = false;
-                    changed = true;
-                }
-            }
-            else
-            {
-                for (int i = viewOrder.Count - 2; i >= 0; i--)
-                {
-                    if (!selectionFlags[i] || selectionFlags[i + 1])
-                        continue;
-                    Swap(viewOrder, i, i + 1);
-                    selectionFlags[i + 1] = true;
-                    selectionFlags[i] = false;
-                    changed = true;
-                }
-            }
-            return changed;
-        }
-
-        private static void Swap<T>(List<T> list, int indexA, int indexB)
-        {
-            if (indexA == indexB)
-                return;
-
-            T temp = list[indexA];
-            list[indexA] = list[indexB];
-            list[indexB] = temp;
-        }
-
-        private static void UpdateModelOrderFromView(List<ModItem> viewOrder, bool reverseView)
-        {
-            if (viewOrder == null)
-                return;
-
-            if (ModItemList.Instance.ModList == null)
-            {
-                ModItemList.Instance.ModList = new List<ModItem>(viewOrder.Count);
-            }
-
-            var modelList = ModItemList.Instance.ModList;
-
-            modelList.Clear();
-            if (reverseView)
-            {
-                for (int i = viewOrder.Count - 1; i >= 0; i--)
-                {
-                    modelList.Add(viewOrder[i]);
-                }
-            }
-            else
-            {
-                modelList.AddRange(viewOrder);
-            }
-        }
-
-        private static string GetEnsureVisiblePath(List<ModItem> viewOrder, HashSet<string> selectionSet, bool preferFirst)
-        {
-            if (selectionSet == null || selectionSet.Count == 0)
-                return null;
-
-            IEnumerable<ModItem> sequence = preferFirst ? viewOrder : viewOrder.AsEnumerable().Reverse();
-            var item = sequence.FirstOrDefault(mod => selectionSet.Contains(mod.Path));
-            return item?.Path;
-        }
-
-        private void RefreshAfterModelReorder(HashSet<string> selectionSet, string ensureVisiblePath, Point scrollPosition)
-        {
+            var listView = DockModListForm.Instance.modObjectListView;
             using (DockModListForm.Instance.BeginListViewUpdateScope())
             {
-                LoadOrder.RecomputeLoadOrders();
-
-                DockModListForm.Instance.ApplyModelOrderToListView(selectionSet, ensureVisiblePath, scrollPosition, suppressUpdateScope: true);
-
-                ModsManager.Instance.RecomputeOverridingData();
-                ColorListViewNumbers(DockModListForm.Instance.olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
+                listView.RefreshObjects(listView.Objects.Cast<object>().ToList());
                 DockModListForm.Instance.RecolorObjectListViewRows();
-                DockModListForm.Instance.modObjectListView.RefreshItems();
-                DockModListForm.Instance.modObjectListView.Sort();
+                ColorListViewNumbers(DockModListForm.Instance.olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
+                listView.Sort();
             }
 
+            if (selectionSet != null && selectionSet.Count > 0)
+            {
+                var selectedObjects = listView.Objects.Cast<ModItem>()
+                    .Where(m => selectionSet.Contains(m.Path))
+                    .Cast<object>()
+                    .ToList();
+                if (selectedObjects.Count > 0)
+                {
+                    //listView.SelectedObjects = selectedObjects;
+                }
+            }
+
+            //listView.LowLevelScroll(scrollPosition.X, scrollPosition.Y);
+
+            if (ensureVisible && !string.IsNullOrEmpty(ensureVisiblePath))
+            {
+                var focus = listView.Objects.Cast<ModItem>()
+                    .FirstOrDefault(m => string.Equals(m.Path, ensureVisiblePath, StringComparison.OrdinalIgnoreCase));
+                if (focus != null)
+                {
+                    //listView.EnsureModelVisible(focus);
+                }
+            }
             QueueSidePanelUpdate(true);
             CheckModConfigTainted();
+        }
+
+        private static void UpdateModelIndexFromView(ModItem mod, int newViewIndex, bool reversed)
+        {
+            var modelList = ModItemList.Instance.ModList;
+            if (modelList == null)
+                return;
+
+            int oldModelIndex = modelList.IndexOf(mod);
+            if (oldModelIndex >= 0)
+            {
+                modelList.RemoveAt(oldModelIndex);
+            }
+
+            int insertIndex;
+            if (!reversed)
+            {
+                insertIndex = Clamp(newViewIndex, 0, modelList.Count);
+            }
+            else
+            {
+                int finalCount = modelList.Count + 1;
+                insertIndex = finalCount - 1 - newViewIndex;
+                insertIndex = Clamp(insertIndex, 0, modelList.Count);
+            }
+
+            modelList.Insert(insertIndex, mod);
+        }
+
+        private static int Clamp(int value, int min, int max)
+        {
+            if (value < min) return min;
+            if (value > max) return max;
+            return value;
         }
 
 
@@ -1232,7 +1223,9 @@ namespace MW5_Mod_Manager
                     {
                         // Load last saved preset
                         modlist = ModsManager.Instance.LastAppliedPresetModList;
+                        DockModListForm.Instance.modObjectListView.SuspendDrawing();
                         PrepareDataAndPopulateListView(modlist, true);
+                        DockModListForm.Instance.modObjectListView.ResumeDrawing();
 
                         if (_ActiveModListHash != ModItemList.Instance.ModList.ComputeModListHashCode())
                             modConfigTainted = true;
