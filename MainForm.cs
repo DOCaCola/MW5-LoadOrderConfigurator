@@ -774,6 +774,8 @@ namespace MW5_Mod_Manager
             Point scrollPosition = listView.LowLevelScrollPosition;
 
             bool movedAny = false;
+            int blockedTopThreshold = 0;
+            int blockedBottomThreshold = listView.GetItemCount() - 1;
             using (DockModListForm.Instance.BeginListViewUpdateScope())
             {
                 if (direction == MoveDirection.Up)
@@ -782,6 +784,12 @@ namespace MW5_Mod_Manager
                     {
                         var mod = (ModItem)item.RowObject;
                         int currentIndex = listView.IndexOf(mod);
+                        if (currentIndex <= blockedTopThreshold)
+                        {
+                            blockedTopThreshold++;
+                            continue;
+                        }
+
                         int targetIndex = currentIndex - 1;
                         if (targetIndex < 0)
                             continue;
@@ -798,6 +806,12 @@ namespace MW5_Mod_Manager
                     {
                         var mod = (ModItem)item.RowObject;
                         int currentIndex = listView.IndexOf(mod);
+                        if (currentIndex >= blockedBottomThreshold)
+                        {
+                            blockedBottomThreshold--;
+                            continue;
+                        }
+
                         int targetIndex = currentIndex + 1;
                         if (targetIndex >= listView.GetItemCount())
                             continue;
