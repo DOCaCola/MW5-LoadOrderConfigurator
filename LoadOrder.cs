@@ -29,11 +29,10 @@ namespace MW5_Mod_Manager
             });*/
 
             int curLoadOrder = ModItemList.Instance.GetModCount(restoreLoadOrdersOfDisabled);
-            
-            // Reorder modlist by recreating it...
+
             List<ModsManager.ModImportData> newModList = new List<ModsManager.ModImportData>();
 
-            foreach (ModItem curModItem in ModItemList.Instance.ModList.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
+            foreach (ModItem curModItem in ModItemList.Instance.ModList.AsEnumerable().Reverse())
             {
                 string modKey = curModItem.Path;
                 bool modEnabled = curModItem.Enabled;
@@ -67,27 +66,18 @@ namespace MW5_Mod_Manager
             for (int i = 1; i < ModItemList.Instance.ModList.Count; i++)
             {
                 ModItem curModItem = ModItemList.Instance.ModList[i];
-                ModItem prevModItem = ModItemList.Instance.ModList[i-1];
+                ModItem prevModItem = ModItemList.Instance.ModList[i - 1];
 
-                if (LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow)
+                if (curModItem.OriginalLoadOrder < prevModItem.OriginalLoadOrder)
                 {
-                    if (curModItem.OriginalLoadOrder > prevModItem.OriginalLoadOrder ||
-                        (curModItem.OriginalLoadOrder == prevModItem.OriginalLoadOrder &&
-                         string.Compare(curModItem.FolderName, prevModItem.FolderName, StringComparison.OrdinalIgnoreCase) > 0))
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    if (prevModItem.OriginalLoadOrder > curModItem.OriginalLoadOrder ||
-                        (prevModItem.OriginalLoadOrder == curModItem.OriginalLoadOrder &&
-                         string.Compare(prevModItem.FolderName, curModItem.FolderName, StringComparison.OrdinalIgnoreCase) > 0))                 
-                    {
-                        return false;
-                    }
+                    return false;
                 }
 
+                if (curModItem.OriginalLoadOrder == prevModItem.OriginalLoadOrder &&
+                    string.Compare(prevModItem.FolderName, curModItem.FolderName, StringComparison.OrdinalIgnoreCase) > 0)
+                {
+                    return false;
+                }
             }
             return true;
         }
@@ -98,35 +88,17 @@ namespace MW5_Mod_Manager
             List<ModItem> defaultSorted = new List<ModItem>(ModItemList.Instance.ModList);
             defaultSorted.Sort((x, y) =>
             {
-                if (LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow)
-                {
-                    int cmp = y.OriginalLoadOrder.CompareTo(x.OriginalLoadOrder);
-                    if (cmp != 0) return cmp;
-                    return string.Compare(y.FolderName, x.FolderName, StringComparison.OrdinalIgnoreCase);
-                }
-                else
-                {
-                    int cmp = x.OriginalLoadOrder.CompareTo(y.OriginalLoadOrder);
-                    if (cmp != 0) return cmp;
-                    return string.Compare(x.FolderName, y.FolderName, StringComparison.OrdinalIgnoreCase);
-                }
+                int cmp = x.OriginalLoadOrder.CompareTo(y.OriginalLoadOrder);
+                if (cmp != 0) return cmp;
+                return string.Compare(x.FolderName, y.FolderName, StringComparison.OrdinalIgnoreCase);
             });
 
             // Comparator-as-predicate: does 'a' come before 'b' under default rules?
             bool IsOrderedBefore(ModItem a, ModItem b)
             {
-                if (LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow)
-                {
-                    if (a.OriginalLoadOrder > b.OriginalLoadOrder) return true; // higher first
-                    if (a.OriginalLoadOrder < b.OriginalLoadOrder) return false;
-                    return string.Compare(a.FolderName, b.FolderName, StringComparison.OrdinalIgnoreCase) >= 0; // tie: descending
-                }
-                else
-                {
-                    if (a.OriginalLoadOrder < b.OriginalLoadOrder) return true; // lower first
-                    if (a.OriginalLoadOrder > b.OriginalLoadOrder) return false;
-                    return string.Compare(a.FolderName, b.FolderName, StringComparison.OrdinalIgnoreCase) <= 0; // tie: ascending
-                }
+                if (a.OriginalLoadOrder < b.OriginalLoadOrder) return true;
+                if (a.OriginalLoadOrder > b.OriginalLoadOrder) return false;
+                return string.Compare(a.FolderName, b.FolderName, StringComparison.OrdinalIgnoreCase) <= 0;
             }
 
             // Step 2: Find the largest subset (LIS) of current list that still follows default ordering
@@ -191,6 +163,5 @@ namespace MW5_Mod_Manager
             // TODO
         }
 
-    }
     }
 }

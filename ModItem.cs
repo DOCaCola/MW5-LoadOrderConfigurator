@@ -22,20 +22,73 @@ namespace MW5_Mod_Manager
 
         public static void FillFromImportList(List<ModsManager.ModImportData> orderedModList)
         {
-            if (Instance.ModList != null)
+            if (orderedModList == null)
             {
-                Instance.ModList.Clear();
+                Instance.ModList = new List<ModItem>();
+                return;
+            }
+
+            List<ModItem> targetList = Instance.ModList ?? new List<ModItem>(orderedModList.Count);
+            targetList.Clear();
+
+            foreach (var entry in orderedModList.AsEnumerable().Reverse())
+            {
+                ModItem newItem = ModItem.CreateFromImportData(entry);
+                targetList.Add(newItem);
+            }
+
+            Instance.ModList = targetList;
+        }
+
+        public IEnumerable<ModItem> EnumerateLowToHigh()
+        {
+            return ModList ?? Enumerable.Empty<ModItem>();
+        }
+
+        public IEnumerable<ModItem> EnumerateForView()
+        {
+            if (ModList == null)
+                yield break;
+
+            if (LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow)
+            {
+                for (int i = ModList.Count - 1; i >= 0; i--)
+                {
+                    yield return ModList[i];
+                }
             }
             else
             {
-                Instance.ModList = new List<ModItem>();
+                for (int i = 0; i < ModList.Count; i++)
+                {
+                    yield return ModList[i];
+                }
             }
-            foreach (var entry in orderedModList.ReverseIterateIf(LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh))
-            {
-                ModItem newItem = ModItem.CreateFromImportData(entry);
+        }
 
-                Instance.ModList.Add(newItem);
-            }
+        public List<ModItem> GetViewOrderedItems()
+        {
+            return EnumerateForView().ToList();
+        }
+
+        public int ViewIndexToModelIndex(int viewIndex)
+        {
+            if (ModList == null)
+                return -1;
+
+            return LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow
+                ? ModList.Count - 1 - viewIndex
+                : viewIndex;
+        }
+
+        public int ModelIndexToViewIndex(int modelIndex)
+        {
+            if (ModList == null)
+                return -1;
+
+            return LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow
+                ? ModList.Count - 1 - modelIndex
+                : modelIndex;
         }
 
         public int GetModCount(bool enabledOnly)

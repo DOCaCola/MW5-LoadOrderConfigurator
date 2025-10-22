@@ -20,6 +20,7 @@ namespace MW5_Mod_Manager
     public partial class DockModListForm : DockContent
     {
         static public DockModListForm Instance;
+        private int _listViewUpdateNesting;
 
         public DockModListForm()
         {
@@ -29,6 +30,50 @@ namespace MW5_Mod_Manager
             panelColorLegend.SetDisableDarkMode(true);
             toolStrip2.SetDisableDarkMode(true);
             toolStrip2.SetDisableDarkModeChildren(true);
+        }
+
+        public IDisposable BeginListViewUpdateScope()
+        {
+            _listViewUpdateNesting++;
+            if (_listViewUpdateNesting == 1)
+            {
+                modObjectListView.BeginUpdate();
+                modObjectListView.SuspendDrawing();
+            }
+            return new ListViewUpdateScope(this);
+        }
+
+        private void EndListViewUpdateScope()
+        {
+            if (_listViewUpdateNesting == 0)
+                return;
+
+            _listViewUpdateNesting--;
+            if (_listViewUpdateNesting == 0)
+            {
+                modObjectListView.ResumeDrawing();
+                modObjectListView.EndUpdate();
+            }
+        }
+
+        private sealed class ListViewUpdateScope : IDisposable
+        {
+            private readonly DockModListForm _owner;
+            private bool _disposed;
+
+            public ListViewUpdateScope(DockModListForm owner)
+            {
+                _owner = owner;
+            }
+
+            public void Dispose()
+            {
+                if (_disposed)
+                    return;
+
+                _disposed = true;
+                _owner.EndListViewUpdateScope();
+            }
         }
 
 
@@ -146,29 +191,24 @@ namespace MW5_Mod_Manager
 
         private void modObjectListView_ModelDropped(object sender, ModelDropEventArgs e)
         {
+            if (e.DropTargetLocation != DropTargetLocation.AboveItem &&
+                e.DropTargetLocation != DropTargetLocation.BelowItem)
+            {
+                return;
+            }
+
             foreach (ModItem curSourceModItem in e.SourceModels)
             {
                 int sourceItemIndex = modObjectListView.IndexOf(curSourceModItem);
                 if (e.DropTargetLocation == DropTargetLocation.BelowItem)
                 {
-                    if (sourceItemIndex == e.DropTargetIndex)
-                        return;
-
-                    if (sourceItemIndex - 1 == e.DropTargetIndex)
+                    if (sourceItemIndex == e.DropTargetIndex || sourceItemIndex - 1 == e.DropTargetIndex)
                         return;
                 }
                 else if (e.DropTargetLocation == DropTargetLocation.AboveItem)
                 {
-                    if (sourceItemIndex == e.DropTargetIndex)
+                    if (sourceItemIndex == e.DropTargetIndex || sourceItemIndex + 1 == e.DropTargetIndex)
                         return;
-
-                    // Next item after last selected
-                    if (sourceItemIndex + 1 == e.DropTargetIndex)
-                        return;
-                }
-                else
-                {
-                    return;
                 }
             }
 
@@ -178,36 +218,55 @@ namespace MW5_Mod_Manager
                 normalizedIndex++;
             }
 
-            int adjustedTargetIndex = normalizedIndex;
-            List<ModItem> sourceModItemList = e.SourceModels.Cast<ModItem>().ToList();
+            bool reverseView = LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow;
+            List<ModItem> draggedItems = e.SourceModels.Cast<ModItem>().ToList();
+            if (draggedItems.Count == 0)
+                return;
 
-            foreach (ModItem curModItem in sourceModItemList)
+            int targetModelIndex = reverseView
+                ? ModItemList.Instance.ModList.Count - normalizedIndex
+                : normalizedIndex;
+
+            foreach (var modItem in draggedItems)
             {
-                int index = ModItemList.Instance.ModList.IndexOf(curModItem);
-                if (index != -1)
+                int index = ModItemList.Instance.ModList.IndexOf(modItem);
+                if (index >= 0)
                 {
-                    if (index < adjustedTargetIndex)
-                    {
-                        adjustedTargetIndex--;
-                    }
+                    if (index < targetModelIndex)
+                        targetModelIndex--;
                     ModItemList.Instance.ModList.RemoveAt(index);
                 }
             }
 
-            ModItemList.Instance.ModList.InsertRange(adjustedTargetIndex, sourceModItemList);
+            IEnumerable<ModItem> itemsToInsert = reverseView
+                ? draggedItems.AsEnumerable().Reverse()
+                : draggedItems;
 
-            modObjectListView.BeginUpdate();
+            foreach (var modItem in itemsToInsert)
+            {
+                ModItemList.Instance.ModList.Insert(targetModelIndex++, modItem);
+            }
+
             MainForm.Instance._movingItems = true;
 
-            DragDropObjectRows(normalizedIndex, e.SourceModels);
+            using (BeginListViewUpdateScope())
+            {
+                LoadOrder.RecomputeLoadOrders();
+                ModsManager.Instance.RecomputeOverridingData();
 
-            modObjectListView.SelectObjects(e.SourceModels);
-            LoadOrder.RecomputeLoadOrders();
-            modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
+                var selectionSet = new HashSet<string>(draggedItems.Select(m => m.Path), StringComparer.OrdinalIgnoreCase);
+                string ensureVisiblePath = draggedItems.First().Path;
+                ApplyModelOrderToListView(selectionSet, ensureVisiblePath, null, suppressUpdateScope: true);
+
+                MainForm.Instance.ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
+                RecolorObjectListViewRows();
+                modObjectListView.RefreshItems();
+                modObjectListView.Sort();
+            }
             MainForm.Instance.QueueSidePanelUpdate(true);
+            MainForm.Instance.CheckModConfigTainted();
+
             MainForm.Instance._movingItems = false;
-            RecolorObjectListViewRows();
-            modObjectListView.EndUpdate();
         }
 
         private void modObjectListView_ColumnReordered(object sender, ColumnReorderedEventArgs e)
@@ -249,49 +308,38 @@ namespace MW5_Mod_Manager
             }
         }
 
-        private void DragDropObjectRows(int insertIndex, IList draggedItems)
+        public void ApplyModelOrderToListView(HashSet<string> selectedPaths, string ensureVisiblePath, Point? scrollPosition, bool suppressUpdateScope = false)
         {
-            // More or less a copy of OLVs Move function with a fix when moving multiple item (originalInsertIndex comparison)
-            modObjectListView.BeginUpdate();
-            List<int> intList = new List<int>();
-            int originalInsertIndex = insertIndex;
-            foreach (object modelObject in draggedItems)
+            Point scroll = scrollPosition ?? modObjectListView.LowLevelScrollPosition;
+            List<ModItem> viewItems = ModItemList.Instance.GetViewOrderedItems();
+            IDisposable updateScope = suppressUpdateScope ? null : BeginListViewUpdateScope();
+            try
             {
-                if (modelObject != null)
+                modObjectListView.SetObjects(viewItems);
+
+                if (selectedPaths != null && selectedPaths.Count > 0)
                 {
-                    int num = modObjectListView.IndexOf(modelObject);
-                    if (num >= 0)
+                    var selectedObjects = viewItems
+                        .Where(mi => selectedPaths.Contains(mi.Path))
+                        .Cast<object>()
+                        .ToList();
+                    modObjectListView.SelectedObjects = selectedObjects;
+
+                    if (!string.IsNullOrEmpty(ensureVisiblePath))
                     {
-                        intList.Add(num);
-                        if (num <= originalInsertIndex)
-                            --insertIndex;
+                        var focus = viewItems.FirstOrDefault(mi => string.Equals(mi.Path, ensureVisiblePath, StringComparison.OrdinalIgnoreCase));
+                        if (focus != null)
+                        {
+                            modObjectListView.EnsureModelVisible(focus);
+                        }
                     }
                 }
             }
-            intList.Sort();
-            intList.Reverse();
-            try
-            {
-                modObjectListView.BeginUpdate();
-                foreach (int index1 in intList)
-                    modObjectListView.Items.RemoveAt(index1);
-                modObjectListView.InsertObjects(insertIndex, draggedItems);
-            }
             finally
             {
-                modObjectListView.EndUpdate();
+                updateScope?.Dispose();
             }
-
-            LoadOrder.RecomputeLoadOrders();
-
-            ModsManager.Instance.RecomputeOverridingData();
-
-            modObjectListView.UpdateObjects(ModItemList.Instance.ModList);
-            RecolorObjectListViewRows();
-            MainForm.Instance.ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
-            modObjectListView.EndUpdate();
-
-            MainForm.Instance.CheckModConfigTainted();
+            modObjectListView.LowLevelScroll(scroll.X, scroll.Y);
         }
 
         public void RecolorObjectListViewRows()
@@ -393,7 +441,6 @@ namespace MW5_Mod_Manager
             modObjectListView.SelectedObjects = selectedItems;
             modObjectListView.EnsureModelVisible(selectedItems[0]);
         }
-
         private void toBottomToolStripButton_Click(object sender, EventArgs e)
         {
             var selectedItems = modObjectListView.SelectedObjects;
@@ -401,7 +448,6 @@ namespace MW5_Mod_Manager
             modObjectListView.SelectedObjects = selectedItems;
             modObjectListView.EnsureModelVisible(selectedItems[^1]);
         }
-
         private void upToolStripButton_Click(object sender, EventArgs e)
         {
             var selectedItems = modObjectListView.SelectedObjects;
@@ -409,7 +455,6 @@ namespace MW5_Mod_Manager
             modObjectListView.SelectedObjects = selectedItems;
             modObjectListView.EnsureModelVisible(selectedItems[0]);
         }
-
         private void downToolStripButton_Click(object sender, EventArgs e)
         {
             var selectedItems = modObjectListView.SelectedObjects;
