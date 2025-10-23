@@ -1784,6 +1784,8 @@ namespace MW5_Mod_Manager
         //Handles the showing of overriding data on select
         private void HandleOverriding(string selectedModPath)
         {
+            DockConflictsForm.Instance.EnableListBox(DockConflictsForm.Instance.listBoxOverriding);
+            DockConflictsForm.Instance.EnableListBox(DockConflictsForm.Instance.listBoxOverriddenBy);
             DockConflictsForm.Instance.listBoxOverriding.Items.Clear();
             DockConflictsForm.Instance.listBoxOverriddenBy.Items.Clear();
             DockConflictsForm.Instance.richTextBoxManifestOverridden.Clear();
@@ -1813,6 +1815,7 @@ namespace MW5_Mod_Manager
             DockConflictsForm.Instance.listBoxOverriding.SuspendDrawing();
             DockConflictsForm.Instance.listBoxOverriddenBy.SuspendDrawing();
             ModConflictData modData = ModsManager.Instance.ModConflictData[selectedModPath];
+            bool hasOverriddenByEntries = false;
             foreach (string overriding in modData.overriddenBy.Keys)
             {
                 ModListBoxItem modListBoxItem = new ModListBoxItem();
@@ -1821,7 +1824,14 @@ namespace MW5_Mod_Manager
                 modListBoxItem.ModDirName = overriding;
                 modListBoxItem.ModKey = modKey;
                 DockConflictsForm.Instance.listBoxOverriddenBy.Items.Add(modListBoxItem);
+                hasOverriddenByEntries = true;
             }
+            if (!hasOverriddenByEntries)
+            {
+                DockConflictsForm.Instance.ShowPlaceholder(DockConflictsForm.Instance.listBoxOverriddenBy);
+            }
+
+            bool hasOverridingEntries = false;
             foreach (string overrides in modData.overrides.Keys)
             {
                 ModListBoxItem modListBoxItem = new ModListBoxItem();
@@ -1830,6 +1840,11 @@ namespace MW5_Mod_Manager
                 modListBoxItem.ModDirName = overrides;
                 modListBoxItem.ModKey = modKey;
                 DockConflictsForm.Instance.listBoxOverriding.Items.Add(modListBoxItem);
+                hasOverridingEntries = true;
+            }
+            if (!hasOverridingEntries)
+            {
+                DockConflictsForm.Instance.ShowPlaceholder(DockConflictsForm.Instance.listBoxOverriding);
             }
 
             DockConflictsForm.Instance.listBoxOverriding.ResumeDrawing();

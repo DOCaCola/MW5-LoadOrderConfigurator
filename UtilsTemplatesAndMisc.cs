@@ -299,6 +299,8 @@ namespace MW5_Mod_Manager
 
         public string ModDirName { get; set; }
 
+        public bool IsPlaceholder { get; set; }
+
         public override string ToString()
         {
             return DisplayName;

@@ -48,6 +48,51 @@ namespace MW5_Mod_Manager
             noneSelectedLabel.Text = "(mod is disabled)";
         }
 
+        private static bool IsPlaceholderItem(object item)
+        {
+            return item is ModListBoxItem modItem && modItem.IsPlaceholder;
+        }
+
+        public void ShowPlaceholder(ListBox targetListBox)
+        {
+            if (TargetListBoxHasItems(targetListBox))
+                return;
+
+            targetListBox.Items.Add(new ModListBoxItem
+            {
+                DisplayName = "(none)",
+                ModDirName = string.Empty,
+                ModKey = string.Empty,
+                IsPlaceholder = true
+            });
+            targetListBox.SelectedIndex = -1;
+            targetListBox.Enabled = false;
+        }
+
+        public void EnableListBox(ListBox targetListBox)
+        {
+            targetListBox.Enabled = true;
+
+            for (int i = targetListBox.Items.Count - 1; i >= 0; i--)
+            {
+                if (IsPlaceholderItem(targetListBox.Items[i]))
+                {
+                    targetListBox.Items.RemoveAt(i);
+                }
+            }
+        }
+
+        private static bool TargetListBoxHasItems(ListBox targetListBox)
+        {
+            if (targetListBox.Items.Count == 0)
+                return false;
+
+            if (targetListBox.Items.Count == 1 && IsPlaceholderItem(targetListBox.Items[0]))
+                return false;
+
+            return true;
+        }
+
         public void ClearModInfo()
         {
             SetNoneSelectedText();
@@ -55,6 +100,8 @@ namespace MW5_Mod_Manager
             richTextBoxManifestOverridden.Clear();
             listBoxOverriddenBy.Items.Clear();
             listBoxOverriding.Items.Clear();
+            listBoxOverriddenBy.Enabled = true;
+            listBoxOverriding.Enabled = true;
             noneSelectedPanel.Visible = true;
         }
 
@@ -88,7 +135,7 @@ namespace MW5_Mod_Manager
                 if (listBoxOverriding.Items.Count == 0 || DockModListForm.Instance.modObjectListView.Items.Count == 0)
                     return;
 
-                if (listBoxOverriding.SelectedItem == null)
+                if (listBoxOverriding.SelectedItem == null || IsPlaceholderItem(listBoxOverriding.SelectedItem))
                     return;
 
                 ModListBoxItem selectedMod = (ModListBoxItem)listBoxOverriding.SelectedItem;
@@ -127,6 +174,8 @@ namespace MW5_Mod_Manager
             if (index != ListBox.NoMatches)
             {
                 ModListBoxItem modListBoxItem = listBoxOverriding.Items[index] as ModListBoxItem;
+                if (modListBoxItem == null || modListBoxItem.IsPlaceholder)
+                    return;
                 MainForm.Instance.SelectModInList(modListBoxItem.ModKey);
             }
         }
@@ -152,7 +201,7 @@ namespace MW5_Mod_Manager
                 if (listBoxOverriddenBy.Items.Count == 0 || DockModListForm.Instance.modObjectListView.Items.Count == 0)
                     return;
 
-                if (listBoxOverriddenBy.SelectedItem == null)
+                if (listBoxOverriddenBy.SelectedItem == null || IsPlaceholderItem(listBoxOverriddenBy.SelectedItem))
                     return;
 
                 ModListBoxItem selectedMod = (ModListBoxItem)listBoxOverriddenBy.SelectedItem;
@@ -194,6 +243,8 @@ namespace MW5_Mod_Manager
             if (index != ListBox.NoMatches)
             {
                 ModListBoxItem modListBoxItem = listBoxOverriddenBy.Items[index] as ModListBoxItem;
+                if (modListBoxItem == null || modListBoxItem.IsPlaceholder)
+                    return;
                 MainForm.Instance.SelectModInList(modListBoxItem.ModKey);
             }
         }
