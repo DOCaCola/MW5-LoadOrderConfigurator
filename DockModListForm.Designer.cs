@@ -170,7 +170,6 @@ namespace MW5_Mod_Manager
             modObjectListView.CheckBoxes = true;
             modObjectListView.Columns.AddRange(new ColumnHeader[] { olvColumnModName, olvColumnModAuthor, olvColumnModVersion, olvColumnModFileAge, olvColumnModCurLoadOrder, olvColumnModOrgLoadOrder, olvColumnModFileSize, olvColumnModFolder, olvColumnFreeSpaceDummy });
             modObjectListView.FullRowSelect = true;
-            modObjectListView.HeaderStyle = ColumnHeaderStyle.Nonclickable;
             modObjectListView.Location = new Point(30, 0);
             modObjectListView.Name = "modObjectListView";
             modObjectListView.SelectColumnsOnRightClick = false;
@@ -178,7 +177,6 @@ namespace MW5_Mod_Manager
             modObjectListView.ShowFilterMenuOnRightClick = false;
             modObjectListView.ShowImagesOnSubItems = true;
             modObjectListView.ShowItemToolTips = true;
-            modObjectListView.ShowSortIndicators = false;
             modObjectListView.Size = new Size(770, 424);
             modObjectListView.SmallImageList = imageListIcons;
             modObjectListView.TabIndex = 41;
@@ -233,7 +231,6 @@ namespace MW5_Mod_Manager
             olvColumnModCurLoadOrder.Groupable = false;
             olvColumnModCurLoadOrder.MinimumWidth = 10;
             olvColumnModCurLoadOrder.Searchable = false;
-            olvColumnModCurLoadOrder.Sortable = false;
             olvColumnModCurLoadOrder.Text = "LO";
             olvColumnModCurLoadOrder.TextAlign = HorizontalAlignment.Right;
             olvColumnModCurLoadOrder.ToolTipText = "Current set load order";

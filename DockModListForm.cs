@@ -89,8 +89,14 @@ namespace MW5_Mod_Manager
 
         private void modObjectListView_BeforeSorting(object sender, BeforeSortingEventArgs e)
         {
-            // Disable sorting
-            //e.Canceled = true;
+            if (ReferenceEquals(e.ColumnToSort, olvColumnModCurLoadOrder))
+            {
+                e.Handled = true;
+                ApplyListSortOrderChange(e.SortOrder);
+                return;
+            }
+            SyncLoadOrderSortIndicator();
+            e.Canceled = true;
         }
 
         private void modObjectListView_BeforeCreatingGroups(object sender, CreateGroupsEventArgs e)
@@ -141,13 +147,28 @@ namespace MW5_Mod_Manager
         private void modObjectListView_FormatCell(object sender, FormatCellEventArgs e)
         {
             ModItem modItem = (ModItem)e.Model;
+
+            /*
+			// Modified load orders in bold
+			if (e.ColumnIndex == this.olvColumnModCurLoadOrder.Index)
+            {
+                if (modItem.CurrentLoadOrder != modItem.OriginalLoadOrder)
+                {
+                    e.SubItem.Font = new Font(e.SubItem.Font, FontStyle.Bold);
+                }
+                else
+                {
+                    e.SubItem.Font = new Font(e.SubItem.Font, FontStyle.Regular);
+                }
+            }*/
+
             if (!modItem.Enabled)
             {
                 e.SubItem.ForeColor = Color.FromArgb(142, 140, 142);
                 return;
             }
 
-            if (e.ColumnIndex == this.olvColumnModName.Index)
+            if (e.ColumnIndex == olvColumnModName.Index)
             {
                 if (ModsManager.Instance.ModConflictData.ContainsKey(modItem.FolderName))
                 {
@@ -173,7 +194,7 @@ namespace MW5_Mod_Manager
             {
                 e.SubItem.ForeColor = modItem.ProcessedCurLoForeColor;
             }
-            else if (e.ColumnIndex == this.olvColumnModOrgLoadOrder.Index)
+            else if (e.ColumnIndex == olvColumnModOrgLoadOrder.Index)
             {
                 e.SubItem.ForeColor = modItem.ProcessedOrgLoForeColor;
             }
@@ -347,6 +368,63 @@ namespace MW5_Mod_Manager
                 updateScope?.Dispose();
             }
             modObjectListView.LowLevelScroll(scroll.X, scroll.Y);
+        }
+
+        private void ApplyListSortOrderChange(SortOrder headerSortOrder)
+        {
+            if (headerSortOrder == SortOrder.None)
+            {
+                headerSortOrder = LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow
+                    ? SortOrder.Descending
+                    : SortOrder.Ascending;
+            }
+
+            modObjectListView.PrimarySortColumn = olvColumnModCurLoadOrder;
+            modObjectListView.PrimarySortOrder = headerSortOrder;
+            modObjectListView.HeaderControl?.Invalidate();
+
+            eSortOrder desiredOrder = headerSortOrder == SortOrder.Ascending
+                ? eSortOrder.LowToHigh
+                : eSortOrder.HighToLow;
+            if (LocSettings.Instance.Data.ListSortOrder == desiredOrder)
+                return;
+
+            var selectedMods = modObjectListView.SelectedObjects.Cast<ModItem>().ToList();
+            HashSet<string> selectionSet = selectedMods.Count > 0
+                ? new HashSet<string>(selectedMods.Select(mod => mod.Path), StringComparer.OrdinalIgnoreCase)
+                : null;
+
+            string ensureVisiblePath = null;
+            if (modObjectListView.FocusedItem is OLVListItem focusedItem)
+            {
+                ensureVisiblePath = (focusedItem.RowObject as ModItem)?.Path;
+            }
+            if (ensureVisiblePath == null && selectedMods.Count > 0)
+            {
+                ensureVisiblePath = selectedMods[0].Path;
+            }
+
+            Point scrollPosition = modObjectListView.LowLevelScrollPosition;
+
+            LocSettings.Instance.Data.ListSortOrder = desiredOrder;
+            LocSettings.Instance.SaveSettings();
+            MainForm.Instance.UpdatePriorityLabels();
+
+            ApplyModelOrderToListView(selectionSet, ensureVisiblePath, scrollPosition);
+
+            MainForm.Instance.ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
+            RecolorObjectListViewRows();
+            modObjectListView.RefreshItems();
+        }
+
+        public void SyncLoadOrderSortIndicator()
+        {
+            SortOrder order = LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow
+                ? SortOrder.Descending
+                : SortOrder.Ascending;
+            modObjectListView.PrimarySortColumn = olvColumnModCurLoadOrder;
+            modObjectListView.PrimarySortOrder = order;
+            //modObjectListView.HeaderControl?.Invalidate();
         }
 
         public void RecolorObjectListViewRows()

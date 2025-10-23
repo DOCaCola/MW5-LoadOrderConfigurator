@@ -308,6 +308,7 @@ namespace MW5_Mod_Manager
             ModsManager.Instance.ModFilesChangedEvent += InstanceOnModFilesChangedEvent;
 
             DockModListForm.Instance.modObjectListView.Focus();
+            DockModListForm.Instance.SyncLoadOrderSortIndicator();
         }
 
         private void InstanceOnModFilesChangedEvent(object sender, EventArgs e)
@@ -611,6 +612,8 @@ namespace MW5_Mod_Manager
                 /*DockModListForm.Instance.rotatingLabelTop.ForeColor = ModsManager.HighPriorityColor;
                 DockModListForm.Instance.rotatingLabelBottom.ForeColor = ModsManager.LowPriorityColor;*/
             }
+
+            DockModListForm.Instance.SyncLoadOrderSortIndicator();
         }
 
         //When we hover over the manager with a file or folder
