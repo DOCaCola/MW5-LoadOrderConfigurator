@@ -24,11 +24,13 @@ namespace MW5_Mod_Manager
         public DockModListForm()
         {
             InitializeComponent();
-            this.AllowEndUserDocking = false;
+            AllowEndUserDocking = false;
 
             panelColorLegend.SetDisableDarkMode(true);
             toolStrip2.SetDisableDarkMode(true);
             toolStrip2.SetDisableDarkModeChildren(true);
+
+            modObjectListView.AlwaysGroupByColumn = olvColumnModName;
         }
 
         public IDisposable BeginListViewUpdateScope()
@@ -91,7 +93,6 @@ namespace MW5_Mod_Manager
         {
             if (ReferenceEquals(e.ColumnToSort, olvColumnModCurLoadOrder))
             {
-                e.Handled = true;
                 ApplyListSortOrderChange(e.SortOrder);
                 return;
             }
@@ -374,7 +375,7 @@ namespace MW5_Mod_Manager
         {
             if (headerSortOrder == SortOrder.None)
             {
-                headerSortOrder = LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow
+                headerSortOrder = LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh
                     ? SortOrder.Descending
                     : SortOrder.Ascending;
             }
@@ -383,7 +384,7 @@ namespace MW5_Mod_Manager
             modObjectListView.PrimarySortOrder = headerSortOrder;
             modObjectListView.HeaderControl?.Invalidate();
 
-            eSortOrder desiredOrder = headerSortOrder == SortOrder.Ascending
+            eSortOrder desiredOrder = headerSortOrder == SortOrder.Descending
                 ? eSortOrder.LowToHigh
                 : eSortOrder.HighToLow;
             if (LocSettings.Instance.Data.ListSortOrder == desiredOrder)
@@ -419,12 +420,11 @@ namespace MW5_Mod_Manager
 
         public void SyncLoadOrderSortIndicator()
         {
-            SortOrder order = LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow
+            SortOrder order = LocSettings.Instance.Data.ListSortOrder == eSortOrder.LowToHigh
                 ? SortOrder.Descending
                 : SortOrder.Ascending;
             modObjectListView.PrimarySortColumn = olvColumnModCurLoadOrder;
             modObjectListView.PrimarySortOrder = order;
-            //modObjectListView.HeaderControl?.Invalidate();
         }
 
         public void RecolorObjectListViewRows()
