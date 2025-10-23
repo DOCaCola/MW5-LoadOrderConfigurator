@@ -123,6 +123,7 @@
             Name = "ExtractForm";
             ShowIcon = false;
             ShowInTaskbar = false;
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             Text = "Extracting";
             FormClosing += ExtractForm_FormClosing;
             Load += ExtractForm_Load;

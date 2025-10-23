@@ -120,6 +120,7 @@
             Name = "ExportForm";
             ShowIcon = false;
             ShowInTaskbar = false;
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             Text = "Export load order";
             Load += ExportWindow_Load;
             toolStrip1.ResumeLayout(false);

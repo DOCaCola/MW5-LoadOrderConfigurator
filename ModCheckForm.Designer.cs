@@ -58,6 +58,7 @@
             Controls.Add(buttonValidate);
             Controls.Add(richTextBox1);
             Name = "ModCheckForm";
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             Text = "ModValidatorForm";
             ResumeLayout(false);
         }

@@ -118,7 +118,6 @@ namespace MW5_Mod_Manager
             contextMenuStripColumnOptions = new ContextMenuStrip(components);
             dockPanel1 = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             visualStudioToolStripExtender1 = new WeifenLuo.WinFormsUI.Docking.VisualStudioToolStripExtender(components);
-            tEstToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -135,7 +134,7 @@ namespace MW5_Mod_Manager
             // 
             // menuStrip1
             // 
-            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, viewToolStripMenuItem, presetsToolStripMenuItem, modsToolStripMenuItem, helpToolStripMenuItem, tEstToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, viewToolStripMenuItem, presetsToolStripMenuItem, modsToolStripMenuItem, helpToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(1167, 24);
@@ -396,26 +395,26 @@ namespace MW5_Mod_Manager
             // reportBugToolStripMenuItem
             // 
             reportBugToolStripMenuItem.Name = "reportBugToolStripMenuItem";
-            reportBugToolStripMenuItem.Size = new Size(180, 22);
+            reportBugToolStripMenuItem.Size = new Size(179, 22);
             reportBugToolStripMenuItem.Text = "&Report Bug";
             reportBugToolStripMenuItem.Click += reportBugToolStripMenuItem_Click;
             // 
             // toolStripSeparator18
             // 
             toolStripSeparator18.Name = "toolStripSeparator18";
-            toolStripSeparator18.Size = new Size(177, 6);
+            toolStripSeparator18.Size = new Size(176, 6);
             // 
             // toolStripMenuItemNexusmodsLink
             // 
             toolStripMenuItemNexusmodsLink.Name = "toolStripMenuItemNexusmodsLink";
-            toolStripMenuItemNexusmodsLink.Size = new Size(180, 22);
+            toolStripMenuItemNexusmodsLink.Size = new Size(179, 22);
             toolStripMenuItemNexusmodsLink.Text = "Visit on &Nexusmods";
             toolStripMenuItemNexusmodsLink.Click += toolStripMenuItemNexusmodsLink_Click;
             // 
             // aboutToolStripMenuItem
             // 
             aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            aboutToolStripMenuItem.Size = new Size(180, 22);
+            aboutToolStripMenuItem.Size = new Size(179, 22);
             aboutToolStripMenuItem.Text = "Ab&out";
             aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
             // 
@@ -635,7 +634,6 @@ namespace MW5_Mod_Manager
             // toolStripTextFilterBox
             // 
             toolStripTextFilterBox.CueBanner = "Search (Ctrl+F)";
-            toolStripTextFilterBox.Font = new Font("Segoe UI", 9F);
             toolStripTextFilterBox.Margin = new Padding(5, 0, 5, 0);
             toolStripTextFilterBox.Name = "toolStripTextFilterBox";
             toolStripTextFilterBox.Size = new Size(140, 45);
@@ -702,12 +700,6 @@ namespace MW5_Mod_Manager
             // visualStudioToolStripExtender1
             // 
             visualStudioToolStripExtender1.DefaultRenderer = null;
-            // 
-            // tEstToolStripMenuItem
-            // 
-            tEstToolStripMenuItem.Name = "tEstToolStripMenuItem";
-            tEstToolStripMenuItem.Size = new Size(40, 20);
-            tEstToolStripMenuItem.Text = "TEst";
             // 
             // MainForm
             // 
@@ -828,7 +820,6 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem resetWindowLayoutToolStripMenuItem;
         private ToolStripMenuItem reportBugToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator18;
-        private ToolStripMenuItem tEstToolStripMenuItem;
     }
 }
 

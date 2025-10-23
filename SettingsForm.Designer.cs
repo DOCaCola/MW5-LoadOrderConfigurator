@@ -252,6 +252,7 @@
             Name = "SettingsForm";
             ShowIcon = false;
             ShowInTaskbar = false;
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             Text = "Settings";
             Load += SettingsWindow_Load;
             groupBox1.ResumeLayout(false);

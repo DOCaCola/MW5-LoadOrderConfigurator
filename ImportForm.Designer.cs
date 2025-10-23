@@ -119,6 +119,7 @@
             Name = "ImportForm";
             ShowIcon = false;
             ShowInTaskbar = false;
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             Text = " Import load order";
             Load += ImportForm_Load;
             toolStrip1.ResumeLayout(false);

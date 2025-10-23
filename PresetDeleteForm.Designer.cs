@@ -80,6 +80,7 @@
             Name = "PresetDeleteForm";
             ShowIcon = false;
             ShowInTaskbar = false;
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             Text = "Delete Preset";
             Load += PresetDeleteWindow_Load;
             ResumeLayout(false);

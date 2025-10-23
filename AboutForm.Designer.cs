@@ -143,6 +143,7 @@
             Name = "AboutForm";
             ShowIcon = false;
             ShowInTaskbar = false;
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             Text = "About";
             Load += AboutWindow_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();

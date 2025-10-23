@@ -112,11 +112,13 @@
             Controls.Add(textBoxPresetName);
             Controls.Add(radioButton2);
             Controls.Add(radioButton1);
+            FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "PresetSaveForm";
             ShowIcon = false;
             ShowInTaskbar = false;
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             Text = "Save Preset";
             Load += PresetSaveWindow_Load;
             Shown += PresetSaveWindow_Shown;
