@@ -17,6 +17,7 @@ namespace MW5_Mod_Manager
     public partial class DockConflictsForm : DockContent
     {
         static public DockConflictsForm Instance;
+        private readonly string _defaultManifestLabelText;
 
         public Panel noneSelectedPanel = new();
         public Label noneSelectedLabel = new();
@@ -24,6 +25,7 @@ namespace MW5_Mod_Manager
         public DockConflictsForm()
         {
             InitializeComponent();
+            _defaultManifestLabelText = labelManifestContentHeader.Text;
 
             noneSelectedPanel.Dock = DockStyle.Fill;
             SetNoneSelectedText();
@@ -46,6 +48,23 @@ namespace MW5_Mod_Manager
         public void SetModNotEnabledText()
         {
             noneSelectedLabel.Text = "(mod is disabled)";
+        }
+
+        private string GetCurrentModDisplayLabel()
+        {
+            string modName = MainForm.GetSidebarSelectedModDetails()?.displayName;
+            modName ??= "this mod";
+            return modName;
+        }
+
+        private void SetManifestHeaderOverrideText(string sourceModDisplayName, string targetModDisplayName)
+        {
+            labelManifestContentHeader.Text = "Content from " + sourceModDisplayName + " overriding " + targetModDisplayName + ":";
+        }
+
+        public void ResetManifestHeaderOverrideText()
+        {
+            labelManifestContentHeader.Text = _defaultManifestLabelText;
         }
 
         private static bool IsPlaceholderItem(object item)
@@ -103,6 +122,7 @@ namespace MW5_Mod_Manager
             listBoxOverriddenBy.Enabled = true;
             listBoxOverriding.Enabled = true;
             noneSelectedPanel.Visible = true;
+            labelManifestContentHeader.Text = _defaultManifestLabelText;
         }
 
         private void AppendContentPathToMainfestList(string contentPath, ref StringBuilder sb)
@@ -127,10 +147,12 @@ namespace MW5_Mod_Manager
                     DockModListForm.Instance.RecolorObjectListViewRows();
                 }
 
+                labelManifestContentHeader.Text = _defaultManifestLabelText;
+                richTextBoxManifestOverridden.Clear();
+
                 if (listBoxOverriding.SelectedIndex == -1)
                     return;
 
-                richTextBoxManifestOverridden.Clear();
                 listBoxOverriddenBy.SelectedIndex = -1;
                 if (listBoxOverriding.Items.Count == 0 || DockModListForm.Instance.modObjectListView.Items.Count == 0)
                     return;
@@ -148,6 +170,14 @@ namespace MW5_Mod_Manager
                 ModConflictData modConflictData = MainForm.GetSidebarSelectedModConflictData();
                 if (modConflictData == null)
                     return;
+
+                if (!modConflictData.overrides.ContainsKey(selectedMod.ModDirName))
+                    return;
+					
+                string currentModDisplayName = GetCurrentModDisplayLabel();
+                string targetModDisplayName = selectedMod.DisplayName;
+
+                SetManifestHeaderOverrideText(currentModDisplayName, targetModDisplayName);
 
                 var sb = new StringBuilder();
                 sb.Append(@"{\rtf1\ansi");
@@ -193,10 +223,12 @@ namespace MW5_Mod_Manager
                     DockModListForm.Instance.RecolorObjectListViewRows();
                 }
 
+                labelManifestContentHeader.Text = _defaultManifestLabelText;
+                richTextBoxManifestOverridden.Clear();
+
                 if (listBoxOverriddenBy.SelectedIndex == -1)
                     return;
 
-                richTextBoxManifestOverridden.Clear();
                 listBoxOverriding.SelectedIndex = -1;
                 if (listBoxOverriddenBy.Items.Count == 0 || DockModListForm.Instance.modObjectListView.Items.Count == 0)
                     return;
@@ -218,7 +250,12 @@ namespace MW5_Mod_Manager
                 if (!modConflictData.overriddenBy.ContainsKey(selectedMod.ModDirName))
                     return;
 
-                var sb = new StringBuilder();
+                string targetModDisplayName = GetCurrentModDisplayLabel();
+                string sourceModDisplayName = selectedMod.DisplayName;
+
+                SetManifestHeaderOverrideText(sourceModDisplayName, targetModDisplayName);
+				
+				var sb = new StringBuilder();
                 sb.Append(@"{\rtf1\ansi");
                 foreach (string entry in modConflictData.overriddenBy[selectedMod.ModDirName])
                 {
@@ -246,6 +283,45 @@ namespace MW5_Mod_Manager
                 if (modListBoxItem == null || modListBoxItem.IsPlaceholder)
                     return;
                 MainForm.Instance.SelectModInList(modListBoxItem.ModKey);
+            }
+        }
+
+        private void contextMenuManifest_Opening(object sender, CancelEventArgs e)
+        {
+            bool hasContent = richTextBoxManifestOverridden.TextLength > 0 && richTextBoxManifestOverridden.Enabled;
+            contextMenuManifestSelectAllMenuItem.Enabled = hasContent;
+            contextMenuManifestCopyMenuItem.Enabled = hasContent;
+        }
+
+        private void contextMenuManifestSelectAllMenuItem_Click(object sender, EventArgs e)
+        {
+            if (richTextBoxManifestOverridden.TextLength == 0)
+                return;
+
+            richTextBoxManifestOverridden.Focus();
+            richTextBoxManifestOverridden.SelectAll();
+        }
+
+        private void contextMenuManifestCopyMenuItem_Click(object sender, EventArgs e)
+        {
+            if (richTextBoxManifestOverridden.TextLength == 0)
+                return;
+
+            int selectionStart = richTextBoxManifestOverridden.SelectionStart;
+            int selectionLength = richTextBoxManifestOverridden.SelectionLength;
+            bool hadSelection = selectionLength > 0;
+
+            if (!hadSelection)
+            {
+                richTextBoxManifestOverridden.SelectAll();
+            }
+
+            richTextBoxManifestOverridden.Focus();
+            richTextBoxManifestOverridden.Copy();
+
+            if (!hadSelection)
+            {
+                richTextBoxManifestOverridden.Select(selectionStart, selectionLength);
             }
         }
     }

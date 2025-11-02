@@ -125,6 +125,7 @@ namespace MW5_Mod_Manager
             labelModVersion.Size = new Size(149, 23);
             labelModVersion.TabIndex = 3;
             labelModVersion.Text = "labelModVersion";
+            labelModVersion.UseMnemonic = false;
             // 
             // labelModBuildNumber
             // 
@@ -135,6 +136,7 @@ namespace MW5_Mod_Manager
             labelModBuildNumber.Size = new Size(158, 23);
             labelModBuildNumber.TabIndex = 4;
             labelModBuildNumber.Text = "labelModBuildNumber";
+            labelModBuildNumber.UseMnemonic = false;
             // 
             // pictureBoxNexusmodsIcon
             // 
@@ -164,6 +166,7 @@ namespace MW5_Mod_Manager
             linkLabelNexusmods.TabIndex = 12;
             linkLabelNexusmods.TabStop = true;
             linkLabelNexusmods.Text = "linkLabelNexusmods";
+            linkLabelNexusmods.UseMnemonic = false;
             linkLabelNexusmods.LinkClicked += linkLabelNexusmods_LinkClicked;
             // 
             // pictureBoxSteamIcon
@@ -214,6 +217,7 @@ namespace MW5_Mod_Manager
             linkLabelSteamId.TabIndex = 7;
             linkLabelSteamId.TabStop = true;
             linkLabelSteamId.Text = "linkLabelSteamId";
+            linkLabelSteamId.UseMnemonic = false;
             linkLabelSteamId.LinkClicked += linkLabelSteamId_LinkClicked;
             // 
             // linkLabelModAuthorUrl
@@ -226,6 +230,7 @@ namespace MW5_Mod_Manager
             linkLabelModAuthorUrl.TabIndex = 6;
             linkLabelModAuthorUrl.TabStop = true;
             linkLabelModAuthorUrl.Text = "linkLabel1";
+            linkLabelModAuthorUrl.UseMnemonic = false;
             linkLabelModAuthorUrl.LinkClicked += linkLabelModAuthorUrl_LinkClicked;
             // 
             // labelModAuthor
@@ -237,6 +242,7 @@ namespace MW5_Mod_Manager
             labelModAuthor.Size = new Size(311, 15);
             labelModAuthor.TabIndex = 2;
             labelModAuthor.Text = "labelModAuthor";
+            labelModAuthor.UseMnemonic = false;
             // 
             // labelModName
             // 
@@ -248,6 +254,7 @@ namespace MW5_Mod_Manager
             labelModName.Size = new Size(311, 23);
             labelModName.TabIndex = 1;
             labelModName.Text = "labelModName";
+            labelModName.UseMnemonic = false;
             // 
             // splitContainer1
             // 

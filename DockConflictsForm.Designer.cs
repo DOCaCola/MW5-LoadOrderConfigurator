@@ -31,14 +31,20 @@ namespace MW5_Mod_Manager
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             labelModNameOverrides = new Label();
             listBoxOverriding = new ListBox();
             label6 = new Label();
             listBoxOverriddenBy = new ListBox();
             label5 = new Label();
             richTextBoxManifestOverridden = new RichTextBox();
-            label7 = new Label();
+            contextMenuManifest = new ContextMenuStrip(components);
+            contextMenuManifestSelectAllMenuItem = new ToolStripMenuItem();
+            contextMenuManifestCopyMenuItem = new ToolStripMenuItem();
+            labelManifestContentHeader = new Label();
             splitContainer2 = new SplitContainer();
+            toolStripSeparator1 = new ToolStripSeparator();
+            contextMenuManifest.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer2).BeginInit();
             splitContainer2.Panel1.SuspendLayout();
             splitContainer2.Panel2.SuspendLayout();
@@ -54,6 +60,7 @@ namespace MW5_Mod_Manager
             labelModNameOverrides.Size = new Size(22, 15);
             labelModNameOverrides.TabIndex = 29;
             labelModNameOverrides.Text = "---";
+            labelModNameOverrides.UseMnemonic = false;
             // 
             // listBoxOverriding
             // 
@@ -102,22 +109,46 @@ namespace MW5_Mod_Manager
             // richTextBoxManifestOverridden
             // 
             richTextBoxManifestOverridden.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            richTextBoxManifestOverridden.Location = new Point(9, 147);
+            richTextBoxManifestOverridden.ContextMenuStrip = contextMenuManifest;
+            richTextBoxManifestOverridden.Location = new Point(9, 163);
             richTextBoxManifestOverridden.Name = "richTextBoxManifestOverridden";
             richTextBoxManifestOverridden.ReadOnly = true;
-            richTextBoxManifestOverridden.Size = new Size(246, 221);
+            richTextBoxManifestOverridden.Size = new Size(246, 205);
             richTextBoxManifestOverridden.TabIndex = 2;
             richTextBoxManifestOverridden.Text = "";
             richTextBoxManifestOverridden.WordWrap = false;
             // 
-            // label7
+            // contextMenuManifest
             // 
-            label7.AutoSize = true;
-            label7.Location = new Point(9, 129);
-            label7.Name = "label7";
-            label7.Size = new Size(127, 15);
-            label7.TabIndex = 34;
-            label7.Text = "Affected mod content:";
+            contextMenuManifest.Items.AddRange(new ToolStripItem[] { contextMenuManifestCopyMenuItem, toolStripSeparator1, contextMenuManifestSelectAllMenuItem });
+            contextMenuManifest.Name = "contextMenuManifest";
+            contextMenuManifest.Size = new Size(123, 54);
+            contextMenuManifest.Opening += contextMenuManifest_Opening;
+            // 
+            // contextMenuManifestSelectAllMenuItem
+            // 
+            contextMenuManifestSelectAllMenuItem.Name = "contextMenuManifestSelectAllMenuItem";
+            contextMenuManifestSelectAllMenuItem.Size = new Size(122, 22);
+            contextMenuManifestSelectAllMenuItem.Text = "Select &All";
+            contextMenuManifestSelectAllMenuItem.Click += contextMenuManifestSelectAllMenuItem_Click;
+            // 
+            // contextMenuManifestCopyMenuItem
+            // 
+            contextMenuManifestCopyMenuItem.Name = "contextMenuManifestCopyMenuItem";
+            contextMenuManifestCopyMenuItem.Size = new Size(122, 22);
+            contextMenuManifestCopyMenuItem.Text = "&Copy";
+            contextMenuManifestCopyMenuItem.Click += contextMenuManifestCopyMenuItem_Click;
+            // 
+            // labelManifestContentHeader
+            // 
+            labelManifestContentHeader.AutoEllipsis = true;
+            labelManifestContentHeader.Location = new Point(9, 129);
+            labelManifestContentHeader.Name = "labelManifestContentHeader";
+            labelManifestContentHeader.Size = new Size(246, 31);
+            labelManifestContentHeader.TabIndex = 34;
+            labelManifestContentHeader.Text = "Select an entry to view override details.";
+            labelManifestContentHeader.TextAlign = ContentAlignment.BottomLeft;
+            labelManifestContentHeader.UseMnemonic = false;
             // 
             // splitContainer2
             // 
@@ -138,6 +169,12 @@ namespace MW5_Mod_Manager
             splitContainer2.Size = new Size(246, 100);
             splitContainer2.SplitterDistance = 121;
             splitContainer2.TabIndex = 27;
+            splitContainer2.TabStop = false;
+            // 
+            // toolStripSeparator1
+            // 
+            toolStripSeparator1.Name = "toolStripSeparator1";
+            toolStripSeparator1.Size = new Size(119, 6);
             // 
             // DockConflictsForm
             // 
@@ -147,11 +184,12 @@ namespace MW5_Mod_Manager
             Controls.Add(splitContainer2);
             Controls.Add(labelModNameOverrides);
             Controls.Add(richTextBoxManifestOverridden);
-            Controls.Add(label7);
+            Controls.Add(labelManifestContentHeader);
             DockAreas = WeifenLuo.WinFormsUI.Docking.DockAreas.Float | WeifenLuo.WinFormsUI.Docking.DockAreas.DockLeft | WeifenLuo.WinFormsUI.Docking.DockAreas.DockRight | WeifenLuo.WinFormsUI.Docking.DockAreas.DockTop | WeifenLuo.WinFormsUI.Docking.DockAreas.DockBottom;
             HideOnClose = true;
             Name = "DockConflictsForm";
             Text = "Conflicts";
+            contextMenuManifest.ResumeLayout(false);
             splitContainer2.Panel1.ResumeLayout(false);
             splitContainer2.Panel1.PerformLayout();
             splitContainer2.Panel2.ResumeLayout(false);
@@ -170,7 +208,11 @@ namespace MW5_Mod_Manager
         public System.Windows.Forms.ListBox listBoxOverriddenBy;
         private System.Windows.Forms.Label label5;
         public System.Windows.Forms.RichTextBox richTextBoxManifestOverridden;
-        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label labelManifestContentHeader;
         private SplitContainer splitContainer2;
+        private ContextMenuStrip contextMenuManifest;
+        private ToolStripMenuItem contextMenuManifestSelectAllMenuItem;
+        private ToolStripMenuItem contextMenuManifestCopyMenuItem;
+        private ToolStripSeparator toolStripSeparator1;
     }
 }

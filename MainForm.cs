@@ -1669,12 +1669,13 @@ namespace MW5_Mod_Manager
 
             DockOverviewForm.Instance.noneSelectedPanel.Visible = false;
             DockOverviewForm.Instance.panelModInfo.Visible = true;
-            string selectedModLabelDisplayName = firstSelectedMod.Name.Replace("&", "&&");
+            string selectedModLabelDisplayName = firstSelectedMod.Name;
             DockOverviewForm.Instance.labelModName.Text = selectedModLabelDisplayName;
+            DockConflictsForm.Instance.ResetManifestHeaderOverrideText();
             DockConflictsForm.Instance.labelModNameOverrides.Text = selectedModLabelDisplayName;
-            DockOverviewForm.Instance.labelModAuthor.Text = @"Author: " + modDetails.author?.Replace("&", "&&");
-            DockOverviewForm.Instance.linkLabelModAuthorUrl.Text = modDetails.authorURL.Replace("&", "&&");
-            DockOverviewForm.Instance.labelModVersion.Text = @"Version: " + modDetails.version?.Replace("&", "&&");
+            DockOverviewForm.Instance.labelModAuthor.Text = @"Author: " + modDetails.author;
+            DockOverviewForm.Instance.linkLabelModAuthorUrl.Text = modDetails.authorURL;
+            DockOverviewForm.Instance.labelModVersion.Text = @"Version: " + modDetails.version;
             DockOverviewForm.Instance.labelModBuildNumber.Text = @"Build: " + modDetails.buildNumber;
             long steamId = modDetails.steamPublishedFileId;
             if (steamId > 0)
