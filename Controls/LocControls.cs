@@ -12,6 +12,14 @@ namespace MW5_Mod_Manager.Controls
     [SupportedOSPlatform("windows")]
     public class ModsObjectsListView : ObjectListView
     {
+        private const int WmHorizontalScroll = 0x0114;
+        private const int WmVerticalScroll = 0x0115;
+        private const int WmMouseWheel = 0x020A;
+        private const int WmMouseHorizontalWheel = 0x020E;
+        private const int LvmScroll = 0x1014;
+
+        private bool _hotItemRefreshPending;
+        private Rectangle _pendingScrollInvalidation = Rectangle.Empty;
 
         public ModsObjectsListView()
         {
@@ -22,10 +30,114 @@ namespace MW5_Mod_Manager.Controls
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         static extern nint SendMessage(nint hWnd, int Msg, int wParam, int lParam);
 
+        protected override void WndProc(ref Message m)
+        {
+            bool isScrollMessage = IsScrollMessage(m.Msg);
+            Rectangle previousHotRowBounds = isScrollMessage
+                ? GetHotRowBounds()
+                : Rectangle.Empty;
+
+            base.WndProc(ref m);
+            if (isScrollMessage)
+                QueueHotItemRefresh(previousHotRowBounds);
+        }
+
+        private static bool IsScrollMessage(int message)
+        {
+            return message == WmHorizontalScroll
+                || message == WmVerticalScroll
+                || message == WmMouseWheel
+                || message == WmMouseHorizontalWheel
+                || message == LvmScroll;
+        }
+
+        private Rectangle GetHotRowBounds()
+        {
+            return HotRowIndex >= 0 && HotRowIndex < Items.Count
+                ? GetItem(HotRowIndex).Bounds
+                : Rectangle.Empty;
+        }
+
+        private void QueueHotItemRefresh(Rectangle previousHotRowBounds)
+        {
+            if (!UseHotItem || !IsHandleCreated)
+                return;
+
+            if (!previousHotRowBounds.IsEmpty)
+            {
+                _pendingScrollInvalidation = _pendingScrollInvalidation.IsEmpty
+                    ? previousHotRowBounds
+                    : Rectangle.Union(
+                        _pendingScrollInvalidation,
+                        previousHotRowBounds);
+            }
+            if (_hotItemRefreshPending)
+                return;
+
+            _hotItemRefreshPending = true;
+            BeginInvoke((MethodInvoker)(() =>
+            {
+                _hotItemRefreshPending = false;
+                Rectangle scrollInvalidation = _pendingScrollInvalidation;
+                _pendingScrollInvalidation = Rectangle.Empty;
+                if (!scrollInvalidation.IsEmpty)
+                    Invalidate(scrollInvalidation);
+                if (IsHandleCreated && !IsDisposed)
+                    RefreshHotItem();
+            }));
+        }
+
         protected override bool ProcessLButtonDown(OlvListViewHitTestInfo hti)
         {
             //return true;
             return base.ProcessLButtonDown(hti);
+        }
+
+        protected override void OnHotItemChanged(HotItemChangedEventArgs e)
+        {
+            base.OnHotItemChanged(e);
+            if (e.Handled || !UseHotItem)
+                return;
+
+            HotItemStyle hotStyle = HotItemStyleOrDefault;
+            if (!UsesContainedRowDecoration(hotStyle))
+                return;
+
+            // ObjectListView normally invalidates the complete owner-drawn list
+            // whenever the hot cell changes. Our decoration spans the whole row,
+            // so column-only changes need no redraw and row changes need only the
+            // previous and current rows.
+            e.Handled = true;
+            if (e.HotRowIndex == e.OldHotRowIndex)
+                return;
+
+            RedrawHotRow(e.OldHotRowIndex);
+            RedrawHotRow(e.HotRowIndex);
+        }
+
+        private static bool UsesContainedRowDecoration(HotItemStyle hotStyle)
+        {
+            if (hotStyle.Decoration is not RowBorderDecoration rowBorder
+                || hotStyle.Overlay != null
+                || hotStyle.Font != null
+                || hotStyle.FontStyle != FontStyle.Regular
+                || !hotStyle.ForeColor.IsEmpty
+                || !hotStyle.BackColor.IsEmpty)
+            {
+                return false;
+            }
+
+            return rowBorder.BoundsPadding.Width <= 0
+                && rowBorder.BoundsPadding.Height <= 0
+                && (rowBorder.BorderPen == null
+                    || rowBorder.BorderPen.Alignment
+                        == System.Drawing.Drawing2D.PenAlignment.Inset);
+        }
+
+        private void RedrawHotRow(int rowIndex)
+        {
+            if (rowIndex >= 0 && rowIndex < Items.Count)
+                RedrawItems(rowIndex, rowIndex, true);
         }
 
         public virtual void RefreshItems()

@@ -256,7 +256,9 @@ namespace MW5_Mod_Manager
             // Hot item
             RowBorderDecoration rbdhot = new RowBorderDecoration();
             rbdhot.BorderPen = new Pen(Color.FromArgb(50, 0, 143, 255));
-            rbdhot.BoundsPadding = new Size(0, 0);
+            rbdhot.BorderPen.Alignment =
+                System.Drawing.Drawing2D.PenAlignment.Inset;
+            rbdhot.BoundsPadding = new Size(-1, -1);
             rbdhot.CornerRounding = 0;
             //rbd.FillBrush = new SolidBrush(Color.FromArgb(64, 0, 143, 255));
             if (LocWindowColors.DarkMode)
