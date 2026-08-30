@@ -16,9 +16,17 @@ namespace MW5_Mod_Manager
     [SupportedOSPlatform("windows")]
     public partial class AboutForm : Form
     {
+        private readonly Image _aboutIconImage;
+
         public AboutForm()
         {
             InitializeComponent();
+
+            using Icon aboutIcon = new(Properties.Resources.MainIcon, new Size(128, 128));
+            _aboutIconImage = aboutIcon.ToBitmap();
+            pictureBox1.Image = _aboutIconImage;
+            Disposed += (_, _) => _aboutIconImage.Dispose();
+
             if (LocWindowColors.DarkMode)
                 _ = new DarkModeCS(this, false);
         }
