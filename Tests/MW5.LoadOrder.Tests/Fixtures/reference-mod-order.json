@@ -1,0 +1,109 @@
+{
+  "gameVersion": "1.1.361",
+  "mods": [
+    {
+      "folder": "SereglachFlamerVisual",
+      "displayName": "SereglachFlamerVisual",
+      "originalLoadOrder": 0,
+      "enabled": true,
+      "version": "1.0",
+      "buildNumber": 29
+    },
+    {
+      "folder": "TTRulez_AIMod2",
+      "displayName": "TTRulez AI Mod 2",
+      "originalLoadOrder": 4,
+      "enabled": true,
+      "version": "1.0",
+      "buildNumber": 186
+    },
+    {
+      "folder": "2549720490",
+      "displayName": "Workshop reference 2549720490",
+      "originalLoadOrder": 5,
+      "enabled": true,
+      "version": "0.97.3.1",
+      "buildNumber": 3148
+    },
+    {
+      "folder": "TTRulez_LanceMateOrderz",
+      "displayName": "TTRulez LanceMate Orderz",
+      "originalLoadOrder": 5,
+      "enabled": true,
+      "version": "1.0",
+      "buildNumber": 24
+    },
+    {
+      "folder": "Lore-based Mech Variants - YAML Edition",
+      "displayName": "Lore-based Mech Variants - YAML Edition",
+      "originalLoadOrder": 6,
+      "enabled": true,
+      "version": "5.42",
+      "buildNumber": 343
+    },
+    {
+      "folder": "RevisedNightvision",
+      "displayName": "Revised Nightvision",
+      "originalLoadOrder": 6,
+      "enabled": true,
+      "version": "1.0",
+      "buildNumber": 11
+    },
+    {
+      "folder": "Coyotesmission",
+      "displayName": "Coyotesmission",
+      "originalLoadOrder": 9,
+      "enabled": true,
+      "version": "1.0",
+      "buildNumber": 6061
+    },
+    {
+      "folder": "StackedCrates",
+      "displayName": "StackedCrates",
+      "originalLoadOrder": 9,
+      "enabled": false,
+      "version": "1.0",
+      "buildNumber": 881
+    },
+    {
+      "folder": "ModOptions",
+      "displayName": "Mod Options",
+      "originalLoadOrder": 13,
+      "enabled": true,
+      "version": "1.2",
+      "buildNumber": 27
+    },
+    {
+      "folder": "HeavierEnemyLances",
+      "displayName": "HeavierEnemyLances",
+      "originalLoadOrder": 40,
+      "enabled": true,
+      "version": "1.0",
+      "buildNumber": 21
+    },
+    {
+      "folder": "CoopDLC6",
+      "displayName": "CoopDLC6",
+      "originalLoadOrder": 87,
+      "enabled": true,
+      "version": "1.0",
+      "buildNumber": 6
+    },
+    {
+      "folder": "UltraVisualAndWeatherV3",
+      "displayName": "Ultra Visual and Weather V3",
+      "originalLoadOrder": 100,
+      "enabled": false,
+      "version": "1.0",
+      "buildNumber": 88
+    },
+    {
+      "folder": "YetAnotherRevampedQuirksEquipment",
+      "displayName": "Yet Another Revamped Quirks Equipment",
+      "originalLoadOrder": 420,
+      "enabled": true,
+      "version": "2.9.2",
+      "buildNumber": 43
+    }
+  ]
+}

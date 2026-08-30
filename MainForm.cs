@@ -799,7 +799,7 @@ namespace MW5_Mod_Manager
 
                         listView.RemoveObject(mod);
                         listView.InsertObjects(targetIndex, new[] { mod });
-                        UpdateModelIndexFromView(mod, listView.IndexOf(mod), reversed);
+                        ModOrderMutation.UpdateModelIndexFromView(mod, listView.IndexOf(mod), reversed);
                         movedAny = true;
                     }
                 }
@@ -821,7 +821,7 @@ namespace MW5_Mod_Manager
 
                         listView.RemoveObject(mod);
                         listView.InsertObjects(targetIndex, new[] { mod });
-                        UpdateModelIndexFromView(mod, listView.IndexOf(mod), reversed);
+                        ModOrderMutation.UpdateModelIndexFromView(mod, listView.IndexOf(mod), reversed);
                         movedAny = true;
                     }
                 }
@@ -847,6 +847,15 @@ namespace MW5_Mod_Manager
             bool reversed = LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow;
             var selectedModels = selectedItems.Select(i => (ModItem)i.RowObject).ToList();
             var selectionSet = new HashSet<string>(selectedModels.Select(m => m.Path), StringComparer.OrdinalIgnoreCase);
+            var selectedModelSet = new HashSet<ModItem>(selectedModels);
+            var remainingModels = listView.Items
+                .Cast<OLVListItem>()
+                .Select(item => (ModItem)item.RowObject)
+                .Where(mod => !selectedModelSet.Contains(mod))
+                .ToList();
+            List<ModItem> finalViewOrder = position == MovePosition.Top
+                ? selectedModels.Concat(remainingModels).ToList()
+                : remainingModels.Concat(selectedModels).ToList();
             Point scrollPosition = listView.LowLevelScrollPosition;
 
             using (DockModListForm.Instance.BeginListViewUpdateScope())
@@ -862,11 +871,7 @@ namespace MW5_Mod_Manager
                     listView.AddObjects(selectedModels.Cast<object>().ToList());
                 }
 
-                foreach (var mod in selectedModels)
-                {
-                    int newViewIndex = listView.IndexOf(mod);
-                    UpdateModelIndexFromView(mod, newViewIndex, reversed);
-                }
+                ModOrderMutation.UpdateModelOrderFromView(finalViewOrder, reversed);
             }
 
             _movingItems = true;
@@ -917,41 +922,6 @@ namespace MW5_Mod_Manager
             QueueSidePanelUpdate(true);
             CheckModConfigTainted();
         }
-
-        private static void UpdateModelIndexFromView(ModItem mod, int newViewIndex, bool reversed)
-        {
-            var modelList = ModItemList.Instance.ModList;
-            if (modelList == null)
-                return;
-
-            int oldModelIndex = modelList.IndexOf(mod);
-            if (oldModelIndex >= 0)
-            {
-                modelList.RemoveAt(oldModelIndex);
-            }
-
-            int insertIndex;
-            if (!reversed)
-            {
-                insertIndex = Clamp(newViewIndex, 0, modelList.Count);
-            }
-            else
-            {
-                int finalCount = modelList.Count + 1;
-                insertIndex = finalCount - 1 - newViewIndex;
-                insertIndex = Clamp(insertIndex, 0, modelList.Count);
-            }
-
-            modelList.Insert(insertIndex, mod);
-        }
-
-        private static int Clamp(int value, int min, int max)
-        {
-            if (value < min) return min;
-            if (value > max) return max;
-            return value;
-        }
-
 
         public void ApplyModSettings()
         {
