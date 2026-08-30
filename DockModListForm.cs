@@ -477,6 +477,27 @@ namespace MW5_Mod_Manager
             modObjectListView.PrimarySortOrder = order;
         }
 
+        public void SetSearchHighlightText(string searchText)
+        {
+            string normalizedText = searchText?.Trim() ?? string.Empty;
+            IModelFilter textFilter = string.IsNullOrEmpty(normalizedText)
+                ? null
+                : TextMatchFilter.Contains(modObjectListView, normalizedText);
+
+            SetRendererFilter(modObjectListView.DefaultRenderer, textFilter);
+            foreach (OLVColumn column in modObjectListView.AllColumns)
+            {
+                SetRendererFilter(column.Renderer, textFilter);
+            }
+            modObjectListView.Invalidate();
+        }
+
+        private static void SetRendererFilter(IRenderer renderer, IModelFilter filter)
+        {
+            if (renderer is IFilterAwareRenderer filterAwareRenderer)
+                filterAwareRenderer.Filter = filter;
+        }
+
         public void RecolorObjectListViewRows()
         {
             UpdateSelectedConflictCache();

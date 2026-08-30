@@ -93,7 +93,37 @@ internal static class Program
             Application.DoEvents();
         });
 
-        return new ProbeResult(build, filter, refresh, invalidate);
+        list.UseFiltering = false;
+        TimeSpan legacyHighlight = Median(MeasurementCount, () =>
+        {
+            list.ModelFilter = TextMatchFilter.Contains(list, "Weapons");
+            list.Invalidate();
+            list.RefreshObjects(items.ToList());
+            Application.DoEvents();
+            list.ModelFilter = null;
+            list.Invalidate();
+            list.RefreshObjects(items.ToList());
+            Application.DoEvents();
+        });
+
+        var highlightRenderer = (HighlightTextRenderer)list.DefaultRenderer;
+        TimeSpan rendererHighlight = Median(MeasurementCount, () =>
+        {
+            highlightRenderer.Filter = TextMatchFilter.Contains(list, "Weapons");
+            list.Invalidate();
+            Application.DoEvents();
+            highlightRenderer.Filter = null;
+            list.Invalidate();
+            Application.DoEvents();
+        });
+
+        return new ProbeResult(
+            build,
+            filter,
+            refresh,
+            invalidate,
+            legacyHighlight,
+            rendererHighlight);
     }
 
     private static void ConfigureList(
@@ -312,6 +342,9 @@ internal static class Program
         Console.WriteLine($"  filter + clear       : {result.Filter.TotalMilliseconds,9:N1} ms");
         Console.WriteLine($"  refresh all rows     : {result.Refresh.TotalMilliseconds,9:N1} ms");
         Console.WriteLine($"  invalidate/redraw    : {result.Invalidate.TotalMilliseconds,9:N1} ms");
+        Console.WriteLine($"  3.x highlight cycle : {result.LegacyHighlight.TotalMilliseconds,9:N1} ms");
+        Console.WriteLine($"  renderer-only cycle : {result.RendererHighlight.TotalMilliseconds,9:N1} ms");
+        Console.WriteLine($"  highlight speedup   : {result.HighlightSpeedup,9:N1}x");
         Console.WriteLine();
     }
 
@@ -331,7 +364,13 @@ internal static class Program
         TimeSpan Build,
         TimeSpan Filter,
         TimeSpan Refresh,
-        TimeSpan Invalidate);
+        TimeSpan Invalidate,
+        TimeSpan LegacyHighlight,
+        TimeSpan RendererHighlight)
+    {
+        public double HighlightSpeedup =>
+            LegacyHighlight.TotalMilliseconds / RendererHighlight.TotalMilliseconds;
+    }
 
     private sealed record ConflictColorResult(TimeSpan NestedScan, TimeSpan HashLookup)
     {

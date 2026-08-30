@@ -1557,6 +1557,7 @@ namespace MW5_Mod_Manager
                     listView.UseFiltering = false;
                 }
                 listView.ModelFilter = null;
+                DockModListForm.Instance.SetSearchHighlightText(string.Empty);
             }
             else
             {
@@ -1590,6 +1591,7 @@ namespace MW5_Mod_Manager
                             listView.UseFiltering = true;
                         }
                     }
+                    DockModListForm.Instance.SetSearchHighlightText(string.Empty);
                 }
                 else
                 {
@@ -1599,6 +1601,7 @@ namespace MW5_Mod_Manager
                         listView.UseFiltering = false;
                     }
                     listView.ModelFilter = null;
+                    DockModListForm.Instance.SetSearchHighlightText(filterText);
 
                     if (firstMatch != null)
                         listView.EnsureModelVisible(firstMatch);
