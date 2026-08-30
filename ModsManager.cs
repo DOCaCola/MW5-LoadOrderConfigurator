@@ -904,7 +904,23 @@ namespace MW5_Mod_Manager
             });
         }
 
-        private void LoadModDetails(string modPath)
+        private sealed class ModLoadFailure
+        {
+            public ModLoadFailure(string modPath, string affectedPath, string operation, string details)
+            {
+                ModPath = modPath;
+                AffectedPath = affectedPath;
+                Operation = operation;
+                Details = details;
+            }
+
+            public string ModPath { get; }
+            public string AffectedPath { get; }
+            public string Operation { get; }
+            public string Details { get; }
+        }
+
+        private ModLoadFailure LoadModDetails(string modPath)
         {
             float? GetOriginalLoadOrderFromObject(JObject jsonObject)
             {
@@ -948,7 +964,7 @@ namespace MW5_Mod_Manager
                             }
                         }
                     }
-                    catch (Exception)
+                    catch (Exception exception) when (!LocFileUtils.IsFileAccessException(exception))
                     {
                         // Silently fail
                     }
@@ -985,7 +1001,7 @@ namespace MW5_Mod_Manager
                 string modJsonFilePath = Path.Combine(modPath, "mod.json");
                 if (!File.Exists(modJsonFilePath))
                 {
-                    return;
+                    return null;
                 }
 
                 ModData modData = new ModData();
@@ -1081,7 +1097,7 @@ namespace MW5_Mod_Manager
                         modData.Origin = ModData.ModOrigin.Nexusmods;
                     }
                 }
-                catch (Exception e)
+                catch (Exception exception) when (!LocFileUtils.IsFileAccessException(exception))
                 {
                     TaskDialog.ShowDialog(MainForm.Instance.Handle, new TaskDialogPage()
                     {
@@ -1099,7 +1115,7 @@ namespace MW5_Mod_Manager
                         AllowCancel = true
                     });
 
-                    return;
+                    return null;
                 }
 
                 // Calculate pak file size and
@@ -1171,6 +1187,16 @@ namespace MW5_Mod_Manager
                 PathToDirNameDict[modPath] = directoryName;
                 loadModSuccess = true;
             }
+            catch (Exception exception) when (LocFileUtils.IsFileAccessException(exception))
+            {
+                ModFileAccessException fileAccessException =
+                    exception as ModFileAccessException;
+                return new ModLoadFailure(
+                    modPath,
+                    fileAccessException?.FilePath ?? modPath,
+                    fileAccessException?.Operation ?? "access one or more deployed files",
+                    exception.InnerException?.Message ?? exception.Message);
+            }
             finally
             {
                 if (!loadModSuccess)
@@ -1185,16 +1211,67 @@ namespace MW5_Mod_Manager
                 }
             }
 
+            return null;
         }
 
         private void LoadAllModDetails()
         {
             Mods.Clear();
             ModDetails.Clear();
+            var failures = new List<ModLoadFailure>();
             foreach (string modDir in this.FoundDirectories)
             {
-                LoadModDetails(modDir);
+                ModLoadFailure failure = LoadModDetails(modDir);
+                if (failure != null)
+                    failures.Add(failure);
             }
+
+            ShowModLoadFailures(failures);
+        }
+
+        private static void ShowModLoadFailures(IReadOnlyList<ModLoadFailure> failures)
+        {
+            if (failures.Count == 0)
+                return;
+
+            const int displayedFailureLimit = 10;
+            var details = new System.Text.StringBuilder();
+            details.AppendLine(
+                "The following mods were skipped because one or more deployed files could not be accessed:");
+            details.AppendLine();
+
+            foreach (ModLoadFailure failure in failures.Take(displayedFailureLimit))
+            {
+                details.AppendLine(Path.GetFileName(failure.ModPath));
+                details.AppendLine($"  Path: {failure.AffectedPath}");
+                details.AppendLine($"  Failed to {failure.Operation}: {failure.Details}");
+                details.AppendLine();
+            }
+
+            if (failures.Count > displayedFailureLimit)
+            {
+                details.AppendLine(
+                    $"...and {failures.Count - displayedFailureLimit} more affected mods.");
+                details.AppendLine();
+            }
+
+            details.Append(
+                "If these mods are managed by Vortex, purge and redeploy them. "
+                + "Otherwise reinstall the affected mods and verify that the files are readable.");
+
+            TaskDialog.ShowDialog(MainForm.Instance.Handle, new TaskDialogPage()
+            {
+                Text = details.ToString(),
+                Heading = $"{failures.Count} mod{(failures.Count == 1 ? "" : "s")} could not be loaded.",
+                Caption = "Inaccessible mod files",
+                Buttons =
+                {
+                    TaskDialogButton.OK,
+                },
+                Icon = TaskDialogIcon.Warning,
+                DefaultButton = TaskDialogButton.OK,
+                AllowCancel = true
+            });
         }
 
         public void SaveModDetails()

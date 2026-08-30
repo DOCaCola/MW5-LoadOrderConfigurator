@@ -47,6 +47,10 @@ dlldata.c
 
 # Benchmark Results
 BenchmarkDotNet.Artifacts/
+Tests/SyntheticSearchEnvironment/generated/
+Tests/SyntheticSearchEnvironment/generated-broken/
+Tests/SyntheticSearchEnvironment/SEARCH_PERFORMANCE_FINDINGS.tmp.md
+Tests/SyntheticSearchEnvironment/PerformanceProbe/bin/
 
 # .NET Core
 project.lock.json

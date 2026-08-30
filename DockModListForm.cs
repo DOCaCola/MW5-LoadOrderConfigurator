@@ -20,6 +20,10 @@ namespace MW5_Mod_Manager
     {
         static public DockModListForm Instance;
         private int _listViewUpdateNesting;
+        private readonly HashSet<string> _selectedOverridingModFolders =
+            new(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> _selectedOverriddenModFolders =
+            new(StringComparer.OrdinalIgnoreCase);
 
         public DockModListForm()
         {
@@ -111,8 +115,8 @@ namespace MW5_Mod_Manager
             // Point being that the list is smoothly scrollable when groups are used
             foreach (OLVGroup group in e.Groups)
             {
-                group.State ^= GroupState.LVGS_NOHEADER;
-                group.StateMask ^= GroupState.LVGS_NOHEADER;
+                group.State |= GroupState.LVGS_NOHEADER;
+                group.StateMask |= GroupState.LVGS_NOHEADER;
             }
         }
 
@@ -145,67 +149,118 @@ namespace MW5_Mod_Manager
             MainForm.Instance.contextMenuStripColumnOptions.Show(Cursor.Position);
         }
 
-        private void modObjectListView_FormatCell(object sender, FormatCellEventArgs e)
+        private Color GetModNameForeColor(ModItem modItem)
         {
-            ModItem modItem = (ModItem)e.Model;
+            if (!modItem.Enabled)
+                return Color.FromArgb(142, 140, 142);
 
-            /*
-			// Modified load orders in bold
-			if (e.ColumnIndex == this.olvColumnModCurLoadOrder.Index)
+            if (ModsManager.Instance.ModConflictData.TryGetValue(
+                    modItem.FolderName,
+                    out ModConflictData conflictData))
             {
-                if (modItem.CurrentLoadOrder != modItem.OriginalLoadOrder)
-                {
-                    e.SubItem.Font = new Font(e.SubItem.Font, FontStyle.Bold);
-                }
-                else
-                {
-                    e.SubItem.Font = new Font(e.SubItem.Font, FontStyle.Regular);
-                }
-            }*/
+                if (conflictData.isOverriding && conflictData.isOverridden)
+                    return LocWindowColors.ModOverriddenOveridingColor;
+                if (conflictData.isOverriding)
+                    return LocWindowColors.ModOverridingColor;
+                if (conflictData.isOverridden)
+                    return LocWindowColors.ModOverriddenColor;
+            }
 
+            return LocWindowColors.WindowText;
+        }
+
+        private void ApplyRowForegroundColors(OLVListItem item, ModItem modItem)
+        {
+            Color defaultColor = modItem.Enabled
+                ? LocWindowColors.WindowText
+                : Color.FromArgb(142, 140, 142);
+
+            item.ForeColor = defaultColor;
             if (!modItem.Enabled)
             {
-                e.SubItem.ForeColor = Color.FromArgb(142, 140, 142);
+                item.UseItemStyleForSubItems = true;
                 return;
             }
 
-            if (e.ColumnIndex == olvColumnModName.Index)
+            item.UseItemStyleForSubItems = false;
+            foreach (ListViewItem.ListViewSubItem subItem in item.SubItems)
             {
-                if (ModsManager.Instance.ModConflictData.ContainsKey(modItem.FolderName))
-                {
-                    ModConflictData a = ModsManager.Instance.ModConflictData[modItem.FolderName];
-                    Color newItemColor = LocWindowColors.WindowText;
-                    if (a.isOverridden)
-                    {
-                        newItemColor = LocWindowColors.ModOverriddenColor;
-                    }
-                    if (a.isOverriding)
-                    {
-                        newItemColor = LocWindowColors.ModOverridingColor;
-                    }
-                    if (a.isOverriding && a.isOverridden)
-                    {
-                        newItemColor = LocWindowColors.ModOverriddenOveridingColor;
-                    }
+                subItem.ForeColor = defaultColor;
+            }
 
-                    e.SubItem.ForeColor = newItemColor;
-                }
-            }
-            else if (e.ColumnIndex == this.olvColumnModCurLoadOrder.Index)
+            if (olvColumnModName.Index >= 0)
+                item.SubItems[olvColumnModName.Index].ForeColor = GetModNameForeColor(modItem);
+            if (olvColumnModCurLoadOrder.Index >= 0)
+                item.SubItems[olvColumnModCurLoadOrder.Index].ForeColor = modItem.ProcessedCurLoForeColor;
+            if (olvColumnModOrgLoadOrder.Index >= 0)
+                item.SubItems[olvColumnModOrgLoadOrder.Index].ForeColor = modItem.ProcessedOrgLoForeColor;
+        }
+
+        private Color GetRowBackColor(ModItem modItem, int displayIndex)
+        {
+            bool alternateColor = displayIndex % 2 == 1;
+
+            if (_selectedOverridingModFolders.Contains(modItem.FolderName))
             {
-                e.SubItem.ForeColor = modItem.ProcessedCurLoForeColor;
+                return alternateColor
+                    ? LocWindowColors.ListModOverridingBackColorAlternate
+                    : LocWindowColors.ListModOverridingBackColor;
             }
-            else if (e.ColumnIndex == olvColumnModOrgLoadOrder.Index)
+
+            if (_selectedOverriddenModFolders.Contains(modItem.FolderName))
             {
-                e.SubItem.ForeColor = modItem.ProcessedOrgLoForeColor;
+                return alternateColor
+                    ? LocWindowColors.ListModOverriddenBackColorAlternate
+                    : LocWindowColors.ListModOverriddenBackColor;
             }
+
+            return alternateColor
+                ? LocWindowColors.ListColorAlternate
+                : LocWindowColors.Window;
+        }
+
+        private static void ApplyRowBackColor(OLVListItem item, ModItem modItem, Color color)
+        {
+            modItem.ProcessedRowBackColor = color;
+            item.BackColor = color;
+            foreach (ListViewItem.ListViewSubItem subItem in item.SubItems)
+            {
+                subItem.BackColor = color;
+            }
+        }
+
+        private void UpdateSelectedConflictCache()
+        {
+            _selectedOverridingModFolders.Clear();
+            _selectedOverriddenModFolders.Clear();
+
+            if (MainForm.Instance._filterMode == eFilterMode.ItemFilter
+                || modObjectListView.SelectedObjects.Count != 1)
+            {
+                return;
+            }
+
+            ModItem selectedMod = (ModItem)modObjectListView.SelectedObjects[0];
+            if (!ModsManager.Instance.ModConflictData.TryGetValue(
+                    selectedMod.FolderName,
+                    out ModConflictData conflictData))
+            {
+                return;
+            }
+
+            _selectedOverridingModFolders.UnionWith(conflictData.overriddenBy.Keys);
+            _selectedOverriddenModFolders.UnionWith(conflictData.overrides.Keys);
         }
 
         private void modObjectListView_FormatRow(object sender, FormatRowEventArgs e)
         {
-            ModItem curModItem = (ModItem)e.Item.RowObject;
-            e.Item.BackColor = curModItem.ProcessedRowBackColor;
-            e.UseCellFormatEvents = true;
+            ModItem modItem = (ModItem)e.Item.RowObject;
+            ApplyRowBackColor(
+                e.Item,
+                modItem,
+                GetRowBackColor(modItem, e.DisplayIndex));
+            ApplyRowForegroundColors(e.Item, modItem);
+            e.UseCellFormatEvents = false;
         }
 
         private void modObjectListView_ModelDropped(object sender, ModelDropEventArgs e)
@@ -286,10 +341,9 @@ namespace MW5_Mod_Manager
                 LoadOrder.RecomputeLoadOrders();
                 ModsManager.Instance.RecomputeOverridingData();
 
-                MainForm.Instance.ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
-                RecolorObjectListViewRows();
-                modObjectListView.RefreshObjects(modObjectListView.Objects.Cast<object>().ToList());
+                RefreshCurrentLoadOrderCells();
                 modObjectListView.Sort();
+                RecolorObjectListViewRows();
             }
 
             MainForm.Instance.QueueSidePanelUpdate(true);
@@ -412,10 +466,6 @@ namespace MW5_Mod_Manager
             MainForm.Instance.UpdatePriorityLabels();
 
             ApplyModelOrderToListView(selectionSet, ensureVisiblePath, scrollPosition);
-
-            MainForm.Instance.ColorListViewNumbers(olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
-            RecolorObjectListViewRows();
-            modObjectListView.RefreshItems();
         }
 
         public void SyncLoadOrderSortIndicator()
@@ -429,94 +479,55 @@ namespace MW5_Mod_Manager
 
         public void RecolorObjectListViewRows()
         {
-            bool showModOverrides = modObjectListView.SelectedObjects.Count == 1 && MainForm.Instance._filterMode != eFilterMode.ItemFilter;
+            UpdateSelectedConflictCache();
+            if (MainForm.Instance._filterMode == eFilterMode.ItemFilter)
+                return;
 
-            bool anyUpdated = false;
-            for (int i = 0; i <= modObjectListView.Items.Count - 1; ++i)
+            using (BeginListViewUpdateScope())
             {
-                OLVListItem curItem = (OLVListItem)modObjectListView.Items[i];
-                ModItem curModItem = (ModItem)curItem.RowObject;
-
-                bool alternateColor = i % 2 == 1;
-                Color newBackColor = LocWindowColors.Window;
-                if (alternateColor)
+                for (int index = 0; index < modObjectListView.Items.Count; index++)
                 {
-                    newBackColor = LocWindowColors.ListColorAlternate;
-                }
+                    OLVListItem item = (OLVListItem)modObjectListView.Items[index];
+                    ModItem modItem = (ModItem)item.RowObject;
+                    Color newBackColor = GetRowBackColor(modItem, index);
+                    if (modItem.ProcessedRowBackColor == newBackColor)
+                        continue;
 
-                /*if (_filterMode == eFilterMode.ItemHighlight)
-                {
-                    string filtertext = toolStripTextFilterBox.Text.ToLower();
-                    if (!string.IsNullOrWhiteSpace(filtertext) && MatchItemToText(filtertext, curItem))
-                    {
-                        if (!alternateColor)
-                            newBackColor = _highlightColor;
-                        else
-                            newBackColor = _highlightColorAlternate;
-                    }
-                }*/
-
-                // Color mod overrides following the currently selected mod
-                if (showModOverrides)
-                {
-                    ModItem firstSelectedItem = (ModItem)modObjectListView.SelectedObjects[0];
-                    string selectedModPath = firstSelectedItem.Path;
-                    string selectedModFolder = ModsManager.Instance.PathToDirNameDict[selectedModPath];
-                    if (ModsManager.Instance.ModConflictData.ContainsKey(selectedModFolder))
-                    {
-                        ModConflictData modData = ModsManager.Instance.ModConflictData[selectedModFolder];
-                        bool foundMatch = false;
-                        foreach (string overriding in modData.overriddenBy.Keys)
-                        {
-                            string modKey = ModsManager.Instance.DirNameToPathDict[overriding];
-                            if (modKey == curModItem.Path)
-                            {
-                                if (!alternateColor)
-                                    newBackColor = LocWindowColors.ListModOverridingBackColor;
-                                else
-                                    newBackColor = LocWindowColors.ListModOverridingBackColorAlternate;
-                                foundMatch = true;
-                                break;
-                            }
-                        }
-
-                        if (!foundMatch)
-                        {
-                            foreach (string overrides in modData.overrides.Keys)
-                            {
-                                string modKey = ModsManager.Instance.DirNameToPathDict[overrides];
-                                if (modKey == curModItem.Path)
-                                {
-                                    if (!alternateColor)
-                                        newBackColor = LocWindowColors.ListModOverriddenBackColor;
-                                    else
-                                        newBackColor = LocWindowColors.ListModOverriddenBackColorAlternate;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                curModItem.ProcessedRowBackColor = newBackColor;
-
-                foreach (OLVListSubItem subItem in curItem.SubItems)
-                {
-                    if (subItem.BackColor != newBackColor)
-                    {
-                        if (!anyUpdated)
-                        {
-                            anyUpdated = true;
-                            modObjectListView.BeginUpdate();
-                        }
-                        subItem.BackColor = newBackColor;
-                    }
-
+                    ApplyRowBackColor(item, modItem, newBackColor);
                 }
             }
+        }
 
-            if (anyUpdated)
-                modObjectListView.EndUpdate();
+        public void RefreshRowForegroundColors()
+        {
+            using (BeginListViewUpdateScope())
+            {
+                foreach (OLVListItem item in modObjectListView.Items)
+                {
+                    ApplyRowForegroundColors(item, (ModItem)item.RowObject);
+                }
+            }
+        }
+
+        public void RefreshCurrentLoadOrderCells()
+        {
+            int columnIndex = olvColumnModCurLoadOrder.Index;
+            if (columnIndex < 0)
+                return;
+
+            using (BeginListViewUpdateScope())
+            {
+                foreach (OLVListItem item in modObjectListView.Items)
+                {
+                    ModItem modItem = (ModItem)item.RowObject;
+                    item.SubItems[columnIndex].Text =
+                        olvColumnModCurLoadOrder.GetStringValue(modItem);
+                    item.SubItems[columnIndex].ForeColor =
+                        modItem.Enabled
+                            ? modItem.ProcessedCurLoForeColor
+                            : Color.FromArgb(142, 140, 142);
+                }
+            }
         }
 
         private void toTopToolStripButton_Click(object sender, EventArgs e)

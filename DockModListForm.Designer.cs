@@ -192,7 +192,6 @@ namespace MW5_Mod_Manager
             modObjectListView.AboutToCreateGroups += modObjectListView_AboutToCreateGroups;
             modObjectListView.CellToolTipShowing += modObjectListView_CellToolTipShowing;
             modObjectListView.ColumnRightClick += modObjectListView_ColumnRightClick;
-            modObjectListView.FormatCell += modObjectListView_FormatCell;
             modObjectListView.FormatRow += modObjectListView_FormatRow;
             modObjectListView.ModelDropped += modObjectListView_ModelDropped;
             modObjectListView.ColumnReordered += modObjectListView_ColumnReordered;

@@ -25,9 +25,14 @@ namespace MW5_Mod_Manager
     public class LocSettings
     {
         public static string SettingsFileName = @"Settings.json";
+        internal const string SettingsDirectoryEnvironmentVariable = "MW5_LOC_SETTINGS_DIRECTORY";
 
         public static string GetSettingsDirectory()
         {
+            string overriddenDirectory = Environment.GetEnvironmentVariable(SettingsDirectoryEnvironmentVariable);
+            if (!string.IsNullOrWhiteSpace(overriddenDirectory))
+                return Path.GetFullPath(overriddenDirectory);
+
             string appDataDir = System.Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             return Path.Combine(appDataDir, @"MW5LoadOrderConfigurator");
         }

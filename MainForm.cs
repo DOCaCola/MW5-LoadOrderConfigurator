@@ -42,6 +42,14 @@ namespace MW5_Mod_Manager
         private bool _forceSidePanelUpdate = false;
         // Mod files differ from the state displayed in the UI
         private bool _modFileStateMismatch = false;
+        private static readonly bool SearchTimingEnabled =
+            string.Equals(
+                Environment.GetEnvironmentVariable("MW5_LOC_SEARCH_TIMING"),
+                "1",
+                StringComparison.Ordinal);
+        private readonly System.Windows.Forms.Timer _searchDebounceTimer;
+        private string _activeSearchText = string.Empty;
+        private bool _listPopulationInProgress;
 
         // Hash of the mod list currently applied to mechwarrior
         public int _ActiveModListHash = 0;
@@ -81,6 +89,12 @@ namespace MW5_Mod_Manager
         public MainForm()
         {
             InitializeComponent();
+
+            _searchDebounceTimer = new System.Windows.Forms.Timer
+            {
+                Interval = 200
+            };
+            _searchDebounceTimer.Tick += SearchDebounceTimer_Tick;
 
             DockModListForm.Instance = new();
             DockOverviewForm.Instance = new();
@@ -176,6 +190,9 @@ namespace MW5_Mod_Manager
             this.Icon = Properties.Resources.MainIcon;
 
             this.Text += @" " + GetVersion();
+            string testLabel = Environment.GetEnvironmentVariable("MW5_LOC_TEST_LABEL");
+            if (!string.IsNullOrWhiteSpace(testLabel))
+                this.Text += " [" + testLabel + "]";
 
             DockModListForm.Instance.imageListIcons.Images.Add("Steam", UiIcons.Steam);
             DockModListForm.Instance.imageListIcons.Images.Add("Nexusmods", UiIcons.Nexusmods);
@@ -277,7 +294,7 @@ namespace MW5_Mod_Manager
                 ModsManager.Instance.UpdateNewModOverrideData(curMod);
                 UpdateModCountDisplay();
                 DockModListForm.Instance.RecolorObjectListViewRows();
-                DockModListForm.Instance.modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
+                DockModListForm.Instance.modObjectListView.RefreshObject(curMod);
                 CheckModConfigTainted();
                 QueueSidePanelUpdate(true);
                 return newValue; // return the value that you want the control to use
@@ -890,10 +907,9 @@ namespace MW5_Mod_Manager
             var listView = DockModListForm.Instance.modObjectListView;
             using (DockModListForm.Instance.BeginListViewUpdateScope())
             {
-                listView.RefreshObjects(listView.Objects.Cast<object>().ToList());
-                DockModListForm.Instance.RecolorObjectListViewRows();
-                ColorListViewNumbers(DockModListForm.Instance.olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
+                DockModListForm.Instance.RefreshCurrentLoadOrderCells();
                 listView.Sort();
+                DockModListForm.Instance.RecolorObjectListViewRows();
             }
 
             if (selectionSet != null && selectionSet.Count > 0)
@@ -1097,22 +1113,27 @@ namespace MW5_Mod_Manager
             var sw = System.Diagnostics.Stopwatch.StartNew();
 #endif
 
-            using (DockModListForm.Instance.BeginListViewUpdateScope())
+            _listPopulationInProgress = true;
+            try
             {
-                ModItemList.FillFromImportList(orderedModList);
-                DockModListForm.Instance.modObjectListView.SetObjects(ModItemList.Instance.GetViewOrderedItems());
+                using (DockModListForm.Instance.BeginListViewUpdateScope())
+                {
+                    ModItemList.FillFromImportList(orderedModList);
 
-                LocSettings.Instance.SaveSettings();
+                    LocSettings.Instance.SaveSettings();
 
-                LoadOrder.RecomputeLoadOrders();
+                    LoadOrder.RecomputeLoadOrders();
 
-                ModsManager.Instance.RecomputeOverridingData();
-                ColorListViewNumbers(DockModListForm.Instance.olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
-                DockModListForm.Instance.RecolorObjectListViewRows();
+                    ModsManager.Instance.RecomputeOverridingData();
 
-                DockModListForm.Instance.modObjectListView.RefreshItems();
-                DockModListForm.Instance.modObjectListView.Sort();
-                UpdateModCountDisplay();
+                    DockModListForm.Instance.modObjectListView.SetObjects(
+                        ModItemList.Instance.GetViewOrderedItems());
+                    UpdateModCountDisplay();
+                }
+            }
+            finally
+            {
+                _listPopulationInProgress = false;
             }
 
 #if DEBUG
@@ -1517,69 +1538,74 @@ namespace MW5_Mod_Manager
 
         private void FilterTextChanged()
         {
-            bool searchFailed = true;
-            string filtertext = toolStripTextFilterBox.Text.ToLower();
-            if (Utils.StringNullEmptyOrWhiteSpace(filtertext))
+            Stopwatch searchTimer = SearchTimingEnabled ? Stopwatch.StartNew() : null;
+            string filterText = toolStripTextFilterBox.Text.Trim();
+            bool hasSearchText = !Utils.StringNullEmptyOrWhiteSpace(filterText);
+            bool useFilterMode = hasSearchText && toolStripButtonFilterToggle.Checked;
+            var listView = DockModListForm.Instance.modObjectListView;
+            ModItem firstMatch = null;
+
+            toolStripButtonClearFilter.Enabled = toolStripTextFilterBox.Text.Length > 0;
+
+            if (!hasSearchText)
             {
-                if (this._filterMode != eFilterMode.None)
-                {
-                    // end filtering
-                    DockModListForm.Instance.modObjectListView.UseFiltering = false;
-                    DockModListForm.Instance.modObjectListView.ModelFilter = null;
+                _activeSearchText = string.Empty;
+                _filterMode = eFilterMode.None;
 
-                    this._filterMode = eFilterMode.None;
-                }
-                else
+                if (listView.UseFiltering)
                 {
-                    return;
+                    listView.UseFiltering = false;
                 }
-
-                searchFailed = false;
+                listView.ModelFilter = null;
             }
             else
             {
-                DockModListForm.Instance.modObjectListView.ModelFilter = TextMatchFilter.Contains(DockModListForm.Instance.modObjectListView, filtertext);
-                if (!Instance.toolStripButtonFilterToggle.Checked)
+                _activeSearchText = filterText;
+                IModelFilter modelFilter = ModSearch.CreateFilter(filterText);
+                firstMatch = ModSearch.FindFirst(
+                    ModItemList.Instance.EnumerateForView(),
+                    filterText);
+
+                if (useFilterMode)
                 {
-                    DockModListForm.Instance.modObjectListView.UseFiltering = false;
-                    // ensure that first found item is visible
-                    if (DockModListForm.Instance.modObjectListView.ModelFilter != null)
+                    _filterMode = eFilterMode.ItemFilter;
+                    bool allModsMatch = ModSearch.AllMatch(
+                        ModItemList.Instance.EnumerateForView(),
+                        filterText);
+                    if (allModsMatch)
                     {
-                        foreach (object originalObject in DockModListForm.Instance.modObjectListView.Objects)
+                        if (listView.UseFiltering)
+                            listView.UseFiltering = false;
+                        listView.ModelFilter = null;
+                    }
+                    else
+                    {
+                        if (listView.UseFiltering)
                         {
-                            if (DockModListForm.Instance.modObjectListView.ModelFilter.Filter(originalObject))
-                            {
-                                DockModListForm.Instance.modObjectListView.EnsureModelVisible(originalObject);
-                                searchFailed = false;
-                                break;
-                            }
+                            listView.ModelFilter = modelFilter;
+                        }
+                        else
+                        {
+                            listView.ModelFilter = modelFilter;
+                            listView.UseFiltering = true;
                         }
                     }
-
-                    _filterMode = eFilterMode.ItemHighlight;
                 }
-                //We are filtering by selected adding.
                 else
                 {
-                    DockModListForm.Instance.modObjectListView.UseFiltering = true;
-                    if (DockModListForm.Instance.modObjectListView.ModelFilter != null)
+                    _filterMode = eFilterMode.ItemHighlight;
+                    if (listView.UseFiltering)
                     {
-                        foreach (object originalObject in DockModListForm.Instance.modObjectListView.Objects)
-                        {
-                            if (DockModListForm.Instance.modObjectListView.ModelFilter.Filter(originalObject))
-                            {
-                                searchFailed = false;
-                                break;
-                            }
-                        }
+                        listView.UseFiltering = false;
                     }
+                    listView.ModelFilter = null;
 
-                    _filterMode = eFilterMode.ItemFilter;
+                    if (firstMatch != null)
+                        listView.EnsureModelVisible(firstMatch);
                 }
             }
-            toolStripButtonClearFilter.Enabled = toolStripTextFilterBox.Text.Length > 0;
 
-            if (searchFailed)
+            if (hasSearchText && firstMatch == null)
             {
                 toolStripTextFilterBox.ForeColor = Color.White;
                 toolStripTextFilterBox.BackColor = Color.FromArgb(252, 104, 99);
@@ -1590,15 +1616,30 @@ namespace MW5_Mod_Manager
                 toolStripTextFilterBox.BackColor = LocWindowColors.Window;
             }
 
-            using (DockModListForm.Instance.BeginListViewUpdateScope())
-            {
-                DockModListForm.Instance.modObjectListView.Invalidate();
-                DockModListForm.Instance.RecolorObjectListViewRows();
-                DockModListForm.Instance.modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
-            }
-
-            //While filtering disable the up/down buttons (tough this should no longer be needed).
             UpdateMoveControlEnabledState();
+
+            if (searchTimer != null)
+            {
+                searchTimer.Stop();
+                int modCount = ModItemList.Instance.ModList?.Count ?? 0;
+                string mode = _filterMode switch
+                {
+                    eFilterMode.ItemFilter => "filter",
+                    eFilterMode.ItemHighlight => "highlight",
+                    _ => "none"
+                };
+                string timing =
+                    $"Search: {searchTimer.Elapsed.TotalMilliseconds:N1} ms ({modCount:N0} mods)"
+                    + $" [{mode} | {filterText}]";
+                toolStripStatusLabel1.Text = timing;
+                Debug.WriteLine(timing);
+            }
+        }
+
+        private void SearchDebounceTimer_Tick(object sender, EventArgs e)
+        {
+            _searchDebounceTimer.Stop();
+            FilterTextChanged();
         }
 
         public ModItem GetFirstSelectedMod()
@@ -1955,7 +1996,6 @@ namespace MW5_Mod_Manager
             ModsManager.Instance.RecomputeOverridingData();
             UpdateModCountDisplay();
             DockModListForm.Instance.RecolorObjectListViewRows();
-            DockModListForm.Instance.modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
             CheckModConfigTainted();
         }
 
@@ -1980,7 +2020,6 @@ namespace MW5_Mod_Manager
             ModsManager.Instance.RecomputeOverridingData();
             UpdateModCountDisplay();
             DockModListForm.Instance.RecolorObjectListViewRows();
-            DockModListForm.Instance.modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
             CheckModConfigTainted();
         }
 
@@ -2235,81 +2274,80 @@ namespace MW5_Mod_Manager
         //Color the list view items based on data
         public void ColorizeListViewItems()
         {
-            using (DockModListForm.Instance.BeginListViewUpdateScope())
-            {
-                ColorListViewNumbers(DockModListForm.Instance.olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
-                ColorListViewNumbers(DockModListForm.Instance.olvColumnModOrgLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
-            }
+            CalculateListViewNumberColors(
+                DockModListForm.Instance.olvColumnModCurLoadOrder.Index,
+                LocWindowColors.ModLowPriorityColor,
+                LocWindowColors.ModHighPriorityColor);
+            CalculateListViewNumberColors(
+                DockModListForm.Instance.olvColumnModOrgLoadOrder.Index,
+                LocWindowColors.ModLowPriorityColor,
+                LocWindowColors.ModHighPriorityColor);
+
+            if (!_listPopulationInProgress)
+                DockModListForm.Instance.RefreshRowForegroundColors();
         }
 
         public void ColorListViewNumbers(int subItemIndex, Color fromColor, Color toColor)
         {
+            CalculateListViewNumberColors(subItemIndex, fromColor, toColor);
+            if (!_listPopulationInProgress)
+                DockModListForm.Instance.RefreshRowForegroundColors();
+        }
+
+        private void CalculateListViewNumberColors(int subItemIndex, Color fromColor, Color toColor)
+        {
             if (subItemIndex == -1)
                 return;
 
-            List<float> numbers = new List<float>();
-
-            // Extract numbers from ListView column and find unique ones
-            foreach (OLVListItem item in DockModListForm.Instance.modObjectListView.Items)
-            {
-                ModItem curModItem = (ModItem)item.RowObject;
-
-                // Skip disabled mods
-                if (!curModItem.Enabled)
-                    continue;
-
-                if (float.TryParse(item.SubItems[subItemIndex].Text, out var number))
-                {
-                    if (!numbers.Contains(number))
-                    {
-                        numbers.Add(number);
-                    }
-                }
-            }
-
-            if (numbers.Count == 0)
+            List<ModItem> modList = ModItemList.Instance.ModList;
+            if (modList == null)
                 return;
 
-            numbers.Sort();
-
-            // Color the ListView items based on sorted unique numbers
-            using (DockModListForm.Instance.BeginListViewUpdateScope())
+            bool useOriginalLoadOrder =
+                subItemIndex == DockModListForm.Instance.olvColumnModOrgLoadOrder.Index;
+            List<float> numbers = modList
+                .Where(mod => mod.Enabled)
+                .Select(mod => useOriginalLoadOrder
+                    ? mod.OriginalLoadOrder
+                    : mod.CurrentLoadOrder)
+                .Distinct()
+                .OrderBy(number => number)
+                .ToList();
+            if (numbers.Count == 0)
             {
-                for (int i = 0; i < DockModListForm.Instance.modObjectListView.Items.Count; i++)
+                foreach (ModItem mod in modList)
                 {
-                    OLVListItem curListItem = (OLVListItem)DockModListForm.Instance.modObjectListView.Items[i];
-                    ModItem curModItem = (ModItem)curListItem.RowObject;
-
-                    // Skip disabled mods
-                    if (!curModItem.Enabled)
-                        continue;
-
-                    if (float.TryParse(curListItem.SubItems[subItemIndex].Text, out var number))
-                    {
-                        Color newColor;
-                        if (numbers.Count == 1)
-                        {
-                            newColor = fromColor;
-                        }
-                        else
-                        {
-                            int index = numbers.IndexOf(number);
-                            double ratio = (double)index / (numbers.Count - 1);
-                            newColor = Utils.InterpolateColor(fromColor, toColor, ratio);
-                        }
-                        curListItem.SubItems[subItemIndex].ForeColor = newColor;
-
-                        // A bit backwards. Have to refactor the function
-                        if (subItemIndex == DockModListForm.Instance.olvColumnModOrgLoadOrder.Index)
-                        {
-                            curModItem.ProcessedOrgLoForeColor = newColor;
-                        }
-                        else if (subItemIndex == DockModListForm.Instance.olvColumnModCurLoadOrder.Index)
-                        {
-                            curModItem.ProcessedCurLoForeColor = newColor;
-                        }
-                    }
+                    if (useOriginalLoadOrder)
+                        mod.ProcessedOrgLoForeColor = LocWindowColors.WindowText;
+                    else
+                        mod.ProcessedCurLoForeColor = LocWindowColors.WindowText;
                 }
+                return;
+            }
+
+            var colorsByLoadOrder = new Dictionary<float, Color>(numbers.Count);
+            for (int index = 0; index < numbers.Count; index++)
+            {
+                double ratio = numbers.Count == 1
+                    ? 0
+                    : (double)index / (numbers.Count - 1);
+                colorsByLoadOrder[numbers[index]] =
+                    Utils.InterpolateColor(fromColor, toColor, ratio);
+            }
+
+            foreach (ModItem mod in modList)
+            {
+                float loadOrder = useOriginalLoadOrder
+                    ? mod.OriginalLoadOrder
+                    : mod.CurrentLoadOrder;
+                Color color = mod.Enabled
+                    ? colorsByLoadOrder[loadOrder]
+                    : LocWindowColors.WindowText;
+
+                if (useOriginalLoadOrder)
+                    mod.ProcessedOrgLoForeColor = color;
+                else
+                    mod.ProcessedCurLoForeColor = color;
             }
         }
 
@@ -2340,11 +2378,8 @@ namespace MW5_Mod_Manager
             using (DockModListForm.Instance.BeginListViewUpdateScope())
             {
                 LoadOrder.RecomputeLoadOrders();
-                DockModListForm.Instance.ApplyModelOrderToListView(selectionSet, ensureVisiblePath, null, suppressUpdateScope: true);
                 ModsManager.Instance.RecomputeOverridingData();
-                ColorListViewNumbers(DockModListForm.Instance.olvColumnModCurLoadOrder.Index, LocWindowColors.ModLowPriorityColor, LocWindowColors.ModHighPriorityColor);
-                DockModListForm.Instance.RecolorObjectListViewRows();
-                DockModListForm.Instance.modObjectListView.RefreshItems();
+                DockModListForm.Instance.ApplyModelOrderToListView(selectionSet, ensureVisiblePath, null, suppressUpdateScope: true);
                 FilterTextChanged();
                 CheckModConfigTainted();
             }
@@ -2421,7 +2456,16 @@ namespace MW5_Mod_Manager
 
         private void toolStripTextFilterBox_TextChanged(object sender, EventArgs e)
         {
-            FilterTextChanged();
+            _searchDebounceTimer.Stop();
+
+            if (string.IsNullOrWhiteSpace(toolStripTextFilterBox.Text)
+                || !toolStripButtonFilterToggle.Checked)
+            {
+                FilterTextChanged();
+                return;
+            }
+
+            _searchDebounceTimer.Start();
         }
 
         private void toolStripButtonClearFilter_Click(object sender, EventArgs e)
@@ -2432,6 +2476,7 @@ namespace MW5_Mod_Manager
 
         private void toolStripButtonFilterToggle_CheckedChanged(object sender, EventArgs e)
         {
+            _searchDebounceTimer.Stop();
             FilterTextChanged();
 
             if (toolStripButtonFilterToggle.Checked)
@@ -2722,7 +2767,6 @@ namespace MW5_Mod_Manager
         private void timerDelayedListRecolor_Tick(object sender, EventArgs e)
         {
             ColorizeListViewItems();
-            DockModListForm.Instance.modObjectListView.RefreshObjects(ModItemList.Instance.ModList);
             DockModListForm.Instance.RecolorObjectListViewRows();
             timerDelayedListRecolor.Stop();
             DockModListForm.Instance.modObjectListView.EndUpdate();
@@ -2760,40 +2804,19 @@ namespace MW5_Mod_Manager
                 e.Handled = true;
                 if (_filterMode == eFilterMode.ItemHighlight)
                 {
-                    DockModListForm.Instance.modObjectListView.UseFiltering = false;
-                    if (DockModListForm.Instance.modObjectListView.ModelFilter != null)
-                    {
-                        object foundObject = null;
-                        bool lastObject = true;
+                    List<ModItem> matches = DockModListForm.Instance.modObjectListView.Objects
+                        .Cast<ModItem>()
+                        .Where(mod => ModSearch.Matches(mod, _activeSearchText))
+                        .ToList();
+                    if (matches.Count == 0)
+                        return;
 
-                        var objectList = DockModListForm.Instance.modObjectListView.Objects.Cast<object>().ToList();
-                        foreach (object originalObject in objectList.ReverseIterate())
-                        {
-                            if (!DockModListForm.Instance.modObjectListView.ModelFilter.Filter(originalObject))
-                                continue;
-
-                            bool currentIsSelected = DockModListForm.Instance.modObjectListView.IsSelected(originalObject);
-                            if (lastObject)
-                            {
-                                lastObject = false;
-                                if (currentIsSelected)
-                                {
-                                    continue;
-                                }
-                            }
-
-                            if (currentIsSelected)
-                                break;
-
-                            foundObject = originalObject;
-                        }
-
-                        if (foundObject != null)
-                        {
-                            DockModListForm.Instance.modObjectListView.EnsureModelVisible(foundObject);
-                            DockModListForm.Instance.modObjectListView.SelectedObject = foundObject;
-                        }
-                    }
+                    int currentMatchIndex = matches.FindIndex(mod =>
+                        DockModListForm.Instance.modObjectListView.IsSelected(mod));
+                    int nextMatchIndex = (currentMatchIndex + 1) % matches.Count;
+                    ModItem nextMatch = matches[nextMatchIndex];
+                    DockModListForm.Instance.modObjectListView.EnsureModelVisible(nextMatch);
+                    DockModListForm.Instance.modObjectListView.SelectedObject = nextMatch;
                 }
             }
         }
@@ -2878,6 +2901,7 @@ namespace MW5_Mod_Manager
 
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
+            _searchDebounceTimer.Dispose();
             Application.Exit();
         }
 

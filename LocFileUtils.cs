@@ -1,28 +1,57 @@
 ﻿using System;
 using System.IO;
+using System.Security;
 using System.Threading;
 
 namespace MW5_Mod_Manager
 {
+    internal sealed class ModFileAccessException : IOException
+    {
+        public ModFileAccessException(string operation, string filePath, Exception innerException)
+            : base($"Could not {operation} '{filePath}'.", innerException)
+        {
+            Operation = operation;
+            FilePath = filePath;
+        }
+
+        public string Operation { get; }
+        public string FilePath { get; }
+    }
+
     internal class LocFileUtils
     {
         public static long GetFileSize(string filePath)
         {
-            var fi = new FileInfo(filePath);
-            long fileSize = fi.Length;
-
-            // Symlinked files report their file size as zero
-            if (fileSize == 0)
+            string inspectedPath = filePath;
+            try
             {
-                if (fi.LinkTarget != null && fi.DirectoryName != null)
+                var fi = new FileInfo(filePath);
+                long fileSize = fi.Length;
+
+                // Symlinked files report their file size as zero
+                if (fileSize == 0 && fi.LinkTarget != null && fi.DirectoryName != null)
                 {
-                    string linkTargetPath = Path.GetFullPath(Path.Combine(fi.DirectoryName, fi.LinkTarget));
-                    var fiLinkTarget = new FileInfo(linkTargetPath);
+                    inspectedPath = Path.GetFullPath(Path.Combine(fi.DirectoryName, fi.LinkTarget));
+                    var fiLinkTarget = new FileInfo(inspectedPath);
                     fileSize = fiLinkTarget.Length;
                 }
-            }
 
-            return fileSize;
+                return fileSize;
+            }
+            catch (Exception exception) when (IsFileAccessException(exception))
+            {
+                throw new ModFileAccessException(
+                    "read the file size",
+                    inspectedPath,
+                    exception);
+            }
+        }
+
+        public static bool IsFileAccessException(Exception exception)
+        {
+            return exception is IOException
+                   || exception is UnauthorizedAccessException
+                   || exception is SecurityException;
         }
 
         public static bool IsDirectSubdirectory(string parentPath, string subPath)
