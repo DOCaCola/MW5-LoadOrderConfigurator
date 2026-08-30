@@ -38,9 +38,12 @@ namespace MW5_Mod_Manager
         static ViewStateData _viewStateData = null;
         static string _dockPanelXml = null;
         static DeserializeDockContent _deserializeDockContent = new DeserializeDockContent(GetContentFromPersistString);
+        static public bool HasDockPanelLayout => !string.IsNullOrEmpty(_dockPanelXml);
 
         static public bool LoadViewStateFromFile()
         {
+            _viewStateData = null;
+            _dockPanelXml = null;
             string viewFile = Path.Combine(LocSettings.GetSettingsDirectory(), "ViewState.json");
 
             if (!File.Exists(viewFile))

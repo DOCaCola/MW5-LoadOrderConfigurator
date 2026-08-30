@@ -129,6 +129,17 @@ namespace MW5_Mod_Manager
             }
             else if (e.Column == olvColumnModFileAge)
             {
+                if (!curModItem.FileMetadataLoaded)
+                {
+                    e.Text = "Loading…";
+                    return;
+                }
+                if (!curModItem.FileMetadataAvailable)
+                {
+                    e.Text = "Unavailable";
+                    return;
+                }
+
                 if (curModItem.FileAge != null)
                 {
                     CultureInfo culture = CultureInfo.CurrentCulture;

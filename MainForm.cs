@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Versioning;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 using static MW5_Mod_Manager.ModsManager;
@@ -36,6 +37,9 @@ namespace MW5_Mod_Manager
         public eFilterMode _filterMode = eFilterMode.None;
         public bool _movingItems = false;
         string _onlineUpdateUrl = LocConstants.UrlNexusmods;
+        private static readonly object PendingFileMetadataValue = new();
+        private static readonly object UnavailableFileMetadataValue = new();
+        private readonly bool _hasSavedViewState;
         // The mod currently displayed in the sidebar
         private static string _sideBarSelectedModKey = null;
         // Force next sidepanel update to execute
@@ -101,6 +105,7 @@ namespace MW5_Mod_Manager
             DockConflictsForm.Instance = new();
 
             Instance = this;
+            _hasSavedViewState = LocViewState.LoadViewStateFromFile();
 
             toolStripTextFilterBox.TextBox.PreviewKeyDown += FilterTextBoxOnPreviewKeyDown;
             toolStripTextFilterBox.TextBox.KeyPress += FilterTextBoxOnKeyPress;
@@ -156,7 +161,8 @@ namespace MW5_Mod_Manager
                 DockModListForm.Instance.toolStrip2.Renderer = new ToolStripTransparentRenderer();
             }
 
-            ResetDockWindowLayout();
+            if (!_hasSavedViewState || !LocViewState.HasDockPanelLayout)
+                ResetDockWindowLayout();
             dockPanel1.ResumeLayout(true);
         }
 
@@ -304,7 +310,7 @@ namespace MW5_Mod_Manager
 
             LocViewState._defaultViewState.WindowPosition = this.DesktopBounds;
             LocViewState._defaultViewState.listState = LocViewState.GetCurrentListViewState();
-            if (LocViewState.LoadViewStateFromFile())
+            if (_hasSavedViewState)
                 LocViewState.RestoreViewState();
 
             CreateColumnMenus();
@@ -358,13 +364,21 @@ namespace MW5_Mod_Manager
         private object ModFileSizeGetter(object rowobject)
         {
             ModItem s = (ModItem)rowobject;
-            return s.FileSize;
+            if (!s.FileMetadataLoaded)
+                return PendingFileMetadataValue;
+            return s.FileMetadataAvailable
+                ? s.FileSize
+                : UnavailableFileMetadataValue;
         }
 
         private object ModFileAgeGetter(object rowobject)
         {
             ModItem s = (ModItem)rowobject;
-            return s.FileAge;
+            if (!s.FileMetadataLoaded)
+                return PendingFileMetadataValue;
+            return s.FileMetadataAvailable
+                ? s.FileAge
+                : UnavailableFileMetadataValue;
         }
 
         private object ModOrgLoadOrderGetter(object rowobject)
@@ -548,12 +562,22 @@ namespace MW5_Mod_Manager
 
         private string FileSizeAspectConverter(object value)
         {
+            if (ReferenceEquals(value, PendingFileMetadataValue))
+                return "…";
+            if (ReferenceEquals(value, UnavailableFileMetadataValue))
+                return "-";
+
             long size = (long)value;
             return Utils.BytesToHumanReadableString(size);
         }
 
         private string ModFileAgeAspectConverter(object value)
         {
+            if (ReferenceEquals(value, PendingFileMetadataValue))
+                return "…";
+            if (ReferenceEquals(value, UnavailableFileMetadataValue))
+                return "-";
+
             DateTimeOffset? dateOffset = (DateTimeOffset?)value;
             if (!dateOffset.HasValue)
                 return "-";
@@ -1036,6 +1060,21 @@ namespace MW5_Mod_Manager
 
             ModsManager.Instance.RenewModEnabledList();
 
+            Dictionary<string, ModImportData> desiredModsByPath = null;
+            if (desiredMods != null)
+            {
+                desiredModsByPath = new Dictionary<string, ModImportData>(
+                    StringComparer.OrdinalIgnoreCase);
+                foreach (ModImportData desiredMod in desiredMods)
+                {
+                    if (!string.IsNullOrWhiteSpace(desiredMod.ModPath)
+                        && !desiredModsByPath.ContainsKey(desiredMod.ModPath))
+                    {
+                        desiredModsByPath.Add(desiredMod.ModPath, desiredMod);
+                    }
+                }
+            }
+
             List<ModImportData> orderedModList;
             // Sort by mechwarrior load order
             if (!orderByDesired || desiredMods == null)
@@ -1067,47 +1106,12 @@ namespace MW5_Mod_Manager
                 ModUtils.SortModsToMatchFilter(ref orderedModList, desiredMods);
             }
 
-            // set mods to desired enabled states
-            if (desiredMods != null)
-            {
-                foreach (var curDesiredMod in desiredMods)
-                {
-                    var curTargetItem = ModsManager.Instance.ModEnabledList.FirstOrDefault(x =>
-                        x.ModPath.Equals(curDesiredMod.ModPath, StringComparison.OrdinalIgnoreCase));
-
-                    if (curTargetItem != null)
-                    {
-                        curTargetItem.Enabled = curDesiredMod.Enabled;
-                    }
-                }
-            }
-
             // Get enabled mods from desired list
             foreach (var curModItem in orderedModList)
             {
-                bool newState = false;
-                var curModListItem = curModItem;
-
-                if (desiredMods != null)
-                {
-                    var curTargetItem = ModsManager.Instance.ModEnabledList.FirstOrDefault(x =>
-                        x.ModPath.Equals(curModListItem.ModPath, StringComparison.OrdinalIgnoreCase));
-
-                    if (curTargetItem != null)
-                    {
-                        var curDesiredItem = desiredMods.FirstOrDefault(x =>
-                            x.ModPath.Equals(curModListItem.ModPath, StringComparison.OrdinalIgnoreCase));
-
-                        if (curDesiredItem == null)
-                        {
-                            continue;
-                        }
-
-                        newState = curDesiredItem.Enabled;
-                    }
-                }
-
-                curModItem.Enabled = newState;
+                curModItem.Enabled = desiredModsByPath != null
+                    && desiredModsByPath.TryGetValue(curModItem.ModPath, out ModImportData desiredMod)
+                    && desiredMod.Enabled;
             }
 
             // Fill listview
@@ -1122,11 +1126,7 @@ namespace MW5_Mod_Manager
                 {
                     ModItemList.FillFromImportList(orderedModList);
 
-                    LocSettings.Instance.SaveSettings();
-
                     LoadOrder.RecomputeLoadOrders();
-
-                    ModsManager.Instance.RecomputeOverridingData();
 
                     DockModListForm.Instance.modObjectListView.SetObjects(
                         ModItemList.Instance.GetViewOrderedItems());
@@ -1177,7 +1177,9 @@ namespace MW5_Mod_Manager
 
             }
         }
-        public void RefreshAll(bool forceLoadLastApplied = false)
+        public void RefreshAll(
+            bool forceLoadLastApplied = false,
+            bool deferStartupEnrichment = false)
         {
             Cursor tempCursor = Cursor.Current;
             Cursor.Current = Cursors.AppStarting;
@@ -1197,13 +1199,13 @@ namespace MW5_Mod_Manager
 
                 ClearAll();
                 bool modConfigTainted = false;
-                if (LocSettings.Instance.TryLoadProgramSettings())
+                if (LocSettings.Instance.TryInitializeProgramSettings())
                 {
                     UpdatePriorityLabels();
                     SetVersionAndPlatform();
                     ModsManager.Instance.WarnIfNoModList();
                     ModsManager.Instance.ParseDirectories();
-                    ModsManager.Instance.ReloadModData();
+                    ModsManager.Instance.ReloadModData(!deferStartupEnrichment);
 
                     // load modlist.json
                     List<ModImportData> modlist = ModsManager.Instance.LoadMw5ModListFileData();
@@ -1242,9 +1244,11 @@ namespace MW5_Mod_Manager
                     }
 
                     FilterTextChanged();
-                    ModsManager.Instance.RecomputeOverridingData();
+                    if (!deferStartupEnrichment)
+                        ModsManager.Instance.RecomputeOverridingData();
                 }
-                LoadPresets();
+                if (!deferStartupEnrichment)
+                    LoadPresets();
                 SetModConfigTainted(modConfigTainted);
 
                 foreach (OLVListItem curListItem in DockModListForm.Instance.modObjectListView.Items)
@@ -1260,6 +1264,45 @@ namespace MW5_Mod_Manager
 
             DockModListForm.Instance.modObjectListView.LowLevelScroll(prevPosition.X, prevPosition.Y);
             Cursor.Current = tempCursor;
+        }
+
+        private async Task LoadDeferredModFileMetadataAsync(
+            Task<IReadOnlyList<ModFileMetadataResult>> metadataTask)
+        {
+            IReadOnlyList<ModFileMetadataResult> results = await metadataTask;
+
+            var itemsByPath = (ModItemList.Instance.ModList ?? new List<ModItem>())
+                .ToDictionary(item => item.Path, StringComparer.OrdinalIgnoreCase);
+            var updatedItems = new List<ModItem>(results.Count);
+
+            foreach (ModFileMetadataResult result in results)
+            {
+                if (!ModsManager.Instance.Mods.TryGetValue(
+                        result.ModPath,
+                        out ModData modData)
+                    || !itemsByPath.TryGetValue(result.ModPath, out ModItem modItem))
+                {
+                    continue;
+                }
+
+                modData.FileMetadataLoaded = true;
+                modData.FileMetadataAvailable = result.Success;
+                modItem.FileMetadataLoaded = true;
+                modItem.FileMetadataAvailable = result.Success;
+                if (result.Success)
+                {
+                    modData.ModFileSize = result.FileSize;
+                    modData.FileAge = result.FileAge;
+                    modItem.FileSize = result.FileSize;
+                    modItem.FileAge = result.FileAge;
+                }
+                updatedItems.Add(modItem);
+            }
+
+            if (updatedItems.Count > 0)
+                DockModListForm.Instance.modObjectListView.RefreshObjects(updatedItems);
+
+            ModsManager.ShowModFileMetadataFailures(results);
         }
 
         public void SavePreset(string name)
@@ -1324,6 +1367,7 @@ namespace MW5_Mod_Manager
                 ModsManager.Instance.ProcessModImportList(ref newPresetData, true);
                 PrepareDataAndPopulateListView(newPresetData, true);
                 FilterTextChanged();
+                ModsManager.Instance.RecomputeOverridingData();
                 CheckModConfigTainted();
             }
 
@@ -1920,6 +1964,7 @@ namespace MW5_Mod_Manager
                 toolStripStatusLabelMwVersion.Text = @"Game Version: " + ModsManager.Instance.GameVersion;
                 PrepareDataAndPopulateListView(newData, true);
                 FilterTextChanged();
+                ModsManager.Instance.RecomputeOverridingData();
                 CheckModConfigTainted();
                 foreach (OLVListItem curListItem in DockModListForm.Instance.modObjectListView.Items)
                 {
@@ -2494,18 +2539,26 @@ namespace MW5_Mod_Manager
             }
         }
 
-        private void MainWindow_Shown(object sender, EventArgs e)
+        private async void MainWindow_Shown(object sender, EventArgs e)
         {
-            CheckForNewVersion();
             if (!ModsManager.Instance.GameIsConfigured())
             {
                 ShowSettingsDialog();
+                CheckForNewVersion();
                 // Also calls refresh all. We end up calling refreshall twice
                 // and may get the recovery dialog twice if we don't return early
                 return;
             }
 
-            RefreshAll();
+            RefreshAll(deferStartupEnrichment: true);
+            await Task.Yield();
+
+            Task<IReadOnlyList<ModFileMetadataResult>> metadataTask =
+                Task.Run(ModsManager.Instance.LoadDeferredModFileMetadata);
+            ModsManager.Instance.RecomputeOverridingData();
+            LoadPresets();
+            CheckForNewVersion();
+            await LoadDeferredModFileMetadataAsync(metadataTask);
         }
 
         private void DeleteMod(string modKey)

@@ -67,12 +67,26 @@ namespace MW5_Mod_Manager
             try
             {
                 LoadSettings();
-
-                ModsManager.Instance.UpdateGamePaths();
             }
             catch (Exception e)
             {
                 Console.WriteLine(@"ERROR: Something went wrong while loading " + SettingsFileName);
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+
+            return TryInitializeProgramSettings();
+        }
+
+        public bool TryInitializeProgramSettings()
+        {
+            try
+            {
+                ModsManager.Instance.UpdateGamePaths();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(@"ERROR: Something went wrong while initializing game paths");
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);
             }

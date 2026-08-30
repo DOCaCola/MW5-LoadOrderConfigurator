@@ -15,7 +15,6 @@ namespace MW5_Mod_Manager
         [STAThread]
         private static void Main()
         {
-           LocSettings.Instance.TryLoadProgramSettings();
             if (LocWindowColors.DarkMode)
                 LocWindowColors.DarkMode = LocSettings.Instance.Data.AllowDarkMode;
 

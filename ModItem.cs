@@ -124,6 +124,8 @@ namespace MW5_Mod_Manager
         public string VersionCombined;
         public long FileSize;
         public DateTimeOffset? FileAge;
+        public bool FileMetadataLoaded;
+        public bool FileMetadataAvailable;
         public float CurrentLoadOrder;
         public float OriginalLoadOrder;
         public ModsManager.ModData.ModOrigin Origin;
@@ -143,6 +145,8 @@ namespace MW5_Mod_Manager
                 FolderName = ModsManager.Instance.PathToDirNameDict[entry.ModPath],
                 FileSize = ModsManager.Instance.Mods[entry.ModPath].ModFileSize,
                 FileAge = ModsManager.Instance.Mods[entry.ModPath].FileAge,
+                FileMetadataLoaded = ModsManager.Instance.Mods[entry.ModPath].FileMetadataLoaded,
+                FileMetadataAvailable = ModsManager.Instance.Mods[entry.ModPath].FileMetadataAvailable,
                 Author = ModsManager.Instance.ModDetails[entry.ModPath].author,
                 CurrentLoadOrder = ModsManager.Instance.Mods[entry.ModPath].NewLoadOrder,
                 OriginalLoadOrder = ModsManager.Instance.Mods[entry.ModPath].OriginalLoadOrder,
@@ -170,6 +174,8 @@ namespace MW5_Mod_Manager
             public string VersionCombined => m.VersionCombined;
             public long FileSize => m.FileSize;
             public DateTimeOffset? FileAge => m.FileAge;
+            public bool FileMetadataLoaded => m.FileMetadataLoaded;
+            public bool FileMetadataAvailable => m.FileMetadataAvailable;
             public float CurrentLoadOrder => m.CurrentLoadOrder;
             public float OriginalLoadOrder => m.OriginalLoadOrder;
             public ModsManager.ModData.ModOrigin Origin => m.Origin;

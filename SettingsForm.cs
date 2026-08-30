@@ -310,7 +310,6 @@ namespace MW5_Mod_Manager
 
             MainForm.Instance.ClearAll();
             ModItemList.Instance.ModList = null;
-            ModsManager.Instance.UpdateGamePaths();
             LocSettings.Instance.SaveSettings();
             MainForm.Instance.RefreshAll();
 

@@ -114,6 +114,8 @@ namespace MW5_Mod_Manager
             public float OriginalLoadOrder = Single.NaN;
             // timestamp with age of mod files
             public DateTimeOffset? FileAge = null;
+            public bool FileMetadataLoaded = false;
+            public bool FileMetadataAvailable = false;
             // Was the file mod.json modified by LOC before?
             public bool IsNewMod = true;
 
@@ -129,6 +131,23 @@ namespace MW5_Mod_Manager
             // Mod's pak file size
             public long ModFileSize = 0;
         }
+
+        internal sealed class ModFileMetadataResult
+        {
+            public string ModPath { get; init; }
+            public long FileSize { get; init; }
+            public DateTimeOffset? FileAge { get; init; }
+            public string AffectedPath { get; init; }
+            public string Operation { get; init; }
+            public string Details { get; init; }
+            public bool Success => AffectedPath == null;
+        }
+
+        private static readonly HashSet<string> ModMetadataExcludedFiles =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                "__folder_managed_by_vortex", "mod.json", "mod.json.bak", "backup.json"
+            };
 
         public Dictionary<string, ModData> Mods = new Dictionary<string, ModData>();
 
@@ -377,11 +396,11 @@ namespace MW5_Mod_Manager
 
         // (Re)load all mod data
         // desiredMods in order they need to be loaded and enabled state
-        public void ReloadModData()
+        public void ReloadModData(bool includeFileMetadata = true)
         {
             ReadVortexDeploymentData();
             //Load each mods mod.json and store in Dict.
-            LoadAllModDetails();
+            LoadAllModDetails(includeFileMetadata);
             //Combine so we have all mods in the ModList Dict for easy later use and writing to JObject
             CombineDirModList();
         }
@@ -920,7 +939,56 @@ namespace MW5_Mod_Manager
             public string Details { get; }
         }
 
-        private ModLoadFailure LoadModDetails(string modPath)
+        private static DateTimeOffset? GetFileAge(string modPath)
+        {
+            string paksPath = Path.Combine(modPath, "Paks");
+            string resourcesPath = Path.Combine(modPath, "Resources");
+
+            IEnumerable<string> pakFiles = Directory.Exists(paksPath)
+                ? Directory.EnumerateFiles(paksPath, "*.pak", SearchOption.AllDirectories)
+                : Enumerable.Empty<string>();
+            IEnumerable<string> jsonFiles = Directory.Exists(resourcesPath)
+                ? Directory.EnumerateFiles(resourcesPath, "*.json", SearchOption.AllDirectories)
+                : Enumerable.Empty<string>();
+
+            return pakFiles
+                .Concat(jsonFiles)
+                .Select(file => (DateTimeOffset?)DateTime.SpecifyKind(
+                    new FileInfo(file).LastWriteTimeUtc,
+                    DateTimeKind.Utc))
+                .OrderByDescending(date => date)
+                .FirstOrDefault();
+        }
+
+        internal static ModFileMetadataResult LoadModFileMetadata(string modPath)
+        {
+            try
+            {
+                long fileSize = Directory.EnumerateFiles(modPath, "*", SearchOption.AllDirectories)
+                    .Where(file => !ModMetadataExcludedFiles.Contains(Path.GetFileName(file)))
+                    .Sum(LocFileUtils.GetFileSize);
+
+                return new ModFileMetadataResult
+                {
+                    ModPath = modPath,
+                    FileSize = fileSize,
+                    FileAge = GetFileAge(modPath)
+                };
+            }
+            catch (Exception exception) when (LocFileUtils.IsFileAccessException(exception))
+            {
+                ModFileAccessException fileAccessException = exception as ModFileAccessException;
+                return new ModFileMetadataResult
+                {
+                    ModPath = modPath,
+                    AffectedPath = fileAccessException?.FilePath ?? modPath,
+                    Operation = fileAccessException?.Operation ?? "read installed file metadata",
+                    Details = exception.InnerException?.Message ?? exception.Message
+                };
+            }
+        }
+
+        private ModLoadFailure LoadModDetails(string modPath, bool includeFileMetadata)
         {
             float? GetOriginalLoadOrderFromObject(JObject jsonObject)
             {
@@ -972,29 +1040,6 @@ namespace MW5_Mod_Manager
                 return null;
             }
 
-            DateTimeOffset? GetFileAge(string modPath)
-            {
-                string paksPath = Path.Combine(modPath, "Paks");
-                string resourcesPath = Path.Combine(modPath, "Resources");
-
-                // Get *.pak files
-                var pakFiles = Directory.Exists(paksPath)
-                    ? Directory.EnumerateFiles(paksPath, "*.pak", SearchOption.AllDirectories)
-                    : Enumerable.Empty<string>();
-
-                // Get *.json files
-                var jsonFiles = Directory.Exists(resourcesPath)
-                    ? Directory.EnumerateFiles(resourcesPath, "*.json", SearchOption.AllDirectories)
-                    : Enumerable.Empty<string>();
-
-                var allFiles = pakFiles.Concat(jsonFiles);
-
-                return allFiles
-                    .Select(file => (DateTimeOffset?)DateTime.SpecifyKind(new FileInfo(file).LastWriteTimeUtc, DateTimeKind.Utc))
-                    .OrderByDescending(d => d)
-                    .FirstOrDefault();
-            }
-
             bool loadModSuccess = false;
             try
             {
@@ -1016,7 +1061,8 @@ namespace MW5_Mod_Manager
                         NullValueHandling = NullValueHandling.Ignore
                     };
 
-                    modJsonDataObject = JsonConvert.DeserializeObject<ModObject>(modJsonText, jsonSettings);
+                    modJsonDataObject = modJsonObject.ToObject<ModObject>(
+                        JsonSerializer.Create(jsonSettings));
 
                     modData.NewLoadOrder = modJsonDataObject.defaultLoadOrder;
                     modData.IsNewMod = !modJsonObject.ContainsKey("locOriginalLoadOrder");
@@ -1165,19 +1211,23 @@ namespace MW5_Mod_Manager
                     });
                 }
 
-                // Get mod file size
-                var skipFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                if (includeFileMetadata)
                 {
-                    // We want to skip files that are potentially different between installs of the same mod
-                    // to not get different sizes for different users/computers
-                    "__folder_managed_by_vortex", "mod.json", "mod.json.bak", "backup.json"
-                };
-                modData.ModFileSize = Directory.EnumerateFiles(modPath, "*", SearchOption.AllDirectories)
-                    .Where(f => !skipFiles.Contains(Path.GetFileName(f)))
-                    .Sum(f => LocFileUtils.GetFileSize(f));
+                    ModFileMetadataResult metadata = LoadModFileMetadata(modPath);
+                    if (!metadata.Success)
+                    {
+                        return new ModLoadFailure(
+                            modPath,
+                            metadata.AffectedPath,
+                            metadata.Operation,
+                            metadata.Details);
+                    }
 
-
-                modData.FileAge = GetFileAge(modPath);
+                    modData.ModFileSize = metadata.FileSize;
+                    modData.FileAge = metadata.FileAge;
+                    modData.FileMetadataLoaded = true;
+                    modData.FileMetadataAvailable = true;
+                }
 
                 Mods.Add(modPath, modData);
                 ModDetails.Add(modPath, modJsonDataObject);
@@ -1214,19 +1264,80 @@ namespace MW5_Mod_Manager
             return null;
         }
 
-        private void LoadAllModDetails()
+        private void LoadAllModDetails(bool includeFileMetadata)
         {
             Mods.Clear();
             ModDetails.Clear();
             var failures = new List<ModLoadFailure>();
             foreach (string modDir in this.FoundDirectories)
             {
-                ModLoadFailure failure = LoadModDetails(modDir);
+                ModLoadFailure failure = LoadModDetails(modDir, includeFileMetadata);
                 if (failure != null)
                     failures.Add(failure);
             }
 
             ShowModLoadFailures(failures);
+        }
+
+        internal IReadOnlyList<ModFileMetadataResult> LoadDeferredModFileMetadata()
+        {
+            string[] modDirectories = ModDirectories.ToArray();
+            var results = new List<ModFileMetadataResult>(modDirectories.Length);
+            foreach (string modDirectory in modDirectories)
+            {
+                results.Add(LoadModFileMetadata(modDirectory));
+            }
+
+            return results;
+        }
+
+        internal static void ShowModFileMetadataFailures(
+            IReadOnlyList<ModFileMetadataResult> results)
+        {
+            List<ModFileMetadataResult> failures = results
+                .Where(result => !result.Success)
+                .ToList();
+            if (failures.Count == 0)
+                return;
+
+            const int displayedFailureLimit = 10;
+            var details = new System.Text.StringBuilder();
+            details.AppendLine(
+                "Installed file size and age could not be read for the following mods:");
+            details.AppendLine();
+
+            foreach (ModFileMetadataResult failure in failures.Take(displayedFailureLimit))
+            {
+                details.AppendLine(Path.GetFileName(failure.ModPath));
+                details.AppendLine($"  Path: {failure.AffectedPath}");
+                details.AppendLine($"  Failed to {failure.Operation}: {failure.Details}");
+                details.AppendLine();
+            }
+
+            if (failures.Count > displayedFailureLimit)
+            {
+                details.AppendLine(
+                    $"...and {failures.Count - displayedFailureLimit} more affected mods.");
+                details.AppendLine();
+            }
+
+            details.Append(
+                "The mods remain available in the list. Reload after the affected files become readable.");
+
+            TaskDialog.ShowDialog(MainForm.Instance.Handle, new TaskDialogPage()
+            {
+                Text = details.ToString(),
+                Heading =
+                    $"{failures.Count} mod{(failures.Count == 1 ? "" : "s")} have incomplete file metadata.",
+                Caption = "Inaccessible mod files",
+                Buttons =
+                {
+                    TaskDialogButton.OK,
+                },
+                Icon = TaskDialogIcon.Warning,
+                DefaultButton = TaskDialogButton.OK,
+                AllowCancel = true
+            });
         }
 
         private static void ShowModLoadFailures(IReadOnlyList<ModLoadFailure> failures)
@@ -1628,20 +1739,157 @@ namespace MW5_Mod_Manager
             ModConflictData[modBPath] = conflictDataB;
         }
 
-        public void RecomputeOverridingData()
+        internal Dictionary<string, ModConflictData> BuildModConflictData(
+            IReadOnlyList<ModItem> modItems)
         {
-            ModConflictData.Clear();
+            var result = new Dictionary<string, ModConflictData>(
+                StringComparer.OrdinalIgnoreCase);
+            if (modItems == null)
+                return result;
 
-            // Iterate over all enabled mods to compute their override relationships
-            foreach (ModItem itemA in ModItemList.Instance.ModList)
+            List<ModItem> enabledMods = modItems
+                .Where(item => item.Enabled)
+                .ToList();
+            if (enabledMods
+                .Select(item => item.FolderName)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Count() != enabledMods.Count)
             {
-                if (!itemA.Enabled)
+                return BuildPairwiseModConflictData(enabledMods);
+            }
+
+            var manifests = new IReadOnlyList<string>[enabledMods.Count];
+            var ownersByPath = new Dictionary<string, List<int>>(
+                StringComparer.OrdinalIgnoreCase);
+            var nullPathOwners = new List<int>();
+
+            for (int modIndex = 0; modIndex < enabledMods.Count; modIndex++)
+            {
+                ModItem item = enabledMods[modIndex];
+                string modPath = item.FolderName;
+                result[modPath] = new ModConflictData
+                {
+                    modPath = modPath,
+                    overrides = new Dictionary<string, List<string>>(),
+                    overriddenBy = new Dictionary<string, List<string>>()
+                };
+
+                if (!DirNameToPathDict.TryGetValue(modPath, out string fullPath)
+                    || !ModDetails.TryGetValue(fullPath, out ModObject modObject)
+                    || modObject.manifest == null)
+                {
+                    continue;
+                }
+
+                manifests[modIndex] = modObject.manifest;
+                var seenPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (string manifestPath in modObject.manifest)
+                {
+                    if (!seenPaths.Add(manifestPath))
+                        continue;
+
+                    List<int> owners;
+                    if (manifestPath == null)
+                    {
+                        owners = nullPathOwners;
+                    }
+                    else if (!ownersByPath.TryGetValue(manifestPath, out owners))
+                    {
+                        owners = new List<int>();
+                        ownersByPath.Add(manifestPath, owners);
+                    }
+
+                    owners.Add(modIndex);
+                }
+            }
+
+            var pairFiles = new Dictionary<(int First, int Second), List<string>>();
+            for (int firstIndex = 0; firstIndex < enabledMods.Count; firstIndex++)
+            {
+                IReadOnlyList<string> manifest = manifests[firstIndex];
+                if (manifest == null)
                     continue;
 
-                string modAPath = itemA.FolderName;
+                var seenPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (string manifestPath in manifest)
+                {
+                    if (!seenPaths.Add(manifestPath))
+                        continue;
 
-                // Ensure an entry exists for modA in the conflict data dictionary
-                if (!ModConflictData.TryGetValue(modAPath, out ModConflictData conflictDataA))
+                    IReadOnlyList<int> owners = manifestPath == null
+                        ? nullPathOwners
+                        : ownersByPath[manifestPath];
+
+                    foreach (int secondIndex in owners)
+                    {
+                        if (secondIndex <= firstIndex)
+                            continue;
+
+                        var pair = (firstIndex, secondIndex);
+                        if (!pairFiles.TryGetValue(pair, out List<string> intersect))
+                        {
+                            intersect = new List<string>();
+                            pairFiles.Add(pair, intersect);
+                        }
+
+                        intersect.Add(manifestPath);
+                    }
+                }
+            }
+
+            foreach (KeyValuePair<(int First, int Second), List<string>> pairEntry
+                     in pairFiles
+                         .OrderBy(entry => entry.Key.First)
+                         .ThenBy(entry => entry.Key.Second))
+            {
+                ModItem itemA = enabledMods[pairEntry.Key.First];
+                ModItem itemB = enabledMods[pairEntry.Key.Second];
+                string modAPath = itemA.FolderName;
+                string modBPath = itemB.FolderName;
+                if (modAPath == modBPath)
+                    continue;
+
+                ModConflictData conflictDataA = result[modAPath];
+                ModConflictData conflictDataB = result[modBPath];
+
+                float loadOrderA = Mods[itemA.Path].NewLoadOrder;
+                float loadOrderB = Mods[itemB.Path].NewLoadOrder;
+                bool aOverridesB = loadOrderA > loadOrderB
+                    || (loadOrderA == loadOrderB
+                        && string.Compare(
+                            modAPath,
+                            modBPath,
+                            StringComparison.OrdinalIgnoreCase) > 0);
+
+                if (aOverridesB)
+                {
+                    conflictDataA.isOverriding = true;
+                    conflictDataA.overrides[modBPath] = pairEntry.Value;
+                    conflictDataB.isOverridden = true;
+                    conflictDataB.overriddenBy[modAPath] = pairEntry.Value;
+                }
+                else
+                {
+                    conflictDataA.isOverridden = true;
+                    conflictDataA.overriddenBy[modBPath] = pairEntry.Value;
+                    conflictDataB.isOverriding = true;
+                    conflictDataB.overrides[modAPath] = pairEntry.Value;
+                }
+            }
+
+            return result;
+        }
+
+        private Dictionary<string, ModConflictData> BuildPairwiseModConflictData(
+            IReadOnlyList<ModItem> enabledMods)
+        {
+            var result = new Dictionary<string, ModConflictData>(
+                StringComparer.OrdinalIgnoreCase);
+
+            foreach (ModItem itemA in enabledMods)
+            {
+                string modAPath = itemA.FolderName;
+                if (!result.TryGetValue(modAPath, out ModConflictData conflictDataA))
                 {
                     conflictDataA = new ModConflictData
                     {
@@ -1649,31 +1897,20 @@ namespace MW5_Mod_Manager
                         overrides = new Dictionary<string, List<string>>(),
                         overriddenBy = new Dictionary<string, List<string>>()
                     };
-                    ModConflictData[modAPath] = conflictDataA;
+                    result[modAPath] = conflictDataA;
                 }
 
-                // Compare modA with every other enabled mod to determine conflicts
-                foreach (ModItem itemB in ModItemList.Instance.ModList)
+                foreach (ModItem itemB in enabledMods)
                 {
                     string modBPath = itemB.FolderName;
-
-                    if (modAPath == modBPath)
-                        continue;
-
-                    if (!itemB.Enabled)
-                        continue;
-
-                    // Avoid redundant comparisons: if modA and modB have already been compared, skip
-                    if (
-                        conflictDataA.overriddenBy.ContainsKey(modBPath) ||
-                        conflictDataA.overrides.ContainsKey(modBPath)
-                        )
+                    if (modAPath == modBPath
+                        || conflictDataA.overriddenBy.ContainsKey(modBPath)
+                        || conflictDataA.overrides.ContainsKey(modBPath))
                     {
                         continue;
                     }
 
-                    // If modB already has conflict data, check if this mod pair was already compared
-                    if (!ModConflictData.TryGetValue(modBPath, out ModConflictData conflictDataB))
+                    if (!result.TryGetValue(modBPath, out ModConflictData conflictDataB))
                     {
                         conflictDataB = new ModConflictData
                         {
@@ -1681,22 +1918,90 @@ namespace MW5_Mod_Manager
                             overrides = new Dictionary<string, List<string>>(),
                             overriddenBy = new Dictionary<string, List<string>>()
                         };
-                        ModConflictData[modBPath] = conflictDataB;
+                        result[modBPath] = conflictDataB;
+                    }
+                    else if (conflictDataB.overriddenBy.ContainsKey(modAPath)
+                             || conflictDataB.overrides.ContainsKey(modAPath))
+                    {
+                        continue;
+                    }
+
+                    if (!DirNameToPathDict.TryGetValue(
+                            modAPath,
+                            out string modAFullPath)
+                        || !DirNameToPathDict.TryGetValue(
+                            modBPath,
+                            out string modBFullPath))
+                    {
+                        continue;
+                    }
+
+                    IReadOnlyList<string> manifestA =
+                        ModDetails.TryGetValue(modAFullPath, out ModObject modObjectA)
+                            ? modObjectA.manifest
+                            : null;
+                    IReadOnlyList<string> manifestB =
+                        ModDetails.TryGetValue(modBFullPath, out ModObject modObjectB)
+                            ? modObjectB.manifest
+                            : null;
+                    if (manifestA == null || manifestB == null)
+                        continue;
+
+                    List<string> intersect = manifestA
+                        .Intersect(manifestB, StringComparer.OrdinalIgnoreCase)
+                        .ToList();
+                    if (intersect.Count == 0)
+                        continue;
+
+                    float loadOrderA = Mods[itemA.Path].NewLoadOrder;
+                    float loadOrderB = Mods[itemB.Path].NewLoadOrder;
+                    bool aOverridesB = loadOrderA > loadOrderB
+                        || (loadOrderA == loadOrderB
+                            && string.Compare(
+                                modAPath,
+                                modBPath,
+                                StringComparison.OrdinalIgnoreCase) > 0);
+
+                    if (aOverridesB)
+                    {
+                        if (conflictDataA.modPath != modBPath)
+                        {
+                            conflictDataA.isOverriding = true;
+                            conflictDataA.overrides[modBPath] = intersect;
+                        }
+                        if (conflictDataB.modPath != modAPath)
+                        {
+                            conflictDataB.isOverridden = true;
+                            conflictDataB.overriddenBy[modAPath] = intersect;
+                        }
                     }
                     else
                     {
-                        if (
-                            conflictDataB.overriddenBy.ContainsKey(modAPath) ||
-                            conflictDataB.overrides.ContainsKey(modAPath)
-                            )
+                        if (conflictDataA.modPath != modBPath)
                         {
-                            // This mod pair has already been processed
-                            continue;
+                            conflictDataA.isOverridden = true;
+                            conflictDataA.overriddenBy[modBPath] = intersect;
+                        }
+                        if (conflictDataB.modPath != modAPath)
+                        {
+                            conflictDataB.isOverriding = true;
+                            conflictDataB.overrides[modAPath] = intersect;
                         }
                     }
-                    RecomputeModConflictData(itemA, itemB, conflictDataA, conflictDataB);
                 }
             }
+
+            return result;
+        }
+
+        public void RecomputeOverridingData()
+        {
+            Dictionary<string, ModConflictData> recomputed =
+                BuildModConflictData(ModItemList.Instance.ModList);
+
+            ModConflictData.Clear();
+            foreach (KeyValuePair<string, ModConflictData> entry in recomputed)
+                ModConflictData.Add(entry.Key, entry.Value);
 
             MainForm.Instance.ColorizeListViewItems();
         }
