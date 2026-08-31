@@ -104,7 +104,7 @@ namespace MW5_Mod_Manager
         {
             try
             {
-                using (var archive = ArchiveFactory.Open(ArchiveFilePath))
+                using (var archive = ArchiveFactory.OpenArchive(ArchiveFilePath))
                 {
                     int fileCount = 0;
 
