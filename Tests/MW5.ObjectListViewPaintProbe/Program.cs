@@ -8,6 +8,8 @@ internal static class Program
     private const uint RdwAllChildren = 0x0080;
     private const uint RdwUpdateNow = 0x0100;
     private const uint LvmScroll = 0x1014;
+    private const uint LvmGetGroupCount = 0x1098;
+    private const uint LvmIsGroupViewEnabled = 0x10AF;
     private const uint WmMouseWheel = 0x020A;
 
     [STAThread]
@@ -35,6 +37,9 @@ internal static class Program
         Measure("OLV native no group", CreateObjectListView(
             items, decorated: false, highlighted: false, grouped: false,
             bypassCustomDraw: false, images: false), hostSize);
+        Measure("OLV smooth no group", CreateObjectListView(
+            items, decorated: false, highlighted: false, grouped: false,
+            bypassCustomDraw: false, images: false, smoothPixelScrolling: true), hostSize);
         Measure("OLV bypass no group", CreateObjectListView(
             items, decorated: false, highlighted: false, grouped: false,
             bypassCustomDraw: true, images: false), hostSize);
@@ -101,7 +106,8 @@ internal static class Program
         bool highlighted,
         bool grouped,
         bool bypassCustomDraw,
-        bool images)
+        bool images,
+        bool smoothPixelScrolling = false)
     {
         ObjectListView list = bypassCustomDraw
             ? new BypassCustomDrawObjectListView()
@@ -113,6 +119,8 @@ internal static class Program
         list.UseHotItem = false;
         list.UseOverlays = false;
         list.View = View.Details;
+        list.ShowGroups = grouped;
+        list.UseSmoothPixelScrolling = smoothPixelScrolling;
         AddColumn(list, "Mod", item => item.Name, 280, searchable: true);
         AddColumn(list, "Author", item => item.Author, 100);
         AddColumn(list, "Version", item => item.Version, 80);
@@ -298,6 +306,16 @@ internal static class Program
             IntPtr.Zero);
         Console.WriteLine(
             $"{label,-22} 1px moved {pixelScrollDistance,3} px; wheel moved {after - before,4} px");
+        if (control is ObjectListView objectListView)
+        {
+            int nativeGroupCount = SendMessage(
+                list.Handle, LvmGetGroupCount, IntPtr.Zero, IntPtr.Zero).ToInt32();
+            bool nativeGroupView = SendMessage(
+                list.Handle, LvmIsGroupViewEnabled, IntPtr.Zero, IntPtr.Zero) != IntPtr.Zero;
+            Console.WriteLine(
+                $"{label,-22} logical groups {objectListView.ShowGroups,5}; " +
+                $"native group view {nativeGroupView,5}; native groups {nativeGroupCount}");
+        }
     }
 
     private static double Redraw(IntPtr window)
