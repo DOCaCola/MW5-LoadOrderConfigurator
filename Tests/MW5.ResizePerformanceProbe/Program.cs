@@ -199,6 +199,10 @@ internal static class Program
             double p95 = samples[(int)Math.Ceiling(samples.Length * 0.95) - 1];
             Console.WriteLine(
                 $"{label,-16}: median {median,7:N2} ms, mean {mean,7:N2} ms, p95 {p95,7:N2} ms");
+
+            // Keep the sizing session active without changing the window size so
+            // the application's one-shot idle redraw has time to run.
+            Thread.Sleep(250);
         }
         finally
         {

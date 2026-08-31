@@ -52,9 +52,17 @@ namespace MW5_Mod_Manager
                 "1",
                 StringComparison.Ordinal);
         private readonly System.Windows.Forms.Timer _searchDebounceTimer;
+        private readonly System.Windows.Forms.Timer _liveResizeIdleRedrawTimer;
         private string _activeSearchText = string.Empty;
         private bool _listPopulationInProgress;
+        private bool _liveResizeActive;
         private IDisposable _liveResizeListUpdateScope;
+        private long _lastLiveResizeListFrameTimestamp;
+        private const int LiveResizeListFramesPerSecond = 5;
+        private const int LiveResizeListFrameIntervalMilliseconds =
+            1000 / LiveResizeListFramesPerSecond;
+        private static readonly TimeSpan LiveResizeListFrameInterval =
+            TimeSpan.FromMilliseconds(LiveResizeListFrameIntervalMilliseconds);
 
         // Hash of the mod list currently applied to mechwarrior
         public int _ActiveModListHash = 0;
@@ -100,6 +108,12 @@ namespace MW5_Mod_Manager
                 Interval = 200
             };
             _searchDebounceTimer.Tick += SearchDebounceTimer_Tick;
+
+            _liveResizeIdleRedrawTimer = new System.Windows.Forms.Timer
+            {
+                Interval = LiveResizeListFrameIntervalMilliseconds
+            };
+            _liveResizeIdleRedrawTimer.Tick += LiveResizeIdleRedrawTimer_Tick;
 
             DockModListForm.Instance = new();
             DockOverviewForm.Instance = new();
@@ -471,17 +485,72 @@ namespace MW5_Mod_Manager
         protected override void OnResizeBegin(EventArgs e)
         {
             base.OnResizeBegin(e);
-            // A full native list redraw is expensive. Keep its current pixels while
-            // Windows is issuing the modal stream of live-resize layout updates.
+            _liveResizeActive = true;
+            _lastLiveResizeListFrameTimestamp = Stopwatch.GetTimestamp();
             _liveResizeListUpdateScope ??=
+                DockModListForm.Instance.BeginListViewUpdateScope();
+            RestartLiveResizeIdleRedrawTimer();
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            if (!_liveResizeActive)
+                return;
+
+            RestartLiveResizeIdleRedrawTimer();
+            long timestamp = Stopwatch.GetTimestamp();
+            if (Stopwatch.GetElapsedTime(
+                    _lastLiveResizeListFrameTimestamp,
+                    timestamp) < LiveResizeListFrameInterval)
+            {
+                return;
+            }
+
+            _lastLiveResizeListFrameTimestamp = timestamp;
+            RenderLiveResizeListFrame();
+        }
+
+        private void RestartLiveResizeIdleRedrawTimer()
+        {
+            _liveResizeIdleRedrawTimer.Stop();
+            _liveResizeIdleRedrawTimer.Start();
+        }
+
+        private void LiveResizeIdleRedrawTimer_Tick(object sender, EventArgs e)
+        {
+            _liveResizeIdleRedrawTimer.Stop();
+            if (!_liveResizeActive)
+                return;
+
+            _lastLiveResizeListFrameTimestamp = Stopwatch.GetTimestamp();
+            RenderLiveResizeListFrame();
+        }
+
+        private void RenderLiveResizeListFrame()
+        {
+            _liveResizeListUpdateScope.Dispose();
+            _liveResizeListUpdateScope = null;
+
+            var listView = DockModListForm.Instance.modObjectListView;
+            listView.Invalidate();
+            listView.Update();
+
+            _liveResizeListUpdateScope =
                 DockModListForm.Instance.BeginListViewUpdateScope();
         }
 
         protected override void OnResizeEnd(EventArgs e)
         {
+            _liveResizeActive = false;
+            _liveResizeIdleRedrawTimer.Stop();
             _liveResizeListUpdateScope?.Dispose();
             _liveResizeListUpdateScope = null;
             base.OnResizeEnd(e);
+
+            var listView = DockModListForm.Instance.modObjectListView;
+            listView.Invalidate();
+            listView.Update();
         }
 
         private ColumnMenuInfo[] columnMenus;
@@ -2970,6 +3039,7 @@ namespace MW5_Mod_Manager
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             _searchDebounceTimer.Dispose();
+            _liveResizeIdleRedrawTimer.Dispose();
             Application.Exit();
         }
 
