@@ -106,6 +106,54 @@ namespace MW5.LoadOrder.Tests
             AssertNoFailures(failures);
         }
 
+        [DataTestMethod]
+        [DataRow(3)]
+        [DataRow(4)]
+        public void DisjointSelectionCanMoveToBoundaryOccupiedBySelectedItem(
+            int insertionIndex)
+        {
+            List<ModItem> viewOrder = CreateViewOrder("A", "B", "C", "D", "E");
+
+            ModOrderMutation.ViewReorderResult result =
+                ModOrderMutation.CalculateViewReorder(
+                    viewOrder,
+                    new[] { viewOrder[1], viewOrder[3] },
+                    insertionIndex);
+
+            Assert.IsTrue(result.Changed);
+            Assert.AreEqual(2, result.InsertionIndex);
+            CollectionAssert.AreEqual(
+                new[] { "A", "C", "B", "D", "E" },
+                result.ViewOrder.Select(mod => mod.FolderName).ToArray());
+            CollectionAssert.AreEqual(
+                new[] { "B", "D" },
+                result.DraggedItems.Select(mod => mod.FolderName).ToArray());
+        }
+
+        [TestMethod]
+        public void ContiguousSelectionDroppedInsideOwnBlockIsNoOp()
+        {
+            List<ModItem> viewOrder = CreateViewOrder("A", "B", "C", "D", "E");
+
+            ModOrderMutation.ViewReorderResult result =
+                ModOrderMutation.CalculateViewReorder(
+                    viewOrder,
+                    new[] { viewOrder[1], viewOrder[2] },
+                    insertionIndex: 2);
+
+            Assert.IsFalse(result.Changed);
+            CollectionAssert.AreEqual(
+                new[] { "A", "B", "C", "D", "E" },
+                result.ViewOrder.Select(mod => mod.FolderName).ToArray());
+        }
+
+        private static List<ModItem> CreateViewOrder(params string[] ids)
+        {
+            return ids
+                .Select(id => new ModItem { FolderName = id })
+                .ToList();
+        }
+
         private static List<string> RunSelectionMatrix(MovePosition position)
         {
             var failures = new List<string>();

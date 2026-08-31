@@ -271,71 +271,40 @@ namespace MW5_Mod_Manager
                 return;
             }
 
-            foreach (ModItem curSourceModItem in e.SourceModels)
-            {
-                int sourceItemIndex = modObjectListView.IndexOf(curSourceModItem);
-                if (e.DropTargetLocation == DropTargetLocation.BelowItem)
-                {
-                    if (sourceItemIndex == e.DropTargetIndex || sourceItemIndex - 1 == e.DropTargetIndex)
-                        return;
-                }
-                else if (e.DropTargetLocation == DropTargetLocation.AboveItem)
-                {
-                    if (sourceItemIndex == e.DropTargetIndex || sourceItemIndex + 1 == e.DropTargetIndex)
-                        return;
-                }
-            }
-
             int normalizedIndex = e.DropTargetIndex;
             if (e.DropTargetLocation == DropTargetLocation.BelowItem)
             {
                 normalizedIndex++;
             }
 
-            bool reverseView = LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow;
-            List<ModItem> draggedItems = e.SourceModels.Cast<ModItem>().ToList();
-            if (draggedItems.Count == 0)
+            List<ModItem> currentViewOrder = modObjectListView.Items
+                .Cast<OLVListItem>()
+                .Select(item => (ModItem)item.RowObject)
+                .ToList();
+            ModOrderMutation.ViewReorderResult reorder =
+                ModOrderMutation.CalculateViewReorder(
+                    currentViewOrder,
+                    e.SourceModels.Cast<ModItem>(),
+                    normalizedIndex);
+            if (!reorder.Changed)
                 return;
 
-            int targetModelIndex = reverseView
-                ? ModItemList.Instance.ModList.Count - normalizedIndex
-                : normalizedIndex;
-
-            foreach (var modItem in draggedItems)
-            {
-                int index = ModItemList.Instance.ModList.IndexOf(modItem);
-                if (index >= 0)
-                {
-                    if (index < targetModelIndex)
-                        targetModelIndex--;
-                    ModItemList.Instance.ModList.RemoveAt(index);
-                }
-            }
-
-            IEnumerable<ModItem> itemsToInsert = reverseView
-                ? draggedItems.AsEnumerable().Reverse()
-                : draggedItems;
-
-            foreach (var modItem in itemsToInsert)
-            {
-                ModItemList.Instance.ModList.Insert(targetModelIndex++, modItem);
-            }
+            bool reverseView = LocSettings.Instance.Data.ListSortOrder == eSortOrder.HighToLow;
+            ModOrderMutation.UpdateModelOrderFromView(
+                reorder.ViewOrder,
+                reverseView);
 
             MainForm.Instance._movingItems = true;
 
             using (BeginListViewUpdateScope())
             {
-                int insertionIndex = normalizedIndex;
-                foreach (var mod in draggedItems)
-                {
-                    int currentViewIndex = modObjectListView.IndexOf(mod);
-                    if (currentViewIndex >= 0 && currentViewIndex < insertionIndex)
-                        insertionIndex--;
-                }
-
-                var draggedObjects = draggedItems.Cast<object>().ToList();
+                var draggedObjects = reorder.DraggedItems
+                    .Cast<object>()
+                    .ToList();
                 modObjectListView.RemoveObjects(draggedObjects);
-                modObjectListView.InsertObjects(insertionIndex, draggedObjects);
+                modObjectListView.InsertObjects(
+                    reorder.InsertionIndex,
+                    draggedObjects);
                 modObjectListView.SelectedObjects = draggedObjects;
 
                 LoadOrder.RecomputeLoadOrders();
