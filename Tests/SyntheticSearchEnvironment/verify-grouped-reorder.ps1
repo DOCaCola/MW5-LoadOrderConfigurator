@@ -201,6 +201,10 @@ $draggedBounds = Wait-ForRowPosition $window $sourceMod {
     param($bounds)
     $bounds.Top -gt ($topBounds.Top + 50)
 }
+$targetBounds = (Get-NamedElement $window $targetMod).Current.BoundingRectangle
+if ([Math]::Abs($draggedBounds.Top - $targetBounds.Bottom) -gt 3) {
+    throw "The dragged row was not placed directly below '$targetMod'."
+}
 
 Click-NamedElement $window $sourceMod
 Invoke-Button $window "Up"

@@ -99,6 +99,9 @@ namespace MW5_Mod_Manager
         {
             if (ReferenceEquals(e.ColumnToSort, olvColumnModCurLoadOrder))
             {
+                // ModItemList owns the row order. The ObjectListView sort order is
+                // retained only so the load-order column shows the correct indicator.
+                e.Handled = true;
                 ApplyListSortOrderChange(e.SortOrder);
                 return;
             }
