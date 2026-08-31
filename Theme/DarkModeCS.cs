@@ -420,7 +420,8 @@ namespace DarkModeForms
                     pic.BackColor = pic.Parent.BackColor;
                 }
 
-                if (control is ListView lView)
+                if (control is ListView lView
+                    && control is not BrightIdeasSoftware.ObjectListView)
                 {
                     if (lView.View == View.Details)
                     {

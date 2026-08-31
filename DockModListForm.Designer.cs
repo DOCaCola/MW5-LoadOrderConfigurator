@@ -188,8 +188,6 @@ namespace MW5_Mod_Manager
             modObjectListView.View = View.Details;
             modObjectListView.BeforeSearching += modObjectListView_BeforeSearching;
             modObjectListView.BeforeSorting += modObjectListView_BeforeSorting;
-            modObjectListView.BeforeCreatingGroups += modObjectListView_BeforeCreatingGroups;
-            modObjectListView.AboutToCreateGroups += modObjectListView_AboutToCreateGroups;
             modObjectListView.CellToolTipShowing += modObjectListView_CellToolTipShowing;
             modObjectListView.ColumnRightClick += modObjectListView_ColumnRightClick;
             modObjectListView.FormatRow += modObjectListView_FormatRow;

@@ -24,7 +24,8 @@
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <AssemblyName>MW5-LoadOrderConfigurator</AssemblyName>
     <ForceDesignerDPIUnaware>true</ForceDesignerDPIUnaware>
-	<NoWarn>CA1416</NoWarn>
+    <NoWarn>CA1416</NoWarn>
+    <DefaultItemExcludes>$(DefaultItemExcludes);external\**\*</DefaultItemExcludes>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
@@ -84,8 +85,10 @@
     <PackageReference Include="DockPanelSuite.ThemeVS2015" Version="3.1.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="ObjectListView.Repack.NET6Plus" Version="2.9.4" />
     <PackageReference Include="SharpCompress" Version="0.37.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="external\ObjectListView-DC\cs\trunk\ObjectListView\ObjectListView2022NET.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Settings.Designer.cs">

@@ -54,6 +54,7 @@ namespace MW5_Mod_Manager
         private readonly System.Windows.Forms.Timer _searchDebounceTimer;
         private string _activeSearchText = string.Empty;
         private bool _listPopulationInProgress;
+        private IDisposable _liveResizeListUpdateScope;
 
         // Hash of the mod list currently applied to mechwarrior
         public int _ActiveModListHash = 0;
@@ -238,8 +239,6 @@ namespace MW5_Mod_Manager
             DockModListForm.Instance.olvColumnModFileSize.VisibilityChanged += OlvColumnVisibilityChanged;
             DockModListForm.Instance.olvColumnModFolder.VisibilityChanged += OlvColumnVisibilityChanged;
 
-            DockModListForm.Instance.olvColumnModName.GroupKeyGetter += GroupKeyGetter;
-
             var dragSource = new ModDragSource();
             DockModListForm.Instance.modObjectListView.DragSource = dragSource;
 
@@ -405,11 +404,6 @@ namespace MW5_Mod_Manager
             return s.Author;
         }
 
-        private object GroupKeyGetter(object rowobject)
-        {
-            return 1;
-        }
-
         private bool _delayedRecolorStarted = false;
 
         public void EnableModListDrop(bool enable)
@@ -472,6 +466,22 @@ namespace MW5_Mod_Manager
                 Name = name;
                 Column = column;
             }
+        }
+
+        protected override void OnResizeBegin(EventArgs e)
+        {
+            base.OnResizeBegin(e);
+            // A full native list redraw is expensive. Keep its current pixels while
+            // Windows is issuing the modal stream of live-resize layout updates.
+            _liveResizeListUpdateScope ??=
+                DockModListForm.Instance.BeginListViewUpdateScope();
+        }
+
+        protected override void OnResizeEnd(EventArgs e)
+        {
+            _liveResizeListUpdateScope?.Dispose();
+            _liveResizeListUpdateScope = null;
+            base.OnResizeEnd(e);
         }
 
         private ColumnMenuInfo[] columnMenus;

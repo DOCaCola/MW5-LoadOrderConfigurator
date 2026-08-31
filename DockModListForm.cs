@@ -34,7 +34,9 @@ namespace MW5_Mod_Manager
             toolStrip2.SetDisableDarkMode(true);
             toolStrip2.SetDisableDarkModeChildren(true);
 
-            modObjectListView.AlwaysGroupByColumn = olvColumnModName;
+            modObjectListView.OwnerDraw = false;
+            modObjectListView.ShowGroups = false;
+            modObjectListView.UseSmoothPixelScrolling = true;
         }
 
         public IDisposable BeginListViewUpdateScope()
@@ -102,22 +104,6 @@ namespace MW5_Mod_Manager
             }
             SyncLoadOrderSortIndicator();
             e.Canceled = true;
-        }
-
-        private void modObjectListView_BeforeCreatingGroups(object sender, CreateGroupsEventArgs e)
-        {
-            e.Parameters.PrimarySortOrder = SortOrder.None;
-        }
-
-        private void modObjectListView_AboutToCreateGroups(object sender, CreateGroupsEventArgs e)
-        {
-            // With this trick we have group without header.
-            // Point being that the list is smoothly scrollable when groups are used
-            foreach (OLVGroup group in e.Groups)
-            {
-                group.State |= GroupState.LVGS_NOHEADER;
-                group.StateMask |= GroupState.LVGS_NOHEADER;
-            }
         }
 
         private void modObjectListView_CellToolTipShowing(object sender, ToolTipShowingEventArgs e)
@@ -500,6 +486,11 @@ namespace MW5_Mod_Manager
             {
                 SetRendererFilter(column.Renderer, textFilter);
             }
+
+            bool requiresOwnerDraw = textFilter != null;
+            if (modObjectListView.OwnerDraw != requiresOwnerDraw)
+                modObjectListView.OwnerDraw = requiresOwnerDraw;
+
             modObjectListView.Invalidate();
         }
 
