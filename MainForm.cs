@@ -55,6 +55,7 @@ namespace MW5_Mod_Manager
         private readonly System.Windows.Forms.Timer _liveResizeIdleRedrawTimer;
         private string _activeSearchText = string.Empty;
         private bool _listPopulationInProgress;
+        private readonly HashSet<ModItem> _pendingCheckStateChanges = new();
         private bool _liveResizeActive;
         private IDisposable _liveResizeListUpdateScope;
         private long _lastLiveResizeListFrameTimestamp;
@@ -296,6 +297,10 @@ namespace MW5_Mod_Manager
             DockModListForm.Instance.modObjectListView.UseHotItem = true;
 
             DockModListForm.Instance.modObjectListView.BooleanCheckStateGetter = BooleanCheckStateGetter;
+            DockModListForm.Instance.modObjectListView.CheckStateUpdateStarting +=
+                ModObjectListView_CheckStateUpdateStarting;
+            DockModListForm.Instance.modObjectListView.CheckStateUpdateFinished +=
+                ModObjectListView_CheckStateUpdateFinished;
 
             bool BooleanCheckStateGetter(object rowobject)
             {
@@ -312,12 +317,11 @@ namespace MW5_Mod_Manager
                     x.ModPath.Equals(curMod.Path, StringComparison.OrdinalIgnoreCase));
                 modItem.Enabled = newValue;
 
-                ModsManager.Instance.UpdateNewModOverrideData(curMod);
-                UpdateModCountDisplay();
-                DockModListForm.Instance.RecolorObjectListViewRows();
-                DockModListForm.Instance.modObjectListView.RefreshObject(curMod);
-                CheckModConfigTainted();
-                QueueSidePanelUpdate(true);
+                if (DockModListForm.Instance.modObjectListView.IsCheckStateUpdateInProgress)
+                    _pendingCheckStateChanges.Add(curMod);
+                else
+                    ApplyModEnabledStateChanges(new[] { curMod });
+
                 return newValue; // return the value that you want the control to use
             };
 
@@ -480,6 +484,34 @@ namespace MW5_Mod_Manager
                 Name = name;
                 Column = column;
             }
+        }
+
+        private void ModObjectListView_CheckStateUpdateStarting(object sender, EventArgs e)
+        {
+            _pendingCheckStateChanges.Clear();
+        }
+
+        private void ModObjectListView_CheckStateUpdateFinished(object sender, EventArgs e)
+        {
+            if (_pendingCheckStateChanges.Count == 0)
+                return;
+
+            ModItem[] changedMods = _pendingCheckStateChanges.ToArray();
+            _pendingCheckStateChanges.Clear();
+            ApplyModEnabledStateChanges(changedMods);
+        }
+
+        private void ApplyModEnabledStateChanges(IReadOnlyCollection<ModItem> changedMods)
+        {
+            if (changedMods.Count == 1)
+                ModsManager.Instance.UpdateNewModOverrideData(changedMods.First());
+            else
+                ModsManager.Instance.RecomputeOverridingData();
+
+            UpdateModCountDisplay();
+            DockModListForm.Instance.RecolorObjectListViewRows();
+            CheckModConfigTainted();
+            QueueSidePanelUpdate(true);
         }
 
         protected override void OnResizeBegin(EventArgs e)
@@ -2112,20 +2144,8 @@ namespace MW5_Mod_Manager
             if (AreAllModsEnabled())
                 return;
 
-            using (DockModListForm.Instance.BeginListViewUpdateScope())
-            {
-                foreach (ModItem curModItem in ModItemList.Instance.ModList)
-                {
-                    curModItem.Enabled = true;
-                }
-
-                DockModListForm.Instance.modObjectListView.RefreshItems();
-            }
-
-            ModsManager.Instance.RecomputeOverridingData();
-            UpdateModCountDisplay();
-            DockModListForm.Instance.RecolorObjectListViewRows();
-            CheckModConfigTainted();
+            DockModListForm.Instance.modObjectListView.CheckObjects(
+                ModItemList.Instance.ModList);
         }
 
         private void disableAllModsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2136,20 +2156,8 @@ namespace MW5_Mod_Manager
             if (AreAllModsDisabled())
                 return;
 
-            using (DockModListForm.Instance.BeginListViewUpdateScope())
-            {
-                foreach (ModItem curModItem in ModItemList.Instance.ModList)
-                {
-                    curModItem.Enabled = false;
-                }
-
-                DockModListForm.Instance.modObjectListView.RefreshItems();
-            }
-
-            ModsManager.Instance.RecomputeOverridingData();
-            UpdateModCountDisplay();
-            DockModListForm.Instance.RecolorObjectListViewRows();
-            CheckModConfigTainted();
+            DockModListForm.Instance.modObjectListView.UncheckObjects(
+                ModItemList.Instance.ModList);
         }
 
         private void openFolderToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2520,24 +2528,12 @@ namespace MW5_Mod_Manager
 
         public bool AreAllModsEnabled()
         {
-            for (int i = 1; i < DockModListForm.Instance.modObjectListView.Items.Count; i++)
-            {
-                if (!DockModListForm.Instance.modObjectListView.Items[i].Checked)
-                    return false;
-            }
-
-            return true;
+            return ModItemList.Instance.ModList.All(mod => mod.Enabled);
         }
 
         public bool AreAllModsDisabled()
         {
-            for (int i = 1; i < DockModListForm.Instance.modObjectListView.Items.Count; i++)
-            {
-                if (DockModListForm.Instance.modObjectListView.Items[i].Checked)
-                    return false;
-            }
-
-            return true;
+            return ModItemList.Instance.ModList.All(mod => !mod.Enabled);
         }
 
         private void openUserModsFolderToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2880,14 +2876,21 @@ namespace MW5_Mod_Manager
             using (DockModListForm.Instance.BeginListViewUpdateScope())
             {
                 this._movingItems = true;
-                foreach (OLVListItem selectedItem in DockModListForm.Instance.modObjectListView.SelectedItems)
+                try
                 {
-                    if (newState == selectedItem.Checked)
-                        continue;
-
-                    selectedItem.Checked = newState;
+                    List<ModItem> selectedMods = DockModListForm.Instance.modObjectListView
+                        .SelectedObjects
+                        .Cast<ModItem>()
+                        .ToList();
+                    if (newState)
+                        DockModListForm.Instance.modObjectListView.CheckObjects(selectedMods);
+                    else
+                        DockModListForm.Instance.modObjectListView.UncheckObjects(selectedMods);
                 }
-                this._movingItems = false;
+                finally
+                {
+                    this._movingItems = false;
+                }
             }
         }
 

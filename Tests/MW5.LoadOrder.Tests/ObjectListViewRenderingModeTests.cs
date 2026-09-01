@@ -25,8 +25,10 @@ public sealed class ObjectListViewRenderingModeTests
         using var form = new DockModListForm();
 
         Assert.IsFalse(form.modObjectListView.OwnerDraw);
+        Assert.IsFalse(form.modObjectListView.RefreshItemOnCheckStateChange);
         Assert.IsNull(form.modObjectListView.AlwaysGroupByColumn);
         Assert.IsFalse(form.modObjectListView.ShowGroups);
+        Assert.IsTrue(form.modObjectListView.UseNativeCheckStateUpdates);
         Assert.IsTrue(form.modObjectListView.UseSmoothPixelScrolling);
 
         form.SetSearchHighlightText("Yet");

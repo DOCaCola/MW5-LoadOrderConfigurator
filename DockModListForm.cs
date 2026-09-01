@@ -35,7 +35,9 @@ namespace MW5_Mod_Manager
             toolStrip2.SetDisableDarkModeChildren(true);
 
             modObjectListView.OwnerDraw = false;
+            modObjectListView.RefreshItemOnCheckStateChange = false;
             modObjectListView.ShowGroups = false;
+            modObjectListView.UseNativeCheckStateUpdates = true;
             modObjectListView.UseSmoothPixelScrolling = true;
         }
 
