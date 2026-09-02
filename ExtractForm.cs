@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -20,7 +21,12 @@ namespace MW5_Mod_Manager
     [SupportedOSPlatform("windows")]
     public partial class ExtractForm : Form
     {
+        [Browsable(false),
+         DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string ArchiveFilePath { get; set; }
+
+        [Browsable(false),
+         DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string OutputFolderPath { get; set; }
 
         private Task _extractionTask = null;
@@ -35,6 +41,8 @@ namespace MW5_Mod_Manager
 
         private eExtractionState extractionState = eExtractionState.None;
         private CancellationTokenSource _cts;
+        [Browsable(false),
+         DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public List<string> ExtractedModDirNames { get; set; }
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]

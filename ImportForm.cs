@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -19,6 +20,8 @@ namespace MW5_Mod_Manager
     {
         public enum eResultDataType { DirNames, ModNames }
 
+        [Browsable(false),
+         DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public eResultDataType ResultDataType { get; set; } = eResultDataType.DirNames;
         public List<ModsManager.ModImportData> ResultData;
 

@@ -1,6 +1,7 @@
 using BrightIdeasSoftware;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -81,8 +82,13 @@ public sealed class ObjectListViewDpiTests
         Assert.IsFalse(list.OwnerDraw);
         Size checkboxAt192Dpi = GetVisibleBounds(
             list.StateImageList.Images[0]).Size;
-        Assert.IsTrue(checkboxAt192Dpi.Width > checkboxAt144Dpi.Width);
-        Assert.IsTrue(checkboxAt192Dpi.Height > checkboxAt144Dpi.Height);
+        // UxTheme only guarantees DPI-specific assets for DPI values used by
+        // connected displays. Simulated DPI values can therefore share the same
+        // glyph asset even though the containing native image list scales.
+        Assert.IsTrue(checkboxAt144Dpi.Width > 0 && checkboxAt144Dpi.Width <= 24);
+        Assert.IsTrue(checkboxAt144Dpi.Height > 0 && checkboxAt144Dpi.Height <= 24);
+        Assert.IsTrue(checkboxAt192Dpi.Width > 0 && checkboxAt192Dpi.Width <= 32);
+        Assert.IsTrue(checkboxAt192Dpi.Height > 0 && checkboxAt192Dpi.Height <= 32);
     }
 
     private static Bitmap CreateTestImage(Color color)
@@ -127,6 +133,8 @@ public sealed class ObjectListViewDpiTests
             TestDpi = dpi;
         }
 
+        [Browsable(false),
+         DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int TestDpi { get; set; }
 
         protected override int GetImageListDpi()

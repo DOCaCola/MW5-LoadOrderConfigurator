@@ -154,7 +154,10 @@ namespace MW5_Mod_Manager.Controls
         private int m_RotateAngle = 0;
         private string m_NewText = string.Empty;
 
+        [DefaultValue(0)]
         public int RotateAngle { get { return m_RotateAngle; } set { m_RotateAngle = value; Invalidate(); } }
+
+        [DefaultValue("")]
         public string NewText { get { return m_NewText; } set { m_NewText = value; Invalidate(); } }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -238,12 +241,15 @@ namespace MW5_Mod_Manager.Controls
     [SupportedOSPlatform("windows")]
     public class TextProgressBar : ProgressBar
     {
-        [Description("Font of the text on ProgressBar"), Category("Additional Options")]
+        [Description("Font of the text on ProgressBar"),
+         Category("Additional Options"),
+         DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public Font TextFont { get; set; } = new Font(FontFamily.GenericSerif, 11, FontStyle.Bold | FontStyle.Italic);
 
         private SolidBrush _textColourBrush = (SolidBrush)Brushes.Black;
 
-        [Category("Additional Options")]
+        [Category("Additional Options"),
+         DefaultValue(typeof(Color), "Black")]
         public Color TextColor
         {
             get
@@ -259,7 +265,10 @@ namespace MW5_Mod_Manager.Controls
 
         private SolidBrush _progressColourBrush = (SolidBrush)Brushes.LightGreen;
 
-        [Category("Additional Options"), Browsable(true), EditorBrowsable(EditorBrowsableState.Always)]
+        [Category("Additional Options"),
+         Browsable(true),
+         EditorBrowsable(EditorBrowsableState.Always),
+         DefaultValue(typeof(Color), "LightGreen")]
         public Color ProgressColor
         {
             get
@@ -275,7 +284,9 @@ namespace MW5_Mod_Manager.Controls
 
         private ProgressBarDisplayMode _visualMode = ProgressBarDisplayMode.CurrProgress;
 
-        [Category("Additional Options"), Browsable(true)]
+        [Category("Additional Options"),
+         Browsable(true),
+         DefaultValue(ProgressBarDisplayMode.CurrProgress)]
         public ProgressBarDisplayMode VisualMode
         {
             get
@@ -291,7 +302,11 @@ namespace MW5_Mod_Manager.Controls
 
         private string _text = string.Empty;
 
-        [Description("If it's empty, % will be shown"), Category("Additional Options"), Browsable(true), EditorBrowsable(EditorBrowsableState.Always)]
+        [Description("If it's empty, % will be shown"),
+         Category("Additional Options"),
+         Browsable(true),
+         EditorBrowsable(EditorBrowsableState.Always),
+         DefaultValue("")]
         public string CustomText
         {
             get
@@ -428,7 +443,9 @@ namespace MW5_Mod_Manager.Controls
             if (!string.IsNullOrEmpty(cueBanner))
                 UpdateCueBanner();
         }
-        string cueBanner;
+        string cueBanner = string.Empty;
+
+        [DefaultValue("")]
         public string CueBanner
         {
             get { return cueBanner; }

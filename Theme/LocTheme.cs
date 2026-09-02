@@ -26,6 +26,8 @@ namespace MW5_Mod_Manager.Controls
            };
         }
 
+        [System.ComponentModel.Browsable(false),
+         System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
         public new ToolStripRenderer ToolStripRenderer
         {
             get => base.ToolStripRenderer;
@@ -43,6 +45,8 @@ namespace MW5_Mod_Manager.Controls
             };
         }
 
+        [System.ComponentModel.Browsable(false),
+         System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
         public new ToolStripRenderer ToolStripRenderer
         {
             get => base.ToolStripRenderer;
