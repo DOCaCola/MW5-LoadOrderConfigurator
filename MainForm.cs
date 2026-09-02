@@ -1785,7 +1785,7 @@ namespace MW5_Mod_Manager
                 }
             }
 
-            DockModListForm.Instance.modObjectListView.LowLevelScroll(prevPosition.X, prevPosition.Y);
+            DockModListForm.Instance.modObjectListView.LowLevelScrollTo(prevPosition);
             Cursor.Current = tempCursor;
         }
 

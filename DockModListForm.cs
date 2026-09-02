@@ -605,7 +605,7 @@ namespace MW5_Mod_Manager
             {
                 updateScope?.Dispose();
             }
-            modObjectListView.LowLevelScroll(scroll.X, scroll.Y);
+            modObjectListView.LowLevelScrollTo(scroll);
         }
 
         private void ApplyListSortOrderChange(SortOrder headerSortOrder)

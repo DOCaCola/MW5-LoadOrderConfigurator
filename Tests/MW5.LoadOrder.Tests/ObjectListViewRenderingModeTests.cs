@@ -17,6 +17,7 @@ public sealed class ObjectListViewRenderingModeTests
     private const uint LvmScroll = 0x1014;
     private const uint LvmGetGroupCount = 0x1098;
     private const uint LvmIsGroupViewEnabled = 0x10AF;
+    private const uint WmMouseWheel = 0x020A;
 
     [STATestMethod]
     public void SearchHighlightUsesOwnerDrawOnlyWhileHighlightingIsActive()
@@ -108,6 +109,90 @@ public sealed class ObjectListViewRenderingModeTests
             list.Handle, LvmIsGroupViewEnabled, IntPtr.Zero, IntPtr.Zero).ToInt32());
         Assert.AreEqual(0, list.Groups.Count);
         Assert.AreEqual(60, list.Items.Count);
+    }
+
+    [STATestMethod]
+    public void SmoothPixelScrollingRebuildReturnsToOriginalTopAlignment()
+    {
+        Application.EnableVisualStyles();
+        using var list = new ObjectListView
+        {
+            Dock = DockStyle.Fill,
+            View = View.Details,
+            ShowGroups = false,
+            UseSmoothPixelScrolling = true,
+        };
+        var column = new OLVColumn("Value", null)
+        {
+            AspectGetter = model => model,
+            Width = 200,
+        };
+        list.AllColumns.Add(column);
+        list.Columns.Add(column);
+        object[] objects = Enumerable.Range(0, 60).Cast<object>().ToArray();
+        list.SetObjects(objects);
+
+        using var host = new Form
+        {
+            ClientSize = new Size(400, 300),
+            ShowInTaskbar = false,
+        };
+        host.Controls.Add(list);
+        host.Show();
+        Application.DoEvents();
+
+        int initialFirstRowY = list.Items[0].Bounds.Y;
+        Assert.AreEqual(1, SendMessage(
+            list.Handle, LvmGetGroupCount, IntPtr.Zero, IntPtr.Zero).ToInt32());
+
+        int nativeGroupCountAfterFirstRebuild = 0;
+        for (int cycle = 0; cycle < 6; cycle++)
+        {
+            list.LowLevelScrollTo(new Point(0, 494));
+            Application.DoEvents();
+            Point savedScrollPosition = list.LowLevelScrollPosition;
+
+            if (cycle % 2 == 0)
+            {
+                list.SetObjects(objects);
+            }
+            else
+            {
+                list.BeginUpdate();
+                try
+                {
+                    list.SetObjects(objects);
+                }
+                finally
+                {
+                    list.EndUpdate();
+                }
+            }
+            Application.DoEvents();
+
+            list.LowLevelScrollTo(savedScrollPosition);
+            for (int i = 0; i < 100; i++)
+                SendMessage(
+                    list.Handle,
+                    WmMouseWheel,
+                    new IntPtr(120 << 16),
+                    IntPtr.Zero);
+            Application.DoEvents();
+
+            Assert.AreEqual(0, list.LowLevelScrollPosition.Y);
+            Assert.AreEqual(initialFirstRowY, list.Items[0].Bounds.Y);
+            Assert.AreEqual(1, list.Groups.Count);
+
+            int nativeGroupCount = SendMessage(
+                list.Handle,
+                LvmGetGroupCount,
+                IntPtr.Zero,
+                IntPtr.Zero).ToInt32();
+            if (cycle == 0)
+                nativeGroupCountAfterFirstRebuild = nativeGroupCount;
+            else
+                Assert.AreEqual(nativeGroupCountAfterFirstRebuild, nativeGroupCount);
+        }
     }
 
     [STATestMethod]
