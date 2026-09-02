@@ -1737,9 +1737,11 @@ namespace MW5_Mod_Manager
 
                     // Check if we want to load the last applied mod list
 
-                    if (!forceLoadLastApplied)
-                        PrepareDataAndPopulateListView(modlist, false);
-
+                    // Establish the state currently stored by the game before
+                    // optionally replacing it with the last applied profile.
+                    // RefreshAll clears ModItemList, so this must also happen
+                    // for forced restores before the baseline hash is taken.
+                    PrepareDataAndPopulateListView(modlist, false);
                     _ActiveModListHash = ModItemList.Instance.ModList.ComputeModListHashCode();
 
                     ModsManager.Instance.LoadLastAppliedPresetData();
@@ -1749,7 +1751,10 @@ namespace MW5_Mod_Manager
                         DockModListForm.Instance.modObjectListView.ForceRedraw();
                     };
 
-                    if (forceLoadLastApplied || ModsManager.Instance.ShouldLoadLastApplied(redrawCallback))
+                    bool shouldLoadLastApplied = forceLoadLastApplied
+                        ? ModsManager.Instance.LastAppliedPresetModList != null
+                        : ModsManager.Instance.ShouldLoadLastApplied(redrawCallback);
+                    if (shouldLoadLastApplied)
                     {
                         // Load last saved preset
                         modlist = ModsManager.Instance.LastAppliedPresetModList;
