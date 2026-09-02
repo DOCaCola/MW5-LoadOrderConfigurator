@@ -9,11 +9,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DarkModeForms;
+using MW5_Mod_Manager.Controls;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace MW5_Mod_Manager
 {
-    public partial class DockOverviewForm : DockContent
+    public partial class DockOverviewForm : LocDockContent
     {
         static public DockOverviewForm Instance;
 

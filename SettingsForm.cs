@@ -18,13 +18,11 @@ using MW5_Mod_Manager.Controls;
 namespace MW5_Mod_Manager
 {
     [SupportedOSPlatform("windows")]
-    public partial class SettingsForm : Form
+    public partial class SettingsForm : LocForm
     {
         public SettingsForm()
         {
             InitializeComponent();
-            if (LocWindowColors.DarkMode)
-                _ = new DarkModeCS(this, false);
         }
 
         private void SettingsWindow_Load(object sender, EventArgs e)
@@ -228,12 +226,6 @@ namespace MW5_Mod_Manager
 
         private void buttonSave_Click(object sender, EventArgs e)
         {
-            // Save trivial settings first
-            LocSettings.Instance.Data.ListSortOrder =
-                radioButtonHighToLow.Checked ? eSortOrder.HighToLow : eSortOrder.LowToHigh;
-
-            LocSettings.Instance.Data.AllowDarkMode = checkBoxDarkMode.Checked;
-            
             if (comboBoxPlatform.SelectedIndex == -1)
             {
                 MessageBox.Show(@"Please select your platform type.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -299,6 +291,12 @@ namespace MW5_Mod_Manager
 
             if (settingsValid)
             {
+                LocSettings.Instance.Data.ListSortOrder =
+                    radioButtonHighToLow.Checked
+                        ? eSortOrder.HighToLow
+                        : eSortOrder.LowToHigh;
+                LocSettings.Instance.Data.AllowDarkMode =
+                    checkBoxDarkMode.Checked;
                 LocSettings.Instance.Data.platform = newPlatform;
                 LocSettings.Instance.Data.InstallPath = path;
             }
@@ -311,6 +309,8 @@ namespace MW5_Mod_Manager
             MainForm.Instance.ClearAll();
             ModItemList.Instance.ModList = null;
             LocSettings.Instance.SaveSettings();
+            AppearanceManager.SetDarkModeAllowed(
+                LocSettings.Instance.Data.AllowDarkMode);
             MainForm.Instance.RefreshAll();
 
             MainForm.Instance.UpdatePriorityLabels();

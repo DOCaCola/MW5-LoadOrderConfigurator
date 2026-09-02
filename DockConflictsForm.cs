@@ -14,8 +14,9 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace MW5_Mod_Manager
 {
-    public partial class DockConflictsForm : DockContent
+    public partial class DockConflictsForm : LocDockContent
     {
+        private readonly ToolStripDpiLayout _manifestContextMenuDpiLayout;
         static public DockConflictsForm Instance;
         private readonly string _defaultManifestLabelText;
 
@@ -25,6 +26,13 @@ namespace MW5_Mod_Manager
         public DockConflictsForm()
         {
             InitializeComponent();
+            _manifestContextMenuDpiLayout =
+                ToolStripDpiLayout.Capture(
+                    contextMenuManifest,
+                    96,
+                    scaleStripSpacing: false);
+            Disposed += (_, _) =>
+                _manifestContextMenuDpiLayout.Dispose();
             _defaultManifestLabelText = labelManifestContentHeader.Text;
 
             noneSelectedPanel.Dock = DockStyle.Fill;
@@ -38,6 +46,11 @@ namespace MW5_Mod_Manager
             noneSelectedPanel.BringToFront();
 
             splitContainer2.SetDisableDarkMode(true);
+        }
+
+        internal void ApplyDpiLayout(int dpi)
+        {
+            _manifestContextMenuDpiLayout.Apply(dpi);
         }
 
         public void SetNoneSelectedText()

@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Versioning;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
@@ -23,7 +24,7 @@ using ListView = System.Windows.Forms.ListView;
 namespace MW5_Mod_Manager
 {
     [SupportedOSPlatform("windows")]
-    public partial class MainForm : Form
+    public partial class MainForm : LocForm, ILocAppearanceAware
     {
         static public MainForm Instance;
 
@@ -64,6 +65,20 @@ namespace MW5_Mod_Manager
             1000 / LiveResizeListFramesPerSecond;
         private static readonly TimeSpan LiveResizeListFrameInterval =
             TimeSpan.FromMilliseconds(LiveResizeListFrameIntervalMilliseconds);
+        private readonly Image _applyButtonImageSource;
+        private Font _applyButtonEmphasisFont;
+        private bool _applyButtonUsesEmphasis;
+        private readonly DockModListForm _ownedDockModListForm;
+        private readonly DockOverviewForm _ownedDockOverviewForm;
+        private readonly DockConflictsForm _ownedDockConflictsForm;
+        private ThemeBase _dockTheme;
+        private bool _appliedDarkMode;
+        private AppearanceSnapshot _appliedAppearance;
+        private readonly ToolStripDpiLayout _menuDpiLayout;
+        private readonly ToolStripDpiLayout _toolbarDpiLayout;
+        private readonly ToolStripDpiLayout _statusDpiLayout;
+        private readonly ToolStripDpiLayout _modContextMenuDpiLayout;
+        private readonly ToolStripDpiLayout _columnContextMenuDpiLayout;
 
         // Hash of the mod list currently applied to mechwarrior
         public int _ActiveModListHash = 0;
@@ -103,6 +118,25 @@ namespace MW5_Mod_Manager
         public MainForm()
         {
             InitializeComponent();
+            _menuDpiLayout = ToolStripDpiLayout.Capture(menuStrip1);
+            _toolbarDpiLayout = ToolStripDpiLayout.Capture(
+                toolStrip1,
+                scaleItemMetrics: false);
+            _statusDpiLayout = ToolStripDpiLayout.Capture(statusStrip1);
+            _modContextMenuDpiLayout =
+                ToolStripDpiLayout.Capture(
+                    contextMenuStripMod,
+                    96,
+                    scaleStripSpacing: false);
+            _columnContextMenuDpiLayout =
+                ToolStripDpiLayout.Capture(
+                    contextMenuStripColumnOptions,
+                    96,
+                    scaleStripSpacing: false);
+            RegisterDpiFontRoot(contextMenuStripMod);
+            RegisterDpiFontRoot(contextMenuStripColumnOptions);
+            AppearanceManager.Initialize();
+            _applyButtonImageSource = toolStripButtonApply.Image;
 
             _searchDebounceTimer = new System.Windows.Forms.Timer
             {
@@ -116,9 +150,12 @@ namespace MW5_Mod_Manager
             };
             _liveResizeIdleRedrawTimer.Tick += LiveResizeIdleRedrawTimer_Tick;
 
-            DockModListForm.Instance = new();
-            DockOverviewForm.Instance = new();
-            DockConflictsForm.Instance = new();
+            _ownedDockModListForm =
+                DockModListForm.Instance = new DockModListForm();
+            _ownedDockOverviewForm =
+                DockOverviewForm.Instance = new DockOverviewForm();
+            _ownedDockConflictsForm =
+                DockConflictsForm.Instance = new DockConflictsForm();
 
             Instance = this;
             _hasSavedViewState = LocViewState.LoadViewStateFromFile();
@@ -127,59 +164,458 @@ namespace MW5_Mod_Manager
             toolStripTextFilterBox.TextBox.KeyPress += FilterTextBoxOnKeyPress;
 
             dockPanel1.SuspendLayout();
+            menuStrip1.SetDisableDarkMode(true);
+            menuStrip1.SetDisableDarkModeChildren(true);
+            toolStrip1.SetDisableDarkMode(true);
+            toolStrip1.SetDisableDarkModeChildren(true);
 
-            if (LocWindowColors.DarkMode)
-            {
-                var darkTheme = new LocDarkTheme();
-                dockPanel1.Theme = darkTheme;
-
-                menuStrip1.SetDisableDarkMode(true);
-                menuStrip1.SetDisableDarkModeChildren(true);
-                toolStrip1.SetDisableDarkMode(true);
-                toolStrip1.SetDisableDarkModeChildren(true);
-                var darkModeCs = new DarkModeCS(this, false);
-                darkModeCs.ThemeControl(toolStripTextFilterBox.Control);
-
-
-                DockModListForm.Instance.modObjectListView.HeaderUsesThemes = false;
-                var headerstyleb = new HeaderFormatStyle();
-                headerstyleb.SetBackColor(LocWindowColors.ButtonHighlight);
-                headerstyleb.SetForeColor(LocWindowColors.WindowText);
-                DockModListForm.Instance.modObjectListView.HeaderFormatStyle = headerstyleb;
-
-                toolStripButtonStartGame.Image = UiIconsDark.MW5MercsLogo;
-
-                DockModListForm.Instance.toBottomToolStripButton.Image = UiIconsDark.Bottom;
-                DockModListForm.Instance.toTopToolStripButton.Image = UiIconsDark.Top;
-                DockModListForm.Instance.downToolStripButton.Image = UiIconsDark.Down;
-                DockModListForm.Instance.upToolStripButton.Image = UiIconsDark.Up;
-
-                DockModListForm.Instance.olvColumnFreeSpaceDummy.IsVisible = true;
-
-                visualStudioToolStripExtender1.SetStyle(menuStrip1, VisualStudioToolStripExtender.VsVersion.Vs2015, darkTheme);
-                visualStudioToolStripExtender1.SetStyle(toolStrip1, VisualStudioToolStripExtender.VsVersion.Vs2015, darkTheme);
-                visualStudioToolStripExtender1.SetStyle(DockModListForm.Instance.toolStrip2, VisualStudioToolStripExtender.VsVersion.Vs2015, darkTheme);
-
-                contextMenuStripColumnOptions.Renderer = darkTheme.ToolStripRenderer;
-                contextMenuStripMod.Renderer = darkTheme.ToolStripRenderer;
-            }
-            else
-            {
-                var lightTheme = new LocLightTheme();
-                dockPanel1.Theme = lightTheme;
-                toolStrip1.RenderMode = ToolStripRenderMode.Professional;
-                visualStudioToolStripExtender1.SetStyle(menuStrip1, VisualStudioToolStripExtender.VsVersion.Vs2015, lightTheme);
-                visualStudioToolStripExtender1.SetStyle(toolStrip1, VisualStudioToolStripExtender.VsVersion.Vs2015, lightTheme);
-
-                contextMenuStripColumnOptions.Renderer = lightTheme.ToolStripRenderer;
-                contextMenuStripMod.Renderer = lightTheme.ToolStripRenderer;
-
-                DockModListForm.Instance.toolStrip2.Renderer = new ToolStripTransparentRenderer();
-            }
+            AppearanceSnapshot initialAppearance =
+                AppearanceManager.Current;
+            _appliedAppearance = initialAppearance;
+            _appliedDarkMode = initialAppearance.DarkMode;
+            _dockTheme = _appliedDarkMode
+                ? new LocDarkTheme()
+                : new LocLightTheme();
+            dockPanel1.Theme = _dockTheme;
+            ApplyDockAndToolStripTheme(initialAppearance);
+            ApplyObjectListViewTheme(initialAppearance);
+            ApplyDpiAssets(DeviceDpi);
 
             if (!_hasSavedViewState || !LocViewState.HasDockPanelLayout)
                 ResetDockWindowLayout();
             dockPanel1.ResumeLayout(true);
+        }
+
+        void ILocAppearanceAware.ApplyAppearance(AppearanceSnapshot appearance)
+        {
+            if (_appliedAppearance.Equals(appearance))
+            {
+                ApplyDpiAssets(DeviceDpi);
+                return;
+            }
+
+            bool themeChanged = _appliedDarkMode != appearance.DarkMode;
+            if (themeChanged && dockPanel1.Contents.Count > 0)
+                SwitchDockPanelTheme(appearance.DarkMode);
+            else if (themeChanged)
+                SetDockPanelTheme(appearance.DarkMode);
+
+            _appliedAppearance = appearance;
+            _appliedDarkMode = appearance.DarkMode;
+            ApplyDockAndToolStripTheme(appearance);
+            ApplyDpiAssets(DeviceDpi);
+            ApplyObjectListViewTheme(appearance);
+            UpdateSearchBoxAppearance();
+        }
+
+        void ILocAppearanceAware.ApplyDpi(int oldDpi, int newDpi)
+        {
+            ApplyMainDpiAssets(newDpi);
+        }
+
+        protected override void OnDpiChangeCompleted(
+            int oldDpi,
+            int newDpi)
+        {
+            _ownedDockModListForm.ApplyHostDpiFonts(newDpi);
+            _ownedDockOverviewForm.ApplyHostDpiFonts(newDpi);
+            _ownedDockConflictsForm.ApplyHostDpiFonts(newDpi);
+            ApplyDockDpiAssets(newDpi);
+            dockPanel1.PerformLayout();
+            RelayoutDockPanes();
+            dockPanel1.Invalidate(true);
+
+            // DockPanelSuite owns DockContent bounds. Run one final layout
+            // after Windows finishes the child DPI-message cascade so
+            // anchored content uses the pane's final allocation.
+            BeginInvoke((Action)(() =>
+            {
+                ReapplyDpiFonts(newDpi);
+                _ownedDockModListForm.ApplyHostDpiFonts(newDpi);
+                _ownedDockOverviewForm.ApplyHostDpiFonts(newDpi);
+                _ownedDockConflictsForm.ApplyHostDpiFonts(newDpi);
+                ApplyDpiAssets(newDpi);
+                dockPanel1.PerformLayout();
+                RelayoutDockPanes();
+                DockModListForm.Instance.ApplyDpiLayout(newDpi);
+                dockPanel1.Invalidate(true);
+            }));
+        }
+
+        private void RelayoutDockPanes()
+        {
+            var panes = new HashSet<DockPane>();
+            foreach (IDockContent content in dockPanel1.Contents)
+            {
+                DockPane pane = content.DockHandler.Pane;
+                if (pane != null && panes.Add(pane))
+                {
+                    pane.PerformLayout();
+                    pane.TabStripControl.PerformLayout();
+                    pane.TabStripControl.Invalidate();
+                }
+            }
+
+            foreach (IDockContent content in dockPanel1.Contents)
+                content.DockHandler.Form.PerformLayout();
+
+            foreach (AutoHideStripBase autoHideStrip
+                     in dockPanel1.Controls.OfType<AutoHideStripBase>())
+            {
+                autoHideStrip.PerformLayout();
+                autoHideStrip.Invalidate();
+            }
+        }
+
+        private void DisposeOwnedDockContents()
+        {
+            _menuDpiLayout?.Dispose();
+            _toolbarDpiLayout?.Dispose();
+            _statusDpiLayout?.Dispose();
+            _modContextMenuDpiLayout?.Dispose();
+            _columnContextMenuDpiLayout?.Dispose();
+            if (_applyButtonEmphasisFont != null)
+            {
+                toolStripButtonApply.Font = null;
+                _applyButtonEmphasisFont.Dispose();
+                _applyButtonEmphasisFont = null;
+            }
+            _ownedDockModListForm?.Dispose();
+            _ownedDockOverviewForm?.Dispose();
+            _ownedDockConflictsForm?.Dispose();
+            _dockTheme?.Dispose();
+        }
+
+        private void SetDockPanelTheme(bool darkMode)
+        {
+            ThemeBase oldTheme = _dockTheme;
+            _dockTheme = darkMode
+                ? new LocDarkTheme()
+                : new LocLightTheme();
+            dockPanel1.Theme = _dockTheme;
+            oldTheme?.Dispose();
+        }
+
+        private void SwitchDockPanelTheme(bool darkMode)
+        {
+            using MemoryStream layout = new();
+            dockPanel1.SaveAsXml(layout, Encoding.UTF8, true);
+            layout.Position = 0;
+
+            dockPanel1.SuspendLayout();
+            try
+            {
+                while (dockPanel1.Contents.Count > 0)
+                    dockPanel1.Contents[0].DockHandler.Dispose();
+
+                SetDockPanelTheme(darkMode);
+                dockPanel1.LoadFromXml(
+                    layout,
+                    GetDockContentFromPersistString,
+                    true);
+                DockModListForm.Instance.Show(
+                    dockPanel1,
+                    DockState.Document);
+            }
+            finally
+            {
+                dockPanel1.ResumeLayout(true, true);
+            }
+        }
+
+        private static IDockContent GetDockContentFromPersistString(
+            string persistString)
+        {
+            if (persistString == typeof(DockOverviewForm).ToString())
+                return DockOverviewForm.Instance;
+            if (persistString == typeof(DockConflictsForm).ToString())
+                return DockConflictsForm.Instance;
+            return null;
+        }
+
+        private void ApplyDockAndToolStripTheme(
+            AppearanceSnapshot appearance)
+        {
+            ThemeBase theme = _dockTheme;
+            ToolStripRenderer renderer = theme switch
+            {
+                LocDarkTheme darkTheme => darkTheme.ToolStripRenderer,
+                LocLightTheme lightTheme => lightTheme.ToolStripRenderer,
+                _ => throw new InvalidOperationException(
+                    "Unsupported LOC dock theme.")
+            };
+            if (!ReferenceEquals(dockPanel1.Theme, theme))
+                dockPanel1.Theme = theme;
+            visualStudioToolStripExtender1.SetStyle(
+                menuStrip1,
+                VisualStudioToolStripExtender.VsVersion.Vs2015,
+                theme);
+            visualStudioToolStripExtender1.SetStyle(
+                toolStrip1,
+                VisualStudioToolStripExtender.VsVersion.Vs2015,
+                theme);
+            visualStudioToolStripExtender1.SetStyle(
+                DockModListForm.Instance.toolStrip2,
+                VisualStudioToolStripExtender.VsVersion.Vs2015,
+                theme);
+
+            contextMenuStripColumnOptions.Renderer =
+                renderer;
+            contextMenuStripMod.Renderer = renderer;
+            DockModListForm.Instance.toolStrip2.Renderer =
+                appearance.DarkMode
+                    ? renderer
+                    : new ToolStripTransparentRenderer();
+
+            toolStripTextFilterBox.Control.BackColor =
+                LocWindowColors.Window;
+            toolStripTextFilterBox.Control.ForeColor =
+                LocWindowColors.WindowText;
+        }
+
+        private void ApplyObjectListViewTheme(
+            AppearanceSnapshot appearance)
+        {
+            ObjectListView list =
+                DockModListForm.Instance.modObjectListView;
+            list.HeaderUsesThemes = !appearance.DarkMode;
+            if (appearance.DarkMode)
+            {
+                var headerStyle = new HeaderFormatStyle();
+                headerStyle.SetBackColor(
+                    LocWindowColors.ButtonHighlight);
+                headerStyle.SetForeColor(
+                    LocWindowColors.WindowText);
+                list.HeaderFormatStyle = headerStyle;
+            }
+            else
+            {
+                list.HeaderFormatStyle = null;
+            }
+
+            bool dummyVisibilityChanged =
+                DockModListForm.Instance.olvColumnFreeSpaceDummy.IsVisible
+                != appearance.DarkMode;
+            DockModListForm.Instance.olvColumnFreeSpaceDummy.IsVisible =
+                appearance.DarkMode;
+            if (dummyVisibilityChanged)
+                list.RebuildColumns();
+
+            DockModListForm.Instance.panelColorOverridden.BackColor =
+                LocWindowColors.ModOverriddenColor;
+            DockModListForm.Instance.panelColorOverriding.BackColor =
+                LocWindowColors.ModOverridingColor;
+            DockModListForm.Instance
+                .panelColorOverridingOverridden.BackColor =
+                LocWindowColors.ModOverriddenOveridingColor;
+
+            RebuildModImageList();
+            UpdateObjectListViewDecorations(appearance.DarkMode);
+            if (list.Items.Count > 0)
+            {
+                ColorizeListViewItems();
+                DockModListForm.Instance.RecolorObjectListViewRows();
+                list.Refresh();
+            }
+        }
+
+        private static void UpdateObjectListViewDecorations(bool darkMode)
+        {
+            ObjectListView list =
+                DockModListForm.Instance.modObjectListView;
+            if (list.SelectedRowDecoration
+                is RowBorderDecoration selected)
+            {
+                selected.BorderPen?.Dispose();
+                selected.FillBrush?.Dispose();
+                selected.BorderPen =
+                    new Pen(Color.FromArgb(0, 154, 223, 51));
+                selected.FillBrush = new SolidBrush(
+                    darkMode
+                        ? Color.FromArgb(65, 91, 173, 255)
+                        : Color.FromArgb(65, 0, 143, 255));
+            }
+
+            if (list.HotItemStyle?.Decoration
+                is RowBorderDecoration hot)
+            {
+                Color fill = darkMode
+                    ? Color.FromArgb(30, 0, 143, 255)
+                    : Color.FromArgb(16, 0, 143, 255);
+                hot.FillGradientFrom = fill;
+                hot.FillGradientTo = fill;
+            }
+
+            if (list.DropSink is SimpleDropSink dropSink)
+                dropSink.FeedbackColor =
+                    LocWindowColors.ListFeedBackColor;
+        }
+
+        private void ApplyDpiAssets(int dpi)
+        {
+            ApplyMainDpiAssets(dpi);
+            ApplyDockDpiAssets(dpi);
+        }
+
+        private void ApplyMainDpiAssets(int dpi)
+        {
+            RefreshApplyButtonFont();
+            toolStrip1.Height = UiImageCache.Scale(45, dpi);
+            statusStrip1.AutoSize = false;
+            statusStrip1.Height = UiImageCache.Scale(24, dpi);
+
+            Size imageSize = new(
+                UiImageCache.Scale(16, dpi),
+                UiImageCache.Scale(16, dpi));
+            toolStrip1.ImageScalingSize = imageSize;
+
+            toolStripButtonApply.Image = UiImageCache.Get(
+                _applyButtonImageSource,
+                16,
+                dpi);
+            toolStripButtonStartGame.Image = UiImageCache.Get(
+                _appliedDarkMode
+                    ? UiIconsDark.MW5MercsLogo
+                    : UiIcons.MW5MercsLogo,
+                16,
+                dpi);
+            toolStripButtonReload.Image = UiImageCache.Get(
+                _modFileStateMismatch
+                    ? UiIcons.ReloadNotification
+                    : UiIcons.Reload,
+                16,
+                dpi);
+            toolStripButtonNexusmods.Image = UiImageCache.Get(
+                UiIcons.Nexusmods,
+                16,
+                dpi);
+            toolStripButtonSteamWorkshop.Image = UiImageCache.Get(
+                UiIcons.Steam,
+                16,
+                dpi);
+            toolStripButtonClearFilter.Image = UiImageCache.Get(
+                UiIcons.FilterClear,
+                16,
+                dpi);
+            toolStripButtonFilterToggle.Image = UiImageCache.Get(
+                UiIcons.FilterToggle,
+                16,
+                dpi);
+
+            _menuDpiLayout.Apply(dpi);
+            menuStrip1.Padding = new Padding(
+                UiImageCache.Scale(6, dpi),
+                UiImageCache.Scale(2, dpi),
+                0,
+                UiImageCache.Scale(2, dpi));
+            menuStrip1.PerformLayout();
+            _toolbarDpiLayout.Apply(dpi);
+            _statusDpiLayout.Apply(dpi);
+            _modContextMenuDpiLayout.Apply(dpi);
+            _columnContextMenuDpiLayout.Apply(dpi);
+        }
+
+        private void ApplyDockDpiAssets(int dpi)
+        {
+            DockPanelSkin skin = _dockTheme.Skin;
+            skin.DockPaneStripSkin.TextFont = dockPanel1.Font;
+            skin.AutoHideStripSkin.TextFont = dockPanel1.Font;
+
+            DockModListForm.Instance.ApplyDpiLayout(dpi);
+
+            Size imageSize = new(
+                UiImageCache.Scale(16, dpi),
+                UiImageCache.Scale(16, dpi));
+            DockModListForm.Instance.toolStrip2.ImageScalingSize =
+                imageSize;
+
+            DockModListForm.Instance.toBottomToolStripButton.Image =
+                UiImageCache.Get(
+                    _appliedDarkMode
+                        ? UiIconsDark.Bottom
+                        : UiIcons.Bottom,
+                    16,
+                    dpi);
+            DockModListForm.Instance.toTopToolStripButton.Image =
+                UiImageCache.Get(
+                    _appliedDarkMode
+                        ? UiIconsDark.Top
+                        : UiIcons.Top,
+                    16,
+                    dpi);
+            DockModListForm.Instance.downToolStripButton.Image =
+                UiImageCache.Get(
+                    _appliedDarkMode
+                        ? UiIconsDark.Down
+                        : UiIcons.Down,
+                    16,
+                    dpi);
+            DockModListForm.Instance.upToolStripButton.Image =
+                UiImageCache.Get(
+                    _appliedDarkMode
+                        ? UiIconsDark.Up
+                        : UiIcons.Up,
+                    16,
+                    dpi);
+
+            DockOverviewForm.Instance.pictureBoxNexusmodsIcon.Image =
+                UiImageCache.Get(UiIcons.Nexusmods, 16, dpi);
+            DockOverviewForm.Instance.pictureBoxSteamIcon.Image =
+                UiImageCache.Get(UiIcons.Steam, 16, dpi);
+            DockConflictsForm.Instance.ApplyDpiLayout(dpi);
+
+            DockModListForm.Instance.modObjectListView
+                .RefreshDpiAwareImageLists(dpi);
+        }
+
+        private void RebuildModImageList()
+        {
+            ObjectListView list =
+                DockModListForm.Instance.modObjectListView;
+            ImageList images = DockModListForm.Instance.imageListIcons;
+            list.SmallImageList = null;
+            try
+            {
+                images.Images.Clear();
+                images.Images.Add("Steam", UiIcons.Steam);
+                images.Images.Add("Nexusmods", UiIcons.Nexusmods);
+                images.Images.Add("Folder", UiIcons.Folder);
+                images.Images.Add(
+                    "SteamDis",
+                    _appliedDarkMode
+                        ? UiIconsDark.SteamDis
+                        : UiIcons.SteamDis);
+                images.Images.Add(
+                    "NexusmodsDis",
+                    _appliedDarkMode
+                        ? UiIconsDark.NexusmodsDis
+                        : UiIcons.NexusmodsDis);
+                images.Images.Add(
+                    "FolderDis",
+                    _appliedDarkMode
+                        ? UiIconsDark.FolderDis
+                        : UiIcons.FolderDis);
+            }
+            finally
+            {
+                list.SmallImageList = images;
+            }
+        }
+
+        private void UpdateSearchBoxAppearance()
+        {
+            bool noMatch = !string.IsNullOrEmpty(_activeSearchText)
+                && DockModListForm.Instance.modObjectListView
+                    .FilteredObjects
+                    .Cast<object>()
+                    .Any() == false;
+            if (!noMatch)
+            {
+                toolStripTextFilterBox.ForeColor =
+                    LocWindowColors.WindowText;
+                toolStripTextFilterBox.BackColor =
+                    LocWindowColors.Window;
+            }
         }
 
         public void ResetDockWindowLayout()
@@ -216,26 +652,6 @@ namespace MW5_Mod_Manager
             if (!string.IsNullOrWhiteSpace(testLabel))
                 this.Text += " [" + testLabel + "]";
 
-            DockModListForm.Instance.imageListIcons.Images.Add("Steam", UiIcons.Steam);
-            DockModListForm.Instance.imageListIcons.Images.Add("Nexusmods", UiIcons.Nexusmods);
-            DockModListForm.Instance.imageListIcons.Images.Add("Folder", UiIcons.Folder);
-
-
-            if (LocWindowColors.DarkMode)
-            {
-                DockModListForm.Instance.imageListIcons.Images.Add("SteamDis", UiIconsDark.SteamDis);
-                DockModListForm.Instance.imageListIcons.Images.Add("NexusmodsDis", UiIconsDark.NexusmodsDis);
-                DockModListForm.Instance.imageListIcons.Images.Add("FolderDis", UiIconsDark.FolderDis);
-            }
-            else
-            {
-                DockModListForm.Instance.imageListIcons.Images.Add("SteamDis", UiIcons.SteamDis);
-                DockModListForm.Instance.imageListIcons.Images.Add("NexusmodsDis", UiIcons.NexusmodsDis);
-                DockModListForm.Instance.imageListIcons.Images.Add("FolderDis", UiIcons.FolderDis);
-            }
-
-            DockModListForm.Instance.modObjectListView.RefreshDpiAwareImageLists();
-
             DockModListForm.Instance.olvColumnModName.ImageGetter = this.ModImageGetter;
             DockModListForm.Instance.olvColumnModName.AspectGetter = this.ModNameGetter;
             DockModListForm.Instance.olvColumnModAuthor.AspectGetter = this.ModAuthorGetter;
@@ -261,16 +677,6 @@ namespace MW5_Mod_Manager
 
             // Selection
             RowBorderDecoration rbd = new RowBorderDecoration();
-            if (LocWindowColors.DarkMode)
-            {
-                rbd.BorderPen = new Pen(Color.FromArgb(0, 154, 223, 51));
-                rbd.FillBrush = new SolidBrush(Color.FromArgb(65, 91, 173, 255));
-            }
-            else
-            {
-                rbd.BorderPen = new Pen(Color.FromArgb(0, 154, 223, 51));
-                rbd.FillBrush = new SolidBrush(Color.FromArgb(65, 0, 143, 255));
-            }
             rbd.BoundsPadding = new Size(0, 0);
             rbd.CornerRounding = 0;
             DockModListForm.Instance.modObjectListView.SelectedRowDecoration = rbd;
@@ -283,20 +689,11 @@ namespace MW5_Mod_Manager
             rbdhot.BoundsPadding = new Size(-1, -1);
             rbdhot.CornerRounding = 0;
             //rbd.FillBrush = new SolidBrush(Color.FromArgb(64, 0, 143, 255));
-            if (LocWindowColors.DarkMode)
-            {
-                rbdhot.FillGradientFrom = Color.FromArgb(30, 0, 143, 255);
-                rbdhot.FillGradientTo = Color.FromArgb(30, 0, 143, 255);
-            }
-            else
-            {
-                rbdhot.FillGradientFrom = Color.FromArgb(16, 0, 143, 255);
-                rbdhot.FillGradientTo = Color.FromArgb(16, 0, 143, 255);
-            }
             HotItemStyle his = new HotItemStyle();
             his.Decoration = rbdhot;
             DockModListForm.Instance.modObjectListView.HotItemStyle = his;
             DockModListForm.Instance.modObjectListView.UseHotItem = true;
+            UpdateObjectListViewDecorations(_appliedDarkMode);
 
             DockModListForm.Instance.modObjectListView.BooleanCheckStateGetter = BooleanCheckStateGetter;
             DockModListForm.Instance.modObjectListView.CheckStateUpdateStarting +=
@@ -337,10 +734,6 @@ namespace MW5_Mod_Manager
             AddColumnVisibilityMenuItems(contextMenuStripColumnOptions.Items);
             UpdateColumnVisibilityMenus();
 
-            DockModListForm.Instance.panelColorOverridden.BackColor = LocWindowColors.ModOverriddenColor;
-            DockModListForm.Instance.panelColorOverriding.BackColor = LocWindowColors.ModOverridingColor;
-            DockModListForm.Instance.panelColorOverridingOverridden.BackColor = LocWindowColors.ModOverriddenOveridingColor;
-
             UpdateMoveControlEnabledState();
 
             /*Font monospaceFont = Utils.CreateBestAvailableMonospacePlatformFont(richTextBoxManifestOverridden.Font.Size);
@@ -363,14 +756,16 @@ namespace MW5_Mod_Manager
 
         private void StartModFilesChangedUiFeedback()
         {
-            toolStripButtonReload.Image = UiIcons.ReloadNotification;
+            _modFileStateMismatch = true;
+            ApplyDpiAssets(DeviceDpi);
             toolStripButtonReload.ToolTipText =
                 "Reload settings from current mod files, reverting unapplied changes\r\n\r\nChanges to local mod files have been detected. It is recommended to reload before continuing.";
         }
 
         private void StopModFileChangedUiFeedback()
         {
-            toolStripButtonReload.Image = UiIcons.Reload;
+            _modFileStateMismatch = false;
+            ApplyDpiAssets(DeviceDpi);
             toolStripButtonReload.ToolTipText = "Reload settings from current mod files, reverting unapplied changes";
         }
 
@@ -631,7 +1026,10 @@ namespace MW5_Mod_Manager
             var restoreDefaultsItem = new ToolStripMenuItem("Restore Defaults");
             restoreDefaultsItem.Click += (s, e) =>
             {
-                LocViewState.RestoreListViewState(LocViewState._defaultViewState.listState);
+                LocViewState.RestoreListViewState(
+                    LocViewState._defaultViewState.listState,
+                    96,
+                    DeviceDpi);
                 UpdateColumnVisibilityMenus();
                 QueueListRecolor();
             };
@@ -2308,21 +2706,35 @@ namespace MW5_Mod_Manager
 
         public void SetModConfigTainted(bool modSettingsTainted)
         {
-            if (ModsManager.Instance.ModSettingsTainted == modSettingsTainted)
+            if (ModsManager.Instance.ModSettingsTainted == modSettingsTainted
+                && _applyButtonUsesEmphasis == modSettingsTainted)
                 return;
 
             ModsManager.Instance.ModSettingsTainted = modSettingsTainted;
+            _applyButtonUsesEmphasis = modSettingsTainted;
             if (modSettingsTainted)
             {
                 toolStripButtonApply.ForeColor = Color.OrangeRed;
-                toolStripButtonApply.Font = new Font(Instance.toolStrip1.Font, Instance.toolStrip1.Font.Style | FontStyle.Bold);
-
             }
             else
             {
                 toolStripButtonApply.ForeColor = LocWindowColors.ControlText;
-                toolStripButtonApply.Font = new Font(Instance.toolStrip1.Font, Instance.toolStrip1.Font.Style);
             }
+
+            RefreshApplyButtonFont();
+        }
+
+        private void RefreshApplyButtonFont()
+        {
+            Font replacement = _applyButtonUsesEmphasis
+                ? new Font(
+                    toolStrip1.Font,
+                    toolStrip1.Font.Style | FontStyle.Bold)
+                : null;
+            Font oldFont = _applyButtonEmphasisFont;
+            _applyButtonEmphasisFont = replacement;
+            toolStripButtonApply.Font = replacement;
+            oldFont?.Dispose();
         }
 
         public enum eUnappliedChangesDialogResult

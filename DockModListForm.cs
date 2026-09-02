@@ -16,7 +16,7 @@ using static MW5_Mod_Manager.MainForm;
 
 namespace MW5_Mod_Manager
 {
-    public partial class DockModListForm : DockContent
+    public partial class DockModListForm : LocDockContent
     {
         static public DockModListForm Instance;
         private int _listViewUpdateNesting;
@@ -40,6 +40,137 @@ namespace MW5_Mod_Manager
             modObjectListView.UseDpiAwareImageLists = true;
             modObjectListView.UseNativeCheckStateUpdates = true;
             modObjectListView.UseSmoothPixelScrolling = true;
+        }
+
+        internal void ApplyDpiLayout(int dpi)
+        {
+            int Scale(int value) => UiImageCache.Scale(value, dpi);
+
+            toolStrip2.SuspendLayout();
+            try
+            {
+                toolStrip2.Size = new Size(Scale(25), Scale(112));
+                Size buttonSize = new(Scale(23), Scale(20));
+                Padding buttonMargin = new(
+                    Scale(1),
+                    Scale(1),
+                    0,
+                    Scale(2));
+                foreach (ToolStripButton button in new[]
+                {
+                    toTopToolStripButton,
+                    upToolStripButton,
+                    downToolStripButton,
+                    toBottomToolStripButton
+                })
+                {
+                    button.AutoSize = false;
+                    button.Size = buttonSize;
+                    button.Margin = buttonMargin;
+                }
+
+                toolStripLabel2.AutoSize = false;
+                toolStripLabel2.Size = new Size(Scale(15), Scale(15));
+            }
+            finally
+            {
+                toolStrip2.ResumeLayout(true);
+            }
+            toolStrip2.PerformLayout();
+
+            rotatingLabelTop.RefreshLayoutMetrics();
+            rotatingLabelBottom.RefreshLayoutMetrics();
+            LayoutPriorityDecorations(dpi);
+            LayoutColorLegend(dpi);
+            LayoutModListBounds(dpi);
+        }
+
+        private void LayoutPriorityDecorations(int dpi)
+        {
+            int Scale(int value) => UiImageCache.Scale(value, dpi);
+
+            toolStrip2.Location = new Point(
+                Scale(3),
+                Math.Max(
+                    0,
+                    (ClientSize.Height - toolStrip2.Height) / 2
+                        - Scale(22)));
+            rotatingLabelTop.Location = new Point(Scale(4), Scale(9));
+            rotatingLabelBottom.Location = new Point(
+                Scale(4),
+                Math.Max(
+                    0,
+                    ClientSize.Height
+                        - rotatingLabelBottom.Height
+                        - Scale(50)));
+        }
+
+        private void LayoutColorLegend(int dpi)
+        {
+            int Scale(int value) => UiImageCache.Scale(value, dpi);
+            Panel[] swatches =
+            {
+                panelColorOverriding,
+                panelColorOverridden,
+                panelColorOverridingOverridden
+            };
+            Label[] labels = { label2, label4, label8 };
+            int swatchSize = Scale(12);
+            int innerGap = Scale(3);
+            int groupGap = Scale(9);
+            int edge = Scale(3);
+            int contentHeight = Math.Max(
+                swatchSize,
+                labels.Max(label => label.PreferredHeight));
+            int panelHeight = contentHeight + edge * 2;
+            int x = edge;
+
+            panelColorLegend.SuspendLayout();
+            try
+            {
+                for (int index = 0; index < swatches.Length; index++)
+                {
+                    Panel swatch = swatches[index];
+                    Label label = labels[index];
+                    swatch.Bounds = new Rectangle(
+                        x,
+                        (panelHeight - swatchSize) / 2,
+                        swatchSize,
+                        swatchSize);
+                    x = swatch.Right + innerGap;
+                    label.Location = new Point(
+                        x,
+                        (panelHeight - label.PreferredHeight) / 2);
+                    x = label.Right;
+                    if (index < swatches.Length - 1)
+                        x += groupGap;
+                }
+
+                panelColorLegend.Size = new Size(x + edge, panelHeight);
+                panelColorLegend.Location = new Point(
+                    Scale(34),
+                    Math.Max(
+                        0,
+                        ClientSize.Height
+                            - panelColorLegend.Height
+                            - Scale(2)));
+            }
+            finally
+            {
+                panelColorLegend.ResumeLayout(true);
+            }
+        }
+
+        private void LayoutModListBounds(int dpi)
+        {
+            int Scale(int value) => UiImageCache.Scale(value, dpi);
+            int left = Scale(30);
+            int bottom = panelColorLegend.Top - Scale(3);
+            modObjectListView.Bounds = Rectangle.FromLTRB(
+                left,
+                0,
+                ClientSize.Width,
+                Math.Max(0, bottom));
         }
 
         public IDisposable BeginListViewUpdateScope()

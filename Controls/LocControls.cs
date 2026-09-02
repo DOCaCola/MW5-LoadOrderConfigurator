@@ -155,41 +155,135 @@ namespace MW5_Mod_Manager.Controls
         private string m_NewText = string.Empty;
 
         [DefaultValue(0)]
-        public int RotateAngle { get { return m_RotateAngle; } set { m_RotateAngle = value; Invalidate(); } }
+        public int RotateAngle
+        {
+            get { return m_RotateAngle; }
+            set
+            {
+                if (m_RotateAngle == value)
+                    return;
+                m_RotateAngle = value;
+                UpdateLayoutMetrics();
+                Invalidate();
+            }
+        }
 
         [DefaultValue("")]
-        public string NewText { get { return m_NewText; } set { m_NewText = value; Invalidate(); } }
+        public string NewText
+        {
+            get { return m_NewText; }
+            set
+            {
+                if (m_NewText == value)
+                    return;
+                m_NewText = value;
+                UpdateLayoutMetrics();
+                Invalidate();
+            }
+        }
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            Func<double, double> DegToRad = (angle) => Math.PI * angle / 180.0;
+            base.OnPaint(e);
+            using Brush brush = new SolidBrush(ForeColor);
+            using StringFormat format =
+                (StringFormat)StringFormat.GenericTypographic.Clone();
+            SizeF size = e.Graphics.MeasureString(
+                NewText,
+                Font,
+                PointF.Empty,
+                format);
+            GetRotatedMetrics(
+                size,
+                out _,
+                out int horizontalShift,
+                out int verticalShift);
+            e.Graphics.TranslateTransform(
+                horizontalShift,
+                verticalShift);
+            e.Graphics.RotateTransform(RotateAngle);
+            e.Graphics.DrawString(
+                NewText,
+                Font,
+                brush,
+                PointF.Empty,
+                format);
+        }
 
-            Brush b = new SolidBrush(ForeColor);
-            SizeF size = e.Graphics.MeasureString(NewText, Font, Parent.Width);
+        protected override void OnFontChanged(EventArgs e)
+        {
+            base.OnFontChanged(e);
+            UpdateLayoutMetrics();
+        }
 
+        protected override void OnParentChanged(EventArgs e)
+        {
+            base.OnParentChanged(e);
+            UpdateLayoutMetrics();
+        }
+
+        protected override void OnDpiChangedAfterParent(EventArgs e)
+        {
+            base.OnDpiChangedAfterParent(e);
+            UpdateLayoutMetrics();
+        }
+
+        internal void RefreshLayoutMetrics()
+        {
+            UpdateLayoutMetrics();
+        }
+
+        private void UpdateLayoutMetrics()
+        {
+            if (string.IsNullOrEmpty(NewText)
+                || Font == null
+                || !IsHandleCreated)
+                return;
+
+            using Graphics graphics = CreateGraphics();
+            using StringFormat format =
+                (StringFormat)StringFormat.GenericTypographic.Clone();
+            SizeF measured = graphics.MeasureString(
+                NewText,
+                Font,
+                PointF.Empty,
+                format);
+            GetRotatedMetrics(
+                measured,
+                out Size rotatedSize,
+                out _,
+                out _);
+
+            if (Size == rotatedSize)
+                return;
+
+            int heightOffset = rotatedSize.Height - Height;
+            if (Anchor.HasFlag(AnchorStyles.Bottom))
+                Top -= heightOffset;
+            Size = rotatedSize;
+        }
+
+        private void GetRotatedMetrics(
+            SizeF size,
+            out Size rotatedSize,
+            out int horizontalShift,
+            out int verticalShift)
+        {
             int normalAngle = (RotateAngle % 360 + 360) % 360;
-            double normaleRads = DegToRad(normalAngle);
+            double radians = Math.PI * normalAngle / 180.0;
 
-            int hSinTheta = (int)Math.Ceiling(size.Height * Math.Sin(normaleRads));
-            int wCosTheta = (int)Math.Ceiling(size.Width * Math.Cos(normaleRads));
-            int wSinTheta = (int)Math.Ceiling(size.Width * Math.Sin(normaleRads));
-            int hCosTheta = (int)Math.Ceiling(size.Height * Math.Cos(normaleRads));
+            int hSinTheta =
+                (int)Math.Ceiling(size.Height * Math.Sin(radians));
+            int wCosTheta =
+                (int)Math.Ceiling(size.Width * Math.Cos(radians));
+            int wSinTheta =
+                (int)Math.Ceiling(size.Width * Math.Sin(radians));
+            int hCosTheta =
+                (int)Math.Ceiling(size.Height * Math.Cos(radians));
 
             int rotatedWidth = Math.Abs(hSinTheta) + Math.Abs(wCosTheta);
             int rotatedHeight = Math.Abs(wSinTheta) + Math.Abs(hCosTheta);
-
-            Width = rotatedWidth;
-            // This is incomplete and only checks if bottom anchor is set
-            int oldHeight = Height;
-            if (Anchor.HasFlag(AnchorStyles.Bottom))
-            {
-                if (Height != rotatedHeight)
-                {
-                    int offset = rotatedHeight - Height;
-                    Top -= offset;
-                }
-            }
-            Height = rotatedHeight;
+            rotatedSize = new Size(rotatedWidth, rotatedHeight);
 
             int numQuadrants =
                 normalAngle >= 0 && normalAngle < 90 ? 1 :
@@ -198,33 +292,27 @@ namespace MW5_Mod_Manager.Controls
                 normalAngle >= 270 && normalAngle < 360 ? 4 :
                 0;
 
-            int horizShift = 0;
-            int vertShift = 0;
+            horizontalShift = 0;
+            verticalShift = 0;
 
             if (numQuadrants == 1)
             {
-                horizShift = Math.Abs(hSinTheta);
+                horizontalShift = Math.Abs(hSinTheta);
             }
             else if (numQuadrants == 2)
             {
-                horizShift = rotatedWidth;
-                vertShift = Math.Abs(hCosTheta);
+                horizontalShift = rotatedWidth;
+                verticalShift = Math.Abs(hCosTheta);
             }
             else if (numQuadrants == 3)
             {
-                horizShift = Math.Abs(wCosTheta);
-                vertShift = rotatedHeight;
+                horizontalShift = Math.Abs(wCosTheta);
+                verticalShift = rotatedHeight;
             }
             else if (numQuadrants == 4)
             {
-                vertShift = Math.Abs(wSinTheta);
+                verticalShift = Math.Abs(wSinTheta);
             }
-
-            e.Graphics.TranslateTransform(horizShift, vertShift);
-            e.Graphics.RotateTransform(RotateAngle);
-
-            e.Graphics.DrawString(NewText, Font, b, 0f, 0f);
-            base.OnPaint(e);
         }
     }
 

@@ -19,7 +19,7 @@ using ProgressBar = System.Windows.Forms.ProgressBar;
 namespace MW5_Mod_Manager
 {
     [SupportedOSPlatform("windows")]
-    public partial class ExtractForm : Form
+    public partial class ExtractForm : LocForm
     {
         [Browsable(false),
          DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -54,9 +54,6 @@ namespace MW5_Mod_Manager
         public ExtractForm()
         {
             InitializeComponent();
-            if (LocWindowColors.DarkMode)
-                _ = new DarkModeCS(this, false);
-
             _cts = new CancellationTokenSource();
         }
 

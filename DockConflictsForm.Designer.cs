@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Windows.Forms;
+using MW5_Mod_Manager.Controls;
 
 namespace MW5_Mod_Manager
 {
@@ -38,7 +39,7 @@ namespace MW5_Mod_Manager
             listBoxOverriddenBy = new ListBox();
             label5 = new Label();
             richTextBoxManifestOverridden = new RichTextBox();
-            contextMenuManifest = new ContextMenuStrip(components);
+            contextMenuManifest = new LocContextMenuStrip(components);
             contextMenuManifestSelectAllMenuItem = new ToolStripMenuItem();
             contextMenuManifestCopyMenuItem = new ToolStripMenuItem();
             labelManifestContentHeader = new Label();
@@ -141,6 +142,7 @@ namespace MW5_Mod_Manager
             // 
             // labelManifestContentHeader
             // 
+            labelManifestContentHeader.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             labelManifestContentHeader.AutoEllipsis = true;
             labelManifestContentHeader.Location = new Point(9, 129);
             labelManifestContentHeader.Name = "labelManifestContentHeader";
@@ -178,8 +180,8 @@ namespace MW5_Mod_Manager
             // 
             // DockConflictsForm
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
+            AutoScaleDimensions = new SizeF(96F, 96F);
+            AutoScaleMode = AutoScaleMode.Dpi;
             ClientSize = new Size(261, 380);
             Controls.Add(splitContainer2);
             Controls.Add(labelModNameOverrides);
@@ -210,7 +212,7 @@ namespace MW5_Mod_Manager
         public System.Windows.Forms.RichTextBox richTextBoxManifestOverridden;
         private System.Windows.Forms.Label labelManifestContentHeader;
         private SplitContainer splitContainer2;
-        private ContextMenuStrip contextMenuManifest;
+        private LocContextMenuStrip contextMenuManifest;
         private ToolStripMenuItem contextMenuManifestSelectAllMenuItem;
         private ToolStripMenuItem contextMenuManifestCopyMenuItem;
         private ToolStripSeparator toolStripSeparator1;

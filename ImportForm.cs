@@ -16,8 +16,11 @@ using Newtonsoft.Json.Linq;
 namespace MW5_Mod_Manager
 {
     [SupportedOSPlatform("windows")]
-    public partial class ImportForm : Form
+    public partial class ImportForm : LocForm, ILocAppearanceAware
     {
+        private readonly Image _loadFromFileImageSource;
+        private readonly Image _pasteImageSource;
+
         public enum eResultDataType { DirNames, ModNames }
 
         [Browsable(false),
@@ -28,8 +31,29 @@ namespace MW5_Mod_Manager
         public ImportForm()
         {
             InitializeComponent();
-            if (LocWindowColors.DarkMode)
-                _ = new DarkModeCS(this, false);
+            _loadFromFileImageSource = toolStripButtonLoadFromFile.Image;
+            _pasteImageSource = toolStripButtonPaste.Image;
+        }
+
+        void ILocAppearanceAware.ApplyAppearance(
+            AppearanceSnapshot appearance)
+        {
+            ToolStripAppearance.Apply(toolStrip1, appearance);
+            ApplyDpiAssets(DeviceDpi);
+        }
+
+        void ILocAppearanceAware.ApplyDpi(int oldDpi, int newDpi)
+        {
+            ApplyDpiAssets(newDpi);
+        }
+
+        private void ApplyDpiAssets(int dpi)
+        {
+            ToolStripAppearance.ApplyDpi(
+                toolStrip1,
+                dpi,
+                (toolStripButtonLoadFromFile, _loadFromFileImageSource),
+                (toolStripButtonPaste, _pasteImageSource));
         }
 
         private void buttonImport_Click(object sender, EventArgs e)
@@ -185,9 +209,6 @@ namespace MW5_Mod_Manager
 
         private void ImportForm_Load(object sender, EventArgs e)
         {
-            if (!LocWindowColors.DarkMode)
-                toolStrip1.Renderer = new ToolStripTransparentRenderer();
-
             Font monospaceFont = Utils.CreateBestAvailableMonospacePlatformFont(textBoxData.Font.Size);
             if (monospaceFont != null)
             {

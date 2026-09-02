@@ -2,6 +2,7 @@
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 using MW5_Mod_Manager.Controls;
+using WeifenLuo.WinFormsUI.Docking;
 using Application = System.Windows.Forms.Application;
 
 namespace MW5_Mod_Manager
@@ -15,12 +16,13 @@ namespace MW5_Mod_Manager
         [STAThread]
         private static void Main()
         {
-            if (LocWindowColors.DarkMode)
-                LocWindowColors.DarkMode = LocSettings.Instance.Data.AllowDarkMode;
-
+            Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
+            PatchController.EnableHighDpi = true;
+            PatchController.EnablePerScreenDpi = true;
+            PatchController.EnableFontInheritanceFix = true;
+            AppearanceManager.Initialize();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
             Application.Run(new LocAppContext());
         }
     }

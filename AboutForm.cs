@@ -17,7 +17,7 @@ using static System.Net.WebRequestMethods;
 namespace MW5_Mod_Manager
 {
     [SupportedOSPlatform("windows")]
-    public partial class AboutForm : Form
+    public partial class AboutForm : LocForm
     {
         private const int LogicalIconSize = 128;
         private static readonly byte[] MainIconData = LoadMainIconData();
@@ -33,8 +33,6 @@ namespace MW5_Mod_Manager
             UpdateAboutIconImage();
             pictureBox1.SizeChanged += (_, _) => UpdateAboutIconImage();
 
-            if (LocWindowColors.DarkMode)
-                _ = new DarkModeCS(this, false);
         }
 
         protected override void OnDpiChanged(DpiChangedEventArgs e)

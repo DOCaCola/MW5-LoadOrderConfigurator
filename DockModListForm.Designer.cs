@@ -355,8 +355,8 @@ namespace MW5_Mod_Manager
             // 
             // DockModListForm
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
+            AutoScaleDimensions = new SizeF(96F, 96F);
+            AutoScaleMode = AutoScaleMode.Dpi;
             ClientSize = new Size(800, 450);
             CloseButton = false;
             CloseButtonVisible = false;

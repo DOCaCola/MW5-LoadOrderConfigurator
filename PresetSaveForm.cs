@@ -15,7 +15,7 @@ using System.Windows.Forms;
 namespace MW5_Mod_Manager
 {
     [SupportedOSPlatform("windows")]
-    public partial class PresetSaveForm : Form
+    public partial class PresetSaveForm : LocForm
     {
         private static bool _lastWasNewPreset = true;
         static int _lastPresetIndex = -1;
@@ -23,8 +23,6 @@ namespace MW5_Mod_Manager
         public PresetSaveForm()
         {
             InitializeComponent();
-            if (LocWindowColors.DarkMode)
-                _ = new DarkModeCS(this, false);
         }
 
         private void buttonCancel_Click(object sender, EventArgs e)

@@ -15,13 +15,11 @@ using static System.ComponentModel.Design.ObjectSelectorEditor;
 namespace MW5_Mod_Manager
 {
     [SupportedOSPlatform("windows")]
-    public partial class PresetDeleteForm : Form
+    public partial class PresetDeleteForm : LocForm
     {
         public PresetDeleteForm()
         {
             InitializeComponent();
-            if (LocWindowColors.DarkMode)
-                _ = new DarkModeCS(this, false);
         }
 
         private void PresetDeleteWindow_Load(object sender, EventArgs e)

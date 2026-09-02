@@ -7,10 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MW5_Mod_Manager.Controls;
 
 namespace MW5_Mod_Manager
 {
-    public partial class DirectLaunchForm : Form
+    public partial class DirectLaunchForm : LocForm
     {
         public DirectLaunchForm()
         {

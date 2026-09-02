@@ -18,9 +18,10 @@ namespace MW5_Mod_Manager
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing)
             {
-                components.Dispose();
+                DisposeOwnedDockContents();
+                components?.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -87,7 +88,7 @@ namespace MW5_Mod_Manager
             toolStripStatusLabelModsActive = new ToolStripStatusLabel();
             toolStripStatusLabelModCountTotal = new ToolStripStatusLabel();
             toolStripStatusLabelMwVersion = new ToolStripStatusLabel();
-            contextMenuStripMod = new ContextMenuStrip(components);
+            contextMenuStripMod = new LocContextMenuStrip(components);
             enableModsToolStripMenuItem = new ToolStripMenuItem();
             disableModsToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator7 = new ToolStripSeparator();
@@ -115,7 +116,7 @@ namespace MW5_Mod_Manager
             toolStripButtonFilterToggle = new ToolStripButton();
             timerOverviewUpdateDelay = new Timer(components);
             timerDelayedListRecolor = new Timer(components);
-            contextMenuStripColumnOptions = new ContextMenuStrip(components);
+            contextMenuStripColumnOptions = new LocContextMenuStrip(components);
             dockPanel1 = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             visualStudioToolStripExtender1 = new WeifenLuo.WinFormsUI.Docking.VisualStudioToolStripExtender(components);
             ((System.ComponentModel.ISupportInitialize)textProgressBarBindingSource).BeginInit();
@@ -754,7 +755,7 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem enableAllModsToolStripMenuItem;
         private ToolStripMenuItem disableAllModsToolStripMenuItem;
         public ToolStripStatusLabel toolStripStatusLabelMwVersion;
-        public ContextMenuStrip contextMenuStripMod;
+        public LocContextMenuStrip contextMenuStripMod;
         private ToolStripMenuItem openFolderToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripMenuItem toolStripMenuItemSettings;
@@ -804,7 +805,7 @@ namespace MW5_Mod_Manager
         private ToolStripMenuItem disableModsToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator7;
         private Timer timerDelayedListRecolor;
-        public ContextMenuStrip contextMenuStripColumnOptions;
+        public LocContextMenuStrip contextMenuStripColumnOptions;
         private ToolStripMenuItem checkModFilesToolStripMenuItem;
         private ToolStripButton toolStripButtonSteamWorkshop;
         private ToolStripButton toolStripButtonNexusmods;

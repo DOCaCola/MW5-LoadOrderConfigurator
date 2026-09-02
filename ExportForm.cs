@@ -17,20 +17,41 @@ using Newtonsoft.Json.Linq;
 namespace MW5_Mod_Manager
 {
     [SupportedOSPlatform("windows")]
-    public partial class ExportForm : Form
+    public partial class ExportForm : LocForm, ILocAppearanceAware
     {
+        private readonly Image _saveToFileImageSource;
+        private readonly Image _copyImageSource;
+
         public ExportForm()
         {
             InitializeComponent();
-            if (LocWindowColors.DarkMode)
-                _ = new DarkModeCS(this, false);
+            _saveToFileImageSource = toolStripButtonSaveToFile.Image;
+            _copyImageSource = toolStripButtonCopy.Image;
+        }
+
+        void ILocAppearanceAware.ApplyAppearance(
+            AppearanceSnapshot appearance)
+        {
+            ToolStripAppearance.Apply(toolStrip1, appearance);
+            ApplyDpiAssets(DeviceDpi);
+        }
+
+        void ILocAppearanceAware.ApplyDpi(int oldDpi, int newDpi)
+        {
+            ApplyDpiAssets(newDpi);
+        }
+
+        private void ApplyDpiAssets(int dpi)
+        {
+            ToolStripAppearance.ApplyDpi(
+                toolStrip1,
+                dpi,
+                (toolStripButtonSaveToFile, _saveToFileImageSource),
+                (toolStripButtonCopy, _copyImageSource));
         }
 
         private void ExportWindow_Load(object sender, EventArgs e)
         {
-            if (!LocWindowColors.DarkMode)
-                toolStrip1.Renderer = new ToolStripTransparentRenderer();
-
             Font monospaceFont = Utils.CreateBestAvailableMonospacePlatformFont(textBoxData.Font.Size);
             if (monospaceFont != null)
             {

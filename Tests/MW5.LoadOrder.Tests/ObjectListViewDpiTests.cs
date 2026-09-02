@@ -11,6 +11,62 @@ namespace MW5.LoadOrder.Tests;
 public sealed class ObjectListViewDpiTests
 {
     [STATestMethod]
+    public void FontChangeRefreshesOnlyRowsUsingThePreviousListFont()
+    {
+        using var list = new ObjectListView
+        {
+            View = View.Details,
+        };
+        var firstColumn = new OLVColumn("First", null)
+        {
+            AspectGetter = model => ((string[])model)[0],
+        };
+        var secondColumn = new OLVColumn("Second", null)
+        {
+            AspectGetter = model => ((string[])model)[1],
+        };
+        list.AllColumns.Add(firstColumn);
+        list.AllColumns.Add(secondColumn);
+        list.Columns.Add(firstColumn);
+        list.Columns.Add(secondColumn);
+        list.SetObjects(new object[]
+        {
+            new[] { "inherited", "cell" },
+            new[] { "custom", "cell" },
+        });
+
+        Font oldListFont = list.Font;
+        var inheritedItem = (OLVListItem)list.Items[0];
+        inheritedItem.UseItemStyleForSubItems = false;
+        foreach (ListViewItem.ListViewSubItem subItem
+                 in inheritedItem.SubItems)
+            subItem.Font = oldListFont;
+
+        var customItem = (OLVListItem)list.Items[1];
+        using var customFont = new Font(
+            oldListFont,
+            oldListFont.Style | FontStyle.Italic);
+        customItem.Font = customFont;
+        customItem.UseItemStyleForSubItems = false;
+        foreach (ListViewItem.ListViewSubItem subItem in customItem.SubItems)
+            subItem.Font = customFont;
+
+        using var replacementFont = new Font(
+            oldListFont.FontFamily,
+            oldListFont.SizeInPoints + 1,
+            oldListFont.Style);
+        list.Font = replacementFont;
+
+        Assert.AreSame(replacementFont, inheritedItem.Font);
+        foreach (ListViewItem.ListViewSubItem subItem
+                 in inheritedItem.SubItems)
+            Assert.AreSame(replacementFont, subItem.Font);
+        Assert.AreSame(customFont, customItem.Font);
+        foreach (ListViewItem.ListViewSubItem subItem in customItem.SubItems)
+            Assert.AreSame(customFont, subItem.Font);
+    }
+
+    [STATestMethod]
     public void DpiAwareNativeImageListsScaleWithoutOwnerDrawing()
     {
         Application.EnableVisualStyles();
@@ -80,6 +136,22 @@ public sealed class ObjectListViewDpiTests
         Assert.AreEqual(new Size(32, 32), list.StateImageList.ImageSize);
         Assert.AreEqual(2, list.StateImageList.Images.Count);
         Assert.IsFalse(list.OwnerDraw);
+        for (int i = 0; i < 25; i++)
+            list.RefreshDpiAwareImageLists();
+
+        ImageList incompleteStateImageList = list.StateImageList;
+        incompleteStateImageList.Images.Clear();
+        list.RefreshDpiAwareImageLists(192);
+
+        Assert.AreNotSame(incompleteStateImageList, list.StateImageList);
+        Assert.AreEqual(2, list.StateImageList.Images.Count);
+        Assert.AreEqual(
+            ObjectListView.UNCHECKED_KEY,
+            list.StateImageList.Images.Keys[0]);
+        Assert.AreEqual(
+            ObjectListView.CHECKED_KEY,
+            list.StateImageList.Images.Keys[1]);
+
         Size checkboxAt192Dpi = GetVisibleBounds(
             list.StateImageList.Images[0]).Size;
         // UxTheme only guarantees DPI-specific assets for DPI values used by

@@ -15,13 +15,11 @@ using System.Windows.Forms;
 namespace MW5_Mod_Manager
 {
     [SupportedOSPlatform("windows")]
-    public partial class ModCheckForm : Form
+    public partial class ModCheckForm : LocForm
     {
         public ModCheckForm()
         {
             InitializeComponent();
-            if (LocWindowColors.DarkMode)
-                _ = new DarkModeCS(this, false);
         }
 
         private void AddLogMessage(string message)

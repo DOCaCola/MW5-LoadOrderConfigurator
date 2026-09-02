@@ -188,7 +188,7 @@
             checkBoxDarkMode.Name = "checkBoxDarkMode";
             checkBoxDarkMode.Size = new System.Drawing.Size(307, 19);
             checkBoxDarkMode.TabIndex = 0;
-            checkBoxDarkMode.Text = "Enable Windows &Dark Mode support (requires restart)";
+            checkBoxDarkMode.Text = "Enable Windows &Dark Mode support";
             toolTip1.SetToolTip(checkBoxDarkMode, "User interface will display in a darker color scheme when Windows is configured to enable Dark Mode.\r\nThis setting has no effect, when Windows Dark mode is not enabled.");
             checkBoxDarkMode.UseVisualStyleBackColor = true;
             // 

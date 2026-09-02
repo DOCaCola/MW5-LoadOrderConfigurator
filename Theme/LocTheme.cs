@@ -20,6 +20,8 @@ namespace MW5_Mod_Manager.Controls
     {
         public LocLightTheme()
         {
+           Extender.DockPaneCaptionFactory =
+               new LocDockPaneCaptionFactory();
            ToolStripRenderer = (ToolStripRenderer) new LocThemeToolStripRenderer(ColorPalette)
            {
                UseGlassOnMenuStrip = false
@@ -39,6 +41,8 @@ namespace MW5_Mod_Manager.Controls
     {
         public LocDarkTheme()
         {
+            Extender.DockPaneCaptionFactory =
+                new LocDockPaneCaptionFactory();
             ToolStripRenderer = (ToolStripRenderer) new LocThemeToolStripRenderer(ColorPalette)
             {
                 UseGlassOnMenuStrip = false

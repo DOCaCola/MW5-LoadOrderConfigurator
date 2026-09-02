@@ -18,9 +18,12 @@ namespace MW5_Mod_Manager
     [SupportedOSPlatform("windows")]
     internal class LocViewState
     {
+        internal const int CurrentSchemaVersion = 2;
 
         public class ViewStateData
         {
+            public int SchemaVersion;
+            public int SavedDpi;
             public bool WindowMaximized = false;
             public List<ListViewState> listState;
             public Rectangle WindowPosition { get; set; }
@@ -74,6 +77,7 @@ namespace MW5_Mod_Manager
 
         static public List<ListViewState> GetCurrentListViewState()
         {
+            int dpi = MainForm.Instance?.DeviceDpi ?? 96;
             List<ListViewState> list = new List<ListViewState>();
             foreach (OLVColumn allColumn in DockModListForm.Instance.modObjectListView.AllColumns)
             {
@@ -82,7 +86,10 @@ namespace MW5_Mod_Manager
                 newListViewState.Name = allColumn.Text;
                 newListViewState.Visible = allColumn.IsVisible;
                 newListViewState.DisplayIndex = allColumn.LastDisplayIndex;
-                newListViewState.Width = allColumn.Width;
+                newListViewState.Width = ScaleForDpi(
+                    allColumn.Width,
+                    dpi,
+                    96);
 
                 list.Add(newListViewState);
             }
@@ -92,10 +99,17 @@ namespace MW5_Mod_Manager
 
         static public void SaveCurrentState()
         {
-            ViewStateData viewStateData = new ViewStateData();
+            int dpi = MainForm.Instance.DeviceDpi;
+            ViewStateData viewStateData = new ViewStateData
+            {
+                SchemaVersion = CurrentSchemaVersion,
+                SavedDpi = dpi
+            };
 
             viewStateData.WindowMaximized = MainForm.Instance.WindowState == FormWindowState.Maximized;
-            viewStateData.WindowPosition = MainForm.Instance.DesktopBounds;
+            viewStateData.WindowPosition = NormalizeWindowBounds(
+                MainForm.Instance.DesktopBounds,
+                dpi);
             viewStateData.listState = GetCurrentListViewState();
 
             // Save dockPanel layout as XML to memory
@@ -132,21 +146,45 @@ namespace MW5_Mod_Manager
 
         static public void RestoreViewState()
         {
+            int targetDpi = MainForm.Instance.DeviceDpi;
+            int sourceDpi = GetStoredMeasurementDpi(targetDpi);
+            Rectangle windowPosition = RestoreWindowBounds(
+                _viewStateData.WindowPosition,
+                sourceDpi,
+                targetDpi);
+
             if (_viewStateData.WindowMaximized)
             {
                 MainForm.Instance.WindowState = FormWindowState.Maximized;
             }
-            else if (Screen.AllScreens.Any(screen => screen.WorkingArea.IntersectsWith(_viewStateData.WindowPosition)))
+            else if (Screen.AllScreens.Any(
+                         screen => screen.WorkingArea.IntersectsWith(
+                             windowPosition)))
             {
                 MainForm.Instance.StartPosition = FormStartPosition.Manual;
-                MainForm.Instance.DesktopBounds = _viewStateData.WindowPosition;
+                MainForm.Instance.DesktopBounds = windowPosition;
             }
 
-            RestoreListViewState(_viewStateData.listState);
+            RestoreListViewState(
+                _viewStateData.listState,
+                sourceDpi,
+                targetDpi);
             RestoreDockPanelLayout(_deserializeDockContent);
         }
 
         static public void RestoreListViewState(List<ListViewState> listState)
+        {
+            int targetDpi = MainForm.Instance?.DeviceDpi ?? 96;
+            RestoreListViewState(
+                listState,
+                GetStoredMeasurementDpi(targetDpi),
+                targetDpi);
+        }
+
+        internal static void RestoreListViewState(
+            List<ListViewState> listState,
+            int sourceDpi,
+            int targetDpi)
         {
             foreach (var state in listState)
             {
@@ -154,7 +192,10 @@ namespace MW5_Mod_Manager
                 {
                     if (curColumn.Text == state.Name)
                     {
-                        curColumn.Width = state.Width;
+                        curColumn.Width = ScaleForDpi(
+                            state.Width,
+                            sourceDpi,
+                            targetDpi);
                         if (curColumn.CanBeHidden)
                             curColumn.IsVisible = state.Visible;
                         curColumn.LastDisplayIndex = state.DisplayIndex;
@@ -162,6 +203,62 @@ namespace MW5_Mod_Manager
                 }
             }
             DockModListForm.Instance.modObjectListView.RebuildColumns();
+        }
+
+        private static int GetStoredMeasurementDpi(int legacyDpi)
+        {
+            if (_viewStateData?.SchemaVersion >= CurrentSchemaVersion
+                && _viewStateData.SavedDpi > 0)
+            {
+                return 96;
+            }
+
+            return legacyDpi;
+        }
+
+        internal static int ScaleForDpi(
+            int value,
+            int sourceDpi,
+            int targetDpi)
+        {
+            return (int)Math.Round(
+                value * (double)targetDpi / sourceDpi,
+                MidpointRounding.AwayFromZero);
+        }
+
+        internal static Rectangle ScaleForDpi(
+            Rectangle value,
+            int sourceDpi,
+            int targetDpi)
+        {
+            return new Rectangle(
+                ScaleForDpi(value.X, sourceDpi, targetDpi),
+                ScaleForDpi(value.Y, sourceDpi, targetDpi),
+                ScaleForDpi(value.Width, sourceDpi, targetDpi),
+                ScaleForDpi(value.Height, sourceDpi, targetDpi));
+        }
+
+        internal static Rectangle NormalizeWindowBounds(
+            Rectangle bounds,
+            int dpi)
+        {
+            return new Rectangle(
+                bounds.Location,
+                new Size(
+                    ScaleForDpi(bounds.Width, dpi, 96),
+                    ScaleForDpi(bounds.Height, dpi, 96)));
+        }
+
+        internal static Rectangle RestoreWindowBounds(
+            Rectangle bounds,
+            int sourceDpi,
+            int targetDpi)
+        {
+            return new Rectangle(
+                bounds.Location,
+                new Size(
+                    ScaleForDpi(bounds.Width, sourceDpi, targetDpi),
+                    ScaleForDpi(bounds.Height, sourceDpi, targetDpi)));
         }
 
         public static void RestoreDockPanelLayout(DeserializeDockContent deserializeContent)

@@ -8,6 +8,12 @@ public static class LocWindowColors
     private static bool _DarkMode = DarkModeCS.GetWindowsColorMode() <= 0;
     public static OSThemeColors OScolors { get; set; } = DarkModeCS.GetSystemColors();
 
+    internal static void Apply(AppearanceSnapshot appearance)
+    {
+        _DarkMode = appearance.DarkMode;
+        OScolors = appearance.Colors;
+    }
+
     public static bool DarkMode
     {
         get { return _DarkMode; }
