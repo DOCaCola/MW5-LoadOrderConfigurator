@@ -29,7 +29,6 @@ namespace MW5_Mod_Manager
             _manifestContextMenuDpiLayout =
                 ToolStripDpiLayout.Capture(
                     contextMenuManifest,
-                    96,
                     scaleStripSpacing: false);
             Disposed += (_, _) =>
                 _manifestContextMenuDpiLayout.Dispose();

@@ -126,12 +126,10 @@ namespace MW5_Mod_Manager
             _modContextMenuDpiLayout =
                 ToolStripDpiLayout.Capture(
                     contextMenuStripMod,
-                    96,
                     scaleStripSpacing: false);
             _columnContextMenuDpiLayout =
                 ToolStripDpiLayout.Capture(
                     contextMenuStripColumnOptions,
-                    96,
                     scaleStripSpacing: false);
             RegisterDpiFontRoot(contextMenuStripMod);
             RegisterDpiFontRoot(contextMenuStripColumnOptions);
@@ -156,6 +154,8 @@ namespace MW5_Mod_Manager
                 DockOverviewForm.Instance = new DockOverviewForm();
             _ownedDockConflictsForm =
                 DockConflictsForm.Instance = new DockConflictsForm();
+            LocViewState._defaultViewState.listState =
+                LocViewState.GetCurrentListViewState(96);
 
             Instance = this;
             _hasSavedViewState = LocViewState.LoadViewStateFromFile();
@@ -217,6 +217,9 @@ namespace MW5_Mod_Manager
             int oldDpi,
             int newDpi)
         {
+            _ownedDockModListForm.ScaleColumnWidthsForDpi(
+                oldDpi,
+                newDpi);
             _ownedDockModListForm.ApplyHostDpiFonts(newDpi);
             _ownedDockOverviewForm.ApplyHostDpiFonts(newDpi);
             _ownedDockConflictsForm.ApplyHostDpiFonts(newDpi);
@@ -725,9 +728,13 @@ namespace MW5_Mod_Manager
             };
 
             LocViewState._defaultViewState.WindowPosition = this.DesktopBounds;
-            LocViewState._defaultViewState.listState = LocViewState.GetCurrentListViewState();
             if (_hasSavedViewState)
                 LocViewState.RestoreViewState();
+            else
+                LocViewState.RestoreListViewState(
+                    LocViewState._defaultViewState.listState,
+                    96,
+                    DeviceDpi);
 
             CreateColumnMenus();
             AddColumnVisibilityMenuItems(toolStripMenuItemColumns.DropDownItems);

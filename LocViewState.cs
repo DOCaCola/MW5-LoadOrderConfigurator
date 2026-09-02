@@ -78,6 +78,12 @@ namespace MW5_Mod_Manager
         static public List<ListViewState> GetCurrentListViewState()
         {
             int dpi = MainForm.Instance?.DeviceDpi ?? 96;
+            return GetCurrentListViewState(dpi);
+        }
+
+        internal static List<ListViewState> GetCurrentListViewState(
+            int measurementDpi)
+        {
             List<ListViewState> list = new List<ListViewState>();
             foreach (OLVColumn allColumn in DockModListForm.Instance.modObjectListView.AllColumns)
             {
@@ -88,7 +94,7 @@ namespace MW5_Mod_Manager
                 newListViewState.DisplayIndex = allColumn.LastDisplayIndex;
                 newListViewState.Width = ScaleForDpi(
                     allColumn.Width,
-                    dpi,
+                    measurementDpi,
                     96);
 
                 list.Add(newListViewState);

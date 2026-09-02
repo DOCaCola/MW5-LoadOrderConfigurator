@@ -141,6 +141,7 @@ internal static class Program
                 dockPanel.Theme.Skin.AutoHideStripSkin.TextFont),
             CaptureDockCaptions(dockPanel),
             CaptureSidePanelState(),
+            CaptureColumns(list),
             controls,
             rows);
         File.AppendAllText(
@@ -411,6 +412,22 @@ internal static class Program
                 "contextMenuManifest").Visible);
     }
 
+    private static IReadOnlyList<ColumnSnapshot> CaptureColumns(
+        ObjectListView list)
+    {
+        return list.AllColumns
+            .Cast<OLVColumn>()
+            .Select(column => new ColumnSnapshot(
+                column.Text,
+                column.Width,
+                column.MinimumWidth,
+                column.MaximumWidth,
+                column.IsVisible,
+                column.LastDisplayIndex,
+                column.FillsFreeSpace))
+            .ToArray();
+    }
+
     private static IEnumerable<Control> EnumerateControls(Control root)
     {
         yield return root;
@@ -463,8 +480,18 @@ internal static class Program
         FontInfo AutoHideFont,
         IReadOnlyList<DockCaptionSnapshot> DockCaptions,
         SidePanelSnapshot SidePanels,
+        IReadOnlyList<ColumnSnapshot> Columns,
         IReadOnlyList<ControlFontSnapshot> Controls,
         IReadOnlyList<RowFontSnapshot> Rows);
+
+    private sealed record ColumnSnapshot(
+        string Text,
+        int Width,
+        int MinimumWidth,
+        int MaximumWidth,
+        bool Visible,
+        int DisplayIndex,
+        bool FillsFreeSpace);
 
     private sealed record DockCaptionSnapshot(
         int Dpi,

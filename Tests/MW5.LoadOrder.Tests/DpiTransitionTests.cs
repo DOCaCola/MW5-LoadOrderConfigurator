@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using BrightIdeasSoftware;
 using MW5_Mod_Manager;
 using MW5_Mod_Manager.Controls;
 using System;
@@ -140,6 +141,23 @@ public sealed class DpiTransitionTests
         Assert.AreEqual(
             expectedImageSize,
             transitioned.ObjectListViewStateImageSize);
+        Assert.AreEqual(
+            new Size(16, 16),
+            original.ColumnContextMenu.ImageScalingSize);
+        Assert.AreEqual(
+            expectedImageSize,
+            transitioned.ModContextMenu.ImageScalingSize);
+        Assert.AreEqual(
+            expectedImageSize,
+            transitioned.ColumnContextMenu.ImageScalingSize);
+        Assert.AreEqual(
+            expectedImageSize,
+            transitioned.ManifestContextMenu.ImageScalingSize);
+        AssertColumnMetricsScale(
+            original.ObjectListViewColumns,
+            transitioned.ObjectListViewColumns,
+            alternateDpi,
+            original.DeviceDpi);
         Assert.IsTrue(
             transitioned.ApplyButtonFontHeight
                 > original.ApplyButtonFontHeight);
@@ -181,6 +199,9 @@ public sealed class DpiTransitionTests
         Assert.AreEqual(
             original.ObjectListViewStateImageSize,
             roundTrip.ObjectListViewStateImageSize);
+        AssertColumnMetricsRoundTrip(
+            original.ObjectListViewColumns,
+            roundTrip.ObjectListViewColumns);
         Assert.AreEqual(original.StatusSize, roundTrip.StatusSize);
         Assert.AreEqual(
             original.MainFontHeight,
@@ -399,6 +420,14 @@ public sealed class DpiTransitionTests
                 .BaseSmallImageList.ImageSize,
             DockModListForm.Instance.modObjectListView
                 .StateImageList.ImageSize,
+            DockModListForm.Instance.modObjectListView.AllColumns
+                .Cast<OLVColumn>()
+                .Select(column => new ColumnMetrics(
+                    column.Width,
+                    column.MinimumWidth,
+                    column.MaximumWidth,
+                    column.FillsFreeSpace))
+                .ToArray(),
             form.Font.Height,
             menu.Font.Height,
             toolbar.Font.Height,
@@ -472,6 +501,7 @@ public sealed class DpiTransitionTests
             strip.Padding,
             strip.Size,
             strip.GetPreferredSize(Size.Empty),
+            strip.ImageScalingSize,
             item.Font.Height,
             item.Padding,
             item.Bounds,
@@ -587,6 +617,85 @@ public sealed class DpiTransitionTests
             $"Expected height {expected.Height} ± {tolerance}, actual {actual.Height}.");
     }
 
+    private static void AssertColumnMetricsScale(
+        ColumnMetrics[] original,
+        ColumnMetrics[] transitioned,
+        int newDpi,
+        int oldDpi)
+    {
+        Assert.AreEqual(original.Length, transitioned.Length);
+        for (int index = 0; index < original.Length; index++)
+        {
+            Assert.AreEqual(
+                original[index].FillsFreeSpace,
+                transitioned[index].FillsFreeSpace,
+                $"Column {index} fill behavior");
+            if (!original[index].FillsFreeSpace)
+            {
+                Assert.AreEqual(
+                    ScaleColumnMetric(
+                        original[index].Width,
+                        newDpi,
+                        oldDpi),
+                    transitioned[index].Width,
+                    $"Column {index} width");
+            }
+            Assert.AreEqual(
+                ScaleColumnMetric(
+                    original[index].MinimumWidth,
+                    newDpi,
+                    oldDpi),
+                transitioned[index].MinimumWidth,
+                $"Column {index} minimum width");
+            Assert.AreEqual(
+                ScaleColumnMetric(
+                    original[index].MaximumWidth,
+                    newDpi,
+                    oldDpi),
+                transitioned[index].MaximumWidth,
+                $"Column {index} maximum width");
+        }
+    }
+
+    private static int ScaleColumnMetric(
+        int value,
+        int newDpi,
+        int oldDpi)
+    {
+        return value < 0
+            ? value
+            : LocViewState.ScaleForDpi(value, oldDpi, newDpi);
+    }
+
+    private static void AssertColumnMetricsRoundTrip(
+        ColumnMetrics[] original,
+        ColumnMetrics[] roundTrip)
+    {
+        Assert.AreEqual(original.Length, roundTrip.Length);
+        for (int index = 0; index < original.Length; index++)
+        {
+            Assert.AreEqual(
+                original[index].FillsFreeSpace,
+                roundTrip[index].FillsFreeSpace,
+                $"Column {index} fill behavior");
+            if (!original[index].FillsFreeSpace)
+            {
+                Assert.AreEqual(
+                    original[index].Width,
+                    roundTrip[index].Width,
+                    $"Column {index} width");
+            }
+            Assert.AreEqual(
+                original[index].MinimumWidth,
+                roundTrip[index].MinimumWidth,
+                $"Column {index} minimum width");
+            Assert.AreEqual(
+                original[index].MaximumWidth,
+                roundTrip[index].MaximumWidth,
+                $"Column {index} maximum width");
+        }
+    }
+
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     private static extern nint SendMessage(
         nint hWnd,
@@ -624,6 +733,7 @@ public sealed class DpiTransitionTests
         Size ObjectListViewSize,
         Size ObjectListViewSmallImageSize,
         Size ObjectListViewStateImageSize,
+        ColumnMetrics[] ObjectListViewColumns,
         int MainFontHeight,
         int MenuFontHeight,
         int MainToolbarFontHeight,
@@ -655,11 +765,18 @@ public sealed class DpiTransitionTests
         bool ManifestHeaderUsesAvailableWidth,
         DockCaptionMetrics[] DockCaptions);
 
+    private readonly record struct ColumnMetrics(
+        int Width,
+        int MinimumWidth,
+        int MaximumWidth,
+        bool FillsFreeSpace);
+
     private readonly record struct StripMetrics(
         int FontHeight,
         Padding Padding,
         Size Size,
         Size PreferredSize,
+        Size ImageScalingSize,
         int ItemFontHeight,
         Padding ItemPadding,
         Rectangle ItemBounds,

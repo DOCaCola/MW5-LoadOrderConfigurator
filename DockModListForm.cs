@@ -24,10 +24,18 @@ namespace MW5_Mod_Manager
             new(StringComparer.OrdinalIgnoreCase);
         private readonly HashSet<string> _selectedOverriddenModFolders =
             new(StringComparer.OrdinalIgnoreCase);
+        private readonly ColumnDpiMetrics[] _columnDpiMetrics;
 
         public DockModListForm()
         {
             InitializeComponent();
+            _columnDpiMetrics = modObjectListView.AllColumns
+                .Cast<OLVColumn>()
+                .Select(column => new ColumnDpiMetrics(
+                    column,
+                    column.MinimumWidth,
+                    column.MaximumWidth))
+                .ToArray();
             AllowEndUserDocking = false;
 
             panelColorLegend.SetDisableDarkMode(true);
@@ -46,6 +54,7 @@ namespace MW5_Mod_Manager
         {
             int Scale(int value) => UiImageCache.Scale(value, dpi);
 
+            ApplyColumnConstraints(dpi);
             toolStrip2.SuspendLayout();
             try
             {
@@ -84,6 +93,77 @@ namespace MW5_Mod_Manager
             LayoutColorLegend(dpi);
             LayoutModListBounds(dpi);
         }
+
+        internal void ScaleColumnWidthsForDpi(
+            int oldDpi,
+            int newDpi)
+        {
+            if (oldDpi <= 0 || newDpi <= 0 || oldDpi == newDpi)
+                return;
+
+            OLVColumn[] columns = modObjectListView.AllColumns
+                .Cast<OLVColumn>()
+                .ToArray();
+            int[] scaledWidths = columns
+                .Select(column => column.Width < 0
+                    ? column.Width
+                    : LocViewState.ScaleForDpi(
+                        column.Width,
+                        oldDpi,
+                        newDpi))
+                .ToArray();
+
+            modObjectListView.BeginUpdate();
+            try
+            {
+                ApplyColumnConstraints(newDpi);
+                for (int index = 0; index < columns.Length; index++)
+                {
+                    OLVColumn column = columns[index];
+                    if (column.FillsFreeSpace)
+                        continue;
+
+                    int width = scaledWidths[index];
+                    if (width < 0)
+                    {
+                        column.Width = width;
+                        continue;
+                    }
+
+                    if (column.MinimumWidth >= 0)
+                        width = Math.Max(width, column.MinimumWidth);
+                    if (column.MaximumWidth >= 0)
+                        width = Math.Min(width, column.MaximumWidth);
+                    column.Width = width;
+                }
+                modObjectListView.RebuildColumns();
+            }
+            finally
+            {
+                modObjectListView.EndUpdate();
+            }
+        }
+
+        private void ApplyColumnConstraints(int dpi)
+        {
+            foreach (ColumnDpiMetrics metrics in _columnDpiMetrics)
+            {
+                metrics.Column.MinimumWidth =
+                    ScaleColumnConstraint(metrics.MinimumWidth, dpi);
+                metrics.Column.MaximumWidth =
+                    ScaleColumnConstraint(metrics.MaximumWidth, dpi);
+            }
+        }
+
+        private static int ScaleColumnConstraint(int value, int dpi)
+        {
+            return value < 0 ? value : UiImageCache.Scale(value, dpi);
+        }
+
+        private readonly record struct ColumnDpiMetrics(
+            OLVColumn Column,
+            int MinimumWidth,
+            int MaximumWidth);
 
         private void LayoutPriorityDecorations(int dpi)
         {
