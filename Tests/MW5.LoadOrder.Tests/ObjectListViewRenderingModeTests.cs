@@ -28,6 +28,7 @@ public sealed class ObjectListViewRenderingModeTests
         Assert.IsFalse(form.modObjectListView.RefreshItemOnCheckStateChange);
         Assert.IsNull(form.modObjectListView.AlwaysGroupByColumn);
         Assert.IsFalse(form.modObjectListView.ShowGroups);
+        Assert.IsTrue(form.modObjectListView.UseDpiAwareImageLists);
         Assert.IsTrue(form.modObjectListView.UseNativeCheckStateUpdates);
         Assert.IsTrue(form.modObjectListView.UseSmoothPixelScrolling);
 

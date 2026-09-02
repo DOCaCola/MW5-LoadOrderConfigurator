@@ -46,6 +46,9 @@ internal static class Program
         Measure("OLV native images", CreateObjectListView(
             items, decorated: false, highlighted: false, grouped: false,
             bypassCustomDraw: false, images: true), hostSize);
+        Measure("OLV DPI-aware images", CreateObjectListView(
+            items, decorated: false, highlighted: false, grouped: false,
+            bypassCustomDraw: false, images: true, dpiAwareImages: true), hostSize);
         Measure("OLV native bare", CreateObjectListView(
             items, decorated: false, highlighted: false, grouped: true,
             bypassCustomDraw: false, images: false), hostSize);
@@ -107,7 +110,8 @@ internal static class Program
         bool grouped,
         bool bypassCustomDraw,
         bool images,
-        bool smoothPixelScrolling = false)
+        bool smoothPixelScrolling = false,
+        bool dpiAwareImages = false)
     {
         ObjectListView list = bypassCustomDraw
             ? new BypassCustomDrawObjectListView()
@@ -120,6 +124,7 @@ internal static class Program
         list.UseOverlays = false;
         list.View = View.Details;
         list.ShowGroups = grouped;
+        list.UseDpiAwareImageLists = dpiAwareImages;
         list.UseSmoothPixelScrolling = smoothPixelScrolling;
         AddColumn(list, "Mod", item => item.Name, 280, searchable: true);
         AddColumn(list, "Author", item => item.Author, 100);

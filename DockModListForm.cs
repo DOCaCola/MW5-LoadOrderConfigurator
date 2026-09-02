@@ -37,6 +37,7 @@ namespace MW5_Mod_Manager
             modObjectListView.OwnerDraw = false;
             modObjectListView.RefreshItemOnCheckStateChange = false;
             modObjectListView.ShowGroups = false;
+            modObjectListView.UseDpiAwareImageLists = true;
             modObjectListView.UseNativeCheckStateUpdates = true;
             modObjectListView.UseSmoothPixelScrolling = true;
         }

@@ -234,6 +234,8 @@ namespace MW5_Mod_Manager
                 DockModListForm.Instance.imageListIcons.Images.Add("FolderDis", UiIcons.FolderDis);
             }
 
+            DockModListForm.Instance.modObjectListView.RefreshDpiAwareImageLists();
+
             DockModListForm.Instance.olvColumnModName.ImageGetter = this.ModImageGetter;
             DockModListForm.Instance.olvColumnModName.AspectGetter = this.ModNameGetter;
             DockModListForm.Instance.olvColumnModAuthor.AspectGetter = this.ModAuthorGetter;
