@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 
@@ -10,6 +11,9 @@ namespace MW5_Mod_Manager.Controls;
 [SupportedOSPlatform("windows")]
 internal sealed class DpiFontCoordinator : IDisposable
 {
+    internal static int ProcessFontDpi { get; } =
+        checked((int)GetDpiForSystem());
+
     private readonly List<ControlFontBinding> _bindings = new();
     private readonly List<ToolStripItemFontBinding> _itemBindings = new();
     private readonly HashSet<Control> _additionalRoots = new();
@@ -303,6 +307,8 @@ internal sealed class DpiFontCoordinator : IDisposable
         DpiFontDescriptor Descriptor,
         int TargetDpi);
 
+    [DllImport("user32.dll")]
+    private static extern uint GetDpiForSystem();
 }
 
 internal readonly record struct DpiFontDescriptor(

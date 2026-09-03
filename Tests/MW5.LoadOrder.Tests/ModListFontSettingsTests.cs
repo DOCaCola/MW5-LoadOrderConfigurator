@@ -1,10 +1,12 @@
 using BrightIdeasSoftware;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MW5_Mod_Manager;
+using MW5_Mod_Manager.Controls;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Drawing;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace MW5.LoadOrder.Tests;
@@ -13,6 +15,10 @@ namespace MW5.LoadOrder.Tests;
 [DoNotParallelize]
 public sealed class ModListFontSettingsTests
 {
+    private const int LvmGetImageList = 0x1002;
+    private const int LvsilSmall = 1;
+    private const int LvsilState = 2;
+
     [TestMethod]
     public void CustomFontSizeIsPersistedAndLoaded()
     {
@@ -66,14 +72,14 @@ public sealed class ModListFontSettingsTests
 
             form.ApplyHostDpiFonts(144);
             Assert.AreEqual(
-                21F,
+                14F * 144F / DpiFontCoordinator.ProcessFontDpi,
                 form.modObjectListView.Font.SizeInPoints,
                 0.1F);
 
             LocSettings.Instance.Data.ModListFontSize = 16;
             form.ApplyModListFontSetting(144);
             Assert.AreEqual(
-                24F,
+                16F * 144F / DpiFontCoordinator.ProcessFontDpi,
                 form.modObjectListView.Font.SizeInPoints,
                 0.1F);
 
@@ -81,7 +87,9 @@ public sealed class ModListFontSettingsTests
                 LocSettings.DefaultModListFontSize;
             form.ApplyModListFontSetting(96);
             Assert.AreEqual(
-                Control.DefaultFont.SizeInPoints,
+                Control.DefaultFont.SizeInPoints
+                    * 96F
+                    / DpiFontCoordinator.ProcessFontDpi,
                 form.modObjectListView.Font.SizeInPoints,
                 0.1F);
             Assert.IsTrue(
@@ -129,6 +137,9 @@ public sealed class ModListFontSettingsTests
             });
             form.Show();
             Application.DoEvents();
+            form.modObjectListView.RefreshDpiAwareImageLists(
+                DpiFontCoordinator.ProcessFontDpi);
+            Application.DoEvents();
 
             Assert.IsNotNull(form.modObjectListView.StateImageList);
             var item = (OLVListItem)form.modObjectListView.Items[0];
@@ -136,18 +147,48 @@ public sealed class ModListFontSettingsTests
             Assert.AreEqual(
                 CheckState.Checked,
                 item.CheckState);
+            Assert.AreEqual(
+                2,
+                form.modObjectListView.StateImageList.Images.Count);
+            Assert.AreEqual(
+                form.modObjectListView.StateImageList.Handle,
+                SendMessage(
+                    form.modObjectListView.Handle,
+                    LvmGetImageList,
+                    LvsilState,
+                    0));
             ImageList defaultStateImages =
                 form.modObjectListView.StateImageList;
+            ImageList defaultModImages =
+                form.modObjectListView.BaseSmallImageList;
+            nint listHandle = form.modObjectListView.Handle;
+            nint defaultNativeModImages = SendMessage(
+                listHandle,
+                LvmGetImageList,
+                LvsilSmall,
+                0);
+            nint defaultNativeStateImages = SendMessage(
+                listHandle,
+                LvmGetImageList,
+                LvsilState,
+                0);
+            Assert.AreEqual(
+                defaultModImages.Handle,
+                defaultNativeModImages);
+            Assert.AreEqual(
+                defaultStateImages.Handle,
+                defaultNativeStateImages);
 
             LocSettings.Instance.Data.ModListFontSize = 18;
             form.ApplyModListFontSetting();
             Application.DoEvents();
 
+            nint largeFontHandle = form.modObjectListView.Handle;
             Assert.IsTrue(form.modObjectListView.CheckBoxes);
             Assert.AreEqual(-1, form.modObjectListView.RowHeight);
-            Assert.AreNotSame(
-                defaultStateImages,
-                form.modObjectListView.StateImageList);
+            Assert.AreNotEqual(
+                listHandle,
+                largeFontHandle);
             Assert.AreEqual(
                 CheckState.Checked,
                 item.CheckState);
@@ -158,10 +199,37 @@ public sealed class ModListFontSettingsTests
             Assert.AreEqual(
                 2,
                 form.modObjectListView.StateImageList.Images.Count);
+            Assert.AreEqual(
+                form.modObjectListView.StateImageList.Handle,
+                SendMessage(
+                    form.modObjectListView.Handle,
+                    LvmGetImageList,
+                    LvsilState,
+                    0));
+            Assert.AreEqual(
+                form.modObjectListView.BaseSmallImageList.Handle,
+                SendMessage(
+                    form.modObjectListView.Handle,
+                    LvmGetImageList,
+                    LvsilSmall,
+                    0));
             Assert.AreSame(
                 form.imageListIcons,
-                form.modObjectListView.BaseSmallImageList);
+                form.modObjectListView.SmallImageList);
+            Assert.AreEqual(
+                form.modObjectListView.BaseSmallImageList.Handle,
+                SendMessage(
+                    form.modObjectListView.Handle,
+                    LvmGetImageList,
+                    LvsilSmall,
+                    0));
+            Assert.AreNotEqual(
+                form.modObjectListView.StateImageList.Handle,
+                form.modObjectListView.BaseSmallImageList.Handle);
             Assert.AreEqual("test-icon", item.ImageKey);
+            Assert.AreEqual(
+                1,
+                form.imageListIcons.Images.Count);
             Assert.AreEqual(
                 1,
                 form.modObjectListView.BaseSmallImageList.Images.Count);
@@ -169,22 +237,33 @@ public sealed class ModListFontSettingsTests
                 form.modObjectListView.StateImageList.Images[0]));
             Assert.IsTrue(HasVisiblePixel(
                 form.modObjectListView.StateImageList.Images[1]));
-            ImageList largeStateImages =
-                form.modObjectListView.StateImageList;
-
             LocSettings.Instance.Data.ModListFontSize =
                 LocSettings.DefaultModListFontSize;
             form.ApplyModListFontSetting();
             Application.DoEvents();
 
+            nint defaultFontHandle = form.modObjectListView.Handle;
             Assert.AreEqual(-1, form.modObjectListView.RowHeight);
-            Assert.AreNotSame(
-                largeStateImages,
-                form.modObjectListView.StateImageList);
+            Assert.AreNotEqual(
+                largeFontHandle,
+                defaultFontHandle);
             Assert.AreSame(
                 form.imageListIcons,
-                form.modObjectListView.BaseSmallImageList);
+                form.modObjectListView.SmallImageList);
+            Assert.AreEqual(
+                form.modObjectListView.BaseSmallImageList.Handle,
+                SendMessage(
+                    form.modObjectListView.Handle,
+                    LvmGetImageList,
+                    LvsilSmall,
+                    0));
+            Assert.AreNotEqual(
+                form.modObjectListView.StateImageList.Handle,
+                form.modObjectListView.BaseSmallImageList.Handle);
             Assert.AreEqual("test-icon", item.ImageKey);
+            Assert.AreEqual(
+                1,
+                form.imageListIcons.Images.Count);
             Assert.AreEqual(
                 1,
                 form.modObjectListView.BaseSmallImageList.Images.Count);
@@ -195,6 +274,75 @@ public sealed class ModListFontSettingsTests
                 CheckState.Checked,
                 item.CheckState);
             Assert.AreEqual(1, item.StateImageIndex);
+            Assert.AreEqual(
+                2,
+                form.modObjectListView.StateImageList.Images.Count);
+            Assert.AreEqual(
+                form.modObjectListView.StateImageList.Handle,
+                SendMessage(
+                    form.modObjectListView.Handle,
+                    LvmGetImageList,
+                    LvsilState,
+                    0));
+            Assert.AreEqual(
+                form.modObjectListView.BaseSmallImageList.Handle,
+                SendMessage(
+                    form.modObjectListView.Handle,
+                    LvmGetImageList,
+                    LvsilSmall,
+                    0));
+            Assert.IsTrue(HasVisiblePixel(
+                form.modObjectListView.StateImageList.Images[0]));
+            Assert.IsTrue(HasVisiblePixel(
+                form.modObjectListView.StateImageList.Images[1]));
+        }
+        finally
+        {
+            LocSettings.Instance.Data.ModListFontSize =
+                originalFontSize;
+        }
+    }
+
+    [STATestMethod]
+    public void FontChangeUsesHostDpiForCheckboxImages()
+    {
+        Application.EnableVisualStyles();
+        int originalFontSize =
+            LocSettings.Instance.Data.ModListFontSize;
+
+        try
+        {
+            LocSettings.Instance.Data.ModListFontSize =
+                LocSettings.DefaultModListFontSize;
+            using var form = new DockModListForm
+            {
+                ClientSize = new Size(800, 450),
+                ShowInTaskbar = false
+            };
+            form.Show();
+            Application.DoEvents();
+
+            form.ApplyDpiLayout(192);
+            form.modObjectListView.RefreshDpiAwareImageLists(192);
+
+            LocSettings.Instance.Data.ModListFontSize = 18;
+            form.ApplyModListFontSetting();
+            Application.DoEvents();
+
+            Assert.AreEqual(
+                18F * 192F / DpiFontCoordinator.ProcessFontDpi,
+                form.modObjectListView.Font.SizeInPoints,
+                0.1F);
+            Assert.AreEqual(
+                new Size(32, 32),
+                form.modObjectListView.StateImageList.ImageSize);
+            Assert.AreEqual(
+                form.modObjectListView.StateImageList.Handle,
+                SendMessage(
+                    form.modObjectListView.Handle,
+                    LvmGetImageList,
+                    LvsilState,
+                    0));
             Assert.AreEqual(
                 2,
                 form.modObjectListView.StateImageList.Images.Count);
@@ -224,4 +372,12 @@ public sealed class ModListFontSettingsTests
 
         return false;
     }
+
+    [DllImport("user32.dll")]
+    private static extern nint SendMessage(
+        nint window,
+        int message,
+        nint wParam,
+        nint lParam);
+
 }

@@ -26,14 +26,17 @@ namespace MW5_Mod_Manager
             new(StringComparer.OrdinalIgnoreCase);
         private readonly ColumnDpiMetrics[] _columnDpiMetrics;
         private readonly DpiFontDescriptor _defaultListFont;
+        private int _hostDpi = DpiFontCoordinator.ProcessFontDpi;
 
         public DockModListForm()
         {
             InitializeComponent();
+            modObjectListView.UseCompatibleStateImageBehavior = false;
+            modObjectListView.UseDpiAwareImageLists = true;
             _defaultListFont = DpiFontDescriptor.Capture(
                 modObjectListView.Font,
-                96);
-            ApplyModListFontSetting(96);
+                _hostDpi);
+            ApplyModListFontSetting(_hostDpi);
             _columnDpiMetrics = modObjectListView.AllColumns
                 .Cast<OLVColumn>()
                 .Select(column => new ColumnDpiMetrics(
@@ -50,18 +53,19 @@ namespace MW5_Mod_Manager
             modObjectListView.OwnerDraw = false;
             modObjectListView.RefreshItemOnCheckStateChange = false;
             modObjectListView.ShowGroups = false;
-            modObjectListView.UseDpiAwareImageLists = true;
             modObjectListView.UseNativeCheckStateUpdates = true;
             modObjectListView.UseSmoothPixelScrolling = true;
         }
 
         internal void ApplyModListFontSetting()
         {
-            ApplyModListFontSetting(Math.Max(DeviceDpi, 96));
+            ApplyModListFontSetting(_hostDpi);
         }
 
         internal void ApplyModListFontSetting(int dpi)
         {
+            dpi = Math.Max(dpi, 96);
+            _hostDpi = dpi;
             int configuredSize = LocSettings.NormalizeModListFontSize(
                 LocSettings.Instance.Data.ModListFontSize);
             DpiFontDescriptor descriptor =
@@ -80,12 +84,6 @@ namespace MW5_Mod_Manager
                     descriptor,
                     dpi);
 
-                // A native ListView can drop its checkbox image-list
-                // association when WM_SETFONT changes the row metrics. Force
-                // ObjectListView to create and attach a fresh owned state
-                // image list. Refreshing alone keeps the existing managed
-                // list because its dimensions and keys still look valid.
-                modObjectListView.StateImageList = null;
                 modObjectListView.RefreshDpiAwareImageLists(dpi);
                 modObjectListView.RefreshItems();
             }
@@ -97,6 +95,8 @@ namespace MW5_Mod_Manager
 
         internal void ApplyDpiLayout(int dpi)
         {
+            dpi = Math.Max(dpi, 96);
+            _hostDpi = dpi;
             int Scale(int value) => UiImageCache.Scale(value, dpi);
 
             ApplyColumnConstraints(dpi);
