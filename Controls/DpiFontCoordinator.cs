@@ -14,6 +14,8 @@ internal sealed class DpiFontCoordinator : IDisposable
     private readonly List<ToolStripItemFontBinding> _itemBindings = new();
     private readonly HashSet<Control> _additionalRoots = new();
     private readonly Dictionary<FontCacheKey, Font> _fontCache = new();
+    private readonly Dictionary<Control, ControlFontBinding> _controlBindings =
+        new();
     private readonly HashSet<Control> _trackedControls = new();
     private readonly HashSet<ToolStripItem> _trackedItems = new();
     private readonly HashSet<ToolStrip> _trackedToolStrips = new();
@@ -63,6 +65,7 @@ internal sealed class DpiFontCoordinator : IDisposable
         _bindings.Clear();
         _itemBindings.Clear();
         _fontCache.Clear();
+        _controlBindings.Clear();
         _additionalRoots.Clear();
         _trackedControls.Clear();
         _trackedItems.Clear();
@@ -86,6 +89,31 @@ internal sealed class DpiFontCoordinator : IDisposable
         return font;
     }
 
+    public void SetFont(
+        Control control,
+        DpiFontDescriptor descriptor,
+        int targetDpi)
+    {
+        if (!_controlBindings.TryGetValue(
+                control,
+                out ControlFontBinding binding))
+        {
+            binding = new ControlFontBinding(control, descriptor);
+            _trackedControls.Add(control);
+            _bindings.Add(binding);
+            _controlBindings.Add(control, binding);
+        }
+        else
+        {
+            binding.UpdateDescriptor(descriptor);
+        }
+
+        targetDpi = Math.Max(targetDpi, 96);
+        _currentDpi = targetDpi;
+        binding.Apply(GetFont(descriptor, targetDpi), targetDpi);
+        control.Invalidate();
+    }
+
     private void CaptureControl(
         Control control,
         Control formRoot,
@@ -101,9 +129,11 @@ internal sealed class DpiFontCoordinator : IDisposable
             || HasExplicitFont(control);
         if (shouldCapture && _trackedControls.Add(control))
         {
-            _bindings.Add(new ControlFontBinding(
+            var binding = new ControlFontBinding(
                 control,
-                DpiFontDescriptor.Capture(control.Font, sourceDpi)));
+                DpiFontDescriptor.Capture(control.Font, sourceDpi));
+            _bindings.Add(binding);
+            _controlBindings.Add(control, binding);
         }
 
         if (control is ToolStrip toolStrip)
@@ -210,7 +240,7 @@ internal sealed class DpiFontCoordinator : IDisposable
     private sealed class ControlFontBinding
     {
         private readonly Control _control;
-        public DpiFontDescriptor Descriptor { get; }
+        public DpiFontDescriptor Descriptor { get; private set; }
 
         public ControlFontBinding(
             Control control,
@@ -219,6 +249,11 @@ internal sealed class DpiFontCoordinator : IDisposable
             _control = control;
             Descriptor = descriptor;
             _appliedDpi = descriptor.SourceDpi;
+        }
+
+        public void UpdateDescriptor(DpiFontDescriptor descriptor)
+        {
+            Descriptor = descriptor;
         }
 
         public void Apply(Font replacement, int targetDpi)

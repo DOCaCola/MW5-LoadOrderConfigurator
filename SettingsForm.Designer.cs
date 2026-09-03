@@ -43,6 +43,8 @@
             groupBox3 = new System.Windows.Forms.GroupBox();
             checkBoxDarkMode = new System.Windows.Forms.CheckBox();
             groupBox2 = new System.Windows.Forms.GroupBox();
+            comboBoxModListFontSize = new System.Windows.Forms.ComboBox();
+            label4 = new System.Windows.Forms.Label();
             label3 = new System.Windows.Forms.Label();
             radioButtonLowToHigh = new System.Windows.Forms.RadioButton();
             radioButtonHighToLow = new System.Windows.Forms.RadioButton();
@@ -118,7 +120,7 @@
             // buttonSave
             // 
             buttonSave.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-            buttonSave.Location = new System.Drawing.Point(12, 197);
+            buttonSave.Location = new System.Drawing.Point(12, 229);
             buttonSave.Name = "buttonSave";
             buttonSave.Size = new System.Drawing.Size(88, 26);
             buttonSave.TabIndex = 4;
@@ -129,7 +131,7 @@
             // buttonCancel
             // 
             buttonCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-            buttonCancel.Location = new System.Drawing.Point(106, 197);
+            buttonCancel.Location = new System.Drawing.Point(106, 229);
             buttonCancel.Name = "buttonCancel";
             buttonCancel.Size = new System.Drawing.Size(88, 26);
             buttonCancel.TabIndex = 5;
@@ -145,7 +147,7 @@
             tabControl1.Location = new System.Drawing.Point(12, 12);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new System.Drawing.Size(571, 167);
+            tabControl1.Size = new System.Drawing.Size(571, 199);
             tabControl1.TabIndex = 6;
             // 
             // tabPage1
@@ -154,7 +156,7 @@
             tabPage1.Location = new System.Drawing.Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            tabPage1.Size = new System.Drawing.Size(563, 139);
+            tabPage1.Size = new System.Drawing.Size(563, 171);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Main";
             tabPage1.UseVisualStyleBackColor = true;
@@ -166,7 +168,7 @@
             tabPage2.Location = new System.Drawing.Point(4, 24);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            tabPage2.Size = new System.Drawing.Size(563, 139);
+            tabPage2.Size = new System.Drawing.Size(563, 171);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "Interface";
             tabPage2.UseVisualStyleBackColor = true;
@@ -194,15 +196,36 @@
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(comboBoxModListFontSize);
+            groupBox2.Controls.Add(label4);
             groupBox2.Controls.Add(label3);
             groupBox2.Controls.Add(radioButtonLowToHigh);
             groupBox2.Controls.Add(radioButtonHighToLow);
             groupBox2.Location = new System.Drawing.Point(6, 76);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new System.Drawing.Size(551, 57);
+            groupBox2.Size = new System.Drawing.Size(551, 89);
             groupBox2.TabIndex = 3;
             groupBox2.TabStop = false;
             groupBox2.Text = "Mod list";
+            //
+            // comboBoxModListFontSize
+            //
+            comboBoxModListFontSize.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            comboBoxModListFontSize.FormattingEnabled = true;
+            comboBoxModListFontSize.Location = new System.Drawing.Point(180, 52);
+            comboBoxModListFontSize.Name = "comboBoxModListFontSize";
+            comboBoxModListFontSize.Size = new System.Drawing.Size(117, 23);
+            comboBoxModListFontSize.TabIndex = 4;
+            toolTip1.SetToolTip(comboBoxModListFontSize, "Changes the font size used by the mod list. Select Default to use the standard interface font size.");
+            //
+            // label4
+            //
+            label4.AutoSize = true;
+            label4.Location = new System.Drawing.Point(17, 56);
+            label4.Name = "label4";
+            label4.Size = new System.Drawing.Size(73, 15);
+            label4.TabIndex = 3;
+            label4.Text = "List &font size:";
             // 
             // label3
             // 
@@ -242,7 +265,7 @@
             AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             CancelButton = buttonCancel;
-            ClientSize = new System.Drawing.Size(592, 232);
+            ClientSize = new System.Drawing.Size(592, 264);
             Controls.Add(tabControl1);
             Controls.Add(buttonCancel);
             Controls.Add(buttonSave);
@@ -287,5 +310,7 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.CheckBox checkBoxDarkMode;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.ComboBox comboBoxModListFontSize;
+        private System.Windows.Forms.Label label4;
     }
 }

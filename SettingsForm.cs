@@ -20,9 +20,29 @@ namespace MW5_Mod_Manager
     [SupportedOSPlatform("windows")]
     public partial class SettingsForm : LocForm
     {
+        private static readonly int[] ModListFontSizes =
+        {
+            LocSettings.DefaultModListFontSize,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18
+        };
+
         public SettingsForm()
         {
             InitializeComponent();
+            comboBoxModListFontSize.Items.Add("Default");
+            for (int index = 1; index < ModListFontSizes.Length; index++)
+            {
+                comboBoxModListFontSize.Items.Add(
+                    $"{ModListFontSizes[index]} pt");
+            }
         }
 
         private void SettingsWindow_Load(object sender, EventArgs e)
@@ -55,6 +75,14 @@ namespace MW5_Mod_Manager
             radioButtonLowToHigh.Checked = !radioButtonHighToLow.Checked;
 
             checkBoxDarkMode.Checked = LocSettings.Instance.Data.AllowDarkMode;
+
+            int configuredFontSize = LocSettings.NormalizeModListFontSize(
+                LocSettings.Instance.Data.ModListFontSize);
+            int fontSizeIndex = Array.IndexOf(
+                ModListFontSizes,
+                configuredFontSize);
+            comboBoxModListFontSize.SelectedIndex =
+                fontSizeIndex >= 0 ? fontSizeIndex : 0;
         }
 
 
@@ -297,6 +325,8 @@ namespace MW5_Mod_Manager
                         : eSortOrder.LowToHigh;
                 LocSettings.Instance.Data.AllowDarkMode =
                     checkBoxDarkMode.Checked;
+                LocSettings.Instance.Data.ModListFontSize =
+                    ModListFontSizes[comboBoxModListFontSize.SelectedIndex];
                 LocSettings.Instance.Data.platform = newPlatform;
                 LocSettings.Instance.Data.InstallPath = path;
             }
@@ -309,6 +339,7 @@ namespace MW5_Mod_Manager
             MainForm.Instance.ClearAll();
             ModItemList.Instance.ModList = null;
             LocSettings.Instance.SaveSettings();
+            DockModListForm.Instance.ApplyModListFontSetting();
             AppearanceManager.SetDarkModeAllowed(
                 LocSettings.Instance.Data.AllowDarkMode);
             MainForm.Instance.RefreshAll();

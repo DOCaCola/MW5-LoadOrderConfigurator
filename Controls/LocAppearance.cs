@@ -291,6 +291,14 @@ public class LocDockContent : DockContent
     private readonly DpiFontCoordinator _dpiFonts = new();
     private int _lastAppliedDpi = 96;
 
+    private protected void SetDpiAwareFont(
+        Control control,
+        DpiFontDescriptor descriptor,
+        int targetDpi)
+    {
+        _dpiFonts.SetFont(control, descriptor, targetDpi);
+    }
+
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);

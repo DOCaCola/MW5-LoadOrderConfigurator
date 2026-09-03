@@ -26,6 +26,9 @@ namespace MW5_Mod_Manager
     {
         public static string SettingsFileName = @"Settings.json";
         internal const string SettingsDirectoryEnvironmentVariable = "MW5_LOC_SETTINGS_DIRECTORY";
+        public const int DefaultModListFontSize = 0;
+        public const int MinimumModListFontSize = 10;
+        public const int MaximumModListFontSize = 18;
 
         public static string GetSettingsDirectory()
         {
@@ -46,6 +49,7 @@ namespace MW5_Mod_Manager
             public eSortOrder ListSortOrder { set; get; } = eSortOrder.HighToLow;
             public bool EnableFileWatch { set; get; } = false;
             public bool AllowDarkMode { set; get; } = true;
+            public int ModListFontSize { set; get; } = DefaultModListFontSize;
         }
 
         public bool SettingsLoaded = false;
@@ -147,6 +151,17 @@ namespace MW5_Mod_Manager
                 if (File.Exists(_filePath))
                     File.Delete(_filePath);
             }
+        }
+
+        public static int NormalizeModListFontSize(int fontSize)
+        {
+            if (fontSize == DefaultModListFontSize)
+                return DefaultModListFontSize;
+
+            return Math.Clamp(
+                fontSize,
+                MinimumModListFontSize,
+                MaximumModListFontSize);
         }
     }
 }

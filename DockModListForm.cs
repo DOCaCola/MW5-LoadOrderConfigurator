@@ -25,10 +25,15 @@ namespace MW5_Mod_Manager
         private readonly HashSet<string> _selectedOverriddenModFolders =
             new(StringComparer.OrdinalIgnoreCase);
         private readonly ColumnDpiMetrics[] _columnDpiMetrics;
+        private readonly DpiFontDescriptor _defaultListFont;
 
         public DockModListForm()
         {
             InitializeComponent();
+            _defaultListFont = DpiFontDescriptor.Capture(
+                modObjectListView.Font,
+                96);
+            ApplyModListFontSetting(96);
             _columnDpiMetrics = modObjectListView.AllColumns
                 .Cast<OLVColumn>()
                 .Select(column => new ColumnDpiMetrics(
@@ -48,6 +53,29 @@ namespace MW5_Mod_Manager
             modObjectListView.UseDpiAwareImageLists = true;
             modObjectListView.UseNativeCheckStateUpdates = true;
             modObjectListView.UseSmoothPixelScrolling = true;
+        }
+
+        internal void ApplyModListFontSetting()
+        {
+            ApplyModListFontSetting(Math.Max(DeviceDpi, 96));
+        }
+
+        internal void ApplyModListFontSetting(int dpi)
+        {
+            int configuredSize = LocSettings.NormalizeModListFontSize(
+                LocSettings.Instance.Data.ModListFontSize);
+            DpiFontDescriptor descriptor =
+                configuredSize == LocSettings.DefaultModListFontSize
+                    ? _defaultListFont
+                    : _defaultListFont with
+                    {
+                        SizeInPoints = configuredSize
+                    };
+
+            SetDpiAwareFont(
+                modObjectListView,
+                descriptor,
+                dpi);
         }
 
         internal void ApplyDpiLayout(int dpi)
