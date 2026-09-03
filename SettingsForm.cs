@@ -339,12 +339,12 @@ namespace MW5_Mod_Manager
             MainForm.Instance.ClearAll();
             ModItemList.Instance.ModList = null;
             LocSettings.Instance.SaveSettings();
-            DockModListForm.Instance.ApplyModListFontSetting();
             AppearanceManager.SetDarkModeAllowed(
                 LocSettings.Instance.Data.AllowDarkMode);
             MainForm.Instance.RefreshAll();
 
             MainForm.Instance.UpdatePriorityLabels();
+            DockModListForm.Instance.ApplyModListFontSetting();
 
             Close();
         }

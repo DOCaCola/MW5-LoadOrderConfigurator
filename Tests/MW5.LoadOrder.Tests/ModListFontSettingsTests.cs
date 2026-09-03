@@ -1,7 +1,9 @@
+using BrightIdeasSoftware;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MW5_Mod_Manager;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
@@ -91,5 +93,135 @@ public sealed class ModListFontSettingsTests
             LocSettings.Instance.Data.ModListFontSize =
                 originalFontSize;
         }
+    }
+
+    [STATestMethod]
+    public void SwitchingAnOpenListToAndFrom18PointKeepsCheckboxImages()
+    {
+        Application.EnableVisualStyles();
+        int originalFontSize =
+            LocSettings.Instance.Data.ModListFontSize;
+
+        try
+        {
+            LocSettings.Instance.Data.ModListFontSize =
+                LocSettings.DefaultModListFontSize;
+            using var form = new DockModListForm
+            {
+                ClientSize = new Size(800, 450),
+                ShowInTaskbar = false
+            };
+            using var icon = new Bitmap(16, 16);
+            using (Graphics graphics = Graphics.FromImage(icon))
+                graphics.Clear(Color.CornflowerBlue);
+            form.imageListIcons.Images.Add("test-icon", icon);
+            form.olvColumnModName.ImageGetter = _ => "test-icon";
+            form.modObjectListView.BooleanCheckStateGetter = _ => true;
+            form.modObjectListView.SetObjects(new object[]
+            {
+                new ModItem
+                {
+                    Enabled = true,
+                    Name = "Checked row",
+                    Path = "checked-row",
+                    FolderName = "checked-row"
+                }
+            });
+            form.Show();
+            Application.DoEvents();
+
+            Assert.IsNotNull(form.modObjectListView.StateImageList);
+            var item = (OLVListItem)form.modObjectListView.Items[0];
+            Assert.AreEqual("test-icon", item.ImageKey);
+            Assert.AreEqual(
+                CheckState.Checked,
+                item.CheckState);
+            ImageList defaultStateImages =
+                form.modObjectListView.StateImageList;
+
+            LocSettings.Instance.Data.ModListFontSize = 18;
+            form.ApplyModListFontSetting();
+            Application.DoEvents();
+
+            Assert.IsTrue(form.modObjectListView.CheckBoxes);
+            Assert.AreEqual(-1, form.modObjectListView.RowHeight);
+            Assert.AreNotSame(
+                defaultStateImages,
+                form.modObjectListView.StateImageList);
+            Assert.AreEqual(
+                CheckState.Checked,
+                item.CheckState);
+            Assert.AreEqual(
+                1,
+                item.StateImageIndex);
+            Assert.IsNotNull(form.modObjectListView.StateImageList);
+            Assert.AreEqual(
+                2,
+                form.modObjectListView.StateImageList.Images.Count);
+            Assert.AreSame(
+                form.imageListIcons,
+                form.modObjectListView.BaseSmallImageList);
+            Assert.AreEqual("test-icon", item.ImageKey);
+            Assert.AreEqual(
+                1,
+                form.modObjectListView.BaseSmallImageList.Images.Count);
+            Assert.IsTrue(HasVisiblePixel(
+                form.modObjectListView.StateImageList.Images[0]));
+            Assert.IsTrue(HasVisiblePixel(
+                form.modObjectListView.StateImageList.Images[1]));
+            ImageList largeStateImages =
+                form.modObjectListView.StateImageList;
+
+            LocSettings.Instance.Data.ModListFontSize =
+                LocSettings.DefaultModListFontSize;
+            form.ApplyModListFontSetting();
+            Application.DoEvents();
+
+            Assert.AreEqual(-1, form.modObjectListView.RowHeight);
+            Assert.AreNotSame(
+                largeStateImages,
+                form.modObjectListView.StateImageList);
+            Assert.AreSame(
+                form.imageListIcons,
+                form.modObjectListView.BaseSmallImageList);
+            Assert.AreEqual("test-icon", item.ImageKey);
+            Assert.AreEqual(
+                1,
+                form.modObjectListView.BaseSmallImageList.Images.Count);
+            Assert.AreEqual(
+                "test-icon",
+                ((OLVListItem)form.modObjectListView.Items[0]).ImageKey);
+            Assert.AreEqual(
+                CheckState.Checked,
+                item.CheckState);
+            Assert.AreEqual(1, item.StateImageIndex);
+            Assert.AreEqual(
+                2,
+                form.modObjectListView.StateImageList.Images.Count);
+            Assert.IsTrue(HasVisiblePixel(
+                form.modObjectListView.StateImageList.Images[0]));
+            Assert.IsTrue(HasVisiblePixel(
+                form.modObjectListView.StateImageList.Images[1]));
+        }
+        finally
+        {
+            LocSettings.Instance.Data.ModListFontSize =
+                originalFontSize;
+        }
+    }
+
+    private static bool HasVisiblePixel(Image image)
+    {
+        using var bitmap = new Bitmap(image);
+        for (int y = 0; y < bitmap.Height; y++)
+        {
+            for (int x = 0; x < bitmap.Width; x++)
+            {
+                if (bitmap.GetPixel(x, y).A != 0)
+                    return true;
+            }
+        }
+
+        return false;
     }
 }

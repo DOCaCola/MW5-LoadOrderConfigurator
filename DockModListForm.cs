@@ -72,10 +72,27 @@ namespace MW5_Mod_Manager
                         SizeInPoints = configuredSize
                     };
 
-            SetDpiAwareFont(
-                modObjectListView,
-                descriptor,
-                dpi);
+            modObjectListView.BeginUpdate();
+            try
+            {
+                SetDpiAwareFont(
+                    modObjectListView,
+                    descriptor,
+                    dpi);
+
+                // A native ListView can drop its checkbox image-list
+                // association when WM_SETFONT changes the row metrics. Force
+                // ObjectListView to create and attach a fresh owned state
+                // image list. Refreshing alone keeps the existing managed
+                // list because its dimensions and keys still look valid.
+                modObjectListView.StateImageList = null;
+                modObjectListView.RefreshDpiAwareImageLists(dpi);
+                modObjectListView.RefreshItems();
+            }
+            finally
+            {
+                modObjectListView.EndUpdate();
+            }
         }
 
         internal void ApplyDpiLayout(int dpi)
