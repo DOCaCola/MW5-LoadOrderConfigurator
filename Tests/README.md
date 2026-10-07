@@ -9,8 +9,8 @@
 - a sanitized metadata fixture derived from locally available MW5 JSON metadata.
 
 `ModDeploymentTests` uses temporary game and settings directories to cover version
-selection, legacy and cached deployment, original-priority recovery and one-time
-metadata restoration, external changes, pak cache refresh, atomic-write failures,
+selection, synchronized metadata and cached priorities, original-priority recovery,
+external changes in either priority source, pak cache refresh, atomic-write failures,
 and UI reload/Apply round trips. It does not launch the game or edit installed mods.
 
 The test assembly redirects application settings to a temporary directory with an

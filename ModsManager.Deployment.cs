@@ -40,9 +40,9 @@ namespace MW5_Mod_Manager
                 GameVersionPolicy.ReadHeader(_loadedModList) != GameVersion;
             foreach (var entry in Mods)
             {
-                if (entry.Value.HasLocOriginalLoadOrder ||
-                    !LoadedStatuses.TryGetValue(Path.GetFileName(entry.Key), out var status) ||
-                    !status.Priority.HasValue)
+                if (!LoadedStatuses.TryGetValue(Path.GetFileName(entry.Key), out var status) ||
+                    !status.Priority.HasValue ||
+                    !FloatUtils.IsEqual(ModDetails[entry.Key].defaultLoadOrder, status.Priority.Value))
                 {
                     DeploymentNeedsRefresh = true;
                     continue;
@@ -90,7 +90,8 @@ namespace MW5_Mod_Manager
                     continue;
                 bool enabled = LoadedStatuses.TryGetValue(folder, out var status) && status.Enabled;
                 if (enabled != prior.state ||
-                    !FloatUtils.IsEqual(entry.Value.DeployedLoadOrder, prior.lastLoadOrder))
+                    !FloatUtils.IsEqual(entry.Value.DeployedLoadOrder, prior.lastLoadOrder) ||
+                    !FloatUtils.IsEqual(ModDetails[entry.Key].defaultLoadOrder, prior.lastLoadOrder))
                     changed.Add(ModDetails[entry.Key].displayName);
             }
             return changed;
@@ -142,10 +143,11 @@ namespace MW5_Mod_Manager
 
         public IReadOnlyList<string> SaveToFiles()
         {
-            // Validate and enumerate before touching any deployed file, including in legacy mode.
+            // Validate and enumerate before touching any deployed file.
             JObject document = PrepareDeployment();
-            if (!UsesCachedModList)
-                SaveLegacyModDetails();
+            // Keep Apply pending if any part of the multi-file deployment fails.
+            DeploymentNeedsRefresh = true;
+            SaveModDetails();
             CommitModList(document);
             var warnings = new List<string>();
             try
@@ -155,32 +157,9 @@ namespace MW5_Mod_Manager
             catch (Exception ex) when (LocFileUtils.IsFileAccessException(ex) || ex is JsonException)
             {
                 DeploymentNeedsRefresh = true;
-                warnings.Add("The game load order was saved, but LOC could not save LastApplied.json, which is used to restore your last applied load order."
-                    + (UsesCachedModList
-                        ? "\r\nRestoring original load-order values in previously modified Mod.json files was postponed."
-                        : "")
+                warnings.Add("The game load order was saved, but LOC could not save its list of last applied load orders."
                     + "\r\n\r\n" + ex.Message);
                 return warnings;
-            }
-            if (UsesCachedModList)
-            {
-                foreach (var entry in Mods.Where(entry => entry.Value.HasLocOriginalLoadOrder))
-                {
-                    try
-                    {
-                        string path = Path.Combine(entry.Key, "mod.json");
-                        string restored = GameModDeployment.RestoreMetadata(path, entry.Value.LoadedMetadata);
-                        entry.Value.LoadedMetadata = restored;
-                        entry.Value.HasLocOriginalLoadOrder = false;
-                        ModDetails[entry.Key] = JObject.Parse(restored).ToObject<ModObject>();
-                    }
-                    catch (Exception ex) when (LocFileUtils.IsFileAccessException(ex) || ex is JsonException)
-                    {
-                        warnings.Add($"The game load order was saved, but LOC could not restore the mod's original load-order value in:\r\n{Path.Combine(entry.Key, "mod.json")}"
-                            + "\r\nThe previous LOC changes remain in this file. Apply again after resolving the error to retry."
-                            + $"\r\n\r\n{ex.Message}");
-                    }
-                }
             }
             RefreshDeploymentRequirement();
             return warnings;

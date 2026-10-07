@@ -118,7 +118,7 @@ public sealed class ModDeploymentTests
     [DataRow("2.0.0", true)]
     [DataRow("1.9.999", false)]
     [DataRow("0", false)]
-    public void StorageBoundaryUsesNumericVersionComparison(string version, bool expected) =>
+    public void CacheBoundaryUsesNumericVersionComparison(string version, bool expected) =>
         Assert.AreEqual(expected, GameVersionPolicy.UsesCachedModList(version));
 
     [DataTestMethod]
@@ -179,29 +179,33 @@ public sealed class ModDeploymentTests
     }
 
     [TestMethod]
-    public void ModernDeploymentRestoresLegacyMetadataOnceAndPreservesUserPriority()
+    public void ModernDeploymentSynchronizesPrioritiesAndRetainsAuthorDefaults()
     {
         string path = AddMod("A", 12, 500);
         string stock = AddMod("B", 30);
-        byte[] stockBytes = File.ReadAllBytes(Path.Combine(stock, "mod.json"));
         WriteList("1.15.398", ("A", true, null, null), ("B", false, null, null));
         Load();
         Assert.AreEqual(12f, Manager.Mods[path].NewLoadOrder);
         Assert.AreEqual(500f, Manager.Mods[path].OriginalLoadOrder);
         Assert.AreEqual(0, Manager.SaveToFiles().Count);
         var metadata = JObject.Parse(File.ReadAllText(Path.Combine(path, "mod.json")));
-        Assert.AreEqual(500f, (float)metadata["defaultLoadOrder"]);
-        Assert.IsNull(metadata["locOriginalLoadOrder"]);
+        Assert.AreEqual(12f, (float)metadata["defaultLoadOrder"]);
+        Assert.AreEqual(500f, (float)metadata["locOriginalLoadOrder"]);
         Assert.AreEqual("1.1.361", (string)metadata["gameVersion"]);
         Assert.AreEqual("preserve", (string)metadata["customMetadata"]);
-        CollectionAssert.AreEqual(stockBytes, File.ReadAllBytes(Path.Combine(stock, "mod.json")));
-        byte[] migrated = File.ReadAllBytes(Path.Combine(path, "mod.json"));
+        var stockMetadata = JObject.Parse(File.ReadAllText(Path.Combine(stock, "mod.json")));
+        Assert.AreEqual(30f, (float)stockMetadata["defaultLoadOrder"]);
+        Assert.AreEqual(30f, (float)stockMetadata["locOriginalLoadOrder"]);
+        var statuses = JObject.Parse(File.ReadAllText(ModList))["modStatus"];
+        Assert.AreEqual(12f, (float)statuses["A"]["defaultLoadOrder"]);
+        Assert.AreEqual(30f, (float)statuses["B"]["defaultLoadOrder"]);
+        byte[] deployed = File.ReadAllBytes(Path.Combine(path, "mod.json"));
         Load();
         Assert.AreEqual(12f, Manager.Mods[path].NewLoadOrder);
         Assert.IsFalse(Manager.DeploymentNeedsRefresh);
         Assert.AreEqual(0, Manager.GetExternallyChangedMods().Count);
         Manager.SaveToFiles();
-        CollectionAssert.AreEqual(migrated, File.ReadAllBytes(Path.Combine(path, "mod.json")));
+        CollectionAssert.AreEqual(deployed, File.ReadAllBytes(Path.Combine(path, "mod.json")));
     }
 
     [TestMethod]
@@ -225,6 +229,59 @@ public sealed class ModDeploymentTests
         Assert.AreEqual(7f, Manager.Mods[path].NewLoadOrder);
     }
 
+    [DataTestMethod]
+    [DataRow("1.15.397", false)]
+    [DataRow("1.15.398", true)]
+    [DataRow("1.16.0", true)]
+    public void AllVersionsWriteMetadataButOnlyNewVersionsRequirePakCache(string version, bool cached)
+    {
+        string path = AddMod("A");
+        Directory.Delete(Path.Combine(path, "Paks"), true);
+        WriteList(version, ("A", true, null, null));
+        Load();
+        ModItemList.Instance.ModList.Single().CurrentLoadOrder = 7;
+        Manager.SynchronizeWorkingModList();
+        if (cached)
+        {
+            Assert.ThrowsException<InvalidDataException>(() => Manager.SaveToFiles());
+            Assert.AreEqual(500f, (float)JObject.Parse(File.ReadAllText(Path.Combine(path, "mod.json")))["defaultLoadOrder"]);
+            Directory.CreateDirectory(Path.Combine(path, "Paks"));
+            File.WriteAllText(Path.Combine(path, "Paks", "A.pak"), "test pak");
+        }
+        Manager.SaveToFiles();
+        var metadata = JObject.Parse(File.ReadAllText(Path.Combine(path, "mod.json")));
+        Assert.AreEqual(7f, (float)metadata["defaultLoadOrder"]);
+        Assert.AreEqual(500f, (float)metadata["locOriginalLoadOrder"]);
+        var status = JObject.Parse(File.ReadAllText(ModList))["modStatus"]["A"];
+        Assert.AreEqual(cached ? 7f : (float?)null, (float?)status["defaultLoadOrder"]);
+        Assert.AreEqual(cached, status["cachedPakPaths"] != null);
+        Load();
+        Assert.IsFalse(Manager.DeploymentNeedsRefresh);
+        Assert.AreEqual(0, Manager.GetExternallyChangedMods().Count);
+    }
+
+    [TestMethod]
+    public void UpgradeAndDowngradePreserveDeployedAndOriginalMetadataPriorities()
+    {
+        string path = AddMod("A", 12, 500);
+        foreach (string version in new[] { "1.15.397", "1.15.398", "1.15.397" })
+        {
+            var document = File.Exists(ModList) ? JObject.Parse(File.ReadAllText(ModList)) : new JObject();
+            document["gameVersion"] = version;
+            File.WriteAllText(ModList, document.ToString());
+            Load();
+            Assert.AreEqual(12f, Manager.Mods[path].NewLoadOrder);
+            Assert.AreEqual(500f, Manager.Mods[path].OriginalLoadOrder);
+            Manager.SaveToFiles();
+            var status = JObject.Parse(File.ReadAllText(ModList))["modStatus"]["A"];
+            Assert.AreEqual(version == "1.15.398", status["cachedPakPaths"] != null);
+            Assert.AreEqual(version == "1.15.398", status["defaultLoadOrder"] != null);
+            var metadata = JObject.Parse(File.ReadAllText(Path.Combine(path, "mod.json")));
+            Assert.AreEqual(12f, (float)metadata["defaultLoadOrder"]);
+            Assert.AreEqual(500f, (float)metadata["locOriginalLoadOrder"]);
+        }
+    }
+
     [TestMethod]
     public void StatusPriorityIncludingZeroAndFractionsOverridesMetadata()
     {
@@ -236,8 +293,13 @@ public sealed class ModDeploymentTests
             ("Gamma", true, 1.25f, GameModDeployment.EnumeratePakPaths(gamma)));
         Load();
         CollectionAssert.AreEqual(new[] { "alpha", "Beta", "Gamma" }, ModItemList.Instance.ModList.Select(m => m.FolderName).ToArray());
+        Assert.IsTrue(Manager.DeploymentNeedsRefresh);
         Manager.SaveToFiles();
+        foreach (string path in new[] { alpha, beta, gamma })
+            Assert.AreEqual(Manager.Mods[path].NewLoadOrder,
+                (float)JObject.Parse(File.ReadAllText(Path.Combine(path, "mod.json")))["defaultLoadOrder"]);
         Load();
+        Assert.IsFalse(Manager.DeploymentNeedsRefresh);
         Assert.AreEqual(0f, Manager.Mods[alpha].NewLoadOrder);
         Assert.AreEqual(1.25f, Manager.Mods[gamma].NewLoadOrder);
     }
@@ -255,7 +317,7 @@ public sealed class ModDeploymentTests
     [TestMethod]
     public void ApplyReenumeratesPaksWithoutReadingContentsAndPreservesUnknownFields()
     {
-        string path = AddMod("A");
+        string path = AddMod("A", 12);
         WriteList("1.15.398", ("A", true, 12, GameModDeployment.EnumeratePakPaths(path)));
         var document = JObject.Parse(File.ReadAllText(ModList));
         document["customRoot"] = 42;
@@ -285,7 +347,7 @@ public sealed class ModDeploymentTests
     }
 
     [TestMethod]
-    public void ExternalPriorityAndPartialDisableAreDetectedButAuthorUpdateIsNot()
+    public void ExternalMetadataPriorityCachedPriorityAndPartialDisableAreDetected()
     {
         string a = AddMod("A"), b = AddMod("B");
         WriteList("1.15.398", ("A", true, 10, GameModDeployment.EnumeratePakPaths(a)),
@@ -296,7 +358,9 @@ public sealed class ModDeploymentTests
         metadata["defaultLoadOrder"] = 999;
         File.WriteAllText(Path.Combine(a, "mod.json"), metadata.ToString());
         Load();
-        Assert.AreEqual(0, Manager.GetExternallyChangedMods().Count);
+        CollectionAssert.AreEqual(new[] { "A" }, Manager.GetExternallyChangedMods());
+        Assert.IsTrue(Manager.DeploymentNeedsRefresh);
+        Assert.AreEqual(10f, Manager.Mods[a].NewLoadOrder);
         var document = JObject.Parse(File.ReadAllText(ModList));
         document["modStatus"]["A"]["bEnabled"] = false;
         document["modStatus"]["B"]["defaultLoadOrder"] = 21;
@@ -323,11 +387,42 @@ public sealed class ModDeploymentTests
     }
 
     [TestMethod]
-    public void SnapshotFailureDefersRestorationAndCanBeRetried()
+    public void ModUpdateRetainsNewAuthorDefaultWhenResynchronizingCachedPriority()
+    {
+        string path = AddMod("A");
+        WriteList("1.15.398", ("A", true, 12, GameModDeployment.EnumeratePakPaths(path)));
+        Load();
+        Manager.SaveToFiles();
+        string file = Path.Combine(path, "mod.json");
+        var updated = JObject.Parse(File.ReadAllText(file));
+        updated.Remove("locOriginalLoadOrder");
+        updated["defaultLoadOrder"] = 700;
+        updated["buildNumber"] = 2;
+        File.WriteAllText(file, updated.ToString());
+
+        Load();
+        Assert.AreEqual(12f, Manager.Mods[path].NewLoadOrder);
+        Assert.AreEqual(700f, Manager.Mods[path].OriginalLoadOrder);
+        Assert.IsTrue(Manager.DeploymentNeedsRefresh);
+        CollectionAssert.AreEqual(new[] { "A" }, Manager.GetExternallyChangedMods());
+        Manager.SaveToFiles();
+        var saved = JObject.Parse(File.ReadAllText(file));
+        Assert.AreEqual(12f, (float)saved["defaultLoadOrder"]);
+        Assert.AreEqual(700f, (float)saved["locOriginalLoadOrder"]);
+        Assert.AreEqual(2, (int)saved["buildNumber"]);
+        Load();
+        Assert.IsFalse(Manager.DeploymentNeedsRefresh);
+        Assert.AreEqual(0, Manager.GetExternallyChangedMods().Count);
+    }
+
+    [TestMethod]
+    public void SnapshotFailureKeepsBothDeployedPrioritiesAndCanBeRetried()
     {
         string path = AddMod("A", 12, 500);
         WriteList("1.15.398", ("A", true, null, null));
         Load();
+        ModItemList.Instance.ModList.Single().CurrentLoadOrder = 7;
+        Manager.SynchronizeWorkingModList();
         string snapshot = Path.Combine(settings, ModsManager.LastAppliedOrderFileName);
         File.WriteAllText(snapshot, "{}");
         using (var locked = new FileStream(snapshot, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
@@ -335,26 +430,35 @@ public sealed class ModDeploymentTests
             Assert.AreEqual(1, Manager.SaveToFiles().Count);
             Assert.IsTrue(Manager.DeploymentNeedsRefresh);
             Assert.IsNotNull(JObject.Parse(File.ReadAllText(Path.Combine(path, "mod.json")))["locOriginalLoadOrder"]);
-            Assert.AreEqual(12f, (float)JObject.Parse(File.ReadAllText(ModList))["modStatus"]["A"]["defaultLoadOrder"]);
+            Assert.AreEqual(7f, (float)JObject.Parse(File.ReadAllText(ModList))["modStatus"]["A"]["defaultLoadOrder"]);
+            Assert.AreEqual(7f, (float)JObject.Parse(File.ReadAllText(Path.Combine(path, "mod.json")))["defaultLoadOrder"]);
         }
         Assert.AreEqual(0, Manager.SaveToFiles().Count);
-        Assert.IsNull(JObject.Parse(File.ReadAllText(Path.Combine(path, "mod.json")))["locOriginalLoadOrder"]);
+        Assert.AreEqual(500f, (float)JObject.Parse(File.ReadAllText(Path.Combine(path, "mod.json")))["locOriginalLoadOrder"]);
+        Assert.IsFalse(Manager.DeploymentNeedsRefresh);
+        Assert.AreEqual(7f, Manager.LastAppliedPreset.mods["A"].lastLoadOrder);
     }
 
     [TestMethod]
-    public void FailedModListReplacementKeepsOriginalAndDoesNotMigrate()
+    public void FailedModListReplacementKeepsOriginalAndRetriesMetadataAlreadyWritten()
     {
         string path = AddMod("A", 12, 500);
-        WriteList("1.15.398", ("A", true, null, null));
+        WriteList("1.15.398", ("A", true, 12, GameModDeployment.EnumeratePakPaths(path)));
         Load();
+        Assert.IsFalse(Manager.DeploymentNeedsRefresh);
+        ModItemList.Instance.ModList.Single().CurrentLoadOrder = 7;
+        Manager.SynchronizeWorkingModList();
         string originalList = File.ReadAllText(ModList);
-        string metadata = File.ReadAllText(Path.Combine(path, "mod.json"));
         using (var locked = new FileStream(ModList, FileMode.Open, FileAccess.Read, FileShare.Read))
             Assert.ThrowsException<IOException>(() => Manager.SaveToFiles());
         Assert.AreEqual(originalList, File.ReadAllText(ModList));
-        Assert.AreEqual(metadata, File.ReadAllText(Path.Combine(path, "mod.json")));
+        Assert.IsTrue(Manager.DeploymentNeedsRefresh);
+        Assert.AreEqual(7f, (float)JObject.Parse(File.ReadAllText(Path.Combine(path, "mod.json")))["defaultLoadOrder"]);
         Assert.IsFalse(File.Exists(Path.Combine(settings, ModsManager.LastAppliedOrderFileName)));
         Assert.AreEqual(0, Directory.GetFiles(mods, "*.tmp").Length);
+        Assert.AreEqual(0, Manager.SaveToFiles().Count);
+        Assert.AreEqual(7f, (float)JObject.Parse(File.ReadAllText(ModList))["modStatus"]["A"]["defaultLoadOrder"]);
+        Assert.IsFalse(Manager.DeploymentNeedsRefresh);
     }
 
     [TestMethod]
@@ -390,21 +494,24 @@ public sealed class ModDeploymentTests
     }
 
     [TestMethod]
-    public void FailedMetadataCleanupIsRetryableWithoutChangingUserPriority()
+    public void FailedMetadataWritePreventsCacheCommitAndIsRetryable()
     {
         string path = AddMod("A", 12, 500);
         WriteList("1.15.398", ("A", true, 17, GameModDeployment.EnumeratePakPaths(path)));
         Load();
         string file = Path.Combine(path, "mod.json");
+        string originalList = File.ReadAllText(ModList);
         File.SetAttributes(file, FileAttributes.ReadOnly);
-        Assert.AreEqual(1, Manager.SaveToFiles().Count);
+        Assert.ThrowsException<UnauthorizedAccessException>(() => Manager.SaveToFiles());
         Assert.IsTrue(Manager.DeploymentNeedsRefresh);
-        Assert.AreEqual(17f, (float)JObject.Parse(File.ReadAllText(ModList))["modStatus"]["A"]["defaultLoadOrder"]);
+        Assert.AreEqual(originalList, File.ReadAllText(ModList));
+        Assert.IsFalse(File.Exists(Path.Combine(settings, ModsManager.LastAppliedOrderFileName)));
         Assert.IsNotNull(JObject.Parse(File.ReadAllText(file))["locOriginalLoadOrder"]);
         File.SetAttributes(file, FileAttributes.Normal);
         Assert.AreEqual(0, Manager.SaveToFiles().Count);
         Assert.IsFalse(Manager.DeploymentNeedsRefresh);
-        Assert.AreEqual(500f, (float)JObject.Parse(File.ReadAllText(file))["defaultLoadOrder"]);
+        Assert.AreEqual(17f, (float)JObject.Parse(File.ReadAllText(file))["defaultLoadOrder"]);
+        Assert.AreEqual(500f, (float)JObject.Parse(File.ReadAllText(file))["locOriginalLoadOrder"]);
     }
 
     [DataTestMethod]
@@ -422,13 +529,14 @@ public sealed class ModDeploymentTests
         Load();
         Assert.AreEqual(expected, Manager.Mods[path].OriginalLoadOrder);
         Assert.AreEqual(12f, Manager.Mods[path].NewLoadOrder);
-        string before = File.ReadAllText(Path.Combine(path, "mod.json"));
         Manager.SaveToFiles();
-        Assert.AreEqual(before, File.ReadAllText(Path.Combine(path, "mod.json")));
+        var metadata = JObject.Parse(File.ReadAllText(Path.Combine(path, "mod.json")));
+        Assert.AreEqual(expected, (float)metadata["locOriginalLoadOrder"]);
+        Assert.AreEqual(12f, (float)metadata["defaultLoadOrder"]);
     }
 
     [TestMethod]
-    public void UpdatedMetadataCannotBeOverwrittenDuringMigration()
+    public void UpdatedMetadataCannotBeOverwrittenDuringDeployment()
     {
         string path = AddMod("A", 12, 500);
         WriteList("1.15.398", ("A", true, null, null));
@@ -477,8 +585,9 @@ public sealed class ModDeploymentTests
             form = new MainForm();
             form.RefreshAll(forceLoadLastApplied: true);
             Assert.AreEqual(12.5f, ModItemList.Instance.ModList.Single().CurrentLoadOrder);
-            Assert.IsFalse(Manager.ModSettingsTainted);
+            Assert.IsTrue(Manager.ModSettingsTainted);
             Assert.IsTrue(form.ApplyModSettings());
+            Assert.AreEqual(12.5f, (float)JObject.Parse(File.ReadAllText(Path.Combine(path, "mod.json")))["defaultLoadOrder"]);
             var document = JObject.Parse(File.ReadAllText(ModList));
             document["modStatus"]["A"]["defaultLoadOrder"] = 99;
             document["modStatus"]["A"]["bEnabled"] = false;

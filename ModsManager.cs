@@ -116,8 +116,6 @@ namespace MW5_Mod_Manager
             public DateTimeOffset? FileAge = null;
             public bool FileMetadataLoaded = false;
             public bool FileMetadataAvailable = false;
-            // Was the file mod.json modified by LOC before?
-            public bool HasLocOriginalLoadOrder;
             internal string LoadedMetadata;
             public float DeployedLoadOrder = Single.NaN;
 
@@ -261,7 +259,7 @@ namespace MW5_Mod_Manager
                 Buttons = { restore, keep },
                 Footnote = new TaskDialogFootnote
                 {
-                    Text = "A game update may have disabled mods, or settings may have been changed in the game or by another mod tool."
+                    Text = "Possible reasons: A game update may have disabled mods, mod settings may have been changed in-game or another mod utility modified mod files."
                 }
             };
             return TaskDialog.ShowDialog(MainForm.Instance.Visible ? MainForm.Instance.Handle : 0, page) == restore;
@@ -928,7 +926,6 @@ namespace MW5_Mod_Manager
                         JsonSerializer.Create(jsonSettings));
 
                     modData.NewLoadOrder = modJsonDataObject.defaultLoadOrder;
-                    modData.HasLocOriginalLoadOrder = modJsonObject.ContainsKey("locOriginalLoadOrder");
                     modData.LoadedMetadata = modJsonText;
 
                     // Now let's be a bit overkill and try our best to find the original order of the mod
@@ -937,7 +934,7 @@ namespace MW5_Mod_Manager
                     float? originalLoadOrder = null;
 
                     // Only try backup files if locOriginalLoadOrder is not present in mod.json
-                    if (!modData.HasLocOriginalLoadOrder)
+                    if (!modJsonObject.ContainsKey("locOriginalLoadOrder"))
                     {
                         // "MW5 Mod Organizer" backup file
                         // Some mods also accidentally deploy with this file
@@ -1252,7 +1249,7 @@ namespace MW5_Mod_Manager
             });
         }
 
-        private void SaveLegacyModDetails()
+        private void SaveModDetails()
         {
             foreach (var entry in ModDetails.ToArray())
             {
@@ -1272,7 +1269,6 @@ namespace MW5_Mod_Manager
                 string contents = metadata.ToString(Formatting.Indented);
                 GameModDeployment.WriteAtomic(path, contents);
                 mod.LoadedMetadata = contents;
-                mod.HasLocOriginalLoadOrder = true;
                 ModDetails[entry.Key] = metadata.ToObject<ModObject>();
             }
         }

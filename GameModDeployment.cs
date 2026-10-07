@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace MW5_Mod_Manager
@@ -17,7 +16,7 @@ namespace MW5_Mod_Manager
 
     internal static class GameVersionPolicy
     {
-        // All consumers select their storage behavior through this one boundary.
+        // Modlist.json changes for DLC9
         public static bool UsesCachedModList(string version) =>
             Utils.CompareVersionStrings(version, "1.15.398") >= 0;
 
@@ -192,24 +191,6 @@ namespace MW5_Mod_Manager
                 if (File.Exists(temporary))
                     File.Delete(temporary);
             }
-        }
-
-        public static string RestoreMetadata(string path, string loadedContents)
-        {
-            string current = File.ReadAllText(path);
-            var metadata = JObject.Parse(current);
-            if (!metadata.ContainsKey("locOriginalLoadOrder"))
-                return current;
-            if (!string.Equals(current, loadedContents, StringComparison.Ordinal))
-                throw new IOException($"The mod's Mod.json file changed since it was loaded: {path}. Reload before restoring its original load-order value.");
-            float? original = ReadPriority(metadata["locOriginalLoadOrder"]);
-            if (!original.HasValue)
-                throw new InvalidDataException($"Invalid locOriginalLoadOrder in {path}.");
-            metadata["defaultLoadOrder"] = metadata["locOriginalLoadOrder"].DeepClone();
-            metadata.Remove("locOriginalLoadOrder");
-            string restored = metadata.ToString(Newtonsoft.Json.Formatting.Indented);
-            WriteAtomic(path, restored);
-            return restored;
         }
     }
 }
