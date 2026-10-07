@@ -88,6 +88,18 @@ public sealed class DpiTransitionTests
             Location = new Point(0, 0),
             ShowInTaskbar = false,
         };
+        // The synthetic 144-DPI window still lives on the original monitor.
+        // Leave room for its 1.5x bounds so Windows does not clamp the width
+        // to that monitor and feed a smaller size into the return transition.
+        Rectangle workArea = Screen.FromPoint(form.Location).WorkingArea;
+        form.Location = workArea.Location;
+        Size fittingSize = new(
+            Math.Min(form.Width, (int)((workArea.Width - 32) / 1.5)),
+            Math.Min(form.Height, (int)((workArea.Height - 32) / 1.5)));
+        if (fittingSize.Width < form.MinimumSize.Width ||
+            fittingSize.Height < form.MinimumSize.Height)
+            Assert.Inconclusive("The source monitor cannot fit the minimum window size at synthetic 144 DPI.");
+        form.Size = fittingSize;
         form.Show();
         Application.DoEvents();
         CreateHandles(form);
@@ -108,6 +120,8 @@ public sealed class DpiTransitionTests
         int alternateDpi = original.DeviceDpi == 96 ? 144 : 96;
         ApplyDpi(form, alternateDpi);
         MainFormMetrics transitioned = GetMainFormMetrics(form);
+        Assert.AreEqual(Scale(original.FormSize, alternateDpi, original.DeviceDpi),
+            transitioned.FormSize, "Windows constrained the synthetic DPI bounds to the physical monitor.");
         ApplyDpi(form, original.DeviceDpi);
         MainFormMetrics roundTrip = GetMainFormMetrics(form);
 

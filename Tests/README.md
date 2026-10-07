@@ -13,6 +13,12 @@ selection, legacy and cached deployment, original-priority recovery and one-time
 metadata restoration, external changes, pak cache refresh, atomic-write failures,
 and UI reload/Apply round trips. It does not launch the game or edit installed mods.
 
+The test assembly redirects application settings to a temporary directory with an
+empty game fixture, so UI startup does not use personal settings or open recovery
+dialogs. Appearance tests cover repeated theme changes and docking-handler
+lifetime. The synthetic DPI test sizes its window to fit the source monitor at
+144 DPI; it is inconclusive if the monitor cannot accommodate the minimum size.
+
 The reference fixture contains only folder identifiers, display names, enabled states, load-order values, versions, and build numbers. It contains no local paths, manifests, descriptions, images, archives, or game data.
 
 Run the tests with:

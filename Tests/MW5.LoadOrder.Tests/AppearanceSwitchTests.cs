@@ -96,11 +96,38 @@ public sealed class AppearanceSwitchTests
                 form.dockPanel1.Font,
                 form.dockPanel1.Theme.Skin
                     .AutoHideStripSkin.TextFont);
+
+            AppearanceManager.ApplyForTests(originalDarkMode);
+            CollectionAssert.AreEquivalent(originalContents,
+                form.dockPanel1.Contents.Cast<object>().ToArray());
+
+            DockConflictsForm conflicts = DockConflictsForm.Instance;
+            conflicts.Dispose();
+            Assert.IsNull(conflicts.DockHandler.DockPanel,
+                "Reused handlers must still detach when their form is disposed.");
+            CollectionAssert.DoesNotContain(
+                form.dockPanel1.Contents.Cast<object>().ToArray(), conflicts);
         }
         finally
         {
             AppearanceManager.ApplyForTests(originalDarkMode);
         }
+    }
+
+    [STATestMethod]
+    public void ResetDockLayoutPreservesHandlerLifetime()
+    {
+        using var form = new MainForm();
+        DockOverviewForm overview = DockOverviewForm.Instance;
+
+        form.ResetDockWindowLayout();
+        Assert.AreSame(form.dockPanel1, overview.DockHandler.DockPanel);
+
+        overview.Dispose();
+        Assert.IsNull(overview.DockHandler.DockPanel,
+            "Resetting the layout must retain the form's disposal subscription.");
+        CollectionAssert.DoesNotContain(
+            form.dockPanel1.Contents.Cast<object>().ToArray(), overview);
     }
 
     private sealed class TestAppearanceForm : LocForm

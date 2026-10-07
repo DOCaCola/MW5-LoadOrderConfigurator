@@ -305,11 +305,13 @@ namespace MW5_Mod_Manager
             dockPanel1.SaveAsXml(layout, Encoding.UTF8, true);
             layout.Position = 0;
 
-            dockPanel1.SuspendLayout();
+            dockPanel1.SuspendLayout(true);
             try
             {
+                // Reuse the forms and their handlers; disposing a handler removes
+                // the form event subscriptions needed after reattaching it.
                 while (dockPanel1.Contents.Count > 0)
-                    dockPanel1.Contents[0].DockHandler.Dispose();
+                    dockPanel1.Contents[0].DockHandler.DockPanel = null;
 
                 SetDockPanelTheme(darkMode);
                 dockPanel1.LoadFromXml(
@@ -630,7 +632,7 @@ namespace MW5_Mod_Manager
                 if (content is DockModListForm)
                     continue;
 
-                content.DockHandler.Dispose();
+                content.DockHandler.DockPanel = null;
             }
 
             DockOverviewForm.Instance.Show(dockPanel1, DockState.DockRight);

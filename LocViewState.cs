@@ -276,7 +276,7 @@ namespace MW5_Mod_Manager
             {
                 while (MainForm.Instance.dockPanel1.Contents.Count > 0)
                 {
-                    MainForm.Instance.dockPanel1.Contents[0].DockHandler.Dispose();
+                    MainForm.Instance.dockPanel1.Contents[0].DockHandler.DockPanel = null;
                 }
                 MainForm.Instance.dockPanel1.LoadFromXml(ms, deserializeContent, true);
 
