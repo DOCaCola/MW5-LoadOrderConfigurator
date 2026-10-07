@@ -19,7 +19,7 @@ namespace MW5_Mod_Manager
     /// Also has some dataobjects to keep track of various internal statuses.
     /// </summary>
     [SupportedOSPlatform("windows")]
-    public class ModsManager
+    public partial class ModsManager
     {
         public static ModsManager Instance { get; private set; }
 
@@ -117,7 +117,9 @@ namespace MW5_Mod_Manager
             public bool FileMetadataLoaded = false;
             public bool FileMetadataAvailable = false;
             // Was the file mod.json modified by LOC before?
-            public bool IsNewMod = true;
+            public bool HasLocOriginalLoadOrder;
+            internal string LoadedMetadata;
+            public float DeployedLoadOrder = Single.NaN;
 
             public enum ModOrigin
             {
@@ -149,7 +151,7 @@ namespace MW5_Mod_Manager
                 "__folder_managed_by_vortex", "mod.json", "mod.json.bak", "backup.json"
             };
 
-        public Dictionary<string, ModData> Mods = new Dictionary<string, ModData>();
+        public Dictionary<string, ModData> Mods = new Dictionary<string, ModData>(StringComparer.OrdinalIgnoreCase);
 
         public string rawJson;
 
@@ -202,6 +204,8 @@ namespace MW5_Mod_Manager
             string lastAppliedJsonFile = LocSettings.GetSettingsDirectory() + Path.DirectorySeparatorChar + LastAppliedOrderFileName;
 
 
+            LastAppliedPreset = null;
+            LastAppliedPresetModList = null;
             if (!File.Exists(lastAppliedJsonFile))
             {
                 return;
@@ -222,11 +226,14 @@ namespace MW5_Mod_Manager
             }
 
             List<ModImportData> lastAppliedValid = new();
+            if (LastAppliedPreset?.mods == null)
+                return;
             foreach (var curMod in LastAppliedPreset.mods)
             {
                 ModImportData newImportData = new();
                 newImportData.ModFolder = curMod.Key;
                 newImportData.Enabled = curMod.Value.state;
+                newImportData.LoadOrder = curMod.Value.lastLoadOrder;
 
                 lastAppliedValid.Add(newImportData);
             }
@@ -236,149 +243,28 @@ namespace MW5_Mod_Manager
 
         public bool ShouldLoadLastApplied(Action listRefreshCallback)
         {
-            if (LastAppliedPreset == null || LastAppliedPreset.mods == null)
+            var changedMods = GetExternallyChangedMods();
+            if (changedMods.Count == 0)
                 return false;
-
-            // Remove invalid mods from last loaded list.
-            List<ModImportData> lastMods = new();
-            foreach (var curModItem in LastAppliedPreset.mods)
+            listRefreshCallback();
+            DateTime timestamp = DateTime.UnixEpoch.AddSeconds(LastAppliedPreset.timeStamp);
+            var restore = new TaskDialogCommandLinkButton("&Restore last applied load order",
+                "Restore the priorities and enabled states you applied " + timestamp.ToTimeSinceString() + ".");
+            var keep = new TaskDialogCommandLinkButton("&Keep current game settings", "Use the settings currently stored by the game.");
+            var page = new TaskDialogPage
             {
-                ModImportData newImportData = new ModImportData();
-                newImportData.ModFolder = curModItem.Key;
-                newImportData.Enabled = curModItem.Value.state;
-
-                lastMods.Add(newImportData);
-            }
-            ProcessModImportList(ref lastMods, false);
-
-            // Filter to enabled only mods
-            List<string> lastEnabledModList = lastMods
-                .Where(kv => kv.Enabled && kv.Available)
-                .Select(kv => kv.ModPath)
-                .ToList();
-
-            List<string> curEnabledModList = new();
-            if (ModEnabledListLastState != null)
-            {
-                curEnabledModList = ModEnabledList
-                    .Where(kv => kv.Enabled && kv.Available)
-                    .Select(kv => kv.ModPath)
-                    .ToList();
-            }
-
-            var modOrderMatches = ModUtils.IsModOrderMatching(curEnabledModList, lastEnabledModList);
-            bool modsWereDisabled = curEnabledModList.Count == 0 && lastEnabledModList.Count > 0;
-
-            if (modOrderMatches && !modsWereDisabled)
-                return false;
-
-            List<string> loadOrderChangedModNames = new List<string>();
-            List<string> enabledStateChangedModNames = new List<string>();
-
-            foreach (var curCandidate in lastEnabledModList)
-            {
-                string curCandidateFolderName = Path.GetFileName(curCandidate);
-                if (!LastAppliedPreset.mods.ContainsKey(curCandidateFolderName))
-                    continue;
-
-                // Compare current load order in mod.json with the one we last saved
-                bool loadOrderChanged = !FloatUtils.IsEqual(
-                    LastAppliedPreset.mods[curCandidateFolderName].lastLoadOrder,
-                    ModDetails[curCandidate].defaultLoadOrder);
-
-                if (loadOrderChanged)
+                Caption = "Mod settings changed",
+                Heading = "Mod settings differ from your last applied load order.",
+                Text = "Affected mods:" + Environment.NewLine + string.Join(Environment.NewLine, changedMods),
+                Icon = TaskDialogIcon.Warning,
+                AllowCancel = true,
+                Buttons = { restore, keep },
+                Footnote = new TaskDialogFootnote
                 {
-                    loadOrderChangedModNames.Add(ModDetails[curCandidate].displayName);
+                    Text = "A game update may have disabled mods, or settings may have been changed in the game or by another mod tool."
                 }
-
-                ModImportData enabledListItem = ModEnabledListLastState?.FirstOrDefault(x =>
-                    x.ModPath.Equals(curCandidate, StringComparison.OrdinalIgnoreCase));
-
-                bool enabledStateChanged = ModEnabledListLastState == null || enabledListItem == null || !enabledListItem.Enabled;
-
-                if (enabledStateChanged)
-                {
-                    enabledStateChangedModNames.Add(ModDetails[curCandidate].displayName);
-                }
-            }
-
-            if (loadOrderChangedModNames.Count > 0)
-            {
-                listRefreshCallback();
-
-                var page = new TaskDialogPage()
-                {
-                    Caption = "Mod load order changed",
-                    Icon = TaskDialogIcon.Warning,
-                    AllowCancel = true,
-                };
-
-                DateTime timestamp = DateTime.UnixEpoch.AddSeconds(LastAppliedPreset.timeStamp);
-
-                page.Buttons.Add(new TaskDialogCommandLinkButton("&Restore last applied load order", "Use the load order you applied " + timestamp.ToTimeSinceString() + ".")
-                {
-                    Tag = 1
-                });
-                page.Buttons.Add(new TaskDialogCommandLinkButton("&Ignore", "Use current load order.")
-                {
-                    Tag = 2
-                });
-
-                page.Heading = "The mod load order has changed since you last applied it.";
-                var changedMods = string.Join(loadOrderChangedModNames.Count > 5 ? ", " : "\r\n", loadOrderChangedModNames);
-                if (changedMods.Length == 1)
-                {
-                    page.Text = "The following mod is affected:\r\n" + changedMods;
-                }
-                else
-                {
-                    page.Text = "The following mods are affected:\r\n" + changedMods;
-                }
-                page.Text += "\r\n\r\n How would you like to proceed?";
-
-                page.Footnote = new TaskDialogFootnote()
-                {
-                    Text = "This could occur due to an update to an installed mod or through the use of other tools that modify mod data, potentially altering the load order."
-                };
-
-                TaskDialogButton dialogResult = TaskDialog.ShowDialog(MainForm.Instance.Visible ? MainForm.Instance.Handle : 0, page);
-
-                if (dialogResult.Tag is int resultIndex)
-                    return resultIndex == 1;
-            }
-            else if (modsWereDisabled && enabledStateChangedModNames.Count > 0)
-            {
-                listRefreshCallback();
-
-                var page = new TaskDialogPage()
-                {
-                    Caption = "Mod list empty",
-                    Icon = TaskDialogIcon.Warning,
-                    AllowCancel = true,
-                };
-
-                DateTime timestamp = DateTime.UnixEpoch.AddSeconds(LastAppliedPreset.timeStamp);
-
-                page.Buttons.Add(new TaskDialogCommandLinkButton("&Restore last applied mod list", "Use the mod list you applied " + timestamp.ToTimeSinceString() + ".")
-                {
-                    Tag = 1
-                });
-                page.Buttons.Add(new TaskDialogCommandLinkButton("&Ignore", "Continue with empty mod list.")
-                {
-                    Tag = 2
-                });
-
-                page.Heading = "Your mod list has been reset or was deleted.";
-                var changedMods = string.Join(enabledStateChangedModNames.Count > 5 ? ", " : "\r\n", enabledStateChangedModNames);
-                page.Text = "This might have been caused as a result of a game update or due to another programs altering the mod list.\r\n\r\nThe following mods are affected:\r\n" + changedMods + "\r\n\r\n How would you like to proceed?";
-
-                TaskDialogButton dialogResult = TaskDialog.ShowDialog(MainForm.Instance.Visible ? MainForm.Instance.Handle : 0, page);
-
-                if (dialogResult.Tag is int resultIndex)
-                    return resultIndex == 1;
-            }
-
-            return false;
+            };
+            return TaskDialog.ShowDialog(MainForm.Instance.Visible ? MainForm.Instance.Handle : 0, page) == restore;
         }
 
         public void RenewModEnabledList()
@@ -479,27 +365,10 @@ namespace MW5_Mod_Manager
 
         public void DetermineBestAvailableGameVersion()
         {
-            string bestAvailableVersion = "0";
-
-            // We will trust the game version from modlist.json if it exists.
-            if (KnownModListGameVersion != null)
-            {
-                bestAvailableVersion = KnownModListGameVersion;
-            }
-            else
-            {
-                // Otherwise we have to fall back to the highest available version in the loaded mods
-                foreach (ModObject mod in ModDetails.Values)
-                {
-                    int versionCompare = Utils.CompareVersionStrings(bestAvailableVersion, mod.gameVersion);
-                    if (versionCompare < 0)
-                    {
-                        bestAvailableVersion = mod.gameVersion;
-                    }
-                }
-            }
-
-            GameVersion = bestAvailableVersion;
+            ResolvedVersion = GameVersionPolicy.Resolve(KnownModListGameVersion,
+                GameVersionPolicy.ReadGameInfoVersion(LocSettings.Instance.Data.InstallPath),
+                ModDetails.Values.Select(mod => mod.gameVersion));
+            GameVersion = ResolvedVersion.Value;
         }
 
         /// <summary>
@@ -629,32 +498,35 @@ namespace MW5_Mod_Manager
 
         public void StartModFileWatches()
         {
-            if (_fileWatchStopCounter == 0)
-            {
-
-                foreach (ModPathInfo curModInfo in this.ModsPaths)
-                {
-                    curModInfo?.FolderWatcher?.StartWatching();
-                }
-            }
+            if (_fileWatchStopCounter > 0)
+                _fileWatchStopCounter--;
+            if (_fileWatchStopCounter != 0)
+                return;
+            foreach (ModPathInfo path in ModsPaths)
+                path?.FolderWatcher?.StartWatching();
+            _gameInfoWatcher?.StartWatching();
         }
+
         public void StopModFileWatches()
         {
-            if (_fileWatchStopCounter > 0)
-            {
-                _fileWatchStopCounter--;
-                if (_fileWatchStopCounter == 0)
-                {
-                    foreach (ModPathInfo curModInfo in this.ModsPaths)
-                    {
-                        curModInfo?.FolderWatcher?.StopWatching();
-                    }
-                }
-            }
+            if (_fileWatchStopCounter++ != 0)
+                return;
+            foreach (ModPathInfo path in ModsPaths)
+                path?.FolderWatcher?.StopWatching();
+            _gameInfoWatcher?.StopWatching();
         }
 
         private void ModFilesChanged(ModFileAction action, string path, string oldPath, eModPathType modPathType)
         {
+            if (IsDeploymentPath(path) || IsDeploymentPath(oldPath))
+            {
+                if (action == ModFileAction.Changed &&
+                    !string.Equals(path, GetModListJsonFilePath(), StringComparison.OrdinalIgnoreCase))
+                    return;
+                DeploymentNeedsRefresh = true;
+                ModFilesChangedEvent?.Invoke(this, EventArgs.Empty);
+                return;
+            }
             bool IsPathOfInterest(string pathOfInterest, bool fileMissing)
             {
                 if (string.IsNullOrWhiteSpace(pathOfInterest))
@@ -703,6 +575,8 @@ namespace MW5_Mod_Manager
 
         public void ClearGamePaths()
         {
+            _gameInfoWatcher?.Dispose();
+            _gameInfoWatcher = null;
             ModsPaths[eModPathType.Program]?.FolderWatcher?.Dispose();
             ModsPaths[eModPathType.Program] = null;
             ModsPaths[eModPathType.Steam]?.FolderWatcher?.Dispose();
@@ -715,6 +589,16 @@ namespace MW5_Mod_Manager
         public void UpdateGamePaths()
         {
             ClearGamePaths();
+            string install = LocSettings.Instance.Data.InstallPath;
+            if (LocSettings.Instance.Data.EnableFileWatch && !string.IsNullOrWhiteSpace(install) && Directory.Exists(install))
+            {
+                _gameInfoWatcher = new FileSystemWatcherAsync<eModPathType>(install, eModPathType.Program,
+                    false, NotifyFilters.FileName | NotifyFilters.LastWrite, _fileWatchStopCounter != 0);
+                _gameInfoWatcher.Created += GameInfoChanged;
+                _gameInfoWatcher.Changed += GameInfoChanged;
+                _gameInfoWatcher.Deleted += GameInfoChanged;
+                _gameInfoWatcher.Renamed += GameInfoChanged;
+            }
 
             if (LocSettings.Instance.Data.platform != eGamePlatform.WindowsStore)
             {
@@ -807,35 +691,13 @@ namespace MW5_Mod_Manager
             //AddDirectoryPathsToDict();
         }
 
-        public void WarnIfNoModList()
-        {
-            string modlistPath = GetModListJsonFilePath();
-            if (File.Exists(modlistPath))
-                return;
-
-            TaskDialogButton result = TaskDialog.ShowDialog(MainForm.Instance.Handle, new TaskDialogPage()
-            {
-                Text = @"The modlist.json file could not be found in" + System.Environment.NewLine
-                    + modlistPath + @"." + System.Environment.NewLine + System.Environment.NewLine
-                    + @"It is necessary to read this file in order to validate it with the correct version number the game expects." + System.Environment.NewLine + System.Environment.NewLine
-                    + @"LOC will try to create the file with the correct version number when applying your profile, but there is high chance that this will fail." + System.Environment.NewLine
-                    + @"It is recommended to start the game once in order to create this file before applying your mod profile.",
-
-                Heading = "The modlist.json file could not be found.",
-                Caption = "Mod list error",
-                Buttons =
-                {
-                    TaskDialogButton.OK,
-                },
-                Icon = TaskDialogIcon.Warning,
-                DefaultButton = TaskDialogButton.OK,
-                AllowCancel = true
-            });
-        }
-
         public List<ModImportData> LoadMw5ModListFileData()
         {
             string modlistPath = GetModListJsonFilePath();
+            KnownModListGameVersion = null;
+            rawJson = null;
+            _loadedModList = null;
+            LoadedStatuses.Clear();
 
             if (!File.Exists(modlistPath))
                 return null;
@@ -845,6 +707,8 @@ namespace MW5_Mod_Manager
             {
                 rawJson = File.ReadAllText(modlistPath);
                 modListObjectObject = JObject.Parse(rawJson);
+                LoadedStatuses = GameModDeployment.ReadStatuses(modListObjectObject);
+                _loadedModList = modListObjectObject;
             }
             catch (Exception e)
             {
@@ -855,11 +719,7 @@ namespace MW5_Mod_Manager
                 return null;
             }
 
-            string gameVersionObj = modListObjectObject.Value<string>("gameVersion");
-            if (gameVersionObj != null)
-            {
-                KnownModListGameVersion = gameVersionObj.ToString();
-            }
+            KnownModListGameVersion = GameVersionPolicy.ReadHeader(modListObjectObject);
 
             JObject modStatus = modListObjectObject.Value<JObject>("modStatus");
             if (modStatus != null)
@@ -868,7 +728,7 @@ namespace MW5_Mod_Manager
                 foreach (JProperty curMOD in modStatus.Properties())
 
                 {
-                    bool enabled = (bool)modStatus[curMOD.Name]?["bEnabled"];
+                    bool enabled = LoadedStatuses[curMOD.Name].Enabled;
 
                     ModImportData newImportData = new ModImportData();
                     newImportData.ModFolder = curMOD.Name;
@@ -883,15 +743,18 @@ namespace MW5_Mod_Manager
             return null;
         }
 
-        public void SaveToFiles()
-        {
-            SaveModDetails();
-            SaveModListToFile();
-            SaveLastAppliedModOrder();
-        }
-
         public void ClearAll()
         {
+            KnownModListGameVersion = null;
+            GameVersion = "0";
+            ResolvedVersion = null;
+            rawJson = null;
+            _loadedModList = null;
+            LoadedStatuses.Clear();
+            ModEnabledListLastState = null;
+            DeploymentNeedsRefresh = false;
+            _modDiscoveryIncomplete = false;
+            this.PathToDirNameDict.Clear();
             this.ModDirectories.Clear();
             this.Mods.Clear();
             this.ModDetails.Clear();
@@ -1065,7 +928,8 @@ namespace MW5_Mod_Manager
                         JsonSerializer.Create(jsonSettings));
 
                     modData.NewLoadOrder = modJsonDataObject.defaultLoadOrder;
-                    modData.IsNewMod = !modJsonObject.ContainsKey("locOriginalLoadOrder");
+                    modData.HasLocOriginalLoadOrder = modJsonObject.ContainsKey("locOriginalLoadOrder");
+                    modData.LoadedMetadata = modJsonText;
 
                     // Now let's be a bit overkill and try our best to find the original order of the mod
                     // Since other load order manager save these load orders very differently (or not all),
@@ -1073,7 +937,7 @@ namespace MW5_Mod_Manager
                     float? originalLoadOrder = null;
 
                     // Only try backup files if locOriginalLoadOrder is not present in mod.json
-                    if (modData.IsNewMod)
+                    if (!modData.HasLocOriginalLoadOrder)
                     {
                         // "MW5 Mod Organizer" backup file
                         // Some mods also accidentally deploy with this file
@@ -1161,6 +1025,7 @@ namespace MW5_Mod_Manager
                         AllowCancel = true
                     });
 
+                    _modDiscoveryIncomplete = true;
                     return null;
                 }
 
@@ -1266,6 +1131,7 @@ namespace MW5_Mod_Manager
 
         private void LoadAllModDetails(bool includeFileMetadata)
         {
+            _modDiscoveryIncomplete = false;
             Mods.Clear();
             ModDetails.Clear();
             var failures = new List<ModLoadFailure>();
@@ -1276,6 +1142,7 @@ namespace MW5_Mod_Manager
                     failures.Add(failure);
             }
 
+            _modDiscoveryIncomplete |= failures.Count > 0;
             ShowModLoadFailures(failures);
         }
 
@@ -1385,130 +1252,28 @@ namespace MW5_Mod_Manager
             });
         }
 
-        public void SaveModDetails()
+        private void SaveLegacyModDetails()
         {
-            var serializer = new JsonSerializer { Formatting = Formatting.Indented };
-
-            foreach (var entry in ModDetails)
+            foreach (var entry in ModDetails.ToArray())
             {
-                string modJsonPath = Path.Combine(entry.Key, "mod.json");
-
-                // Make sure the file still exists, in case the mod was deleted in the meantime
-                if (!File.Exists(modJsonPath))
+                string path = Path.Combine(entry.Key, "mod.json");
+                var mod = Mods[entry.Key];
+                string existing = File.ReadAllText(path);
+                if (existing != mod.LoadedMetadata)
+                    throw new IOException($"Mod metadata changed: {path}. Reload before applying.");
+                var metadata = JObject.Parse(existing);
+                var original = new JValue(mod.OriginalLoadOrder);
+                var priority = new JValue(mod.NewLoadOrder);
+                if (JToken.DeepEquals(metadata["locOriginalLoadOrder"], original) &&
+                    JToken.DeepEquals(metadata["defaultLoadOrder"], priority))
                     continue;
-
-                //try
-                {
-                    string modJsonExisting = File.ReadAllText(modJsonPath);
-                    JObject modDetailsNew = JObject.Parse(modJsonExisting);
-
-                    if (!Mods.TryGetValue(entry.Key, out var modData))
-                        continue;
-
-                    bool needsUpdate = false;
-
-                    float originalLoadOrder = modData.OriginalLoadOrder;
-                    JToken currentOlo = modDetailsNew["locOriginalLoadOrder"];
-                    JToken newOlo = float.IsInteger(originalLoadOrder)
-                        ? new JValue((int)originalLoadOrder)
-                        : new JValue(originalLoadOrder);
-
-                    if (!JToken.DeepEquals(currentOlo, newOlo))
-                    {
-                        modDetailsNew["locOriginalLoadOrder"] = newOlo;
-                        needsUpdate = true;
-                    }
-
-                    float newLoadOrder = modData.NewLoadOrder;
-                    JToken currentNlo = modDetailsNew["defaultLoadOrder"];
-                    JToken newNlo = float.IsInteger(newLoadOrder)
-                        ? new JValue((int)newLoadOrder)
-                        : new JValue(newLoadOrder);
-
-                    if (!JToken.DeepEquals(currentNlo, newNlo))
-                    {
-                        modDetailsNew["defaultLoadOrder"] = newNlo;
-                        needsUpdate = true;
-                    }
-
-                    // Only write if something changed
-                    if (needsUpdate)
-                    {
-                        using (var sw = new StreamWriter(modJsonPath))
-                        using (var writer = new JsonTextWriter(sw))
-                        {
-                            serializer.Serialize(writer, modDetailsNew);
-                        }
-                    }
-                }
-                /*catch (Exception ex)
-                {
-                    // Log or show error, but continue with other mods
-                    Console.WriteLine($"Error saving mod details for {modJsonPath}: {ex.Message}");
-                }*/
-            }
-        }
-
-        public void SaveModListToFile()
-        {
-            string modlistJsonFilePath = GetModListJsonFilePath();
-            string modlistJsonFileDir = Path.GetDirectoryName(modlistJsonFilePath);
-
-            if (!Directory.Exists(modlistJsonFileDir))
-            {
-                string message = "The mod directory " + modlistJsonFileDir + " does not exist. Aborting.";
-                string caption = "Error saving mod list";
-                MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, caption, buttons, MessageBoxIcon.Error);
-                return;
-            }
-
-            JObject modListObject = null;
-            // Fail silently if the current modlist.json could not be read for whatever reason
-            if (File.Exists(modlistJsonFilePath))
-            {
-                try
-                {
-                    string modListJsonExisting = File.ReadAllText(modlistJsonFilePath);
-                    modListObject = JObject.Parse(modListJsonExisting);
-                }
-                catch (Exception e)
-                {
-
-                }
-            }
-
-            if (modListObject == null)
-            {
-                modListObject = new JObject();
-                modListObject["gameVersion"] = GameVersion;
-            }
-
-            JObject modStatusObject = modListObject.Value<JObject>("modStatus");
-            if (modStatusObject != null)
-            {
-                modStatusObject.RemoveAll();
-            }
-            else
-            {
-                modStatusObject = new JObject();
-                modListObject.Add("modStatus", modStatusObject);
-            }
-
-            foreach (var entry in ModEnabledList)
-            {
-                JObject newStatus = new JObject(
-                    new JProperty("bEnabled", entry.Enabled)
-                );
-                modStatusObject.Add(entry.ModFolder, newStatus);
-            }
-
-            JsonSerializer serializer = new JsonSerializer();
-            serializer.Formatting = Formatting.Indented;
-            using (StreamWriter sw = new StreamWriter(modlistJsonFilePath))
-            using (JsonWriter writer = new JsonTextWriter(sw))
-            {
-                serializer.Serialize(writer, modListObject);
+                metadata["locOriginalLoadOrder"] = original;
+                metadata["defaultLoadOrder"] = priority;
+                string contents = metadata.ToString(Formatting.Indented);
+                GameModDeployment.WriteAtomic(path, contents);
+                mod.LoadedMetadata = contents;
+                mod.HasLocOriginalLoadOrder = true;
+                ModDetails[entry.Key] = metadata.ToObject<ModObject>();
             }
         }
 
@@ -1536,13 +1301,8 @@ namespace MW5_Mod_Manager
 
             string lastAppliedString = JsonConvert.SerializeObject(json, Formatting.Indented);
 
-            if (File.Exists(lastAppliedJsonFile))
-                File.Delete(lastAppliedJsonFile);
-
-            StreamWriter sw = File.CreateText(lastAppliedJsonFile);
-            sw.WriteLine(lastAppliedString);
-            sw.Flush();
-            sw.Close();
+            GameModDeployment.WriteAtomic(lastAppliedJsonFile, lastAppliedString);
+            LoadLastAppliedPresetData();
         }
 
         // Save presets to file

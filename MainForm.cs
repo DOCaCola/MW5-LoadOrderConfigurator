@@ -757,6 +757,9 @@ namespace MW5_Mod_Manager
 
         private void InstanceOnModFilesChangedEvent(object sender, EventArgs e)
         {
+            CheckModConfigTainted();
+            if (_modFileStateMismatch)
+                return;
             _modFileStateMismatch = true;
             StartModFilesChangedUiFeedback();
         }
@@ -1291,9 +1294,7 @@ namespace MW5_Mod_Manager
 
             if (ModsManager.Instance.ModSettingsTainted)
             {
-                if (ShowChangesNeedToBeAppliedDialog())
-                    ApplyModSettings();
-                else
+                if (!ShowChangesNeedToBeAppliedDialog() || !ApplyModSettings())
                     return;
             }
 
@@ -1483,26 +1484,36 @@ namespace MW5_Mod_Manager
             CheckModConfigTainted();
         }
 
-        public void ApplyModSettings()
+        public bool ApplyModSettings()
         {
             if (!ModsManager.Instance.GameIsConfigured())
-                return;
+                return false;
 
             ModsManager.Instance.StopModFileWatches();
             try
             {
-                LoadOrder.RecomputeLoadOrders();
-                ModsManager.Instance.SaveToFiles();
-                ModsManager.Instance.SaveLastAppliedModOrder();
-                SetModConfigTainted(false);
+                ModsManager.Instance.SynchronizeWorkingModList();
+                var warnings = ModsManager.Instance.SaveToFiles();
                 _ActiveModListHash = ModItemList.Instance.ModList.ComputeModListHashCode();
+                SetModConfigTainted(false);
+                if (warnings.Count > 0)
+                    MessageBox.Show(this, string.Join(Environment.NewLine + Environment.NewLine, warnings), "Deployment needs attention",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                else
+                    StopModFileChangedUiFeedback();
+                return warnings.Count == 0;
+            }
+            catch (Exception ex) when (LocFileUtils.IsFileAccessException(ex) || ex is Newtonsoft.Json.JsonException)
+            {
+                SetModConfigTainted(true);
+                MessageBox.Show(this, ex.Message, "Could not apply mod settings", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
             }
             finally
             {
                 ModsManager.Instance.StartModFileWatches();
             }
         }
-
 
         public void ClearAll()
         {
@@ -1571,7 +1582,7 @@ namespace MW5_Mod_Manager
             openUserModsFolderToolStripMenuItem.Visible = LocSettings.Instance.Data.platform == eGamePlatform.WindowsStore;
         }
 
-        public void PrepareDataAndPopulateListView(List<ModImportData> desiredMods, bool orderByDesired)
+        public void PrepareDataAndPopulateListView(List<ModImportData> desiredMods, bool orderByDesired, bool restoreSavedPriorities = false)
         {
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
@@ -1601,10 +1612,8 @@ namespace MW5_Mod_Manager
                 orderedModList.Sort((x, y) =>
                 {
                     // Compare load order
-                    var detailsX = ModsManager.Instance.ModDetails[x.ModPath];
-                    var detailsY = ModsManager.Instance.ModDetails[y.ModPath];
-
-                    int priorityComparison = detailsY.defaultLoadOrder.CompareTo(detailsX.defaultLoadOrder);
+                    int priorityComparison = ModsManager.Instance.Mods[y.ModPath].NewLoadOrder
+                        .CompareTo(ModsManager.Instance.Mods[x.ModPath].NewLoadOrder);
 
                     // If Priority is equal, compare Folder name
                     if (priorityComparison == 0)
@@ -1632,6 +1641,16 @@ namespace MW5_Mod_Manager
                     && desiredMod.Enabled;
             }
 
+            if (restoreSavedPriorities && desiredModsByPath != null)
+            {
+                foreach (var entry in desiredModsByPath.Values)
+                    if (float.IsFinite(entry.LoadOrder))
+                        ModsManager.Instance.Mods[entry.ModPath].NewLoadOrder = entry.LoadOrder;
+                orderedModList = orderedModList
+                    .OrderByDescending(entry => ModsManager.Instance.Mods[entry.ModPath].NewLoadOrder)
+                    .ThenByDescending(entry => entry.ModFolder, StringComparer.OrdinalIgnoreCase).ToList();
+            }
+
             // Fill listview
 #if DEBUG
             var sw = System.Diagnostics.Stopwatch.StartNew();
@@ -1643,8 +1662,10 @@ namespace MW5_Mod_Manager
                 using (DockModListForm.Instance.BeginListViewUpdateScope())
                 {
                     ModItemList.FillFromImportList(orderedModList);
-
-                    LoadOrder.RecomputeLoadOrders();
+                    if (orderByDesired && !restoreSavedPriorities)
+                        LoadOrder.RecomputeLoadOrders();
+                    else
+                        ModsManager.Instance.SynchronizeWorkingModList();
 
                     DockModListForm.Instance.modObjectListView.SetObjects(
                         ModItemList.Instance.GetViewOrderedItems());
@@ -1721,7 +1742,6 @@ namespace MW5_Mod_Manager
                 {
                     UpdatePriorityLabels();
                     SetVersionAndPlatform();
-                    ModsManager.Instance.WarnIfNoModList();
                     ModsManager.Instance.ParseDirectories();
                     ModsManager.Instance.ReloadModData(!deferStartupEnrichment);
 
@@ -1733,6 +1753,7 @@ namespace MW5_Mod_Manager
                         ModsManager.Instance.ModEnabledListLastState = modlist;
                     }
                     ModsManager.Instance.DetermineBestAvailableGameVersion();
+                    ModsManager.Instance.ResolveLoadedPriorities();
                     toolStripStatusLabelMwVersion.Text = @"Game Version: " + ModsManager.Instance.GameVersion;
 
                     // Check if we want to load the last applied mod list
@@ -1759,7 +1780,7 @@ namespace MW5_Mod_Manager
                         // Load last saved preset
                         modlist = ModsManager.Instance.LastAppliedPresetModList;
                         DockModListForm.Instance.modObjectListView.SuspendDrawing();
-                        PrepareDataAndPopulateListView(modlist, true);
+                        PrepareDataAndPopulateListView(modlist, true, restoreSavedPriorities: true);
                         DockModListForm.Instance.modObjectListView.ResumeDrawing();
 
                         if (_ActiveModListHash != ModItemList.Instance.ModList.ComputeModListHashCode())
@@ -1877,6 +1898,9 @@ namespace MW5_Mod_Manager
 
                 ModsManager.Instance.ParseDirectories();
                 ModsManager.Instance.ReloadModData();
+                ModsManager.Instance.LoadMw5ModListFileData();
+                ModsManager.Instance.DetermineBestAvailableGameVersion();
+                ModsManager.Instance.ResolveLoadedPriorities();
                 List<ModImportData> newPresetData = new List<ModImportData>();
                 foreach (var curPresetEntry in presetData)
                 {
@@ -1957,7 +1981,8 @@ namespace MW5_Mod_Manager
 
                 if (result == eUnappliedChangesDialogResult.Apply)
                 {
-                    ApplyModSettings();
+                    if (!ApplyModSettings())
+                        return;
                 }
                 else if (result == eUnappliedChangesDialogResult.Cancel)
                 {
@@ -2483,7 +2508,9 @@ namespace MW5_Mod_Manager
                 ModsManager.Instance.Mods.Clear();
                 ModsManager.Instance.ParseDirectories();
                 ModsManager.Instance.ReloadModData();
+                ModsManager.Instance.LoadMw5ModListFileData();
                 ModsManager.Instance.DetermineBestAvailableGameVersion();
+                ModsManager.Instance.ResolveLoadedPriorities();
                 toolStripStatusLabelMwVersion.Text = @"Game Version: " + ModsManager.Instance.GameVersion;
                 PrepareDataAndPopulateListView(newData, true);
                 FilterTextChanged();
@@ -2718,6 +2745,7 @@ namespace MW5_Mod_Manager
 
         public void SetModConfigTainted(bool modSettingsTainted)
         {
+            modSettingsTainted |= ModsManager.Instance.DeploymentNeedsRefresh;
             if (ModsManager.Instance.ModSettingsTainted == modSettingsTainted
                 && _applyButtonUsesEmphasis == modSettingsTainted)
                 return;
@@ -2795,7 +2823,11 @@ namespace MW5_Mod_Manager
 
                 if (result == eUnappliedChangesDialogResult.Apply)
                 {
-                    ApplyModSettings();
+                    if (!ApplyModSettings())
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
                 }
                 else if (result == eUnappliedChangesDialogResult.Cancel)
                 {
@@ -2919,7 +2951,8 @@ namespace MW5_Mod_Manager
             if (!ModsManager.Instance.GameIsConfigured())
                 return;
 
-            if (LoadOrder.AreModsSortedByDefaultLoadOrder())
+            if (LoadOrder.AreModsSortedByDefaultLoadOrder() &&
+                ModItemList.Instance.ModList.All(mod => FloatUtils.IsEqual(mod.CurrentLoadOrder, mod.OriginalLoadOrder)))
                 return;
 
             // This sorting follows the way MW5 orders its list
@@ -3125,9 +3158,7 @@ namespace MW5_Mod_Manager
 
             if (ModsManager.Instance.ModSettingsTainted)
             {
-                if (ShowChangesNeedToBeAppliedDialog())
-                    ApplyModSettings();
-                else
+                if (!ShowChangesNeedToBeAppliedDialog() || !ApplyModSettings())
                     return;
             }
 
@@ -3191,9 +3222,7 @@ namespace MW5_Mod_Manager
 
             if (ModsManager.Instance.ModSettingsTainted)
             {
-                if (ShowChangesNeedToBeAppliedDialog())
-                    ApplyModSettings();
-                else
+                if (!ShowChangesNeedToBeAppliedDialog() || !ApplyModSettings())
                     return;
             }
 
