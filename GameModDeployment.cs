@@ -125,14 +125,36 @@ namespace MW5_Mod_Manager
             }
         }
 
-        public static bool PakPathsMatch(string[] saved, string[] installed) =>
-            saved != null && saved.Select(p => p.Replace('\\', '/'))
-                .OrderBy(p => p, StringComparer.OrdinalIgnoreCase)
-                .SequenceEqual(installed, StringComparer.OrdinalIgnoreCase);
+        public static bool PakPathsMatch(string[] saved, string[] installed, string gameBaseDirectory)
+        {
+            if (saved == null)
+                return false;
+            // Never resolve a game-relative cache against LOC's working directory.
+            // An unknown base requires regeneration only when relative paths are present.
+            if (gameBaseDirectory == null &&
+                saved.Concat(installed).Any(p => !Path.IsPathFullyQualified(p)))
+                return false;
+
+            string Resolve(string path) => Path.IsPathFullyQualified(path)
+                ? Path.GetFullPath(path) : Path.GetFullPath(path, gameBaseDirectory);
+            try
+            {
+                return saved.Select(Resolve).OrderBy(p => p, StringComparer.OrdinalIgnoreCase)
+                    .SequenceEqual(installed.Select(Resolve).OrderBy(p => p, StringComparer.OrdinalIgnoreCase),
+                        StringComparer.OrdinalIgnoreCase);
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException)
+            {
+                // Invalid filenames in modlist.json must be replaced on deployment.
+                return false;
+            }
+        }
 
         public static JObject BuildDocument(JObject previous, string version,
-            IEnumerable<ModDeploymentEntry> mods, bool cachedMode)
+            IEnumerable<ModDeploymentEntry> mods, bool cachedMode, string localModsDirectory)
         {
+            string localModsPrefix = string.IsNullOrWhiteSpace(localModsDirectory) ? null
+                : Path.TrimEndingDirectorySeparator(Path.GetFullPath(localModsDirectory)).Replace('\\', '/') + "/";
             var result = previous == null ? new JObject() : (JObject)previous.DeepClone();
             var previousStatuses = result["modStatus"] as JObject;
             var statuses = new JObject();
@@ -155,7 +177,12 @@ namespace MW5_Mod_Manager
                     if (mod.Enabled && paths.Length == 0)
                         throw new InvalidDataException($"Enabled mod '{mod.Folder}' has no pak files in '{Path.Combine(mod.Path, "Paks")}'.");
                     status["defaultLoadOrder"] = mod.Priority;
-                    status["cachedPakPaths"] = JArray.FromObject(paths);
+                    // Match the stock project's relative Mods/ paths. Provider and
+                    // AppData paths outside this root retain their absolute form.
+                    status["cachedPakPaths"] = JArray.FromObject(paths.Select(path =>
+                        localModsPrefix != null && path.StartsWith(localModsPrefix, StringComparison.OrdinalIgnoreCase)
+                            ? "../../../MW5Mercs/Mods/" + path.Substring(localModsPrefix.Length)
+                            : path));
                 }
                 else
                 {

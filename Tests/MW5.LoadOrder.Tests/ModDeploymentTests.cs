@@ -175,7 +175,8 @@ public sealed class ModDeploymentTests
         var status = JObject.Parse(File.ReadAllText(ModList))["modStatus"]["A"];
         Assert.IsFalse((bool)status["bEnabled"]);
         Assert.AreEqual(500f, (float)status["defaultLoadOrder"]);
-        CollectionAssert.AreEqual(GameModDeployment.EnumeratePakPaths(path), status["cachedPakPaths"].Values<string>().ToArray());
+        CollectionAssert.AreEqual(new[] { "../../../MW5Mercs/Mods/A/Paks/A.pak" },
+            status["cachedPakPaths"].Values<string>().ToArray());
     }
 
     [TestMethod]
@@ -312,6 +313,64 @@ public sealed class ModDeploymentTests
         Load();
         Assert.AreEqual(0f, Manager.Mods[path].NewLoadOrder);
         Assert.IsTrue(Manager.DeploymentNeedsRefresh);
+    }
+
+    [TestMethod]
+    public void StockRelativeCacheDoesNotRequireDeploymentButPakChangesDo()
+    {
+        string path = AddMod("Mod ü With Spaces", 12);
+        string pak = Path.Combine(path, "Paks", "Mod ü With Spaces.pak");
+        string secondPak = Path.Combine(path, "Paks", "Extra.pak");
+        File.WriteAllText(secondPak, "extra");
+        WriteList("1.15.398", ("Mod ü With Spaces", true, 12, new[]
+        {
+            "../../../MW5Mercs/Mods/Mod ü With Spaces/Paks/./Mod ü With Spaces.pak",
+            secondPak.ToUpperInvariant()
+        }));
+        string originalList = File.ReadAllText(ModList);
+
+        Load();
+        Assert.IsFalse(Manager.DeploymentNeedsRefresh);
+        Assert.AreEqual(originalList, File.ReadAllText(ModList));
+
+        File.Move(pak, Path.Combine(path, "Paks", "Renamed.pak"));
+        Manager.RefreshDeploymentRequirement();
+        Assert.IsTrue(Manager.DeploymentNeedsRefresh);
+        Manager.SaveToFiles();
+        Assert.IsFalse(Manager.DeploymentNeedsRefresh);
+
+        File.Delete(secondPak);
+        Manager.RefreshDeploymentRequirement();
+        Assert.IsTrue(Manager.DeploymentNeedsRefresh);
+    }
+
+    [TestMethod]
+    [DataRow("../../../MW5Mercs/Mods/A/Paks/A.pak", "C:/Game/MW5Mercs/Mods/A/Paks/A.pak", true)]
+    [DataRow(@"..\..\..\MW5Mercs\Mods\A\Paks\A.pak", "C:/Game/MW5Mercs/Mods/A/Paks/A.pak", true)]
+    [DataRow("C:/GAME/MW5Mercs/Mods/A/Paks/../Paks/A.pak", @"c:\Game\MW5Mercs\Mods\A\Paks\A.pak", true)]
+    [DataRow("F:/SteamLibrary/steamapps/workshop/content/784080/3509992002/Paks/ModOptions.pak",
+        @"F:\SteamLibrary\steamapps\workshop\content\784080\3509992002\Paks\ModOptions.pak", true)]
+    [DataRow("//server/share/Mods/A/Paks/A.pak", @"\\server\share\Mods\A\Paks\A.pak", true)]
+    [DataRow("../../../MW5Mercs/Mods/A/Paks/A.pak", "C:/Game/MW5Mercs/Mods/B/Paks/A.pak", false)]
+    [DataRow("C:/OldGame/MW5Mercs/Mods/A/Paks/A.pak", "C:/Game/MW5Mercs/Mods/A/Paks/A.pak", false)]
+    [DataRow("../../../MW5Mercs/Mods/A/Paks/Old.pak", "C:/Game/MW5Mercs/Mods/A/Paks/New.pak", false)]
+    [DataRow("bad\0path.pak", "C:/Game/MW5Mercs/Mods/A/Paks/A.pak", false)]
+    public void CacheComparisonUsesGameBaseDirectory(string saved, string installed, bool expected)
+    {
+        Assert.AreEqual(expected, GameModDeployment.PakPathsMatch(
+            new[] { saved }, new[] { installed }, @"C:\Game\MW5Mercs\Binaries\Win64"));
+    }
+
+    [TestMethod]
+    public void UnknownGameBaseSupportsAbsoluteCachesButRequiresRelativeCacheRegeneration()
+    {
+        string absolute = @"F:\Mods\A\Paks\A.pak";
+        Assert.IsTrue(GameModDeployment.PakPathsMatch(new[] { absolute },
+            new[] { "F:/Mods/A/Paks/A.pak" }, null));
+        Assert.IsTrue(GameModDeployment.PakPathsMatch(Array.Empty<string>(), Array.Empty<string>(), null));
+        Assert.IsFalse(GameModDeployment.PakPathsMatch(null, new[] { absolute }, null));
+        Assert.IsFalse(GameModDeployment.PakPathsMatch(new[] { "../../Mods/A/Paks/A.pak" },
+            new[] { absolute }, null));
     }
 
     [TestMethod]
@@ -478,7 +537,7 @@ public sealed class ModDeploymentTests
     {
         string a = AddMod("A");
         Assert.ThrowsException<InvalidDataException>(() => GameModDeployment.BuildDocument(null, "1.15.398",
-            new[] { new ModDeploymentEntry("A", a, true, 1), new ModDeploymentEntry("a", a, true, 2) }, true));
+            new[] { new ModDeploymentEntry("A", a, true, 1), new ModDeploymentEntry("a", a, true, 2) }, true, mods));
     }
 
     [TestMethod]
@@ -552,10 +611,34 @@ public sealed class ModDeploymentTests
     }
 
     [TestMethod]
+    public void LocalCachedPathsUseStockRelativePrefixWithSpacesAndUnicode()
+    {
+        string path = AddMod("Mod with spaces ü");
+        string paks = Path.Combine(path, "Paks");
+        File.Move(Path.Combine(paks, "Mod with spaces ü.pak"), Path.Combine(paks, "Content ü.PAK"));
+        File.WriteAllText(Path.Combine(paks, "Second.pak"), "test pak");
+        File.WriteAllText(Path.Combine(paks, "ignore.txt"), "not a pak");
+        Directory.CreateDirectory(Path.Combine(paks, "Nested"));
+        File.WriteAllText(Path.Combine(paks, "Nested", "ignore.pak"), "nested");
+        WriteList("1.15.398", ("Mod with spaces ü", true, null, null));
+
+        Load();
+        Manager.SaveToFiles();
+        string[] paths = JObject.Parse(File.ReadAllText(ModList))["modStatus"]["Mod with spaces ü"]
+            ["cachedPakPaths"].Values<string>().ToArray();
+        string prefix = "../../../MW5Mercs/Mods/Mod with spaces ü/Paks/";
+        CollectionAssert.AreEqual(new[] { prefix + "Content ü.PAK", prefix + "Second.pak" }, paths);
+        string gameBase = Path.Combine(install, "MW5Mercs", "Binaries", "Win64");
+        Assert.IsTrue(paths.All(p => !Path.IsPathFullyQualified(p) && File.Exists(Path.GetFullPath(p, gameBase))));
+        Load();
+        Assert.IsFalse(Manager.DeploymentNeedsRefresh);
+    }
+
+    [TestMethod]
     public void WorkshopPathAndDisabledEmptyCacheAreSerializedCorrectly()
     {
         string path = AddMod("784080001", 30);
-        string workshop = Path.Combine(root, "Workshop", "784080001");
+        string workshop = Path.Combine(root, "Steam Library", "steamapps", "workshop", "content", "784080", "784080001");
         Directory.CreateDirectory(Path.GetDirectoryName(workshop));
         Directory.Move(path, workshop);
         string disabled = AddMod("Disabled", 40);
@@ -564,10 +647,31 @@ public sealed class ModDeploymentTests
         {
             new ModDeploymentEntry("784080001", workshop, true, 2),
             new ModDeploymentEntry("Disabled", disabled, false, 3)
-        }, true);
-        CollectionAssert.AreEqual(GameModDeployment.EnumeratePakPaths(workshop),
-            document["modStatus"]["784080001"]["cachedPakPaths"].Values<string>().ToArray());
+        }, true, mods);
+        var serialized = JObject.Parse(document.ToString());
+        CollectionAssert.AreEqual(new[]
+        {
+            root.Replace('\\', '/') + "/Steam Library/steamapps/workshop/content/784080/784080001/Paks/784080001.pak"
+        }, serialized["modStatus"]["784080001"]["cachedPakPaths"].Values<string>().ToArray());
         Assert.AreEqual(0, document["modStatus"]["Disabled"]["cachedPakPaths"].Count());
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public void ExternalCachedPathsStayAbsoluteWithOrWithoutLocalModsRoot(bool hasLocalRoot)
+    {
+        string path = AddMod("External");
+        // A shared prefix must not mistake this sibling for the game's Mods folder.
+        string external = Path.Combine(install, "MW5Mercs", "Mods-External", "External");
+        Directory.CreateDirectory(Path.GetDirectoryName(external));
+        Directory.Move(path, external);
+        var document = GameModDeployment.BuildDocument(null, "1.15.398", new[]
+        {
+            new ModDeploymentEntry("External", external, false, 10)
+        }, true, hasLocalRoot ? mods : null);
+        CollectionAssert.AreEqual(new[] { external.Replace('\\', '/') + "/Paks/External.pak" },
+            document["modStatus"]["External"]["cachedPakPaths"].Values<string>().ToArray());
     }
 
     [STATestMethod]

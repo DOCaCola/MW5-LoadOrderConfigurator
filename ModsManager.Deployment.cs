@@ -38,6 +38,10 @@ namespace MW5_Mod_Manager
                 return;
             DeploymentNeedsRefresh = _loadedModList == null ||
                 GameVersionPolicy.ReadHeader(_loadedModList) != GameVersion;
+            string installPath = LocSettings.Instance.Data.InstallPath;
+            // The stock Windows game's BaseDir is the shipping executable directory.
+            string gameBaseDirectory = string.IsNullOrWhiteSpace(installPath) ? null
+                : Path.Combine(installPath, "MW5Mercs", "Binaries", "Win64");
             foreach (var entry in Mods)
             {
                 if (!LoadedStatuses.TryGetValue(Path.GetFileName(entry.Key), out var status) ||
@@ -51,7 +55,7 @@ namespace MW5_Mod_Manager
                 {
                     string[] installed = GameModDeployment.EnumeratePakPaths(entry.Key);
                     if ((status.Enabled && installed.Length == 0) ||
-                        !GameModDeployment.PakPathsMatch(status.PakPaths, installed))
+                        !GameModDeployment.PakPathsMatch(status.PakPaths, installed, gameBaseDirectory))
                         DeploymentNeedsRefresh = true;
                 }
                 catch (Exception ex) when (LocFileUtils.IsFileAccessException(ex))
@@ -120,7 +124,8 @@ namespace MW5_Mod_Manager
             }
             return GameModDeployment.BuildDocument(document, GameVersion,
                 ModEnabledList.Select(mod => new ModDeploymentEntry(mod.ModFolder, mod.ModPath,
-                    mod.Enabled, Mods[mod.ModPath].NewLoadOrder)), UsesCachedModList);
+                    mod.Enabled, Mods[mod.ModPath].NewLoadOrder)), UsesCachedModList,
+                ModsPaths[eModPathType.Program]?.FullPath);
         }
 
         private void CommitModList(JObject document)
