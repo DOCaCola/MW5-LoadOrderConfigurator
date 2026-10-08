@@ -180,7 +180,8 @@ namespace MW5_Mod_Manager
 
             if (isMw5MoLoadorder)
             {
-                ResultData = resultData.OrderByDescending(x => x.LoadOrder).ToList();
+                // MW5MO exports low-to-high, including folder order within ties.
+                ResultData = resultData.OrderBy(x => x.LoadOrder).Reverse().ToList();
 
                 ResultDataType = eResultDataType.ModNames;
                 this.DialogResult = DialogResult.OK;

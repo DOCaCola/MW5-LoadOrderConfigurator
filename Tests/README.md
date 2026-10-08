@@ -17,6 +17,11 @@ row order and working state in both display directions, including tied prioritie
 disabled mods, and display names that differ from folder order.
 The export timestamp is checked for UTC and identical formatting under US,
 German, and Saudi Arabic locales.
+The MW5MO import cases follow the text format and ascending export order verified
+for MW5MO 3.0.0.5. They exercise parsing, installed-mod matching,
+list population, enabled states, Apply/reload, both display directions, LF/CRLF,
+and three locales. Distinct, tied, and mixed priorities preserve the exported
+order, including when display-name order differs from folder order.
 
 `LinkedFileWriteTests` exercises the production save helper with ordinary files,
 absolute and relative file symlinks, symlink chains, and hard links, each inside
