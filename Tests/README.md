@@ -12,6 +12,11 @@
 selection, synchronized metadata and cached priorities, original-priority recovery,
 external changes in either priority source, pak cache refresh, atomic-write failures,
 and UI reload/Apply round trips. It does not launch the game or edit installed mods.
+It also checks that resetting to defaults and exporting text preserves displayed
+row order and working state in both display directions, including tied priorities,
+disabled mods, and display names that differ from folder order.
+The export timestamp is checked for UTC and identical formatting under US,
+German, and Saudi Arabic locales.
 
 The test assembly redirects application settings to a temporary directory with an
 empty game fixture, so UI startup does not use personal settings or open recovery

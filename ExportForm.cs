@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -21,6 +22,7 @@ namespace MW5_Mod_Manager
     {
         private readonly Image _saveToFileImageSource;
         private readonly Image _copyImageSource;
+        private readonly DateTime _exportTimestampUtc = DateTime.UtcNow;
 
         public ExportForm()
         {
@@ -179,7 +181,8 @@ namespace MW5_Mod_Manager
                 sb.Append(line);
             }
 
-            sb.Append("\r\n« End of load order. »");
+            sb.Append("\r\n« End of load order. " + _exportTimestampUtc.ToString(
+                "yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture) + " »");
             return sb.ToString();
         }
 

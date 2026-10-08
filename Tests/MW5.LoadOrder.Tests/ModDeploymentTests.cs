@@ -3,6 +3,7 @@ using MW5_Mod_Manager;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -672,6 +673,127 @@ public sealed class ModDeploymentTests
         }, true, hasLocalRoot ? mods : null);
         CollectionAssert.AreEqual(new[] { external.Replace('\\', '/') + "/Paks/External.pak" },
             document["modStatus"]["External"]["cachedPakPaths"].Values<string>().ToArray());
+    }
+
+    [STATestMethod]
+    public void DefaultResetTextExportPreservesDisplayedOrderAndWorkingState()
+    {
+        CultureInfo originalCulture = CultureInfo.CurrentCulture;
+        var originalMain = MainForm.Instance;
+        var originalList = DockModListForm.Instance;
+        var originalOverview = DockOverviewForm.Instance;
+        var originalConflicts = DockConflictsForm.Instance;
+        MainForm form = null;
+        try
+        {
+            // Folder order deliberately differs from display-name order, with
+            // tied and sparse priorities as well as a fractional priority.
+            string a = AddMod("A", 20, 0);
+            string b = AddMod("B", 10, 10);
+            string c = AddMod("C", 30, 10);
+            string d = AddMod("D", 40, 12.5f);
+            string e = AddMod("E", 50, 999);
+            foreach (var entry in new[]
+                     {
+                         (Path: a, Name: "Display Z"), (Path: b, Name: "Display Y"),
+                         (Path: c, Name: "Display X"), (Path: d, Name: "Display W"),
+                         (Path: e, Name: "Display V")
+                     })
+            {
+                string metadataPath = Path.Combine(entry.Path, "mod.json");
+                var metadata = JObject.Parse(File.ReadAllText(metadataPath));
+                metadata["displayName"] = entry.Name;
+                File.WriteAllText(metadataPath, metadata.ToString());
+            }
+            WriteList("1.1.361",
+                ("A", true, null, null), ("B", true, null, null),
+                ("C", true, null, null), ("D", true, null, null),
+                ("E", true, null, null));
+            form = new MainForm();
+            // Initialize the same column getters and sorting indicators used by
+            // the visible window without starting asynchronous startup work.
+            typeof(MainForm).GetMethod("MainWindow_Load",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .Invoke(form, new object[] { null, EventArgs.Empty });
+            var reset = typeof(MainForm).GetMethod("toolStripMenuItemSortDefaultLoadOrder_Click",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var createExport = typeof(ExportForm).GetMethod("CreateHumanReadableList",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+
+            foreach (eSortOrder direction in new[] { eSortOrder.LowToHigh, eSortOrder.HighToLow })
+            foreach (bool disableTiedMod in new[] { false, true })
+            {
+                LocSettings.Instance.Data.ListSortOrder = direction;
+                form.RefreshAll(forceLoadLastApplied: true);
+                ModItemList.Instance.ModList.Single(mod => mod.FolderName == "B").Enabled = !disableTiedMod;
+                reset.Invoke(form, new object[] { null, EventArgs.Empty });
+                Assert.IsTrue(MW5_Mod_Manager.LoadOrder.AreModsSortedByDefaultLoadOrder());
+                Assert.IsTrue(ModItemList.Instance.ModList.All(mod =>
+                    mod.CurrentLoadOrder == mod.OriginalLoadOrder));
+                reset.Invoke(form, new object[] { null, EventArgs.Empty });
+
+                var list = DockModListForm.Instance.modObjectListView;
+                string[] displayedNames = list.Items.Cast<BrightIdeasSoftware.OLVListItem>()
+                    .Select(item => (ModItem)item.RowObject).Where(mod => mod.Enabled)
+                    .Select(mod => mod.Name).ToArray();
+                string[] expectedNames = (direction == eSortOrder.LowToHigh
+                        ? new[] { "A", "B", "C", "D", "E" }
+                        : new[] { "E", "D", "C", "B", "A" })
+                    .Where(folder => !disableTiedMod || folder != "B")
+                    .Select(folder => Manager.ModDetails[Path.Combine(mods, folder)].displayName).ToArray();
+                CollectionAssert.AreEqual(expectedNames, displayedNames);
+
+                string[] modelPaths = ModItemList.Instance.ModList.Select(mod => mod.Path).ToArray();
+                string[] workingPaths = Manager.ModEnabledList.Select(mod => mod.ModPath).ToArray();
+                float[] priorities = modelPaths.Select(path => Manager.Mods[path].NewLoadOrder).ToArray();
+                int modelHash = ModItemList.Instance.ModList.ComputeModListHashCode();
+                bool tainted = Manager.ModSettingsTainted;
+                string gameListBefore = File.ReadAllText(ModList);
+                string[] metadataBefore = modelPaths
+                    .Select(path => File.ReadAllText(Path.Combine(path, "mod.json"))).ToArray();
+
+                DateTime beforeExport = DateTime.UtcNow;
+                using var export = new ExportForm();
+                string text = (string)createExport.Invoke(export, null);
+                var timestampMatch = System.Text.RegularExpressions.Regex.Match(
+                    text.Split("\r\n").Last(),
+                    @"^« End of load order\. ([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z) »$");
+                Assert.IsTrue(timestampMatch.Success, "Export must include an ISO 8601 UTC timestamp.");
+                DateTime exportedAt = DateTime.ParseExact(timestampMatch.Groups[1].Value,
+                    "yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture,
+                    DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+                Assert.IsTrue(exportedAt > beforeExport.AddSeconds(-1) && exportedAt <= DateTime.UtcNow);
+                string[] exportedNames = text.Split("\r\n")
+                    .Where(line => line.Contains('"'))
+                    .Select(line => line.Split('"')[1]).ToArray();
+                CollectionAssert.AreEqual(displayedNames, exportedNames);
+                foreach (string cultureName in new[] { "en-US", "de-DE", "ar-SA" })
+                {
+                    CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(cultureName);
+                    Assert.AreEqual(text, (string)createExport.Invoke(export, null),
+                        "Export snapshot must remain unchanged under " + cultureName);
+                }
+                CultureInfo.CurrentCulture = originalCulture;
+
+                CollectionAssert.AreEqual(modelPaths, ModItemList.Instance.ModList.Select(mod => mod.Path).ToArray());
+                CollectionAssert.AreEqual(workingPaths, Manager.ModEnabledList.Select(mod => mod.ModPath).ToArray());
+                CollectionAssert.AreEqual(priorities, modelPaths.Select(path => Manager.Mods[path].NewLoadOrder).ToArray());
+                Assert.AreEqual(modelHash, ModItemList.Instance.ModList.ComputeModListHashCode());
+                Assert.AreEqual(tainted, Manager.ModSettingsTainted);
+                Assert.AreEqual(gameListBefore, File.ReadAllText(ModList));
+                CollectionAssert.AreEqual(metadataBefore, modelPaths
+                    .Select(path => File.ReadAllText(Path.Combine(path, "mod.json"))).ToArray());
+            }
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = originalCulture;
+            form?.Dispose();
+            MainForm.Instance = originalMain;
+            DockModListForm.Instance = originalList;
+            DockOverviewForm.Instance = originalOverview;
+            DockConflictsForm.Instance = originalConflicts;
+        }
     }
 
     [STATestMethod]
