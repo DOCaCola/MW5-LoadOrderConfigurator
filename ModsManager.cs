@@ -1267,7 +1267,7 @@ namespace MW5_Mod_Manager
                 metadata["locOriginalLoadOrder"] = original;
                 metadata["defaultLoadOrder"] = priority;
                 string contents = metadata.ToString(Formatting.Indented);
-                GameModDeployment.WriteAtomic(path, contents);
+                LocFileWriter.WriteAllText(path, contents);
                 mod.LoadedMetadata = contents;
                 ModDetails[entry.Key] = metadata.ToObject<ModObject>();
             }
@@ -1297,7 +1297,7 @@ namespace MW5_Mod_Manager
 
             string lastAppliedString = JsonConvert.SerializeObject(json, Formatting.Indented);
 
-            GameModDeployment.WriteAtomic(lastAppliedJsonFile, lastAppliedString);
+            LocFileWriter.WriteAllText(lastAppliedJsonFile, lastAppliedString);
             LoadLastAppliedPresetData();
         }
 

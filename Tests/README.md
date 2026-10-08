@@ -18,6 +18,17 @@ disabled mods, and display names that differ from folder order.
 The export timestamp is checked for UTC and identical formatting under US,
 German, and Saudi Arabic locales.
 
+`LinkedFileWriteTests` exercises the production save helper with ordinary files,
+absolute and relative file symlinks, symlink chains, and hard links, each inside
+ordinary directories, directory symlinks, and junctions. It also covers a symlink
+to a hard-linked file, broken links, link loops, new files, and locked/read-only
+targets. Tests require updates to reach the
+original file, preserve links, truncate shorter content, and clean up temporary
+files. All fixtures are temporary; installed mods are untouched. Symlink creation
+permission failures are reported as inconclusive, not passed. The writer replaces
+ordinary files and resolved symlink targets atomically, but writes files with
+multiple hard links in place to preserve their shared identity.
+
 The test assembly redirects application settings to a temporary directory with an
 empty game fixture, so UI startup does not use personal settings or open recovery
 dialogs. Appearance tests cover repeated theme changes and docking-handler

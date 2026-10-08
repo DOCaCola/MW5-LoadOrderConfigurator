@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using Newtonsoft.Json.Linq;
@@ -195,29 +194,6 @@ namespace MW5_Mod_Manager
             result["gameVersion"] = version;
             result["modStatus"] = statuses;
             return result;
-        }
-
-        public static void WriteAtomic(string path, string contents)
-        {
-            string temporary = Path.Combine(Path.GetDirectoryName(path), $".{Path.GetFileName(path)}.{Guid.NewGuid():N}.tmp");
-            try
-            {
-                using (var stream = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
-                {
-                    byte[] bytes = new UTF8Encoding(false).GetBytes(contents);
-                    stream.Write(bytes);
-                    stream.Flush(true);
-                }
-                if (File.Exists(path))
-                    File.Replace(temporary, path, null);
-                else
-                    File.Move(temporary, path);
-            }
-            finally
-            {
-                if (File.Exists(temporary))
-                    File.Delete(temporary);
-            }
         }
     }
 }

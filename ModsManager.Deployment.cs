@@ -132,7 +132,7 @@ namespace MW5_Mod_Manager
         {
             string contents = document.ToString(Formatting.Indented);
             Directory.CreateDirectory(Path.GetDirectoryName(GetModListJsonFilePath()));
-            GameModDeployment.WriteAtomic(GetModListJsonFilePath(), contents);
+            LocFileWriter.WriteAllText(GetModListJsonFilePath(), contents);
             rawJson = contents;
             _loadedModList = document;
             KnownModListGameVersion = GameVersion;
